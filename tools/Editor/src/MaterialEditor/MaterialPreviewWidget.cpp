@@ -148,7 +148,6 @@ void MaterialPreviewWidget::showPreview(const char *name) {
     ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar;
   if (ImGui::Begin(name, nullptr, kWindowFlags)) {
     if (ImGui::BeginMenuBar()) {
-
       if (ImGui::BeginMenu("Camera")) {
         if (ImGui::BeginMenu("Sensitivity")) {
           ImGui::PushItemWidth(100);

@@ -104,7 +104,6 @@ FrameGraphResource TiledLighting::FrustumBuilder::buildFrustums(
         data.gridFrustums, BindingInfo{
                              .location = {.set = 2, .binding = 0},
                              .pipelineStage = PipelineStage::ComputeShader,
-
                            });
     },
     [this, passInfo](const FrustumsData &, const FrameGraphPassResources &,

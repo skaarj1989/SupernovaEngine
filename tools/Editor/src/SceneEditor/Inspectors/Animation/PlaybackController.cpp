@@ -3,7 +3,6 @@
 
 void SceneEditor::_onInspect(entt::handle,
                              PlaybackController &playbackController) const {
-
   if (auto b = playbackController.isLooped(); ImGui::Checkbox("Loop", &b)) {
     playbackController.setLoop(b);
   }

@@ -80,7 +80,6 @@ KTX_error_code optimalTilingPadCallback(int miplevel, int face, int width,
     std::memcpy(ud->dest + ud->offset, pixels, faceLodSize);
     ud->offset += faceLodSize;
   } else {
-
     ktx_uint32_t imageIterations;
     if (ud->numDimensions == 3)
       imageIterations = depth;

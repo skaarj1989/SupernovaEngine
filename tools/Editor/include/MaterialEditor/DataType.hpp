@@ -88,7 +88,6 @@ enum class DataType {
 [[nodiscard]] constexpr auto getBaseDataType(DataType type) {
   using enum DataType;
   switch (type) {
-
   case Bool:
   case Int32:
   case UInt32:

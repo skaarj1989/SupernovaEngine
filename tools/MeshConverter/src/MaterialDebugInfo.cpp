@@ -16,7 +16,6 @@ using aiPropertyVariant =
 
 [[nodiscard]] std::optional<aiPropertyVariant>
 get(const aiMaterial &material, const aiMaterialProperty *p) {
-
 #define GET(Type)                                                              \
   if (Type v; material.Get(p->mKey.C_Str(), p->mSemantic, p->mIndex, v) ==     \
               AI_SUCCESS) {                                                    \

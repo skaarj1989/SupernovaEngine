@@ -115,7 +115,6 @@ const TBuiltInResource kDefaultResources{
 };
 
 [[nodiscard]] auto toLanguage(ShaderType type) {
-
 #define CASE(Value)                                                            \
   case ShaderType::Value:                                                      \
     return EShLang##Value

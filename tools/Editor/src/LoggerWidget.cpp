@@ -130,7 +130,6 @@ LoggerWidget::LoggerWidget(spdlog::logger &logger) : m_logger{&logger} {
 LoggerWidget::~LoggerWidget() { std::erase(m_logger->sinks(), m_sink); }
 
 void LoggerWidget::show(const char *name, bool *open) {
-
   if (ImGui::Begin(name, open, ImGuiWindowFlags_MenuBar)) {
     if (ImGui::BeginMenuBar()) {
       if (ImGui::Button("Clear")) {
