@@ -1,0 +1,59 @@
+#version 460 core
+#extension GL_EXT_control_flow_attributes : require
+
+layout(local_size_x = TILE_SIZE, local_size_y = TILE_SIZE) in;
+
+#include <Resources/CameraBlock.glsl>
+
+#include <Lib/Frustum.glsl>
+_DECLARE_FRUSTUMS(2, 0, writeonly, g_GridFrustums);
+
+#include <Lib/Math.glsl>
+#include <Lib/SpaceTraversal.glsl>
+
+layout(push_constant) uniform _PushConstants { uvec2 u_GridSize; };
+
+// Example: Screen size = 1280x720, TILE_SIZE = 16:
+// gl_NumWorkGroups = [5 x 3 x 1]
+// gl_GlobalInvocationID = [0..79 x 0..47 x 0]
+// Num invocations: 3840
+// Num frustums: 3600
+
+void main() {
+  // Each thread represents a single tile/frustum
+  const uvec2 tileId = uvec2(gl_GlobalInvocationID.xy);
+  if (any(greaterThanEqual(tileId, u_GridSize))) return;
+
+#define TL 0 // top-left
+#define TR 1 // top-right
+#define BL 2 // bottom-left
+#define BR 3 // bottom-right
+
+  vec2 screenPos[4];
+  screenPos[TL] = vec2(tileId.xy * TILE_SIZE);
+  screenPos[TR] = vec2(tileId.x + 1, tileId.y) * TILE_SIZE;
+  screenPos[BL] = vec2(tileId.x, tileId.y + 1) * TILE_SIZE;
+  screenPos[BR] = vec2(tileId.x + 1, tileId.y + 1) * TILE_SIZE;
+
+  vec3 viewPos[4];
+  [[unroll]] for (uint i = 0; i < 4; ++i) {
+    viewPos[i] = screenToView(screenPos[i], 0.0, 1.0);
+  }
+
+#define LEFT 0
+#define RIGHT 1
+#define TOP 2
+#define BOTTOM 3
+
+  const vec3 kEyePos = vec3(0.0);
+
+  // All planes faces inwards
+  Frustum frustum;
+  frustum.planes[LEFT] = computePlane(kEyePos, viewPos[BL], viewPos[TL]);
+  frustum.planes[RIGHT] = computePlane(kEyePos, viewPos[TR], viewPos[BR]);
+  frustum.planes[TOP] = computePlane(kEyePos, viewPos[TL], viewPos[TR]);
+  frustum.planes[BOTTOM] = computePlane(kEyePos, viewPos[BR], viewPos[BL]);
+
+  const uint tileIndex = flatten2D(tileId, u_GridSize.x);
+  g_GridFrustums[tileIndex] = frustum;
+}

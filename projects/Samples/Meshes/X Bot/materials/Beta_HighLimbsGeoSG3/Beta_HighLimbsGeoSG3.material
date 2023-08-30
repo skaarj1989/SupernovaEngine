@@ -1,0 +1,35 @@
+{
+  "name": "Beta_HighLimbsGeoSG3",
+  "domain": "Surface",
+  "shadingModel": "Lit",
+  "blendMode": "Opaque",
+  "lightingMode": "Default",
+  "cullMode": "Back",
+  "properties": {
+    "baseColorFactor": {
+      "type": "vec4",
+      "value": [
+        0.6696000099182129,
+        0.24184642732143402,
+        0.21092401444911957,
+        1.0
+      ]
+    },
+    "emissiveColorFactor": {
+      "type": "vec4",
+      "value": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    }
+  },
+  "samplers": {},
+  "fragmentShader": {
+    "defines": [
+      "HAS_BASE_COLOR_FACTOR",
+      "HAS_EMISSIVE_COLOR_FACTOR"
+    ]
+  }
+}

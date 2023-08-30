@@ -1,0 +1,65 @@
+#version 460 core
+#extension GL_EXT_nonuniform_qualifier : require
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 6) in;
+
+layout(binding = 0) uniform samplerCube t_EnvironmentMap;
+layout(binding = 1,
+       rgba16f) uniform writeonly imageCube i_Output[NUM_MIP_LEVELS];
+
+layout(push_constant) uniform _PushConstants {
+  int mipLevel;
+  float roughness;
+  float lodBias;
+}
+u_PC;
+
+#include <Lib/CubeCoordToWorld.glsl>
+#include <Lib/ImportanceSampling.glsl>
+
+vec3 prefilterEnvMap(vec3 N, uint width) {
+  vec3 color = vec3(0.0);
+  float weight = 0.0;
+
+  const uint kNumSamples = 1024;
+  for (uint i = 0; i < kNumSamples; ++i) {
+    const vec4 importanceSample =
+      getImportanceSample(DISTRIBUTION_GGX, i, kNumSamples, N, u_PC.roughness);
+
+    const vec3 H = vec3(importanceSample.xyz);
+    const float pdf = importanceSample.w;
+
+    // mipmap filtered samples (GPU Gems 3, 20.4)
+    float lod = computeLod(pdf, width, kNumSamples);
+    // apply the bias to the lod
+    lod += u_PC.lodBias;
+
+    // Note: reflect takes incident vector.
+    vec3 V = N;
+    vec3 L = normalize(reflect(-V, H));
+    float NdotL = dot(N, L);
+
+    if (NdotL > 0.0) {
+      if (u_PC.roughness == 0.0) {
+        // without this the roughness=0 lod is too high
+        lod = u_PC.lodBias;
+      }
+      const vec3 sampleColor = textureLod(t_EnvironmentMap, L, lod).rgb;
+      color += sampleColor * NdotL;
+      weight += NdotL;
+    }
+  }
+  return color / (weight != 0.0 ? weight : float(kNumSamples));
+}
+
+void main() {
+  const uint mipImageSize = imageSize(i_Output[u_PC.mipLevel]).x;
+  const ivec3 coord = ivec3(gl_GlobalInvocationID.xyz);
+  if (coord.x >= mipImageSize || coord.y >= mipImageSize) return;
+
+  vec3 N = normalize(cubeCoordToWorld(coord, mipImageSize));
+  // N.y = -N.y;
+  const uint width = textureSize(t_EnvironmentMap, 0).x;
+  const vec3 color = prefilterEnvMap(N, width);
+  imageStore(i_Output[u_PC.mipLevel], coord, vec4(color, 1.0));
+}

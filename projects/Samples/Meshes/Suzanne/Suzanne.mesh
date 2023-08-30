@@ -1,0 +1,88 @@
+{
+  "buffer": "data.buffer",
+  "meshes": [
+    {
+      "name": "Suzanne",
+      "vertexOffset": 0,
+      "numVertices": 11806,
+      "LOD": [
+        {
+          "indexOffset": 0,
+          "numIndices": 11808
+        }
+      ],
+      "aabb": {
+        "min": [
+          -1.3369139432907104,
+          -0.9746090173721313,
+          -0.8007810115814209
+        ],
+        "max": [
+          1.3369139432907104,
+          0.9501950144767761,
+          0.8256840109825134
+        ]
+      },
+      "material": "materials/Suzanne/Suzanne.material"
+    }
+  ],
+  "aabb": {
+    "min": [
+      -1.3369139432907104,
+      -0.9746090173721313,
+      -0.8007810115814209
+    ],
+    "max": [
+      1.3369139432907104,
+      0.9501950144767761,
+      0.8256840109825134
+    ]
+  },
+  "vertices": {
+    "byteOffset": 0,
+    "count": 11806,
+    "stride": 56,
+    "attributes": [
+      [
+        "Position",
+        {
+          "type": "Float3",
+          "offset": 0
+        }
+      ],
+      [
+        "Normal",
+        {
+          "type": "Float3",
+          "offset": 12
+        }
+      ],
+      [
+        "TexCoord_0",
+        {
+          "type": "Float2",
+          "offset": 24
+        }
+      ],
+      [
+        "Tangent",
+        {
+          "type": "Float3",
+          "offset": 32
+        }
+      ],
+      [
+        "Bitangent",
+        {
+          "type": "Float3",
+          "offset": 44
+        }
+      ]
+    ]
+  },
+  "indices": {
+    "byteOffset": 661136,
+    "count": 11808,
+    "stride": 2
+  }
+}

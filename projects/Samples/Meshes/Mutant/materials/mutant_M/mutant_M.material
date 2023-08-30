@@ -1,0 +1,46 @@
+{
+  "name": "mutant_M",
+  "domain": "Surface",
+  "shadingModel": "Lit",
+  "blendMode": "Opaque",
+  "lightingMode": "Default",
+  "cullMode": "Back",
+  "properties": {
+    "baseColorFactor": {
+      "type": "vec4",
+      "value": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "emissiveColorFactor": {
+      "type": "vec4",
+      "value": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    }
+  },
+  "samplers": {
+    "t_BaseColor": {
+      "type": "sampler2D",
+      "path": "../textures/Mutant_diffuse.png"
+    },
+    "t_Normal": {
+      "type": "sampler2D",
+      "path": "../textures/Mutant_normal.png"
+    }
+  },
+  "fragmentShader": {
+    "defines": [
+      "HAS_BASE_COLOR_FACTOR",
+      "HAS_BASE_COLOR_TEXTURE",
+      "HAS_EMISSIVE_COLOR_FACTOR",
+      "HAS_NORMAL_TEXTURE"
+    ]
+  }
+}

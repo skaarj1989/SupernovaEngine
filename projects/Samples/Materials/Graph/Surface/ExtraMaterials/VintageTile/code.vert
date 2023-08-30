@@ -1,0 +1,1 @@
+localPos = getPosition();

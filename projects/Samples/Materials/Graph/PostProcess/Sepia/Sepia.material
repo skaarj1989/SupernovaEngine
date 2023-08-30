@@ -1,0 +1,13 @@
+{
+  "name": "Sepia",
+  "domain": "PostProcess",
+  "properties": {},
+  "samplers": {},
+  "fragmentShader": {
+    "defines": [],
+    "path": "code.frag"
+  },
+  "flags": [
+    "Enabled"
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "name": "Alpha_Joints_MAT",
+  "domain": "Surface",
+  "shadingModel": "Lit",
+  "blendMode": "Opaque",
+  "lightingMode": "Default",
+  "cullMode": "Back",
+  "properties": {
+    "baseColorFactor": {
+      "type": "vec4",
+      "value": [
+        0.1228412315249443,
+        0.17031510174274445,
+        0.17777371406555176,
+        1.0
+      ]
+    },
+    "emissiveColorFactor": {
+      "type": "vec4",
+      "value": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    }
+  },
+  "samplers": {},
+  "fragmentShader": {
+    "defines": [
+      "HAS_BASE_COLOR_FACTOR",
+      "HAS_EMISSIVE_COLOR_FACTOR"
+    ]
+  }
+}

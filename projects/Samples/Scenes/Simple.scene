@@ -1,0 +1,378 @@
+{
+    "value0": 4,
+    "value1": 4,
+    "value2": 0,
+    "value3": 1,
+    "value4": 2,
+    "value5": 3,
+    "value6": 4,
+    "value7": 0,
+    "value8": {
+        "value0": {
+            "value0": 0.0,
+            "value1": -1.0,
+            "value2": 0.0
+        },
+        "value1": {
+            "value0": 0.0,
+            "value1": 0.0,
+            "value2": 0.0,
+            "value3": 1.0
+        },
+        "value2": {
+            "value0": 5.0,
+            "value1": 5.0,
+            "value2": 5.0
+        }
+    },
+    "value9": 1,
+    "value10": {
+        "value0": {
+            "value0": 0.0,
+            "value1": 1.0,
+            "value2": 0.0
+        },
+        "value1": {
+            "value0": 0.0,
+            "value1": 0.0,
+            "value2": 0.0,
+            "value3": 1.0
+        },
+        "value2": {
+            "value0": 1.0,
+            "value1": 1.0,
+            "value2": 1.0
+        }
+    },
+    "value11": 2,
+    "value12": {
+        "value0": {
+            "value0": 37.82866668701172,
+            "value1": 6.756251335144043,
+            "value2": 21.64971160888672
+        },
+        "value1": {
+            "value0": 0.08089437335729599,
+            "value1": -0.8370330929756165,
+            "value2": 0.12883195281028748,
+            "value3": 0.5255797505378723
+        },
+        "value2": {
+            "value0": 1.0,
+            "value1": 1.0,
+            "value2": 1.0
+        }
+    },
+    "value13": 3,
+    "value14": {
+        "value0": {
+            "value0": 0.0,
+            "value1": 1.0,
+            "value2": -5.0
+        },
+        "value1": {
+            "value0": 0.0,
+            "value1": 0.0,
+            "value2": 0.0,
+            "value3": 1.0
+        },
+        "value2": {
+            "value0": 1.0,
+            "value1": 1.0,
+            "value2": 1.0
+        }
+    },
+    "value15": 4,
+    "value16": 0,
+    "value17": {
+        "value0": "GroundPlane"
+    },
+    "value18": 1,
+    "value19": {
+        "value0": "Cube"
+    },
+    "value20": 2,
+    "value21": {
+        "value0": "Sun"
+    },
+    "value22": 3,
+    "value23": {
+        "value0": "Camera"
+    },
+    "value24": 0,
+    "value25": {
+        "value0": {
+            "value0": {
+                "value0": 0.0,
+                "value1": -9.8100004196167,
+                "value2": 0.0
+            }
+        },
+        "value1": 0,
+        "value2": 0,
+        "value3": 0
+    },
+    "value26": {
+        "value0": {
+            "value0": {
+                "value0": -10.0,
+                "value1": -10.0,
+                "value2": -10.0
+            },
+            "value1": {
+                "value0": 10.0,
+                "value1": 10.0,
+                "value2": 10.0
+            }
+        },
+        "value1": 3,
+        "value2": 1,
+        "value3": 2,
+        "value4": {
+            "value0": 0,
+            "value1": true,
+            "value2": true,
+            "value3": {
+                "value0": 37.82866668701172,
+                "value1": 6.756251335144043,
+                "value2": 21.64971160888672
+            },
+            "value4": {
+                "value0": -0.859011709690094,
+                "value1": -0.3007061183452606,
+                "value2": -0.41433656215667727
+            },
+            "value5": {
+                "value0": 0.929411768913269,
+                "value1": 0.8352941274642944,
+                "value2": 0.6196078658103943
+            },
+            "value6": 2.299999952316284,
+            "value7": 1.0,
+            "value8": 15.0,
+            "value9": 35.0,
+            "value10": 0.0
+        },
+        "value5": 2,
+        "value6": 0,
+        "value7": {
+            "value0": {
+                "nullopt": false,
+                "data": "BasicShapes:Plane"
+            },
+            "value1": [
+                {
+                    "value0": true,
+                    "value1": {
+                        "value0": {
+                            "nullopt": false,
+                            "data": "Default"
+                        },
+                        "value1": [
+                            {
+                                "value0": "baseColor",
+                                "value1": {
+                                    "index": 4,
+                                    "data": {
+                                        "value0": 1.0,
+                                        "value1": 1.0,
+                                        "value2": 1.0,
+                                        "value3": 1.0
+                                    }
+                                }
+                            },
+                            {
+                                "value0": "metallic",
+                                "value1": {
+                                    "index": 2,
+                                    "data": 0.03999999910593033
+                                }
+                            },
+                            {
+                                "value0": "roughness",
+                                "value1": {
+                                    "index": 2,
+                                    "data": 0.6000000238418579
+                                }
+                            }
+                        ],
+                        "value2": [],
+                        "value3": 3
+                    }
+                }
+            ]
+        },
+        "value8": 1,
+        "value9": {
+            "value0": {
+                "nullopt": false,
+                "data": "Meshes\\DamagedHelmet\\DamagedHelmet.mesh"
+            },
+            "value1": [
+                {
+                    "value0": true,
+                    "value1": {
+                        "value0": {
+                            "nullopt": false,
+                            "data": "Meshes\\DamagedHelmet\\materials\\Material_MR\\Material_MR.material"
+                        },
+                        "value1": [],
+                        "value2": [
+                            {
+                                "key": "t_AO",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Meshes\\DamagedHelmet\\materials\\Material_MR\\..\\textures\\Default_AO.jpg"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "t_BaseColor",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Meshes\\DamagedHelmet\\materials\\Material_MR\\..\\textures\\Default_albedo.jpg"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "t_EmissiveColor",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Meshes\\DamagedHelmet\\materials\\Material_MR\\..\\textures\\Default_emissive.jpg"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "t_MetallicRoughnessAO",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Meshes\\DamagedHelmet\\materials\\Material_MR\\..\\textures\\Default_metalRoughness.jpg"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "t_Normal",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Meshes\\DamagedHelmet\\materials\\Material_MR\\..\\textures\\Default_normal.jpg"
+                                    }
+                                }
+                            }
+                        ],
+                        "value3": 3
+                    }
+                }
+            ]
+        },
+        "value10": 0,
+        "value11": 1,
+        "value12": 3,
+        "value13": {
+            "value0": {
+                "value0": 1280,
+                "value1": 720
+            },
+            "value1": {
+                "value0": true,
+                "value1": 60.0,
+                "value2": 1.7777777910232545,
+                "value3": {
+                    "value0": 0.10000000149011612,
+                    "value1": 100.0
+                },
+                "value4": {
+                    "value0": 0.0,
+                    "value1": 1.0,
+                    "value2": -5.0
+                },
+                "value5": {
+                    "value0": 0.0,
+                    "value1": 0.0,
+                    "value2": 0.0,
+                    "value3": 1.0
+                }
+            },
+            "value2": {
+                "value0": 14,
+                "value1": 491,
+                "value2": {
+                    "value0": 0.0,
+                    "value1": 0.0,
+                    "value2": 0.0,
+                    "value3": 0.10000000149011612
+                },
+                "value3": 1.0,
+                "value4": {
+                    "value0": 6,
+                    "value1": 1.0
+                },
+                "value5": {
+                    "value0": {
+                        "value0": 4,
+                        "value1": 1024,
+                        "value2": 0.75
+                    },
+                    "value1": {
+                        "value0": 4,
+                        "value1": 1024
+                    },
+                    "value2": {
+                        "value0": 4,
+                        "value1": 1024
+                    }
+                },
+                "value6": {
+                    "value0": 0.5,
+                    "value1": 1.0,
+                    "value2": 0.02500000037252903
+                },
+                "value7": {
+                    "value0": 0.004999999888241291,
+                    "value1": 0.03999999910593033
+                },
+                "value8": 1.0,
+                "value9": {
+                    "value0": -10.0,
+                    "value1": 2.0,
+                    "value2": 1.100000023841858
+                },
+                "value10": 1,
+                "value11": 0
+            },
+            "value3": {
+                "value0": {
+                    "nullopt": false,
+                    "data": "Textures\\Environment\\syferfontein_1d_clear_puresky_2k.hdr"
+                }
+            },
+            "value4": []
+        }
+    },
+    "value27": {
+        "value0": 0,
+        "value1": 0,
+        "value2": 0
+    },
+    "value28": {
+        "value0": 2,
+        "value1": 1,
+        "value2": {
+            "value0": {
+                "nullopt": false,
+                "data": "Scripts\\behavior\\FloatingActor.lua"
+            }
+        },
+        "value3": 3,
+        "value4": {
+            "value0": {
+                "nullopt": false,
+                "data": "Scripts\\behavior\\BasicCameraController.lua"
+            }
+        }
+    }
+}

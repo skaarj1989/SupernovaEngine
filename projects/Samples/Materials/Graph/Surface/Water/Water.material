@@ -1,0 +1,39 @@
+{
+  "name": "Water",
+  "domain": "Surface",
+  "shadingModel": "Lit",
+  "blendMode": "Opaque",
+  "decalBlendMode": {
+    "normal": "Keep",
+    "emissive": "Replace",
+    "albedo": "Replace",
+    "metallicRoughnessAO": "Replace"
+  },
+  "lightingMode": "Transmission",
+  "cullMode": "Back",
+  "properties": {
+    "fs_thickness": {
+      "type": "float",
+      "value": 0.20000000298023224
+    }
+  },
+  "samplers": {
+    "t_Normal0": {
+      "type": "sampler2D",
+      "path": "T_Water_Normal.tga"
+    },
+    "t_Normal1": {
+      "type": "sampler2D",
+      "path": "T_Water_Normal_Subtle.tga"
+    }
+  },
+  "vertexShader": {
+    "defines": [],
+    "path": "code.vert"
+  },
+  "fragmentShader": {
+    "defines": [],
+    "path": "code.frag"
+  },
+  "flags": []
+}

@@ -1,0 +1,53 @@
+{
+  "name": "SteelPlate",
+  "domain": "Surface",
+  "shadingModel": "Lit",
+  "blendMode": "Opaque",
+  "decalBlendMode": {
+    "normal": "Replace",
+    "emissive": "Replace",
+    "albedo": "Replace",
+    "metallicRoughnessAO": "Replace"
+  },
+  "lightingMode": "Default",
+  "cullMode": "Back",
+  "properties": {},
+  "samplers": {
+    "t_albedo": {
+      "type": "sampler2D",
+      "path": "steelplate1_albedo.png"
+    },
+    "t_ao": {
+      "type": "sampler2D",
+      "path": "steelplate1_ao.png"
+    },
+    "t_height": {
+      "type": "sampler2D",
+      "path": "steelplate1_height.png"
+    },
+    "t_metallic": {
+      "type": "sampler2D",
+      "path": "steelplate1_metallic.png"
+    },
+    "t_normal_ogl": {
+      "type": "sampler2D",
+      "path": "steelplate1_normal-ogl.png"
+    },
+    "t_roughness": {
+      "type": "sampler2D",
+      "path": "steelplate1_roughness.png"
+    }
+  },
+  "vertexShader": {
+    "defines": [],
+    "path": "code.vert"
+  },
+  "fragmentShader": {
+    "defines": [],
+    "path": "code.frag"
+  },
+  "flags": [
+    "CastShadow",
+    "ReceiveShadow"
+  ]
+}

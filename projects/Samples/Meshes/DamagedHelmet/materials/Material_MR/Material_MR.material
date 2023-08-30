@@ -1,0 +1,34 @@
+{
+  "name": "Material_MR",
+  "domain": "Surface",
+  "shadingModel": "Lit",
+  "blendMode": "Opaque",
+  "lightingMode": "Default",
+  "cullMode": "Back",
+  "properties": {},
+  "samplers": {
+    "t_BaseColor": {
+      "type": "sampler2D",
+      "path": "../textures/Default_albedo.jpg"
+    },
+    "t_Normal": {
+      "type": "sampler2D",
+      "path": "../textures/Default_normal.jpg"
+    },
+    "t_MetallicRoughnessAO": {
+      "type": "sampler2D",
+      "path": "../textures/Default_metalRoughness.jpg"
+    },
+    "t_AO": {
+      "type": "sampler2D",
+      "path": "../textures/Default_AO.jpg"
+    },
+    "t_EmissiveColor": {
+      "type": "sampler2D",
+      "path": "../textures/Default_emissive.jpg"
+    }
+  },
+  "fragmentShader": {
+    "path": "code.frag"
+  }
+}

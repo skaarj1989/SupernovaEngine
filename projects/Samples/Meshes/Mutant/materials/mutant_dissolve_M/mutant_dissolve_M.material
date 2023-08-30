@@ -1,0 +1,65 @@
+{
+  "name": "mutant_dissolve_M",
+  "domain": "Surface",
+  "shadingModel": "Lit",
+  "blendMode": "Masked",
+  "decalBlendMode": {
+    "normal": "Keep",
+    "emissive": "Replace",
+    "albedo": "Replace",
+    "metallicRoughnessAO": "Replace"
+  },
+  "lightingMode": "Default",
+  "cullMode": "None",
+  "properties": {
+    "fs_edgeColor": {
+      "type": "vec4",
+      "value": [
+        0.0,
+        1.0,
+        0.4000000059604645,
+        600.0
+      ]
+    },
+    "fs_edgeWidth": {
+      "type": "float",
+      "value": 0.009999999776482582
+    },
+    "fs_id_30": {
+      "type": "vec2",
+      "value": [
+        1.2999999523162842,
+        1.7000000476837158
+      ]
+    },
+    "fs_speed": {
+      "type": "float",
+      "value": 1.2000000476837158
+    }
+  },
+  "samplers": {
+    "t_58": {
+      "type": "sampler2D",
+      "path": "..\\mutant_M\\..\\textures\\Mutant_diffuse.png"
+    },
+    "t_59": {
+      "type": "sampler2D",
+      "path": "..\\mutant_M\\..\\textures\\Mutant_normal.png"
+    }
+  },
+  "vertexShader": {
+    "defines": [],
+    "path": "code.vert"
+  },
+  "fragmentShader": {
+    "defines": [],
+    "includes": [
+      "frag.module.glsl"
+    ],
+    "path": "code.frag"
+  },
+  "flags": [
+    "CastShadow",
+    "ReceiveShadow"
+  ]
+}

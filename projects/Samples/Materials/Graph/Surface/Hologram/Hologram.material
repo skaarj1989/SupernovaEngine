@@ -1,0 +1,53 @@
+{
+  "name": "Hologram",
+  "domain": "Surface",
+  "shadingModel": "Unlit",
+  "blendMode": "Transparent",
+  "decalBlendMode": {
+    "normal": "Keep",
+    "emissive": "Replace",
+    "albedo": "Replace",
+    "metallicRoughnessAO": "Replace"
+  },
+  "lightingMode": "Default",
+  "cullMode": "Back",
+  "properties": {
+    "fs_baseColor": {
+      "type": "vec4",
+      "value": [
+        0.41999998688697815,
+        0.7504348158836365,
+        0.800000011920929,
+        1.0
+      ]
+    },
+    "fs_edgeColor": {
+      "type": "vec4",
+      "value": [
+        0.0,
+        0.367429256439209,
+        1.0,
+        4.0
+      ]
+    },
+    "fs_speed": {
+      "type": "float",
+      "value": -0.5
+    }
+  },
+  "samplers": {
+    "t_34": {
+      "type": "sampler2D",
+      "path": "HologramLines_Cool.png"
+    }
+  },
+  "vertexShader": {
+    "defines": [],
+    "path": "code.vert"
+  },
+  "fragmentShader": {
+    "defines": [],
+    "path": "code.frag"
+  },
+  "flags": []
+}

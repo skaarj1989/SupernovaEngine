@@ -1,0 +1,92 @@
+{
+  "buffer": "data.buffer",
+  "meshes": [
+    {
+      "name": "Cube.008",
+      "vertexOffset": 0,
+      "numVertices": 2478,
+      "LOD": [
+        {
+          "indexOffset": 0,
+          "numIndices": 5262
+        },
+        {
+          "indexOffset": 5262,
+          "numIndices": 3720
+        }
+      ],
+      "aabb": {
+        "min": {
+          "x": -15.203739166259766,
+          "y": -2.9039840698242188,
+          "z": -14.126470565795898
+        },
+        "max": {
+          "x": 19.15411376953125,
+          "y": 5.696079254150391,
+          "z": 20.23138427734375
+        }
+      },
+      "material": "Material/Material.001.material"
+    }
+  ],
+  "aabb": {
+    "min": {
+      "x": -15.203739166259766,
+      "y": -2.9039840698242188,
+      "z": -14.126470565795898
+    },
+    "max": {
+      "x": 19.15411376953125,
+      "y": 5.696079254150391,
+      "z": 20.23138427734375
+    }
+  },
+  "vertices": {
+    "byteOffset": 0,
+    "count": 2478,
+    "stride": 56,
+    "attributes": [
+      [
+        "Position",
+        {
+          "type": "Float3",
+          "offset": 0
+        }
+      ],
+      [
+        "Normal",
+        {
+          "type": "Float3",
+          "offset": 12
+        }
+      ],
+      [
+        "TexCoord_0",
+        {
+          "type": "Float2",
+          "offset": 24
+        }
+      ],
+      [
+        "Tangent",
+        {
+          "type": "Float3",
+          "offset": 32
+        }
+      ],
+      [
+        "Bitangent",
+        {
+          "type": "Float3",
+          "offset": 44
+        }
+      ]
+    ]
+  },
+  "indices": {
+    "byteOffset": 138768,
+    "count": 8982,
+    "stride": 2
+  }
+}

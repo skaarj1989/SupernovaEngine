@@ -1,0 +1,49 @@
+{
+  "name": "Bricks",
+  "domain": "Surface",
+  "shadingModel": "Lit",
+  "blendMode": "Masked",
+  "decalBlendMode": {
+    "normal": "Keep",
+    "emissive": "Replace",
+    "albedo": "Replace",
+    "metallicRoughnessAO": "Replace"
+  },
+  "lightingMode": "Default",
+  "cullMode": "Back",
+  "properties": {
+    "fs_scale": {
+      "type": "float",
+      "value": -0.03999999910593033
+    }
+  },
+  "samplers": {
+    "t_Albedo": {
+      "type": "sampler2D",
+      "path": "bricks2.jpg"
+    },
+    "t_Displacement": {
+      "type": "sampler2D",
+      "path": "bricks2_disp.jpg"
+    },
+    "t_Normal": {
+      "type": "sampler2D",
+      "path": "bricks2_normal.jpg"
+    }
+  },
+  "vertexShader": {
+    "defines": [],
+    "path": "code.vert"
+  },
+  "fragmentShader": {
+    "defines": [],
+    "includes": [
+      "frag.module.glsl"
+    ],
+    "path": "code.frag"
+  },
+  "flags": [
+    "CastShadow",
+    "ReceiveShadow"
+  ]
+}

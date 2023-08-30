@@ -1,0 +1,18 @@
+#version 460 core
+
+layout(local_size_x = TILE_SIZE, local_size_y = TILE_SIZE, local_size_z = 6) in;
+
+layout(binding = 0) uniform sampler2D t_EquirectangularMap;
+layout(binding = 1, rgba16f) uniform writeonly imageCube i_Output;
+
+#include <Lib/CubeCoordToWorld.glsl>
+#include <Lib/SampleSphericalMap.glsl>
+
+void main() {
+  const ivec3 cubeCoord = ivec3(gl_GlobalInvocationID);
+  const vec3 worldPos = cubeCoordToWorld(cubeCoord, imageSize(i_Output).x);
+  vec2 texCoord = sampleSphericalMap(normalize(worldPos));
+  texCoord.y *= -1.0;
+  const vec3 color = texture(t_EquirectangularMap, texCoord).rgb;
+  imageStore(i_Output, cubeCoord, vec4(color, 1.0));
+}

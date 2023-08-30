@@ -1,0 +1,21 @@
+{
+  "name": "Glitch2",
+  "domain": "PostProcess",
+  "properties": {
+    "fs_strength": {
+      "type": "float",
+      "value": 0.10000000149011612
+    }
+  },
+  "samplers": {},
+  "fragmentShader": {
+    "defines": [],
+    "includes": [
+      "frag.module.glsl"
+    ],
+    "path": "code.frag"
+  },
+  "flags": [
+    "Enabled"
+  ]
+}

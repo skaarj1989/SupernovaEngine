@@ -1,0 +1,17 @@
+{
+    "name": "Material.001",
+    "domain": "Surface",
+    "shadingModel": "Lit",
+    "blendMode": "Opaque",
+    "cullMode": "Back",
+    "properties": {},
+    "samplers": {
+        "t_Base": {
+            "type": "sampler2D",
+            "path": "texture.png"
+        }
+    },
+    "fragmentShader": {
+        "path": "code.frag"
+    }
+}

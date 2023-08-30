@@ -1,0 +1,18 @@
+{
+  "name": "Vignette",
+  "domain": "PostProcess",
+  "properties": {
+    "fs_strength": {
+      "type": "float",
+      "value": 0.25
+    }
+  },
+  "samplers": {},
+  "fragmentShader": {
+    "defines": [],
+    "path": "code.frag"
+  },
+  "flags": [
+    "Enabled"
+  ]
+}

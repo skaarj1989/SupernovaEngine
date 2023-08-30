@@ -1,0 +1,1019 @@
+{
+    "value0": 9,
+    "value1": 9,
+    "value2": 0,
+    "value3": 1,
+    "value4": 2,
+    "value5": 3,
+    "value6": 4,
+    "value7": 5,
+    "value8": 6,
+    "value9": 7,
+    "value10": 8,
+    "value11": 9,
+    "value12": 0,
+    "value13": {
+        "value0": {
+            "value0": 0.0,
+            "value1": -1.0,
+            "value2": 0.0
+        },
+        "value1": {
+            "value0": 0.0,
+            "value1": 0.0,
+            "value2": 0.0,
+            "value3": 1.0
+        },
+        "value2": {
+            "value0": 5.0,
+            "value1": 5.0,
+            "value2": 5.0
+        }
+    },
+    "value14": 1,
+    "value15": {
+        "value0": {
+            "value0": -21.5,
+            "value1": -1.0,
+            "value2": 8.90000057220459
+        },
+        "value1": {
+            "value0": 0.0,
+            "value1": 0.5150378942489624,
+            "value2": 0.0,
+            "value3": 0.8571673631668091
+        },
+        "value2": {
+            "value0": 0.10000000149011612,
+            "value1": 0.10000000149011612,
+            "value2": 0.10000000149011612
+        }
+    },
+    "value16": 2,
+    "value17": {
+        "value0": {
+            "value0": 59.213748931884769,
+            "value1": 33.19234848022461,
+            "value2": 63.942745208740237
+        },
+        "value1": {
+            "value0": 0.04727504029870033,
+            "value1": -0.9197708368301392,
+            "value2": 0.11701007932424545,
+            "value3": 0.37161189317703249
+        },
+        "value2": {
+            "value0": 1.0,
+            "value1": 1.0,
+            "value2": 1.0
+        }
+    },
+    "value18": 3,
+    "value19": {
+        "value0": {
+            "value0": 30.243196487426759,
+            "value1": 5.211306095123291,
+            "value2": 33.55650329589844
+        },
+        "value1": {
+            "value0": -0.010699252597987652,
+            "value1": 0.9123432040214539,
+            "value2": -0.023890584707260133,
+            "value3": -0.40858879685401919
+        },
+        "value2": {
+            "value0": 1.0,
+            "value1": 1.0,
+            "value2": 1.0
+        }
+    },
+    "value20": 4,
+    "value21": {
+        "value0": {
+            "value0": 18.467538833618165,
+            "value1": -1.0,
+            "value2": 16.368423461914064
+        },
+        "value1": {
+            "value0": 0.0,
+            "value1": -0.5444941520690918,
+            "value2": 0.0,
+            "value3": 0.8387646079063416
+        },
+        "value2": {
+            "value0": 0.10000000894069672,
+            "value1": 0.10000000149011612,
+            "value2": 0.10000000894069672
+        }
+    },
+    "value22": 5,
+    "value23": {
+        "value0": {
+            "value0": 1.0000004768371583,
+            "value1": -1.0,
+            "value2": -1.200000286102295
+        },
+        "value1": {
+            "value0": 0.0,
+            "value1": 0.0,
+            "value2": 0.0,
+            "value3": 1.0
+        },
+        "value2": {
+            "value0": 0.15000000596046449,
+            "value1": 0.15000000596046449,
+            "value2": 0.15000000596046449
+        }
+    },
+    "value24": 6,
+    "value25": {
+        "value0": {
+            "value0": -3.9800000190734865,
+            "value1": -0.002927735447883606,
+            "value2": 1.3000000715255738
+        },
+        "value1": {
+            "value0": 0.7071068286895752,
+            "value1": 0.0,
+            "value2": 0.0,
+            "value3": 0.7071067094802856
+        },
+        "value2": {
+            "value0": 5.0,
+            "value1": 4.999999523162842,
+            "value2": 0.009999998845160008
+        }
+    },
+    "value26": 7,
+    "value27": {
+        "value0": {
+            "value0": 4.140000343322754,
+            "value1": -0.0001697838306427002,
+            "value2": 3.3000004291534426
+        },
+        "value1": {
+            "value0": 0.7071068286895752,
+            "value1": 0.0,
+            "value2": 0.0,
+            "value3": 0.7071067094802856
+        },
+        "value2": {
+            "value0": 5.0,
+            "value1": 4.999998092651367,
+            "value2": 0.009999998845160008
+        }
+    },
+    "value28": 8,
+    "value29": {
+        "value0": {
+            "value0": -0.08000000566244126,
+            "value1": 0.00461733341217041,
+            "value2": 5.504390832022921e-10
+        },
+        "value1": {
+            "value0": 0.7071068286895752,
+            "value1": 0.0,
+            "value2": 0.0,
+            "value3": 0.7071067094802856
+        },
+        "value2": {
+            "value0": 5.0,
+            "value1": 4.999998092651367,
+            "value2": 0.009999998845160008
+        }
+    },
+    "value30": 9,
+    "value31": 0,
+    "value32": {
+        "value0": "GroundPlane"
+    },
+    "value33": 1,
+    "value34": {
+        "value0": "X Bot"
+    },
+    "value35": 2,
+    "value36": {
+        "value0": "Sun"
+    },
+    "value37": 3,
+    "value38": {
+        "value0": "Camera"
+    },
+    "value39": 4,
+    "value40": {
+        "value0": "Y Bot"
+    },
+    "value41": 5,
+    "value42": {
+        "value0": "Mutant"
+    },
+    "value43": 6,
+    "value44": {
+        "value0": "DecalA"
+    },
+    "value45": 7,
+    "value46": {
+        "value0": "DecalB"
+    },
+    "value47": 8,
+    "value48": {
+        "value0": "DecalC"
+    },
+    "value49": 1,
+    "value50": 0,
+    "value51": {
+        "value0": [
+            6,
+            7,
+            8
+        ]
+    },
+    "value52": {
+        "value0": {
+            "value0": {
+                "value0": 0.0,
+                "value1": -9.8100004196167,
+                "value2": 0.0
+            }
+        },
+        "value1": 0,
+        "value2": 0,
+        "value3": 0
+    },
+    "value53": {
+        "value0": {
+            "value0": {
+                "value0": -10.0,
+                "value1": -10.0,
+                "value2": -10.0
+            },
+            "value1": {
+                "value0": 10.0,
+                "value1": 10.0,
+                "value2": 10.0
+            }
+        },
+        "value1": 3,
+        "value2": 1,
+        "value3": 2,
+        "value4": {
+            "value0": 0,
+            "value1": true,
+            "value2": true,
+            "value3": {
+                "value0": 59.213748931884769,
+                "value1": 33.19234848022461,
+                "value2": 63.942745208740237
+            },
+            "value4": {
+                "value0": -0.6725321412086487,
+                "value1": -0.25038081407546999,
+                "value2": -0.6964265704154968
+            },
+            "value5": {
+                "value0": 0.929411768913269,
+                "value1": 0.8352941274642944,
+                "value2": 0.6196078658103943
+            },
+            "value6": 2.299999952316284,
+            "value7": 1.0,
+            "value8": 15.0,
+            "value9": 35.0,
+            "value10": 0.0
+        },
+        "value5": 4,
+        "value6": 0,
+        "value7": {
+            "value0": {
+                "nullopt": false,
+                "data": "BasicShapes:Plane"
+            },
+            "value1": [
+                {
+                    "value0": true,
+                    "value1": {
+                        "value0": {
+                            "nullopt": false,
+                            "data": "Materials\\Graph\\Surface\\ExtraMaterials\\VintageTile\\VintageTile.material"
+                        },
+                        "value1": [],
+                        "value2": [
+                            {
+                                "key": "t_albedo",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\VintageTile\\vintage-tile1_albedo.png"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "t_ao",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\VintageTile\\vintage-tile1_ao.png"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "t_height",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\VintageTile\\vintage-tile1_height.png"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "t_metallic",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\VintageTile\\vintage-tile1_metallic.png"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "t_normal_ogl",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\VintageTile\\vintage-tile1_normal-ogl.png"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "t_roughness",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\VintageTile\\vintage-tile1_roughness.png"
+                                    }
+                                }
+                            }
+                        ],
+                        "value3": 3
+                    }
+                }
+            ]
+        },
+        "value8": 1,
+        "value9": {
+            "value0": {
+                "nullopt": false,
+                "data": "Meshes\\X Bot\\X Bot.mesh"
+            },
+            "value1": [
+                {
+                    "value0": true,
+                    "value1": {
+                        "value0": {
+                            "nullopt": false,
+                            "data": "Meshes\\X Bot\\materials\\Beta_HighLimbsGeoSG3\\Beta_HighLimbsGeoSG3.material"
+                        },
+                        "value1": [
+                            {
+                                "value0": "baseColorFactor",
+                                "value1": {
+                                    "index": 4,
+                                    "data": {
+                                        "value0": 0.6696000099182129,
+                                        "value1": 0.24184642732143403,
+                                        "value2": 0.21092401444911958,
+                                        "value3": 1.0
+                                    }
+                                }
+                            },
+                            {
+                                "value0": "emissiveColorFactor",
+                                "value1": {
+                                    "index": 4,
+                                    "data": {
+                                        "value0": 0.0,
+                                        "value1": 0.0,
+                                        "value2": 0.0,
+                                        "value3": 1.0
+                                    }
+                                }
+                            }
+                        ],
+                        "value2": [],
+                        "value3": 3
+                    }
+                },
+                {
+                    "value0": true,
+                    "value1": {
+                        "value0": {
+                            "nullopt": false,
+                            "data": "Meshes\\X Bot\\materials\\Beta_Joints_MAT1\\Beta_Joints_MAT1.material"
+                        },
+                        "value1": [
+                            {
+                                "value0": "baseColorFactor",
+                                "value1": {
+                                    "index": 4,
+                                    "data": {
+                                        "value0": 0.2666666805744171,
+                                        "value1": 0.09962310642004013,
+                                        "value2": 0.08081179112195969,
+                                        "value3": 1.0
+                                    }
+                                }
+                            },
+                            {
+                                "value0": "emissiveColorFactor",
+                                "value1": {
+                                    "index": 4,
+                                    "data": {
+                                        "value0": 0.0,
+                                        "value1": 0.0,
+                                        "value2": 0.0,
+                                        "value3": 1.0
+                                    }
+                                }
+                            }
+                        ],
+                        "value2": [],
+                        "value3": 3
+                    }
+                }
+            ]
+        },
+        "value10": 4,
+        "value11": {
+            "value0": {
+                "nullopt": false,
+                "data": "Meshes\\Y Bot\\Y Bot.mesh"
+            },
+            "value1": [
+                {
+                    "value0": true,
+                    "value1": {
+                        "value0": {
+                            "nullopt": false,
+                            "data": "Meshes\\Y Bot\\materials\\Alpha_Body_MAT\\Alpha_Body_MAT.material"
+                        },
+                        "value1": [
+                            {
+                                "value0": "baseColorFactor",
+                                "value1": {
+                                    "index": 4,
+                                    "data": {
+                                        "value0": 0.07725600898265839,
+                                        "value1": 0.33729586005210879,
+                                        "value2": 0.41760000586509707,
+                                        "value3": 1.0
+                                    }
+                                }
+                            },
+                            {
+                                "value0": "emissiveColorFactor",
+                                "value1": {
+                                    "index": 4,
+                                    "data": {
+                                        "value0": 0.0,
+                                        "value1": 0.0,
+                                        "value2": 0.0,
+                                        "value3": 1.0
+                                    }
+                                }
+                            }
+                        ],
+                        "value2": [],
+                        "value3": 3
+                    }
+                },
+                {
+                    "value0": true,
+                    "value1": {
+                        "value0": {
+                            "nullopt": false,
+                            "data": "Meshes\\Y Bot\\materials\\Alpha_Joints_MAT\\Alpha_Joints_MAT.material"
+                        },
+                        "value1": [
+                            {
+                                "value0": "baseColorFactor",
+                                "value1": {
+                                    "index": 4,
+                                    "data": {
+                                        "value0": 0.1228412315249443,
+                                        "value1": 0.17031510174274445,
+                                        "value2": 0.17777371406555177,
+                                        "value3": 1.0
+                                    }
+                                }
+                            },
+                            {
+                                "value0": "emissiveColorFactor",
+                                "value1": {
+                                    "index": 4,
+                                    "data": {
+                                        "value0": 0.0,
+                                        "value1": 0.0,
+                                        "value2": 0.0,
+                                        "value3": 1.0
+                                    }
+                                }
+                            }
+                        ],
+                        "value2": [],
+                        "value3": 3
+                    }
+                }
+            ]
+        },
+        "value12": 5,
+        "value13": {
+            "value0": {
+                "nullopt": false,
+                "data": "Meshes\\Mutant\\Mutant.mesh"
+            },
+            "value1": [
+                {
+                    "value0": true,
+                    "value1": {
+                        "value0": {
+                            "nullopt": false,
+                            "data": "Meshes\\Mutant\\materials\\mutant_M\\mutant_M.material"
+                        },
+                        "value1": [
+                            {
+                                "value0": "baseColorFactor",
+                                "value1": {
+                                    "index": 4,
+                                    "data": {
+                                        "value0": 1.0,
+                                        "value1": 1.0,
+                                        "value2": 1.0,
+                                        "value3": 1.0
+                                    }
+                                }
+                            },
+                            {
+                                "value0": "emissiveColorFactor",
+                                "value1": {
+                                    "index": 4,
+                                    "data": {
+                                        "value0": 0.0,
+                                        "value1": 0.0,
+                                        "value2": 0.0,
+                                        "value3": 1.0
+                                    }
+                                }
+                            }
+                        ],
+                        "value2": [
+                            {
+                                "key": "t_BaseColor",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Meshes\\Mutant\\materials\\mutant_M\\..\\textures\\Mutant_diffuse.png"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "t_Normal",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Meshes\\Mutant\\materials\\mutant_M\\..\\textures\\Mutant_normal.png"
+                                    }
+                                }
+                            }
+                        ],
+                        "value3": 3
+                    }
+                }
+            ]
+        },
+        "value14": 3,
+        "value15": 6,
+        "value16": {
+            "value0": {
+                "nullopt": false,
+                "data": "BasicShapes:Cube"
+            },
+            "value1": [
+                {
+                    "value0": true,
+                    "value1": {
+                        "value0": {
+                            "nullopt": false,
+                            "data": "Materials\\Graph\\Surface\\ExtraMaterials\\WornShinyMetal\\WornShinyMetal.material"
+                        },
+                        "value1": [],
+                        "value2": [
+                            {
+                                "key": "t_albedo",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\WornShinyMetal\\worn-shiny-metal-albedo.png"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "t_ao",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\WornShinyMetal\\worn-shiny-metal-ao.png"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "t_height",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\WornShinyMetal\\worn-shiny-metal-Height.png"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "t_metallic",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\WornShinyMetal\\worn-shiny-metal-Metallic.png"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "t_normal_ogl",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\WornShinyMetal\\worn-shiny-metal-Normal-ogl.png"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "t_roughness",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\WornShinyMetal\\worn-shiny-metal-Roughness.png"
+                                    }
+                                }
+                            }
+                        ],
+                        "value3": 3
+                    }
+                }
+            ]
+        },
+        "value17": 7,
+        "value18": {
+            "value0": {
+                "nullopt": false,
+                "data": "BasicShapes:Cube"
+            },
+            "value1": [
+                {
+                    "value0": true,
+                    "value1": {
+                        "value0": {
+                            "nullopt": false,
+                            "data": "Materials\\Graph\\Surface\\ExtraMaterials\\SteelPlate\\SteelPlate.material"
+                        },
+                        "value1": [],
+                        "value2": [
+                            {
+                                "key": "t_albedo",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\SteelPlate\\steelplate1_albedo.png"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "t_ao",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\SteelPlate\\steelplate1_ao.png"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "t_height",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\SteelPlate\\steelplate1_height.png"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "t_metallic",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\SteelPlate\\steelplate1_metallic.png"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "t_normal_ogl",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\SteelPlate\\steelplate1_normal-ogl.png"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "t_roughness",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\SteelPlate\\steelplate1_roughness.png"
+                                    }
+                                }
+                            }
+                        ],
+                        "value3": 3
+                    }
+                }
+            ]
+        },
+        "value19": 8,
+        "value20": {
+            "value0": {
+                "nullopt": false,
+                "data": "BasicShapes:Cube"
+            },
+            "value1": [
+                {
+                    "value0": true,
+                    "value1": {
+                        "value0": {
+                            "nullopt": false,
+                            "data": "Materials\\Graph\\Surface\\ExtraMaterials\\TitaniumScuffed\\TitaniumScuffed.material"
+                        },
+                        "value1": [],
+                        "value2": [
+                            {
+                                "key": "t_albedo",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\TitaniumScuffed\\Titanium-Scuffed_basecolor.png"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "t_metallic",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\TitaniumScuffed\\Titanium-Scuffed_metallic.png"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "t_normal",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\TitaniumScuffed\\Titanium-Scuffed_normal.png"
+                                    }
+                                }
+                            },
+                            {
+                                "key": "t_roughness",
+                                "value": {
+                                    "value0": {
+                                        "nullopt": false,
+                                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\TitaniumScuffed\\Titanium-Scuffed_roughness.png"
+                                    }
+                                }
+                            }
+                        ],
+                        "value3": 3
+                    }
+                }
+            ]
+        },
+        "value21": 1,
+        "value22": 3,
+        "value23": {
+            "value0": {
+                "value0": 1280,
+                "value1": 720
+            },
+            "value1": {
+                "value0": true,
+                "value1": 60.0,
+                "value2": 1.7777777910232545,
+                "value3": {
+                    "value0": 0.10000000149011612,
+                    "value1": 1000.0
+                },
+                "value4": {
+                    "value0": 30.243196487426759,
+                    "value1": 5.211306095123291,
+                    "value2": 33.55650329589844
+                },
+                "value5": {
+                    "value0": -0.010699252597987652,
+                    "value1": 0.9123432040214539,
+                    "value2": -0.023890584707260133,
+                    "value3": -0.40858879685401919
+                }
+            },
+            "value2": {
+                "value0": 14,
+                "value1": 507,
+                "value2": {
+                    "value0": 0.0,
+                    "value1": 0.0,
+                    "value2": 0.0,
+                    "value3": 0.10000000149011612
+                },
+                "value3": 0.25,
+                "value4": {
+                    "value0": 6,
+                    "value1": 1.0
+                },
+                "value5": {
+                    "value0": {
+                        "value0": 4,
+                        "value1": 1024,
+                        "value2": 0.75
+                    },
+                    "value1": {
+                        "value0": 4,
+                        "value1": 1024
+                    },
+                    "value2": {
+                        "value0": 4,
+                        "value1": 1024
+                    }
+                },
+                "value6": {
+                    "value0": 0.5,
+                    "value1": 1.0,
+                    "value2": 0.02500000037252903
+                },
+                "value7": {
+                    "value0": 0.004999999888241291,
+                    "value1": 0.03999999910593033
+                },
+                "value8": 1.0,
+                "value9": {
+                    "value0": -10.0,
+                    "value1": 2.0,
+                    "value2": 1.100000023841858
+                },
+                "value10": 1,
+                "value11": 0
+            },
+            "value3": {
+                "value0": {
+                    "nullopt": false,
+                    "data": "Textures\\Environment\\kiara_1_dawn_2k.hdr"
+                }
+            },
+            "value4": [
+                {
+                    "value0": {
+                        "nullopt": false,
+                        "data": "Materials\\Graph\\PostProcess\\ChromaticAberration\\ChromaticAberration.material"
+                    },
+                    "value1": [
+                        {
+                            "value0": "fs_strength",
+                            "value1": {
+                                "index": 2,
+                                "data": 3.0
+                            }
+                        }
+                    ],
+                    "value2": [],
+                    "value3": 4
+                },
+                {
+                    "value0": {
+                        "nullopt": false,
+                        "data": "Materials\\Graph\\PostProcess\\FilmGrain\\FilmGrain.material"
+                    },
+                    "value1": [
+                        {
+                            "value0": "fs_strength",
+                            "value1": {
+                                "index": 2,
+                                "data": 6.0
+                            }
+                        }
+                    ],
+                    "value2": [],
+                    "value3": 4
+                },
+                {
+                    "value0": {
+                        "nullopt": false,
+                        "data": "Materials\\Graph\\PostProcess\\Vignette\\Vignette.material"
+                    },
+                    "value1": [
+                        {
+                            "value0": "fs_strength",
+                            "value1": {
+                                "index": 2,
+                                "data": 0.05999999865889549
+                            }
+                        }
+                    ],
+                    "value2": [],
+                    "value3": 4
+                }
+            ]
+        }
+    },
+    "value54": {
+        "value0": 3,
+        "value1": 1,
+        "value2": {
+            "value0": {
+                "nullopt": false,
+                "data": "Meshes\\X Bot\\skeleton.ozz"
+            }
+        },
+        "value3": 4,
+        "value4": {
+            "value0": {
+                "nullopt": false,
+                "data": "Meshes\\Y Bot\\skeleton.ozz"
+            }
+        },
+        "value5": 5,
+        "value6": {
+            "value0": {
+                "nullopt": false,
+                "data": "Meshes\\Mutant\\skeleton.ozz"
+            }
+        },
+        "value7": 3,
+        "value8": 1,
+        "value9": {
+            "value0": {
+                "nullopt": false,
+                "data": "Meshes\\X Bot\\animations\\Idle.ozz"
+            }
+        },
+        "value10": 4,
+        "value11": {
+            "value0": {
+                "nullopt": false,
+                "data": "Meshes\\Y Bot\\animations\\Idle.ozz"
+            }
+        },
+        "value12": 5,
+        "value13": {
+            "value0": {
+                "nullopt": false,
+                "data": "Meshes\\Mutant\\animations\\Mutant Flexing Muscles.ozz"
+            }
+        },
+        "value14": 3,
+        "value15": 1,
+        "value16": {
+            "value0": 0.0,
+            "value1": 0.0,
+            "value2": 1.0,
+            "value3": true,
+            "value4": true
+        },
+        "value17": 4,
+        "value18": {
+            "value0": 0.0,
+            "value1": 0.0,
+            "value2": 1.0,
+            "value3": true,
+            "value4": true
+        },
+        "value19": 5,
+        "value20": {
+            "value0": 0.0,
+            "value1": 0.0,
+            "value2": 1.0,
+            "value3": true,
+            "value4": true
+        }
+    },
+    "value55": {
+        "value0": 1,
+        "value1": 3,
+        "value2": {
+            "value0": {
+                "nullopt": false,
+                "data": "Scripts\\behavior\\BasicCameraController.lua"
+            }
+        }
+    }
+}

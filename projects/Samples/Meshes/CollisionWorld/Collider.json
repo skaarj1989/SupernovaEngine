@@ -1,0 +1,9 @@
+{
+  "type": "TriangleMesh",
+  "meta": "CollisionWorld.mesh",
+  "scale": {
+    "x": 1.5,
+    "y": 1.5,
+    "z": 1.5
+  }
+}

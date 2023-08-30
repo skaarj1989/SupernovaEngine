@@ -1,0 +1,37 @@
+{
+  "name": "Emissive",
+  "domain": "Surface",
+  "shadingModel": "Unlit",
+  "blendMode": "Opaque",
+  "decalBlendMode": {
+    "normal": "Keep",
+    "emissive": "Replace",
+    "albedo": "Replace",
+    "metallicRoughnessAO": "Replace"
+  },
+  "lightingMode": "Default",
+  "cullMode": "Back",
+  "properties": {
+    "fs_emissiveFactor": {
+      "type": "vec4",
+      "value": [
+        0.28951382637023926,
+        0.6548263430595398,
+        0.800000011920929,
+        100.0
+      ]
+    }
+  },
+  "samplers": {},
+  "vertexShader": {
+    "defines": [],
+    "path": "code.vert"
+  },
+  "fragmentShader": {
+    "defines": [],
+    "path": "code.frag"
+  },
+  "flags": [
+    "CastShadow"
+  ]
+}

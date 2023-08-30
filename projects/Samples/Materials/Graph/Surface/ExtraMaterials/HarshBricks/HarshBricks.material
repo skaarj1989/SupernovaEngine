@@ -1,0 +1,53 @@
+{
+  "name": "HarshBricks",
+  "domain": "Surface",
+  "shadingModel": "Lit",
+  "blendMode": "Opaque",
+  "decalBlendMode": {
+    "normal": "Keep",
+    "emissive": "Replace",
+    "albedo": "Replace",
+    "metallicRoughnessAO": "Replace"
+  },
+  "lightingMode": "Default",
+  "cullMode": "Back",
+  "properties": {},
+  "samplers": {
+    "t_albedo": {
+      "type": "sampler2D",
+      "path": "harshbricks-albedo.png"
+    },
+    "t_ao": {
+      "type": "sampler2D",
+      "path": "harshbricks-ao2.png"
+    },
+    "t_height": {
+      "type": "sampler2D",
+      "path": "harshbricks-height5-16.png"
+    },
+    "t_metallic": {
+      "type": "sampler2D",
+      "path": "harshbricks-metalness.png"
+    },
+    "t_normal": {
+      "type": "sampler2D",
+      "path": "harshbricks-normal.png"
+    },
+    "t_roughness": {
+      "type": "sampler2D",
+      "path": "harshbricks-roughness.png"
+    }
+  },
+  "vertexShader": {
+    "defines": [],
+    "path": "code.vert"
+  },
+  "fragmentShader": {
+    "defines": [],
+    "path": "code.frag"
+  },
+  "flags": [
+    "CastShadow",
+    "ReceiveShadow"
+  ]
+}

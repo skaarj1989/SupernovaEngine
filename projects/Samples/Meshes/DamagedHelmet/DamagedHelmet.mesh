@@ -1,0 +1,74 @@
+{
+  "buffer": "data.buffer",
+  "meshes": [
+    {
+      "name": "mesh_helmet_LP_13930damagedHelmet",
+      "vertexOffset": 0,
+      "numVertices": 14354,
+      "LOD": [
+        {
+          "indexOffset": 0,
+          "numIndices": 46356
+        }
+      ],
+      "aabb": {
+        "min": [
+          -0.9474585652351379,
+          -0.9009740948677063,
+          -1.1871551275253296
+        ],
+        "max": [
+          0.9424954056739807,
+          0.900995135307312,
+          0.8128451704978943
+        ]
+      },
+      "material": "materials/Material_MR/Material_MR.material"
+    }
+  ],
+  "aabb": {
+    "min": [
+      -0.9474585652351379,
+      -0.9009740948677063,
+      -1.1871551275253296
+    ],
+    "max": [
+      0.9424954056739807,
+      0.900995135307312,
+      0.8128451704978943
+    ]
+  },
+  "vertices": {
+    "byteOffset": 0,
+    "count": 14354,
+    "stride": 32,
+    "attributes": [
+      [
+        "Position",
+        {
+          "type": "Float3",
+          "offset": 0
+        }
+      ],
+      [
+        "Normal",
+        {
+          "type": "Float3",
+          "offset": 12
+        }
+      ],
+      [
+        "TexCoord_0",
+        {
+          "type": "Float2",
+          "offset": 24
+        }
+      ]
+    ]
+  },
+  "indices": {
+    "byteOffset": 459328,
+    "count": 46356,
+    "stride": 2
+  }
+}

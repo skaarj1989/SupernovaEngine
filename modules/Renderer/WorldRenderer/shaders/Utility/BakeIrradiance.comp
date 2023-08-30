@@ -1,0 +1,50 @@
+#version 460 core
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 6) in;
+
+layout(set = 0, binding = 0) uniform samplerCube t_EnvironmentMap;
+layout(set = 0, binding = 1, rgba16f) uniform writeonly imageCube i_Output;
+
+layout(push_constant) uniform _PushConstants { float u_LodBias; };
+
+#include <Lib/ImportanceSampling.glsl>
+#include <Lib/CubeCoordToWorld.glsl>
+
+vec3 getDiffuseIrradiance(vec3 N, uint width) {
+  vec3 color = vec3(0.0);
+
+  const uint kNumSamples = 2048;
+  for (uint i = 0; i < kNumSamples; ++i) {
+    const vec4 importanceSample =
+      getImportanceSample(DISTRIBUTION_LAMBERTIAN, i, kNumSamples, N, 0.0);
+
+    const vec3 H = vec3(importanceSample.xyz);
+    const float pdf = importanceSample.w;
+
+    // mipmap filtered samples (GPU Gems 3, 20.4)
+    float lod = computeLod(pdf, width, kNumSamples);
+    // apply the bias to the lod
+    lod += u_LodBias;
+
+    // sample lambertian at a lower resolution to avoid fireflies
+    const vec3 lambertian = textureLod(t_EnvironmentMap, H, lod).rgb;
+
+    //// the below operations cancel each other out
+    // lambertian *= NdotH; // lamberts law
+    // lambertian /= pdf; // invert bias from importance sampling
+    // lambertian /= PI; // convert irradiance to radiance
+    // https://seblagarde.wordpress.com/2012/01/08/pi-or-not-to-pi-in-game-lighting-equation/
+
+    color += lambertian;
+  }
+  return color / float(kNumSamples);
+}
+
+void main() {
+  const ivec3 coord = ivec3(gl_GlobalInvocationID);
+  vec3 N = normalize(cubeCoordToWorld(coord, imageSize(i_Output).x));
+  // N.y = -N.y;
+  const uint width = textureSize(t_EnvironmentMap, 0).x;
+  const vec3 color = getDiffuseIrradiance(N, width);
+  imageStore(i_Output, coord, vec4(color, 1.0));
+}

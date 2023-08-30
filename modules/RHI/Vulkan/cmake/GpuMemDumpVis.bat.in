@@ -1,0 +1,2 @@
+SET GpuMemDumpVis=${GPU_MEM_DUMP_VIS}
+python %GpuMemDumpVis% -o %~n1.png %1

@@ -1,0 +1,53 @@
+#version 460 core
+#extension GL_EXT_control_flow_attributes : require
+
+layout(local_size_x = NUM_HISTOGRAM_BINS) in;
+
+#include "Resources/Histogram.glsl"
+
+layout(set = 0, binding = 2, r16f) uniform image2D i_Target;
+
+layout(push_constant) uniform _PushConstants {
+  float minLogLuminance;
+  float logLuminanceRange;
+  float timeCoeff;
+  uint numPixels;
+}
+u_PC;
+
+shared uint histogram[NUM_HISTOGRAM_BINS];
+
+void main() {
+  const uint countForThisBin = g_Histogram[gl_LocalInvocationIndex];
+  histogram[gl_LocalInvocationIndex] =
+    countForThisBin * gl_LocalInvocationIndex;
+
+  groupMemoryBarrier();
+
+  [[unroll]] for (uint binIndex = (NUM_HISTOGRAM_BINS >> 1); binIndex > 0;
+                  binIndex >>= 1) {
+    if (gl_LocalInvocationIndex < binIndex) {
+      atomicAdd(histogram[gl_LocalInvocationIndex],
+                histogram[gl_LocalInvocationIndex + binIndex]);
+    }
+
+    groupMemoryBarrier();
+  }
+
+  if (gl_LocalInvocationIndex == 0) {
+    float weightedLogAverage =
+      (float(histogram[0]) /
+       max(float(u_PC.numPixels - countForThisBin), 1.0)) -
+      1.0;
+
+    const float weightedAverageLuminance =
+      exp2(weightedLogAverage / 254.0 * u_PC.logLuminanceRange +
+           u_PC.minLogLuminance);
+    float luminanceLastFrame = imageLoad(i_Target, ivec2(0)).x;
+
+    const float adaptedLuminance =
+      luminanceLastFrame +
+      (weightedAverageLuminance - luminanceLastFrame) * u_PC.timeCoeff;
+    imageStore(i_Target, ivec2(0), vec4(adaptedLuminance, 0.0, 0.0, 0.0));
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "ChromaticAberration",
+  "domain": "PostProcess",
+  "properties": {
+    "fs_strength": {
+      "type": "float",
+      "value": 6.0
+    }
+  },
+  "samplers": {},
+  "fragmentShader": {
+    "defines": [],
+    "path": "code.frag"
+  },
+  "flags": [
+    "Enabled"
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "name": "Suzanne",
+  "domain": "Surface",
+  "shadingModel": "Lit",
+  "blendMode": "Opaque",
+  "lightingMode": "Default",
+  "cullMode": "Back",
+  "properties": {
+    "baseColorFactor": {
+      "type": "vec4",
+      "value": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "roughnessFactor": {
+      "type": "float",
+      "value": 1.0
+    },
+    "alphaCutOff": {
+      "type": "float",
+      "value": 0.5
+    },
+    "metallicFactor": {
+      "type": "float",
+      "value": 1.0
+    },
+    "emissiveColorFactor": {
+      "type": "vec4",
+      "value": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    }
+  },
+  "samplers": {
+    "t_BaseColor": {
+      "type": "sampler2D",
+      "path": "../textures/Suzanne_BaseColor.png"
+    },
+    "t_MetallicRoughnessAO": {
+      "type": "sampler2D",
+      "path": "../textures/Suzanne_MetallicRoughness.png"
+    }
+  },
+  "fragmentShader": {
+    "defines": [
+      "HAS_ALPHA_CUT_OFF",
+      "HAS_BASE_COLOR_FACTOR",
+      "HAS_BASE_COLOR_TEXTURE",
+      "HAS_EMISSIVE_COLOR_FACTOR",
+      "HAS_METALLIC_FACTOR",
+      "HAS_METALLIC_ROUGHNESS_A_O_TEXTURE",
+      "HAS_ROUGHNESS_FACTOR",
+      "IS_PBR"
+    ]
+  }
+}

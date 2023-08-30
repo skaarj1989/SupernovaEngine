@@ -1,0 +1,1 @@
+https://github.com/mrdoob/three.js/blob/705024703127175c42658778f264aa9b4aa21649/examples/models/gltf/collision-world.glb

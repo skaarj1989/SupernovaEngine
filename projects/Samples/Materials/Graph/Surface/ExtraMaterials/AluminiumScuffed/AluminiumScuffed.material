@@ -1,0 +1,45 @@
+{
+  "name": "AluminiumScuffed",
+  "domain": "Surface",
+  "shadingModel": "Lit",
+  "blendMode": "Opaque",
+  "decalBlendMode": {
+    "normal": "Keep",
+    "emissive": "Replace",
+    "albedo": "Replace",
+    "metallicRoughnessAO": "Replace"
+  },
+  "lightingMode": "Default",
+  "cullMode": "Back",
+  "properties": {},
+  "samplers": {
+    "t_albedo": {
+      "type": "sampler2D",
+      "path": "Aluminum-Scuffed_basecolor.png"
+    },
+    "t_metallic": {
+      "type": "sampler2D",
+      "path": "Aluminum-Scuffed_metallic.png"
+    },
+    "t_normal": {
+      "type": "sampler2D",
+      "path": "Aluminum-Scuffed_normal.png"
+    },
+    "t_roughness": {
+      "type": "sampler2D",
+      "path": "Aluminum-Scuffed_roughness.png"
+    }
+  },
+  "vertexShader": {
+    "defines": [],
+    "path": "code.vert"
+  },
+  "fragmentShader": {
+    "defines": [],
+    "path": "code.frag"
+  },
+  "flags": [
+    "CastShadow",
+    "ReceiveShadow"
+  ]
+}

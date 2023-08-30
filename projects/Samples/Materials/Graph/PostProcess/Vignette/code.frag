@@ -1,0 +1,11 @@
+const float id_12 = 0.000000;
+const vec4 id_3 = texture(t_SceneColor, v_TexCoord);
+const float id_20 = 1.000000;
+const vec2 id_19 = id_20 - v_TexCoord.yx;
+const vec2 id_22 = v_TexCoord * id_19;
+const float id_32 = id_22.x * id_22.y;
+const float id_37 = 15.000000;
+const float id_35 = id_32 * id_37;
+const float id_38 = pow(id_35, properties.fs_strength);
+const vec3 id_13 = id_3.xyz * id_38;
+fragColor = vec4(id_13, 0);

@@ -1,0 +1,116 @@
+{
+  "buffer": "data.buffer",
+  "meshes": [
+    {
+      "name": "Alpha_Surface",
+      "vertexOffset": 0,
+      "numVertices": 22967,
+      "LOD": [
+        {
+          "indexOffset": 0,
+          "numIndices": 103440
+        }
+      ],
+      "aabb": {
+        "min": [
+          -97.3426284790039,
+          -0.01022443175315857,
+          -16.05109405517578
+        ],
+        "max": [
+          97.34235382080078,
+          180.4632110595703,
+          20.37575912475586
+        ]
+      },
+      "material": "materials/Alpha_Body_MAT/Alpha_Body_MAT.material"
+    },
+    {
+      "name": "Alpha_Joints",
+      "vertexOffset": 22967,
+      "numVertices": 12473,
+      "LOD": [
+        {
+          "indexOffset": 103440,
+          "numIndices": 62520
+        }
+      ],
+      "aabb": {
+        "min": [
+          -94.5274887084961,
+          0.7688927054405212,
+          -13.592483520507813
+        ],
+        "max": [
+          94.52721405029297,
+          159.83914184570313,
+          13.96785831451416
+        ]
+      },
+      "material": "materials/Alpha_Joints_MAT/Alpha_Joints_MAT.material"
+    }
+  ],
+  "aabb": {
+    "min": [
+      -97.3426284790039,
+      -0.01022443175315857,
+      -16.05109405517578
+    ],
+    "max": [
+      97.34235382080078,
+      180.4632110595703,
+      20.37575912475586
+    ]
+  },
+  "vertices": {
+    "byteOffset": 0,
+    "count": 35440,
+    "stride": 64,
+    "attributes": [
+      [
+        "Position",
+        {
+          "type": "Float3",
+          "offset": 0
+        }
+      ],
+      [
+        "Normal",
+        {
+          "type": "Float3",
+          "offset": 12
+        }
+      ],
+      [
+        "TexCoord_0",
+        {
+          "type": "Float2",
+          "offset": 24
+        }
+      ],
+      [
+        "Joints",
+        {
+          "type": "Int4",
+          "offset": 32
+        }
+      ],
+      [
+        "Weights",
+        {
+          "type": "Float4",
+          "offset": 48
+        }
+      ]
+    ]
+  },
+  "indices": {
+    "byteOffset": 2268160,
+    "count": 165960,
+    "stride": 4
+  },
+  "inverseBindPose": {
+    "byteOffset": 2932000,
+    "count": 153
+  }
+}
