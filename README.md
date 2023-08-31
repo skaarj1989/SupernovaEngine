@@ -1,14 +1,26 @@
 # Supernova Engine
 
-<center>
-<img src="media/se01.png" alt="" width="450"/>
-<img src="media/se02.png" alt="" width="450"/>
+[![CodeFactor](https://www.codefactor.io/repository/github/skaarj1989/SupernovaEngine/badge)](https://www.codefactor.io/repository/github/skaarj1989/SupernovaEngine)
+[![GitHub](https://img.shields.io/github/license/skaarj1989/SupernovaEngine.svg)](LICENSE)
 
-<br/>
-<img src="media/me01.png" alt="" width="350"/>
-<img src="media/me02.png" alt="" width="350"/>
-<img src="media/me03.png" alt="" width="350"/>
-</center>
+An experimental game engine.
+
+<img src="media/se01.png" alt="Scene Editor"/>
+
+<details><summary><b>Screenshots</b></summary>
+<p align="center">
+    <img width="49%" src="media/se02.png" alt="Scene Editor"/>
+&nbsp;
+    <img width="49%" src="media/me01.png" alt="Material Editor (surface)"/>
+</p>
+<p align="center">
+    <img width="49%" src="media/me02.png" alt="Material Editor (surface)"/>
+&nbsp;
+    <img width="49%" src="media/me03.png" alt="Material Editor (post process)"/>
+</p>
+<img src="media/fg.svg" alt="Material Editor (post process)" alt="FrameGraph"/>
+</details>
+
 ## Building
 
 ```bash
