@@ -63,7 +63,7 @@ template <class T>
 }
 
 [[nodiscard]] auto requiresNewRenderTarget(const CameraComponent &cc) {
-  return cc.extent && !cc.target || cc.target->getExtent() != cc.extent;
+  return cc.extent && (!cc.target || cc.target->getExtent() != cc.extent);
 }
 [[nodiscard]] auto createRenderTarget(rhi::RenderDevice &rd,
                                       rhi::Extent2D extent) {
