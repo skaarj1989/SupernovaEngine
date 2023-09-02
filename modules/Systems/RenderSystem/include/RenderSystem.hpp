@@ -1,9 +1,9 @@
 #pragma once
 
-#include "SystemCommons.hpp"
-
 #include "renderer/WorldRenderer.hpp"
 #include "CameraComponent.hpp"
+
+#include "SystemCommons.hpp"
 
 struct MainCamera {
   entt::entity e{entt::null};
@@ -32,29 +32,16 @@ public:
                      gfx::DebugOutput * = nullptr);
 
   template <class Archive> static void save(Archive &archive) {
-    auto &[registry, snapshot] = cereal::get_user_data<OutputContext>(archive);
+    auto &[registry, _] = cereal::get_user_data<OutputContext>(archive);
     auto &ctx = registry.ctx();
-
     archive(ctx.get<AABB>());
     archive(ctx.get<MainCamera>().e);
-
-    snapshot.get<gfx::Light>(archive)
-      .get<gfx::MeshInstance>(archive)
-      .get<gfx::DecalInstance>(archive)
-      .get<CameraComponent>(archive);
   }
   template <class Archive> static void load(Archive &archive) {
-    auto &[registry, snapshotLoader] =
-      cereal::get_user_data<InputContext>(archive);
+    auto &[registry, _] = cereal::get_user_data<InputContext>(archive);
     auto &ctx = registry.ctx();
-
     archive(ctx.get<AABB>());
     archive(ctx.get<MainCamera>().e);
-
-    snapshotLoader.get<gfx::Light>(archive)
-      .get<gfx::MeshInstance>(archive)
-      .get<gfx::DecalInstance>(archive)
-      .get<CameraComponent>(archive);
   }
 };
 

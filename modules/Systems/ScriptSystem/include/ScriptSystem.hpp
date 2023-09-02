@@ -1,9 +1,9 @@
 #pragma once
 
-#include "SystemCommons.hpp"
-
 #include "ScriptContext.hpp"
 #include "ScriptComponent.hpp"
+
+#include "SystemCommons.hpp"
 
 /*
   Context variables:
@@ -19,15 +19,6 @@ struct ScriptSystem {
   static void onInput(entt::registry &, const os::InputEvent &);
   static void onUpdate(entt::registry &, float dt);
   static void onPhysicsStep(entt::registry &, float dt);
-
-  template <class Archive> static void save(Archive &archive) {
-    auto &[_, snapshot] = cereal::get_user_data<OutputContext>(archive);
-    snapshot.get<ScriptComponent>(archive);
-  }
-  template <class Archive> static void load(Archive &archive) {
-    auto &[_, snapshotLoader] = cereal::get_user_data<InputContext>(archive);
-    snapshotLoader.get<ScriptComponent>(archive);
-  }
 
 private:
   static void _initScriptComponent(entt::registry &, entt::entity);

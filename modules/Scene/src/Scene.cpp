@@ -6,8 +6,6 @@
 #include "AnimationSystem.hpp"
 #include "ScriptSystem.hpp"
 
-#include "entt/entity/snapshot.hpp"
-
 #include "cereal/archives/json.hpp"
 #include "math/Serialization.hpp"
 #include "cereal/types/optional.hpp"
@@ -33,29 +31,31 @@ void copyRegistry(entt::registry &src, entt::registry &dst) {
 
 namespace {
 
+constexpr entt::type_list<NameComponent, Transform, ChildrenComponent>
+  kCoreTypes{};
+
 constexpr entt::type_list<PhysicsSystem, RenderSystem, AnimationSystem,
                           ScriptSystem>
   kSystemTypes{};
 
-template <class Archive>
-void serializeCoreComponents(auto &snapshot, Archive &archive) {
-  // The order of components is important!
-  // Transform MUST BE (de)serialized before ChildrenComponent!
-  snapshot.get<entt::entity>(archive)
-    .get<Transform>(archive)
-    .get<NameComponent>(archive)
-    .get<ChildrenComponent>(archive);
-}
-
 bool serialize(const entt::registry &r, std::ostream &os) {
   try {
-    auto snapshot = entt::snapshot{r};
+    using UnderlyingArchive = cereal::JSONOutputArchive;
+
+    entt::snapshot snapshot{r};
     OutputContext outputContext{r, snapshot};
-    cereal::UserDataAdapter<OutputContext, cereal::JSONOutputArchive> archive{
+    cereal::UserDataAdapter<OutputContext, UnderlyingArchive> archive{
       outputContext, os};
 
-    serializeCoreComponents(snapshot, archive);
-    saveSystems(kSystemTypes, archive);
+    snapshot.get<entt::entity>(archive);
+
+    std::vector<entt::id_type> types;
+    types.reserve(kCoreTypes.size);
+    collectTypes(r, types, kCoreTypes);
+    archive(types);
+
+    saveComponents<UnderlyingArchive>(archive, kCoreTypes);
+    saveSystems<UnderlyingArchive>(archive, kSystemTypes);
   } catch (const std::exception &e) {
     return false;
   }
@@ -65,13 +65,23 @@ bool deserialize(std::istream &is, entt::registry &r) {
   r.clear();
 
   try {
-    auto snapshotLoader = entt::snapshot_loader{r};
+    using UnderlyingArchive = cereal::JSONInputArchive;
+
+    entt::snapshot_loader snapshotLoader{r};
     InputContext inputContext{r, snapshotLoader};
-    cereal::UserDataAdapter<InputContext, cereal::JSONInputArchive> archive{
+    cereal::UserDataAdapter<InputContext, UnderlyingArchive> archive{
       inputContext, is};
 
-    serializeCoreComponents(snapshotLoader, archive);
-    loadSystems(kSystemTypes, archive);
+    snapshotLoader.get<entt::entity>(archive);
+
+    std::vector<entt::id_type> types;
+    types.reserve(kCoreTypes.size);
+    archive(types);
+
+    for (const auto id : types) {
+      loadComponent<UnderlyingArchive>(archive, id, kCoreTypes);
+    }
+    loadSystems<UnderlyingArchive>(archive, kSystemTypes);
 
     snapshotLoader.orphans();
   } catch (const std::exception &e) {

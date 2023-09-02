@@ -1,11 +1,11 @@
 #pragma once
 
-#include "SystemCommons.hpp"
-
 #include "physics/PhysicsWorld.hpp"
 #include "physics/Collider.hpp"
 #include "physics/RigidBody.hpp"
 #include "physics/Character.hpp"
+
+#include "SystemCommons.hpp"
 
 /*
   Context variables:
@@ -29,25 +29,12 @@ struct PhysicsSystem {
   static void updateTransform(entt::registry &, entt::entity);
 
   template <class Archive> static void save(Archive &archive) {
-    auto &[registry, snapshot] = cereal::get_user_data<OutputContext>(archive);
-    auto &ctx = registry.ctx();
-
-    archive(ctx.get<PhysicsWorld>());
-
-    snapshot.get<ColliderComponent>(archive)
-      .get<RigidBody>(archive)
-      .get<Character>(archive);
+    auto &[registry, _] = cereal::get_user_data<OutputContext>(archive);
+    archive(registry.ctx().get<PhysicsWorld>());
   }
   template <class Archive> static void load(Archive &archive) {
-    auto &[registry, snapshotLoader] =
-      cereal::get_user_data<InputContext>(archive);
-    auto &ctx = registry.ctx();
-
-    archive(ctx.get<PhysicsWorld>());
-
-    snapshotLoader.get<ColliderComponent>(archive)
-      .get<RigidBody>(archive)
-      .get<Character>(archive);
+    auto &[registry, _] = cereal::get_user_data<InputContext>(archive);
+    archive(registry.ctx().get<PhysicsWorld>());
   }
 
 private:
