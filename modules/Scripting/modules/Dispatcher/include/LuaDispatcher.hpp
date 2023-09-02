@@ -31,16 +31,17 @@ public:
       .template func<&LuaDispatcher::_clear<Event>>(Functions::Clear)
       .template func<&LuaDispatcher::_update<Event>>(Functions::Update);
   }
-  static void extendMetaTypes(entt::type_list<>) {}
-
   template <class T, class... Rest>
   static void extendMetaTypes(entt::type_list<T, Rest...>) {
     extendMetaType<T>();
-    extendMetaTypes(entt::type_list<Rest...>());
-  };
+    if constexpr (auto typeList = entt::type_list<Rest...>{};
+                  typeList.size > 0) {
+      extendMetaTypes(typeList);
+    }
+  }
 
   template <class... Ts> static void extendMetaTypes2() {
-    extendMetaTypes(entt::type_list<Ts...>());
+    extendMetaTypes(entt::type_list<Ts...>{});
   }
 
 private:

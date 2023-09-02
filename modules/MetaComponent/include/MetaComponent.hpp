@@ -35,15 +35,16 @@ public:
       .template func<&entt::handle::get<T>, entt::as_ref_t>(Functions::Get)
       .template func<&entt::handle::remove<T>>(Functions::Remove);
   }
-  static void registerMetaComponents(entt::type_list<>) {}
-
   template <class T, class... Rest>
   static void registerMetaComponents(entt::type_list<T, Rest...>) {
     registerMetaComponent<T>();
-    registerMetaComponents(entt::type_list<Rest...>());
+    if constexpr (auto typeList = entt::type_list<Rest...>{};
+                  typeList.size > 0) {
+      registerMetaComponents(typeList);
+    }
   }
 
   template <class... Ts> static void registerMetaComponents2() {
-    registerMetaComponents(entt::type_list<Ts...>());
+    registerMetaComponents(entt::type_list<Ts...>{});
   }
 };
