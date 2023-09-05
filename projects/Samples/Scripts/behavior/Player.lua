@@ -2,7 +2,7 @@
     Main Entity:
     - Transform
     - ColliderComponent
-    - Character
+    - CharacterVirtual
     - ScriptComponent (this code)
 
     Child Entity:
@@ -23,18 +23,22 @@ end
 
 --- @class Player: ScriptNode
 local node = {
-  hasControl = false,
-
-  moveDirection = math.vec3(),
   walkSpeed = 6,
   sprintMultiplier = 2.5,
-
-  wantJump = true,
-  jumpSpeed = 4.0,
-
   lookSpeed = 7,
+  jumpSpeed = 4,
 
-  bulletSpeed = 20,
+  projectile = {
+    speed = 30,
+    mass = 0.5,
+  },
+
+  hasControl = false,
+
+  moveDirection = math.vec3(0),
+  desiredVelocity = math.vec3(0),
+  allowSliding = false,
+  wantJump = false,
 
   spawns = {},
 }
@@ -75,9 +79,10 @@ function node:_fire()
   bullet:emplace(ColliderComponent(bulletPrefab.collider))
   local body = bullet:emplace(RigidBody(RigidBodySettings({
     motionType = MotionType.Dynamic,
+    mass = self.projectile.mass,
     restitution = 0.6,
   })))
-  body:setLinearVelocity(cameraForward * self.bulletSpeed)
+  body:setLinearVelocity(cameraForward * self.projectile.speed)
 
   local color <const> = getRandomColor()
   bullet:emplace(Light({
@@ -147,7 +152,7 @@ end
 
 function node:init()
   self.xf        = self.entity:get(Transform)
-  self.character = self.entity:get(Character)
+  self.character = self.entity:get(CharacterVirtual)
 
   local children = self.entity:getChildren()
   self.cameraXf  = children[1]:get(Transform)
@@ -160,31 +165,62 @@ function node:update(dt)
   end
 end
 
+function node:_getCharacterSpeed()
+  return self.walkSpeed * ((InputSystem:isKeyDown(KeyCode.Shift) and self.sprintMultiplier) or 1.0)
+end
+
 function node:physicsStep(dt)
-  -- Cancel movement in the opposite direction of normal when sliding:
-  local groundState <const> = self.character:getGroundState()
-  if groundState == GroundState.Sliding then
-    -- TOOD
+  local controlMovementDuringJump <const> = true
+
+  local playerControlsHorizontalVelocity = controlMovementDuringJump or self.character:isSupported()
+  if playerControlsHorizontalVelocity then
+    -- Smooth the player input.
+    self.desiredVelocity = 0.25 * self.moveDirection * self:_getCharacterSpeed() + 0.75 * self.desiredVelocity
+    self.allowSliding = self.moveDirection ~= math.vec3(0)
+  else
+    -- While in air we allow sliding.
+    self.allowSliding = true
   end
 
-  -- Update velocity:
+  -- Determine new basic velocity:
+
+  local up <const> = self.character:getUp()
 
   local currentVelocity = self.character:getLinearVelocity()
+  local currentVerticalVelocity = math.dot(currentVelocity, up) * up --[[@as vec3]]
+  local groundVelocity = self.character:getGroundVelocity()
+  local movingTowardsGround = (currentVerticalVelocity.y - groundVelocity.y) < 0.1
 
-  local characterSpeed = self.walkSpeed * ((InputSystem:isKeyDown(KeyCode.Shift) and self.sprintMultiplier) or 1.0)
-  local desiredVelocity = self.moveDirection * characterSpeed
-  desiredVelocity.y = currentVelocity.y
+  local newVelocity = math.vec3()
 
-  local newVelocity = (0.75 * currentVelocity) + (0.25 * desiredVelocity)
+  if self.character:getGroundState() == GroundState.OnGround and movingTowardsGround then
+    -- Assume velocity of ground when no ground.
+    newVelocity = groundVelocity
 
-  -- Jump:
+    -- Jump:
+    if self.wantJump and movingTowardsGround then
+      newVelocity = newVelocity + (self.jumpSpeed * up)
+    end
+  else
+    newVelocity = currentVerticalVelocity
+  end
 
-  if self.wantJump and groundState == GroundState.OnGround then
-    newVelocity = newVelocity + math.vec3(0, self.jumpSpeed, 0)
-    self.wantJump = false
+  -- Gravity.
+  local gravity <const> = math.vec3(0, -9.8, 0)
+  newVelocity = newVelocity + (gravity * dt)
+
+  if playerControlsHorizontalVelocity then
+    -- Player input.
+    newVelocity = newVelocity + self.desiredVelocity
+  else
+    -- Preserve horizontal velocity.
+    local currentHorizontalVelocity = currentVelocity - currentVerticalVelocity;
+    newVelocity = newVelocity + currentHorizontalVelocity
   end
 
   self.character:setLinearVelocity(newVelocity)
+
+  self.wantJump = false
 end
 
 return node

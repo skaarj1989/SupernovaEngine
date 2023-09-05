@@ -7,6 +7,7 @@ RigidBody = {}
 
 --- @class RigidBodySettings
 --- @field layer CollisionLayer
+--- @field mass number
 --- @field motionType MotionType
 --- @field friction number
 --- @field restitution number

@@ -25,7 +25,8 @@ while stackSize >= 0 do
     e:emplace(ColliderComponent(prefab.collider))
     e:emplace(RigidBody(RigidBodySettings({
       motionType = MotionType.Dynamic,
-      --restitution = 0.6,
+      mass = 10,
+      friction = 0.8,
     })))
     e:emplace(MeshInstance(prefab.mesh))
   end

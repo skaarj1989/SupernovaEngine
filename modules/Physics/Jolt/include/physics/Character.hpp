@@ -4,29 +4,49 @@
 #include "Jolt/Physics/Collision/ObjectLayer.h"
 #include "Jolt/Physics/Character/Character.h"
 
-#include "physics/CharacterSettings.hpp"
+#include "CollisionLayer.hpp"
 
 #include "glm/vec3.hpp"
 #include "glm/gtc/quaternion.hpp"
 
 class Character {
-  friend class PhysicsSystem;
+  friend class PhysicsWorld;
 
 public:
-  explicit Character(const CharacterSettings & = {});
+  struct Settings {
+    float maxSlopeAngle{50.0f}; // In degrees.
+    CollisionLayer layer;
+    float mass{80.0f};
 
-  void setCollisionShape(const JPH::Shape *);
+    float friction{0.2f};
+    float gravityFactor{1.0f};
 
-  const CharacterSettings &getSettings() const;
+    template <class Archive> void serialize(Archive &archive) {
+      archive(maxSlopeAngle, layer, mass, friction, gravityFactor);
+    }
+  };
 
-  [[nodiscard]] glm::quat getRotation() const;
+  explicit Character(const Settings & = {});
+
+  explicit operator bool() const;
+
+  [[nodiscard]] const Settings &getSettings() const;
+
+  JPH::BodyID getBodyId() const;
+
   void setRotation(const glm::quat &);
-
   void setLinearVelocity(const glm::vec3 &);
+
+  [[nodiscard]] glm::vec3 getPosition() const;
+  [[nodiscard]] glm::quat getRotation() const;
   [[nodiscard]] glm::vec3 getLinearVelocity() const;
 
+  // ---
+
   [[nodiscard]] JPH::Character::EGroundState getGroundState() const;
+  [[nodiscard]] bool isSupported() const;
   [[nodiscard]] glm::vec3 getGroundNormal() const;
+  [[nodiscard]] glm::vec3 getGroundVelocity() const;
 
   // ---
 
@@ -35,7 +55,7 @@ public:
   }
 
 private:
-  CharacterSettings m_settings{};
+  Settings m_settings{};
   JPH::Ref<JPH::Character> m_character{};
 };
 

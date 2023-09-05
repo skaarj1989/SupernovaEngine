@@ -3,7 +3,7 @@
 #include "imgui.h"
 #include "glm/trigonometric.hpp" // radians, degrees
 
-bool inspect(CharacterSettings &settings) {
+bool inspect(Character::Settings &settings) {
   auto dirty = false;
 
   ImGui::PushItemWidth(150.0f);

@@ -159,7 +159,7 @@ void inspect(PhysicsWorld &physicsWorld) {
       ImGui::Text("%u", count);
     };
 
-    const auto stats = physicsWorld.getJolt().GetBodyStats();
+    const auto stats = physicsWorld.getBodyStats();
     printRow("Dynamic", stats.mNumBodiesDynamic);
     printRow("Static", stats.mNumBodiesStatic);
     printRow("Kinematic", stats.mNumBodiesKinematic);
@@ -324,7 +324,7 @@ void showComponentsMenuItems(entt::handle h) {
       if (ImGui::MenuItem("Static")) {
         h.remove<RigidBody>();
         h.emplace<RigidBody>(RigidBody{
-          RigidBodySettings{
+          RigidBody::Settings{
             .motionType = MotionType::Static,
           },
         });
@@ -332,7 +332,7 @@ void showComponentsMenuItems(entt::handle h) {
       if (ImGui::MenuItem("Kinematic")) {
         h.remove<RigidBody>();
         h.emplace<RigidBody>(RigidBody{
-          RigidBodySettings{
+          RigidBody::Settings{
             .motionType = MotionType::Kinematic,
           },
         });
@@ -340,7 +340,7 @@ void showComponentsMenuItems(entt::handle h) {
       if (ImGui::MenuItem("Dynamic")) {
         h.remove<RigidBody>();
         h.emplace<RigidBody>(RigidBody{
-          RigidBodySettings{
+          RigidBody::Settings{
             .motionType = MotionType::Dynamic,
           },
         });
@@ -352,6 +352,11 @@ void showComponentsMenuItems(entt::handle h) {
       h.emplace<Character>();
     }
 
+    if (ImGui::MenuItem("CharacterVirtual", nullptr, nullptr,
+                        hasValidCollider)) {
+      h.remove<CharacterVirtual>();
+      h.emplace<CharacterVirtual>();
+    }
     ImGui::EndMenu();
   }
 }
@@ -519,8 +524,8 @@ void SceneEditor::onUpdate(float dt) {
 void SceneEditor::onPhysicsUpdate(float dt) {
   if (m_playTest) {
     auto &r = m_playTest->getRegistry();
-    PhysicsSystem::simulate(r, dt);
     ScriptSystem::onPhysicsStep(r, dt);
+    PhysicsSystem::simulate(r, dt);
   }
 }
 void SceneEditor::onRender(rhi::CommandBuffer &cb, float dt) {

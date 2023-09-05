@@ -68,6 +68,8 @@ set(WIDGET_SOURCES
   "src/Inspectors/RigidBodyInspector.cpp"
   "include/Inspectors/CharacterInspector.hpp"
   "src/Inspectors/CharacterInspector.cpp"
+  "include/Inspectors/CharacterVirtualInspector.hpp"
+  "src/Inspectors/CharacterVirtualInspector.cpp"
 
   "include/Inspectors/CameraInspector.hpp"
   "src/Inspectors/CameraInspector.cpp"

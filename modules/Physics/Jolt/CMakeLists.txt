@@ -43,11 +43,11 @@ add_library(JoltPhysics
 
   "include/physics/RigidBody.hpp"
   "src/RigidBody.cpp"
-  "include/physics/RigidBodySettings.hpp"
 
-  "include/physics/CharacterSettings.hpp"
-  "src/Character.cpp"
   "include/physics/Character.hpp"
+  "src/Character.cpp"
+  "include/physics/CharacterVirtual.hpp"
+  "src/CharacterVirtual.cpp"
 )
 
 target_compile_definitions(JoltPhysics PUBLIC JPH_DEBUG_RENDERER)

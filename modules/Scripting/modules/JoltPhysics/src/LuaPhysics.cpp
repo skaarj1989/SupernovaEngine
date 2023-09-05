@@ -3,17 +3,8 @@
 
 #include "physics/PhysicsWorld.hpp"
 #include "physics/Collider.hpp"
-#include "physics/ColliderManager.hpp"
-#include "physics/RigidBody.hpp"
-#include "physics/Character.hpp"
-
-#include "ScriptTypeInfo.hpp"
-#include "MetaHelper.hpp"
-#include "LuaEmitter.hpp"
 
 #include "Sol2HelperMacros.hpp"
-
-using namespace entt::literals;
 
 namespace {
 
@@ -109,6 +100,8 @@ void registerRigidBodyComponent(sol::state &lua) {
 
   // -- RigidBodySettings struct:
 
+  using RigidBodySettings = RigidBody::Settings;
+
 #define BIND(Member) _BIND(RigidBodySettings, Member)
 
   // clang-format off
@@ -119,6 +112,7 @@ void registerRigidBodyComponent(sol::state &lua) {
       [](const sol::table &t) {
         return RigidBodySettings{
           CAPTURE_FIELD_T(layer, CollisionLayer, {}),
+          CAPTURE_FIELD(mass, 1.0f),
           CAPTURE_FIELD(motionType, MotionType::Static),
           CAPTURE_FIELD(friction, 0.2f),
           CAPTURE_FIELD(restitution, 0.0f),
@@ -130,6 +124,7 @@ void registerRigidBodyComponent(sol::state &lua) {
     ),
 
     BIND(layer),
+    BIND(mass),
     BIND(motionType),
     BIND(friction),
     BIND(restitution),
@@ -151,8 +146,6 @@ void registerRigidBodyComponent(sol::state &lua) {
       RigidBody(const RigidBodySettings &)
     >(),
     
-    // Do not expose 'setCollisionShape' (it's reserved for PhysicsSystem).
-   
     BIND(getSettings),
 
     BIND(setLinearVelocity),
@@ -180,6 +173,8 @@ void registerCharacterComponent(sol::state &lua) {
 #undef MAKE_PAIR
 
   // -- CharacterSettings struct:
+
+  using CharacterSettings = Character::Settings;
 
 #define BIND(Member) _BIND(CharacterSettings, Member)
 
@@ -221,21 +216,116 @@ void registerCharacterComponent(sol::state &lua) {
       Character(const CharacterSettings &)
     >(),
 
-    // Do not expose 'setCollisionShape' (it is reserved for PhysicsSystem).
-
     BIND(getSettings),
 
-    BIND(getRotation),
     BIND(setRotation),
-
     BIND(setLinearVelocity),
+    
+    BIND(getPosition),
+    BIND(getRotation),
     BIND(getLinearVelocity),
 
     BIND(getGroundState),
+    BIND(isSupported),
     BIND(getGroundNormal),
+    BIND(getGroundVelocity),
 
     BIND_TYPEID(Character),
     BIND_TOSTRING(Character)
+  );
+  // clang-format on
+#undef BIND
+}
+
+void registerCharacterVirtualComponent(sol::state &lua) {
+  using CharacterVirtualSettings = CharacterVirtual::Settings;
+
+  // -- Settings struct:
+
+#define BIND(Member) _BIND(CharacterVirtualSettings, Member)
+
+  // clang-format off
+  DEFINE_USERTYPE(CharacterVirtualSettings, 
+    sol::call_constructor,
+    sol::factories(
+      [] { return CharacterVirtualSettings{}; },
+      [](const sol::table &t) {
+        return CharacterVirtualSettings{
+          CAPTURE_FIELD(maxSlopeAngle, 50.0f),
+          CAPTURE_FIELD_T(layer, CollisionLayer, {}),
+          CAPTURE_FIELD(mass, 70.0f),
+
+          CAPTURE_FIELD(maxStrength, 100.0f),
+          CAPTURE_FIELD_T(shapeOffset, glm::vec3, 0.0f),
+          CAPTURE_FIELD(predictiveContactDistance, 0.1f),
+          CAPTURE_FIELD(maxCollisionIterations, 5u),
+          CAPTURE_FIELD(maxConstraintIterations, 15u),
+          CAPTURE_FIELD(minTimeRemaining, 1.0e-4f),
+          CAPTURE_FIELD(collisionTolerance, 1.0e-3f),
+          CAPTURE_FIELD(characterPadding, 0.02f),
+          CAPTURE_FIELD(maxNumHits, 256u),
+          CAPTURE_FIELD(hitReductionCosMaxAngle, 0.999f),
+          CAPTURE_FIELD(penetrationRecoverySpeed, 1.0f),
+        };
+      }
+    ),
+
+    BIND(maxSlopeAngle),
+    BIND(layer),
+    BIND(mass),
+
+    BIND(maxStrength),
+    BIND(shapeOffset),
+    BIND(predictiveContactDistance),
+    BIND(maxCollisionIterations),
+    BIND(maxConstraintIterations),
+    BIND(minTimeRemaining),
+    BIND(collisionTolerance),
+    BIND(characterPadding),
+    BIND(maxNumHits),
+    BIND(hitReductionCosMaxAngle),
+    BIND(penetrationRecoverySpeed),
+
+    BIND_TOSTRING(CharacterVirtualSettings)
+  );
+#undef BIND
+
+#define BIND(Member) _BIND(CharacterVirtual, Member)
+  // clang-format off
+  DEFINE_USERTYPE(CharacterVirtual,
+    sol::call_constructor,
+    sol::constructors<
+      CharacterVirtual(),
+      CharacterVirtual(const CharacterVirtualSettings &)
+    >(),
+
+    BIND(getSettings),
+    
+    BIND(setRotation),
+    BIND(setLinearVelocity),
+    
+    "stickToFloor", sol::property(
+      &CharacterVirtual::isStickToFloor,
+      &CharacterVirtual::setStickToFloor
+    ),
+    "walkStairs", sol::property(
+      &CharacterVirtual::canWalkStairs,
+      &CharacterVirtual::setWalkStairs
+    ),
+
+    BIND(getUp),
+
+    BIND(getPosition),
+    BIND(getRotation),
+    BIND(getLinearVelocity),
+
+    BIND(getGroundState),
+    BIND(isSupported),
+    BIND(getGroundNormal),
+    BIND(getGroundVelocity),
+
+    BIND_TYPEID(CharacterVirtual),
+    BIND_TOSTRING(CharacterVirtual)
   );
   // clang-format on
 #undef BIND
@@ -256,4 +346,5 @@ void registerJoltPhysics(sol::state &lua) {
   registerCollisionLayer(lua);
   registerRigidBodyComponent(lua);
   registerCharacterComponent(lua);
+  registerCharacterVirtualComponent(lua);
 }

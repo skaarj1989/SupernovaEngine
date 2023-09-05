@@ -1,15 +1,14 @@
 #pragma once
 
-#include "Transform.hpp"
 #include "Jolt/Jolt.h"
 #include "Jolt/Physics/PhysicsSystem.h"
 #include "Jolt/Core/JobSystemThreadPool.h"
-#include "Jolt/Physics/Character/Character.h"
 
-#include "physics/JoltPhysics.hpp"
 #include "physics/DebugRenderer.hpp"
-#include "physics/RigidBodySettings.hpp"
-#include "physics/CharacterSettings.hpp"
+#include "physics/RigidBody.hpp"
+#include "physics/Character.hpp"
+#include "physics/CharacterVirtual.hpp"
+#include "Transform.hpp"
 
 class PhysicsWorld {
 public:
@@ -21,20 +20,31 @@ public:
   void setGravity(const glm::vec3 &);
   [[nodiscard]] glm::vec3 getGravity() const;
 
-  [[nodiscard]] JPH::Body *
-  createBody(const Transform &, const RigidBodySettings &, const JPH::Shape *);
-  void destroyBody(JPH::BodyID);
+  struct CreateInfo {
+    const Transform &transform;
+    const JPH::Shape *shape{nullptr};
+    uint32_t userData{0};
+  };
+  void initBody(RigidBody &, const CreateInfo &);
+  void initCharacter(Character &, const CreateInfo &);
+  void initCharacter(CharacterVirtual &, const CreateInfo &);
 
-  [[nodiscard]] JPH::Ref<JPH::Character>
-  createCharacter(const Transform &, const CharacterSettings &,
-                  const JPH::Shape *);
+  void remove(const RigidBody &);
+  void remove(const Character &);
 
-  auto &getJolt() { return m_physicsSystem; }
+  void setCollisionShape(RigidBody &, const JPH::Shape *);
+  void setCollisionShape(Character &, const JPH::Shape *);
+  void setCollisionShape(CharacterVirtual &, const JPH::Shape *);
+
+  [[nodiscard]] JPH::BodyManager::BodyStats getBodyStats() const;
 
   auto &getBodyInterface() { return m_physicsSystem.GetBodyInterface(); }
   auto &getBodyLockInterface() const {
     return m_physicsSystem.GetBodyLockInterface();
   }
+
+  void update(const Character &, Transform *, float collisionTollerance);
+  void update(const CharacterVirtual &, Transform *, float timeStep);
 
   void simulate(float timeStep);
   void debugDraw(DebugDraw &);
@@ -51,6 +61,17 @@ public:
   }
 
 private:
+  void _destroy(const JPH::BodyID);
+
+  [[nodiscard]] JPH::BodyID _createBody(const RigidBody::Settings &,
+                                        const CreateInfo &);
+  [[nodiscard]] JPH::Ref<JPH::Character>
+  _createCharacter(const Character::Settings &, const CreateInfo &);
+  [[nodiscard]] JPH::Ref<JPH::CharacterVirtual>
+  _createCharacter(const CharacterVirtual::Settings &settings,
+                   const CreateInfo &);
+
+private:
   JPH::PhysicsSystem m_physicsSystem;
 
   std::unique_ptr<JPH::TempAllocator> m_tempAllocator;
@@ -62,3 +83,6 @@ private:
 
   bool m_debugDrawEnabled{false};
 };
+
+// Jolt -> Engine
+void setTransform(const JPH::RMat44 &src, Transform &dst);

@@ -1,24 +1,25 @@
 #include "physics/RigidBody.hpp"
 #include "physics/Conversion.hpp"
 
-RigidBody::RigidBody(const RigidBodySettings &settings)
-    : m_settings{settings} {}
+RigidBody::RigidBody(const Settings &settings) : m_settings{settings} {}
 
-void RigidBody::setCollisionShape(const JPH::Shape *shape) {
-  assert(shape);
-  m_joltPhysics->GetBodyInterface().SetShape(m_bodyId, shape, false,
-                                             JPH::EActivation::DontActivate);
+RigidBody::operator bool() const {
+  return m_joltPhysics && !m_bodyId.IsInvalid();
 }
 
-const RigidBodySettings &RigidBody::getSettings() const { return m_settings; }
+const RigidBody::Settings &RigidBody::getSettings() const { return m_settings; }
+
+#define BODY_INTERFACE m_joltPhysics->GetBodyInterface()
+#define MUTATOR(Func, Value) BODY_INTERFACE.Func(m_bodyId, to_Jolt(Value))
+#define GETTER(Func) to_glm(BODY_INTERFACE.Get##Func(m_bodyId))
+
+JPH::BodyID RigidBody::getBodyId() const { return m_bodyId; }
 
 void RigidBody::setLinearVelocity(const glm::vec3 &v) {
-  m_joltPhysics->GetBodyInterface().SetLinearVelocity(m_bodyId, to_Jolt(v));
+  MUTATOR(SetLinearVelocity, v);
 }
 glm::vec3 RigidBody::getLinearVelocity() const {
-  return to_glm(m_joltPhysics->GetBodyInterface().GetLinearVelocity(m_bodyId));
+  return GETTER(LinearVelocity);
 }
 
-void RigidBody::applyImpulse(const glm::vec3 &v) {
-  m_joltPhysics->GetBodyInterface().AddImpulse(m_bodyId, to_Jolt(v));
-}
+void RigidBody::applyImpulse(const glm::vec3 &v) { MUTATOR(AddImpulse, v); }

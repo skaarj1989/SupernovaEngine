@@ -120,6 +120,7 @@ private:
   void _onInspect(entt::handle, const ColliderComponent &) const;
   void _onInspect(entt::handle, const RigidBody &) const;
   void _onInspect(entt::handle, const Character &) const;
+  void _onInspect(entt::handle, CharacterVirtual &) const;
 
   void _onInspect(entt::handle, SkeletonComponent &) const;
   void _onInspect(entt::handle, AnimationComponent &) const;

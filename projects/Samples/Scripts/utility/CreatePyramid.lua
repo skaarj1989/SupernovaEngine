@@ -24,12 +24,12 @@ while stackSize >= 0 do
       pos.x = offset.x + i * (diff.x * 2.0 + space)
 
       local e = createEntity()
-
       e:emplace(Transform(startPosition + pos))
       e:emplace(ColliderComponent(prefab.collider))
       e:emplace(RigidBody(RigidBodySettings({
         motionType = MotionType.Dynamic,
-        --restitution = 0.6,
+        mass = 10,
+        friction = 0.8,
       })))
       e:emplace(MeshInstance(prefab.mesh))
     end

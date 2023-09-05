@@ -1,33 +1,35 @@
 #include "physics/Character.hpp"
 #include "physics/Conversion.hpp"
 
-Character::Character(const CharacterSettings &settings)
-    : m_settings{settings} {}
+Character::Character(const Settings &settings) : m_settings{settings} {}
 
-void Character::setCollisionShape(const JPH::Shape *shape) {
-  assert(shape);
-  m_character->SetShape(shape, FLT_MAX);
+Character::operator bool() const {
+  return m_character && !m_character->GetBodyID().IsInvalid();
 }
 
-const CharacterSettings &Character::getSettings() const { return m_settings; }
+const Character::Settings &Character::getSettings() const { return m_settings; }
 
-glm::quat Character::getRotation() const {
-  return to_glm(m_character->GetRotation());
-}
-void Character::setRotation(const glm::quat &q) {
-  m_character->SetRotation(to_Jolt(q));
-}
+JPH::BodyID Character::getBodyId() const { return m_character->GetBodyID(); }
 
+#define SETTER(Func, Value) m_character->Set##Func(to_Jolt(Value))
+#define GETTER(Func) to_glm(m_character->Get##Func())
+
+void Character::setRotation(const glm::quat &q) { SETTER(Rotation, q); }
 void Character::setLinearVelocity(const glm::vec3 &v) {
-  m_character->SetLinearVelocity(to_Jolt(v));
+  SETTER(LinearVelocity, v);
 }
+
+glm::vec3 Character::getPosition() const { return GETTER(Position); }
+glm::quat Character::getRotation() const { return GETTER(Rotation); }
 glm::vec3 Character::getLinearVelocity() const {
-  return to_glm(m_character->GetLinearVelocity());
+  return GETTER(LinearVelocity);
 }
 
 JPH::Character::EGroundState Character::getGroundState() const {
   return m_character->GetGroundState();
 }
-glm::vec3 Character::getGroundNormal() const {
-  return to_glm(m_character->GetGroundNormal());
+bool Character::isSupported() const { return m_character->IsSupported(); }
+glm::vec3 Character::getGroundNormal() const { return GETTER(GroundNormal); }
+glm::vec3 Character::getGroundVelocity() const {
+  return GETTER(GroundVelocity);
 }

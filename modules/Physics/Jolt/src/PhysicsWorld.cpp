@@ -1,15 +1,9 @@
-#include "Jolt/Jolt.h"
+#include "physics/PhysicsWorld.hpp"
 
-#include "Jolt/RegisterTypes.h"
-#include "Jolt/Core/Factory.h"
-
-#include "Jolt/Physics/PhysicsSystem.h"
-#include "Jolt/Core/TempAllocator.h"
 #include "Jolt/Core/JobSystemThreadPool.h"
 #include "Jolt/Physics/Body/BodyCreationSettings.h"
-#include "Jolt/Physics/Character/Character.h"
 
-#include "physics/PhysicsWorld.hpp"
+#include "physics/JoltPhysics.hpp"
 #include "physics/Conversion.hpp"
 
 #include <cassert>
@@ -43,45 +37,75 @@ namespace {
   };
 }
 
-[[nodiscard]] auto makeSettings(const Transform &xf,
-                                const RigidBodySettings &settings,
-                                const JPH::Shape *shape) {
-  assert(shape);
+[[nodiscard]] auto makeSettings(const RigidBody::Settings &settings,
+                                const PhysicsWorld::CreateInfo &createInfo) {
+  assert(createInfo.shape);
 
   JPH::BodyCreationSettings out{
-    shape,
-    to_Jolt(xf.getPosition()),
-    to_Jolt(xf.getOrientation()),
+    createInfo.shape,
+    to_Jolt(createInfo.transform.getPosition()),
+    to_Jolt(createInfo.transform.getOrientation()),
     convert(settings.motionType),
     encode(settings.layer),
   };
-  out.mAllowDynamicOrKinematic = true;
   out.mFriction = settings.friction;
   out.mRestitution = settings.restitution;
-  out.mLinearDamping = settings.linearDamping;
-  out.mAngularDamping = settings.angularDamping;
+  out.mLinearDamping = glm::clamp(settings.linearDamping, 0.0f, 1.0f);
+  out.mAngularDamping = glm::clamp(settings.angularDamping, 0.0f, 1.0f);
   out.mGravityFactor = settings.gravityFactor;
+  out.mUserData = createInfo.userData;
 
-  if (shape->MustBeStatic()) {
+  using enum JPH::EOverrideMassProperties;
+
+  if (settings.motionType == MotionType::Static ||
+      createInfo.shape->MustBeStatic()) {
     out.mAllowDynamicOrKinematic = false;
-    out.mOverrideMassProperties =
-      JPH::EOverrideMassProperties::MassAndInertiaProvided;
+    out.mOverrideMassProperties = MassAndInertiaProvided;
+  } else {
+    out.mAllowDynamicOrKinematic = true;
+    if (settings.mass > 0) {
+      out.mOverrideMassProperties = CalculateInertia;
+      out.mMassPropertiesOverride.mMass = settings.mass;
+    } else {
+      out.mOverrideMassProperties = CalculateMassAndInertia;
+    }
   }
-
   return out;
 }
-
-[[nodiscard]] auto makeSettings(const CharacterSettings &settings,
+[[nodiscard]] auto makeSettings(const Character::Settings &settings,
                                 const JPH::Shape *shape) {
   assert(shape);
 
   JPH::CharacterSettings out;
-  out.mMaxSlopeAngle = JPH::DegreesToRadians(settings.maxSlopeAngle);
+  out.mMaxSlopeAngle = glm::radians(settings.maxSlopeAngle);
   out.mShape = shape;
   out.mLayer = encode(settings.layer);
+
   out.mMass = settings.mass;
   out.mFriction = settings.friction;
   out.mGravityFactor = settings.gravityFactor;
+  return out;
+}
+[[nodiscard]] auto makeSettings(const CharacterVirtual::Settings &settings,
+                                const JPH::Shape *shape) {
+  assert(createInfo.shape);
+
+  JPH::CharacterVirtualSettings out;
+  out.mMaxSlopeAngle = glm::radians(settings.maxSlopeAngle);
+  out.mShape = shape;
+
+  out.mMass = settings.mass;
+  out.mMaxStrength = settings.maxStrength;
+  out.mBackFaceMode = settings.backFaceMode;
+  out.mPredictiveContactDistance = settings.predictiveContactDistance;
+  out.mMaxCollisionIterations = settings.maxCollisionIterations;
+  out.mMaxConstraintIterations = settings.maxConstraintIterations;
+  out.mMinTimeRemaining = settings.minTimeRemaining;
+  out.mCollisionTolerance = settings.collisionTolerance;
+  out.mCharacterPadding = settings.characterPadding;
+  out.mMaxNumHits = settings.maxNumHits;
+  out.mHitReductionCosMaxAngle = settings.hitReductionCosMaxAngle;
+  out.mPenetrationRecoverySpeed = settings.penetrationRecoverySpeed;
   return out;
 }
 
@@ -206,40 +230,106 @@ glm::vec3 PhysicsWorld::getGravity() const {
   return to_glm(m_physicsSystem.GetGravity());
 }
 
-JPH::Body *PhysicsWorld::createBody(const Transform &xf,
-                                    const RigidBodySettings &settings,
-                                    const JPH::Shape *shape) {
-  auto &bodyInterface = m_physicsSystem.GetBodyInterface();
-  auto *body = bodyInterface.CreateBody(makeSettings(xf, settings, shape));
-  bodyInterface.AddBody(body->GetID(), JPH::EActivation::Activate);
-  return body;
+void PhysicsWorld::initBody(RigidBody &rb, const CreateInfo &createInfo) {
+  rb.m_bodyId = _createBody(rb.m_settings, createInfo);
+  rb.m_joltPhysics = &m_physicsSystem;
 }
-void PhysicsWorld::destroyBody(JPH::BodyID bodyId) {
-  auto &bodyInterface = m_physicsSystem.GetBodyInterface();
-  bodyInterface.RemoveBody(bodyId);
-  bodyInterface.DestroyBody(bodyId);
+void PhysicsWorld::initCharacter(Character &c, const CreateInfo &createInfo) {
+  c.m_character = _createCharacter(c.m_settings, createInfo);
+}
+void PhysicsWorld::initCharacter(CharacterVirtual &c,
+                                 const CreateInfo &createInfo) {
+  c.m_character = _createCharacter(c.m_settings, createInfo);
 }
 
-JPH::Ref<JPH::Character>
-PhysicsWorld::createCharacter(const Transform &xf,
-                              const CharacterSettings &settings,
-                              const JPH::Shape *shape) {
-  const auto characterSettings = makeSettings(settings, shape);
-  constexpr auto kNoUserData = 0;
-
-  JPH::Ref<JPH::Character> character = new JPH::Character{
-    &characterSettings, to_Jolt(xf.getPosition()), to_Jolt(xf.getOrientation()),
-    kNoUserData, &m_physicsSystem};
-  character->AddToPhysicsSystem(JPH::EActivation::Activate);
-  return character;
+void PhysicsWorld::remove(const RigidBody &rb) { _destroy(rb.getBodyId()); }
+void PhysicsWorld::remove(const Character &c) {
+  if (auto &character = c.m_character; character) {
+    character->RemoveFromPhysicsSystem();
+  }
 }
 
-void PhysicsWorld::simulate(float deltaTime) {
+void PhysicsWorld::setCollisionShape(RigidBody &rb, const JPH::Shape *shape) {
+  if (rb && shape) {
+    getBodyInterface().SetShape(rb.getBodyId(), shape, false,
+                                JPH::EActivation::DontActivate);
+  }
+}
+void PhysicsWorld::setCollisionShape(Character &c, const JPH::Shape *shape) {
+  if (c && shape) c.m_character->SetShape(shape, FLT_MAX);
+}
+void PhysicsWorld::setCollisionShape(CharacterVirtual &c,
+                                     const JPH::Shape *shape) {
+  if (c && shape) {
+    const auto layer = encode(c.m_settings.layer);
+    // clang-format off
+    c.m_character->SetShape(
+      shape,
+      1.5f * m_physicsSystem.GetPhysicsSettings().mPenetrationSlop,
+      m_physicsSystem.GetDefaultBroadPhaseLayerFilter(layer),
+      m_physicsSystem.GetDefaultLayerFilter(layer),
+      {},
+      {},
+      *m_tempAllocator
+    );
+    // clang-format on
+  }
+}
+
+JPH::BodyManager::BodyStats PhysicsWorld::getBodyStats() const {
+  return m_physicsSystem.GetBodyStats();
+}
+
+void PhysicsWorld::update(const Character &c, Transform *xf,
+                          float collisionTollerance) {
+  if (const auto &character = c.m_character; character) {
+    character->PostSimulation(collisionTollerance);
+    if (xf) setTransform(character->GetWorldTransform(), *xf);
+  }
+}
+void PhysicsWorld::update(const CharacterVirtual &c, Transform *xf,
+                          float timeStep) {
+  const auto &character = c.m_character;
+  if (!character) return;
+
+  JPH::CharacterVirtual::ExtendedUpdateSettings updateSettings;
+  if (c.isStickToFloor()) {
+    updateSettings.mStickToFloorStepDown =
+      -character->GetUp() * updateSettings.mStickToFloorStepDown.Length();
+  } else {
+    updateSettings.mStickToFloorStepDown = JPH::Vec3::sZero();
+  }
+  if (c.canWalkStairs()) {
+    updateSettings.mWalkStairsStepUp =
+      character->GetUp() * updateSettings.mWalkStairsStepUp.Length();
+  } else {
+    updateSettings.mWalkStairsStepUp = JPH::Vec3::sZero();
+  }
+
+  const auto layer = encode(c.m_settings.layer);
+
+  // clang-format off
+  character->ExtendedUpdate(
+    timeStep,
+    -character->GetUp() * m_physicsSystem.GetGravity().Length(),
+    updateSettings,
+    m_physicsSystem.GetDefaultBroadPhaseLayerFilter(layer),
+    m_physicsSystem.GetDefaultLayerFilter(layer),
+    {},
+    {},
+    *m_tempAllocator
+  );
+  // clang-format on
+
+  if (xf) setTransform(character->GetWorldTransform(), *xf);
+}
+
+void PhysicsWorld::simulate(float timeStep) {
   // If you take larger steps than 1 / 60th of a second you need to do multiple
   // collision steps in order to keep the simulation stable. Do 1 collision step
   // per 1 / 60th of a second (round up).
   constexpr auto kCollisionSteps = 1;
-  m_physicsSystem.Update(deltaTime, kCollisionSteps, m_tempAllocator.get(),
+  m_physicsSystem.Update(timeStep, kCollisionSteps, m_tempAllocator.get(),
                          m_jobSystem.get());
 }
 void PhysicsWorld::debugDraw(DebugDraw &dd) {
@@ -252,4 +342,59 @@ void PhysicsWorld::debugDraw(DebugDraw &dd) {
     .mDrawWorldTransform = true,
   };
   m_physicsSystem.DrawBodies(settings, JoltPhysics::debugRenderer, nullptr);
+}
+
+//
+// (private):
+//
+
+void PhysicsWorld::_destroy(const JPH::BodyID bodyId) {
+  if (!bodyId.IsInvalid()) {
+    auto &bodyInterface = m_physicsSystem.GetBodyInterface();
+    bodyInterface.RemoveBody(bodyId);
+    bodyInterface.DestroyBody(bodyId);
+  }
+}
+
+JPH::BodyID PhysicsWorld::_createBody(const RigidBody::Settings &settings,
+                                      const CreateInfo &createInfo) {
+  return m_physicsSystem.GetBodyInterface().CreateAndAddBody(
+    makeSettings(settings, createInfo), JPH::EActivation::Activate);
+}
+JPH::Ref<JPH::Character>
+PhysicsWorld::_createCharacter(const Character::Settings &settings,
+                               const CreateInfo &createInfo) {
+  const auto characterSettings = makeSettings(settings, createInfo.shape);
+
+  JPH::Ref<JPH::Character> character = new JPH::Character{
+    &characterSettings,
+    to_Jolt(createInfo.transform.getPosition()),
+    to_Jolt(createInfo.transform.getOrientation()),
+    createInfo.userData,
+    &m_physicsSystem,
+  };
+  character->AddToPhysicsSystem(JPH::EActivation::Activate);
+  return character;
+}
+JPH::Ref<JPH::CharacterVirtual>
+PhysicsWorld::_createCharacter(const CharacterVirtual::Settings &settings,
+                               const CreateInfo &createInfo) {
+  const auto characterSettings = makeSettings(settings, createInfo.shape);
+
+  JPH::Ref<JPH::CharacterVirtual> character = new JPH::CharacterVirtual{
+    &characterSettings,
+    to_Jolt(createInfo.transform.getPosition()),
+    to_Jolt(createInfo.transform.getOrientation()),
+    &m_physicsSystem,
+  };
+  return character;
+}
+
+//
+// Helper:
+//
+
+void setTransform(const JPH::RMat44 &src, Transform &dst) {
+  dst.setPosition(to_glm(src.GetTranslation()))
+    .setOrientation(to_glm(src.GetRotation()));
 }

@@ -6,7 +6,7 @@ local prefab <const> = {
 local startPosition <const> = math.vec3(0.0, 2.5, 0.0)
 local dimensions <const> = {
   width = 3,
-  height = 6,   -- Number of rows (y axis).
+  height = 6, -- Number of rows (y axis).
   depth = 3
 }
 local spacing <const> = 1.0
@@ -25,7 +25,8 @@ for row = 0, dimensions.height - 1 do
       e:emplace(ColliderComponent(prefab.collider))
       e:emplace(RigidBody(RigidBodySettings({
         motionType = MotionType.Dynamic,
-        --restitution = 0.6,
+        mass = 10,
+        friction = 0.8,
       })))
       e:emplace(MeshInstance(prefab.mesh))
     end

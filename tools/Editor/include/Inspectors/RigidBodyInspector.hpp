@@ -1,5 +1,5 @@
 #pragma once
 
-#include "physics/RigidBodySettings.hpp"
+#include "physics/RigidBody.hpp"
 
-bool inspect(RigidBodySettings &);
+bool inspect(RigidBody::Settings &);

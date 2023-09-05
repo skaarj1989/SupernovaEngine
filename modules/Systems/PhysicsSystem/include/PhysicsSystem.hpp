@@ -2,8 +2,6 @@
 
 #include "physics/PhysicsWorld.hpp"
 #include "physics/Collider.hpp"
-#include "physics/RigidBody.hpp"
-#include "physics/Character.hpp"
 
 #include "SystemCommons.hpp"
 
@@ -15,9 +13,11 @@
   - [setup callbacks] ColliderComponent
   - [setup callbacks] RigidBody
   - [setup callbacks] Character
+  - [setup callbacks] CharacterVirtual
 */
 struct PhysicsSystem {
-  INTRODUCE_COMPONENTS(ColliderComponent, RigidBody, Character)
+  INTRODUCE_COMPONENTS(ColliderComponent, RigidBody, Character,
+                       CharacterVirtual)
 
   static void setup(entt::registry &);
 
@@ -36,15 +36,6 @@ struct PhysicsSystem {
     auto &[registry, _] = cereal::get_user_data<InputContext>(archive);
     archive(registry.ctx().get<PhysicsWorld>());
   }
-
-private:
-  static void _connectRigidBodyComponent(entt::registry &);
-  static void _initRigidBody(entt::registry &, entt::entity);
-  static void _cleanupRigidBody(entt::registry &, entt::entity);
-
-  static void _connectCharacterComponent(entt::registry &);
-  static void _initCharacter(entt::registry &, entt::entity);
-  static void _cleanupCharacter(entt::registry &, entt::entity);
 };
 
 [[nodiscard]] PhysicsWorld &getPhysicsWorld(entt::registry &);

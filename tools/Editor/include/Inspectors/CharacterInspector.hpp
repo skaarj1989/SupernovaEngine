@@ -1,5 +1,5 @@
 #pragma once
 
-#include "physics/CharacterSettings.hpp"
+#include "physics/Character.hpp"
 
-bool inspect(CharacterSettings &);
+bool inspect(Character::Settings &);
