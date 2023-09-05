@@ -1,46 +1,25 @@
 #pragma once
 
 #include "NameComponent.hpp"
-#include "ParentComponent.hpp"
-#include "ChildrenComponent.hpp"
 #include "Transform.hpp"
+#include "HierarchySystem.hpp"
+#include "PhysicsSystem.hpp"
+#include "RenderSystem.hpp"
+#include "AnimationSystem.hpp"
+#include "ScriptSystem.hpp"
 
-#include "physics/PhysicsWorld.hpp"
-#include "physics/Collider.hpp"
-#include "physics/RigidBody.hpp"
-#include "physics/Character.hpp"
-
-#include "renderer/Light.hpp"
-#include "renderer/MeshInstance.hpp"
-#include "renderer/DecalInstance.hpp"
-#include "CameraComponent.hpp"
-
-#include "animation/SkeletonComponent.hpp"
-#include "animation/AnimationComponent.hpp"
-#include "animation/PlaybackController.hpp"
-
-#include "ScriptComponent.hpp"
-
-#include "entt/signal/emitter.hpp"
-#include "entt/entity/registry.hpp"
 #include "entt/entity/handle.hpp"
 #include "entt/entity/helper.hpp" // to_entity
-
-void copyRegistry(entt::registry &src, entt::registry &dst);
 
 class Scene {
 public:
   // clang-format off
-  static constexpr entt::type_list<
-    NameComponent,
-    Transform,
-    ParentComponent, ChildrenComponent,
-    ColliderComponent, RigidBody, Character,
-    CameraComponent,
-    gfx::Light, gfx::MeshInstance, gfx::DecalInstance,
-    SkeletonComponent, AnimationComponent, PlaybackController,
-    ScriptComponent>
-  kComponentTypes{};
+  static constexpr auto kComponentTypes =
+    entt::type_list<NameComponent, Transform, ParentComponent, ChildrenComponent>{} +
+    PhysicsSystem::kIntroducedComponents +
+    RenderSystem::kIntroducedComponents +
+    AnimationSystem::kIntroducedComponents +
+    ScriptSystem::kIntroducedComponents;
   // clang-format on
 
   Scene();
@@ -68,12 +47,15 @@ public:
 
   [[nodiscard]] PhysicsWorld *getPhysicsWorld();
 
+  [[nodiscard]] bool empty() const;
   void clear();
 
   // -- Serialization:
 
-  bool save(const std::filesystem::path &) const;
-  bool load(const std::filesystem::path &);
+  enum class ArchiveType { Binary = 0, JSON = 1 };
+
+  bool save(const std::filesystem::path &, const ArchiveType) const;
+  bool load(const std::filesystem::path &, const ArchiveType);
 
 private:
   entt::registry m_registry;

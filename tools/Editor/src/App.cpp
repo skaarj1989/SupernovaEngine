@@ -3,11 +3,7 @@
 
 #include "MapOptional.hpp"
 
-#include "HierarchySystem.hpp"
 #include "physics/JoltPhysics.hpp"
-#include "PhysicsSystem.hpp"
-#include "RenderSystem.hpp"
-#include "ScriptSystem.hpp"
 
 #include "LuaModules.hpp"
 

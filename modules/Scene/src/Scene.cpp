@@ -1,12 +1,8 @@
 #include "Scene.hpp"
 #include "os/FileSystem.hpp"
 
-#include "PhysicsSystem.hpp"
-#include "RenderSystem.hpp"
-#include "AnimationSystem.hpp"
-#include "ScriptSystem.hpp"
-
 #include "cereal/archives/json.hpp"
+#include "cereal/archives/binary.hpp"
 #include "math/Serialization.hpp"
 #include "cereal/types/optional.hpp"
 #include "cereal/types/variant.hpp"
@@ -17,18 +13,6 @@
 
 #include "SystemSerializationUtility.hpp" // {save/load}Systems
 
-void copyRegistry(entt::registry &src, entt::registry &dst) {
-  dst.assign(src.data(), src.data() + src.size(), src.released());
-  for (auto [id, srcStorage] : src.storage()) {
-    for (auto [e] : src.storage<entt::entity>().each()) {
-      auto dstStorage = dst.storage(id);
-      if (auto it = dstStorage->begin(); it != dstStorage->end()) {
-        dstStorage->push(e, srcStorage.value(e));
-      }
-    }
-  }
-}
-
 namespace {
 
 constexpr entt::type_list<NameComponent, Transform, ChildrenComponent>
@@ -38,10 +22,9 @@ constexpr entt::type_list<PhysicsSystem, RenderSystem, AnimationSystem,
                           ScriptSystem>
   kSystemTypes{};
 
-bool serialize(const entt::registry &r, std::ostream &os) {
+template <class UnderlyingArchive>
+void serialize(const entt::registry &r, std::ostream &os) {
   try {
-    using UnderlyingArchive = cereal::JSONOutputArchive;
-
     entt::snapshot snapshot{r};
     OutputContext outputContext{r, snapshot};
     cereal::UserDataAdapter<OutputContext, UnderlyingArchive> archive{
@@ -57,16 +40,13 @@ bool serialize(const entt::registry &r, std::ostream &os) {
     saveComponents<UnderlyingArchive>(archive, kCoreTypes);
     saveSystems<UnderlyingArchive>(archive, kSystemTypes);
   } catch (const std::exception &e) {
-    return false;
+    os.setstate(std::ios_base::failbit);
   }
-  return true;
 }
-bool deserialize(std::istream &is, entt::registry &r) {
+template <class UnderlyingArchive>
+void deserialize(std::istream &is, entt::registry &r) {
   r.clear();
-
   try {
-    using UnderlyingArchive = cereal::JSONInputArchive;
-
     entt::snapshot_loader snapshotLoader{r};
     InputContext inputContext{r, snapshotLoader};
     cereal::UserDataAdapter<InputContext, UnderlyingArchive> archive{
@@ -86,17 +66,61 @@ bool deserialize(std::istream &is, entt::registry &r) {
     snapshotLoader.orphans();
   } catch (const std::exception &e) {
     r.clear();
-    return false;
   }
-  return true;
 }
 
-std::ostream &operator<<(std::ostream &os, const entt::registry &r) {
-  serialize(r, os);
+[[nodiscard]] auto getxalloc() {
+  static const auto i = std::ios_base::xalloc();
+  return i;
+}
+void setArchiveType(std::ios_base &ib, const Scene::ArchiveType archiveType) {
+  ib.iword(getxalloc()) = std::to_underlying(archiveType);
+}
+[[nodiscard]] Scene::ArchiveType getArchiveType(std::ios_base &s) {
+  return static_cast<Scene::ArchiveType>(s.iword(getxalloc()));
+}
+
+std::ostream &operator<<(std::ostream &os,
+                         const Scene::ArchiveType archiveType) {
+  setArchiveType(os, archiveType);
   return os;
 }
+std::ostream &operator<<(std::ostream &os, const entt::registry &r) {
+#define CASE(Type)                                                             \
+  case Type:                                                                   \
+    serialize<cereal::Type##OutputArchive>(r, os);                             \
+    break
+
+  switch (getArchiveType(os)) {
+    using enum Scene::ArchiveType;
+
+    CASE(Binary);
+    CASE(JSON);
+  }
+#undef CASE
+
+  return os;
+}
+
+std::istream &operator>>(std::istream &is,
+                         const Scene::ArchiveType archiveType) {
+  setArchiveType(is, archiveType);
+  return is;
+}
 std::istream &operator>>(std::istream &is, entt::registry &r) {
-  deserialize(is, r);
+#define CASE(Type)                                                             \
+  case Type:                                                                   \
+    deserialize<cereal::Type##InputArchive>(is, r);                            \
+    break
+
+  switch (getArchiveType(is)) {
+    using enum Scene::ArchiveType;
+
+    CASE(Binary);
+    CASE(JSON);
+  }
+#undef CASE
+
   return is;
 }
 
@@ -113,7 +137,6 @@ std::istream &operator>>(std::istream &is, entt::registry &r) {
     if (std::ranges::any_of(kIgnoredTypes, equals(componentId))) {
       continue;
     }
-
     if (pool.contains(in)) {
       const auto it = pool.push(out, pool.value(in));
       const auto emplaced = it != pool.cend();
@@ -131,17 +154,11 @@ std::istream &operator>>(std::istream &is, entt::registry &r) {
 //
 
 Scene::Scene() = default;
-Scene::Scene(const Scene &other) {
-  std::stringstream ss;
-  ss << other.m_registry;
-  ss >> m_registry;
-}
+Scene::Scene(const Scene &other) { copyFrom(other); }
 Scene::~Scene() { clear(); }
 
 Scene &Scene::operator=(const Scene &rhs) {
-  std::stringstream ss;
-  ss << rhs.m_registry;
-  ss >> m_registry;
+  copyFrom(rhs);
   return *this;
 }
 
@@ -150,7 +167,7 @@ const entt::registry &Scene::getRegistry() const { return m_registry; }
 
 void Scene::copyFrom(const Scene &src) {
   std::stringstream ss;
-  ss << src.m_registry;
+  ss << ArchiveType::Binary << src.m_registry;
   ss >> m_registry;
 }
 
@@ -169,22 +186,26 @@ entt::handle Scene::clone(entt::handle in) {
 }
 
 PhysicsWorld *Scene::getPhysicsWorld() {
-  auto &ctx = m_registry.ctx();
-  return ctx.contains<PhysicsWorld>() ? ctx.find<PhysicsWorld>() : nullptr;
+  return m_registry.ctx().find<PhysicsWorld>();
 }
 
+bool Scene::empty() const {
+  return m_registry.storage<entt::entity>()->empty();
+}
 void Scene::clear() { m_registry.clear(); }
 
-bool Scene::save(const std::filesystem::path &p) const {
-  if (std::ostringstream ss; serialize(m_registry, ss)) {
-    return os::FileSystem::saveText(p, ss.str());
-  }
-  return false;
+bool Scene::save(const std::filesystem::path &p,
+                 const ArchiveType archiveType) const {
+  std::ostringstream os;
+  os << archiveType << m_registry;
+  return os.good() && os::FileSystem::saveText(p, os.str());
 }
-bool Scene::load(const std::filesystem::path &p) {
+bool Scene::load(const std::filesystem::path &p,
+                 const ArchiveType archiveType) {
   if (auto text = os::FileSystem::readText(p); text) {
-    std::istringstream ss{*text};
-    return deserialize(ss, m_registry);
+    std::istringstream is{*text};
+    is >> archiveType >> m_registry;
+    return !empty();
   }
   return false;
 }

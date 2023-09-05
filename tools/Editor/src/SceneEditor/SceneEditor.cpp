@@ -465,7 +465,7 @@ void SceneEditor::show(const char *name, bool *open) {
                          });
         p) {
       auto &entry = m_scenes[*m_activeSceneId];
-      if (entry->scene.save(*p)) {
+      if (entry->scene.save(*p, Scene::ArchiveType::JSON)) {
         entry->path = *p;
       }
     }
@@ -547,7 +547,7 @@ void SceneEditor::_openScene(const std::filesystem::path &p) {
   setupEditorViewport(entry->viewport);
 
   const auto relativePath = os::FileSystem::relativeToRoot(p);
-  if (entry->scene.load(p)) {
+  if (entry->scene.load(p, Scene::ArchiveType::JSON)) {
     entry->path = p;
     m_scenes.emplace_back(std::move(entry));
 
@@ -614,7 +614,7 @@ void SceneEditor::_menuBar() {
         if (const auto &p = activeEntry->path; p.empty()) {
           action = GUI::Modals::kSaveSceneAsId;
         } else {
-          activeEntry->scene.save(p);
+          activeEntry->scene.save(p, Scene::ArchiveType::JSON);
         }
       }
       if (ImGui::MenuItemEx("Open", ICON_FA_UPLOAD)) {
