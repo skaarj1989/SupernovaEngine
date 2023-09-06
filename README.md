@@ -48,7 +48,6 @@ An experimental game engine.
   - Character controller
 - Skeletal animations ([ozz-animation](https://github.com/guillaumeblanc/ozz-animation))
 - Lua scripting ([sol2](https://github.com/ThePhD/sol2))
-<br/>
 - Material Editor ([imgui](https://github.com/ocornut/imgui) w/ [imnodes](https://github.com/Nelarius/imnodes))
 
 ## Building
