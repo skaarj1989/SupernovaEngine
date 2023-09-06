@@ -21,16 +21,64 @@ An experimental game engine.
 <img src="media/fg.svg" alt="Material Editor (post process)" alt="FrameGraph"/>
 </details>
 
+## Features
+
+- Entity Component System ([EnTT](https://github.com/skypjack/entt/wiki))
+- Renderer (Vulkan w/ [FrameGraph](https://github.com/skaarj1989/FrameGraph)):
+  - Forward/Deferred Shading [PBR + IBL](https://github.com/KhronosGroup/glTF-Sample-Viewer)
+  - Weighted Blended OIT
+  - Lighting and shadows ([Tiled Culling](https://www.3dgep.com/forward-plus/)):
+    - Directional lights (w/ [CSM](https://johanmedestrom.wordpress.com/2016/03/18/opengl-cascaded-shadow-maps/))
+    - Point lights
+    - Spot lights
+  - Decals
+  - Skinning
+  - Skybox
+  - Global Illumination ([LPV](https://blog.blackhc.net/2010/07/light-propagation-volumes/))
+  - SSAO
+  - SSR
+  - [Eye Adaptation](https://bruop.github.io/exposure/)
+  - [Bloom](https://learnopengl.com/Guest-Articles/2022/Phys.-Based-Bloom)
+  - Tonemapping
+  - FXAA
+  - Customizable materials (surface and postprocess)
+  - Custom mesh format (w/ [assimp](https://github.com/assimp/assimp) exporter)
+- Physics ([Jolt](https://github.com/jrouwe/JoltPhysics))
+  - Rigid bodies
+  - Character controller
+- Skeletal animations ([ozz-animation](https://github.com/guillaumeblanc/ozz-animation))
+- Lua scripting ([sol2](https://github.com/ThePhD/sol2))
+<br/>
+- Material Editor ([imgui](https://github.com/ocornut/imgui) w/ [imnodes](https://github.com/Nelarius/imnodes))
+
 ## Building
 
-```bash
-> vcpkg install minizip robin-hood-hashing glm spdlog nlohmann-json cereal glslang spirv-cross ktx[vulkan] stb lua argparse meshoptimizer boost-graph catch2
-```
+Requires [CMake 3.26](https://cmake.org/) and [vcpkg](https://github.com/microsoft/vcpkg)
 
 ```bash
 > git clone --recurse-submodules https://github.com/skaarj1989/SupernovaEngine.git
 > cd SupernovaEngine
 > cmake -S . -B build
+```
+
+### vcpkg
+
+```bash
+> git clone https://github.com/microsoft/vcpkg
+> ./vcpkg/bootstrap-vcpkg.bat
+```
+
+Add the following environment variables:
+
+```bash
+VCPKG_ROOT=path_to_vcpkg
+VCPKG_DEFAULT_TRIPLET=x64-windows
+```
+
+Install dependencies:
+
+```bash
+> vcpkg install minizip robin-hood-hashing glm spdlog nlohmann-json cereal glslang spirv-cross ktx[vulkan] stb lua argparse meshoptimizer boost-graph catch2
 ```
 
 ## Third-party
@@ -62,6 +110,7 @@ An experimental game engine.
 - [The Boost Graph Library](https://www.boost.org/doc/libs/1_83_0/libs/graph/doc/index.html)
 - [Dear ImGui](https://github.com/ocornut/imgui)
 - [imnodes](https://github.com/Nelarius/imnodes)
+- [ImGuiColorTextEdit](https://github.com/BalazsJako/ImGuiColorTextEdit)
 - [Nuklear](https://github.com/Immediate-Mode-UI/Nuklear)
 - [IconFontCppHeaders](https://github.com/juliettef/IconFontCppHeaders)
 - [Catch2](https://github.com/catchorg/Catch2)
@@ -78,6 +127,7 @@ An experimental game engine.
 
 - PBR Lighting based on: [glTF-Sample-Viewer](https://github.com/KhronosGroup/glTF-Sample-Viewer)
 - [Forward vs Deferred vs Forward+ Rendering with DirectX 11](https://www.3dgep.com/forward-plus/)
+- [Light Propagation Volumes](https://blog.blackhc.net/2010/07/light-propagation-volumes/)
 - [OpenGL Cascaded Shadow Maps](https://johanmedestrom.wordpress.com/2016/03/18/opengl-cascaded-shadow-maps/)
 - [Automatic Exposure Using a Luminance Histogram](https://bruop.github.io/exposure/)
 - [Physically Based Bloom](https://learnopengl.com/Guest-Articles/2022/Phys.-Based-Bloom)
