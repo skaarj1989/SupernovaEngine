@@ -3,3 +3,9 @@ define_script_module(
   SOURCES "include/LuaPhysics.hpp" "src/LuaPhysics.cpp"
   LIBRARIES LuaEmitter
 )
+
+if(MSVC)
+  target_compile_options(LuaJoltPhysics PRIVATE /bigobj)
+else()
+  target_compile_options(LuaJoltPhysics PRIVATE -Wa,-mbig-obj)
+endif()
