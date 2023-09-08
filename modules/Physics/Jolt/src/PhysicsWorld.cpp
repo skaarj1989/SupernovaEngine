@@ -88,7 +88,7 @@ namespace {
 }
 [[nodiscard]] auto makeSettings(const CharacterVirtual::Settings &settings,
                                 const JPH::Shape *shape) {
-  assert(createInfo.shape);
+  assert(shape);
 
   JPH::CharacterVirtualSettings out;
   out.mMaxSlopeAngle = glm::radians(settings.maxSlopeAngle);
