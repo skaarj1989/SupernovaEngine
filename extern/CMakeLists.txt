@@ -17,6 +17,7 @@ FetchContent_Declare(Tracy
   GIT_REPOSITORY https://github.com/wolfpld/tracy
   GIT_TAG v0.9.1
 )
+set(TRACY_ON_DEMAND ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(Tracy)
 
 set_target_properties(TracyClient PROPERTIES FOLDER "Third-party/Profiler")
