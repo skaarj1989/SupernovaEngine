@@ -1,5 +1,3 @@
-find_package(EnTT REQUIRED)
-
 add_library(Window
   "include/os/Window.hpp"
   "src/WindowBuilder.cpp"
