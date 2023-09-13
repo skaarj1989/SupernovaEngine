@@ -34,4 +34,11 @@ target_link_libraries(Scripting
 )
 set_target_properties(Scripting PROPERTIES FOLDER "Framework")
 
+add_resources(
+  TARGET ScriptLibrary
+  IN_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lua
+  OUT_DIR lua
+)
+add_dependencies(Scripting Copy-ScriptLibrary)
+
 include(cmake/DefineScriptModule.cmake)
