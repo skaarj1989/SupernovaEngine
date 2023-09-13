@@ -37,6 +37,8 @@
 
 namespace {
 
+// https://glm.g-truc.net/0.9.9/api/a00280.html
+
 void registerConstants(sol::table &lua) {
   // Accessed like a function call.
   lua["PI"] = sol::readonly_property(&glm::pi<float>);
@@ -44,13 +46,35 @@ void registerConstants(sol::table &lua) {
   lua["EPSILON"] = sol::readonly_property(&glm::epsilon<float>);
 }
 void registerFreeFunctions(sol::table &lua) {
-  lua.set_function("sin", sol::resolve<float(float)>(glm::sin));
-  lua.set_function("cos", sol::resolve<float(float)>(glm::cos));
-  lua.set_function("tan", sol::resolve<float(float)>(glm::tan));
+#pragma region common
+  lua.set_function("abs", GEN_TYPE_X(glm::abs));
+  lua.set_function("floor", GEN_TYPE_X(glm::floor));
+  lua.set_function("ceil", GEN_TYPE_X(glm::ceil));
 
+  lua.set_function("min", GEN_TYPE_X2(glm::min));
+  lua.set_function("max", GEN_TYPE_X2(glm::max));
+  lua.set_function("clamp", GEN_TYPE_X3(glm::clamp));
+
+  lua.set_function("mix", GEN_TYPE_X3(glm::mix));
+#pragma endregion
+#pragma region trigonometric
   lua.set_function("degrees", GEN_TYPE_X(glm::degrees));
   lua.set_function("radians", GEN_TYPE_X(glm::radians));
 
+  lua.set_function("sin", sol::resolve<float(float)>(glm::sin));
+  lua.set_function("cos", sol::resolve<float(float)>(glm::cos));
+  lua.set_function("tan", sol::resolve<float(float)>(glm::tan));
+#pragma endregion
+#pragma region exponential
+  lua.set_function("exp", GEN_TYPE_X(glm::exp));
+  lua.set_function("exp2", GEN_TYPE_X(glm::exp2));
+  lua.set_function("inversesqrt", GEN_TYPE_X(glm::inversesqrt));
+  lua.set_function("log", GEN_TYPE_X(glm::log));
+  lua.set_function("log2", GEN_TYPE_X(glm::log2));
+  lua.set_function("pow", GEN_TYPE_X2(glm::pow));
+  lua.set_function("sqrt", GEN_TYPE_X(glm::sqrt));
+#pragma endregion
+#pragma region geometric
   lua.set_function(
     "dot",
     sol::overload(
@@ -76,28 +100,37 @@ void registerFreeFunctions(sol::table &lua) {
     sol::overload(sol::resolve<float(const glm::vec2 &)>(glm::length),
                   sol::resolve<float(const glm::vec3 &)>(glm::length)));
 
+  // clang-format off
+  lua.set_function(
+    "reflect", 
+    sol::overload(
+      sol::resolve<glm::vec2(const glm::vec2 &, const glm::vec2 &)>(glm::reflect),
+      sol::resolve<glm::vec3(const glm::vec3 &, const glm::vec3 &)>(glm::reflect)
+    )
+  );
+  lua.set_function(
+    "refract", 
+    sol::overload(
+      sol::resolve<glm::vec2(const glm::vec2 &, const glm::vec2 &, float)>(glm::refract),
+      sol::resolve<glm::vec3(const glm::vec3 &, const glm::vec3 &, float)>(glm::refract)
+    )
+  );
+  // clang-format on
+
   lua.set_function(
     "normalize",
     sol::overload(sol::resolve<glm::vec2(const glm::vec2 &)>(glm::normalize),
                   sol::resolve<glm::vec3(const glm::vec3 &)>(glm::normalize),
                   sol::resolve<glm::vec4(const glm::vec4 &)>(glm::normalize),
                   sol::resolve<glm::quat(const glm::quat &)>(glm::normalize)));
-
-  lua.set_function("abs", GEN_TYPE_X(glm::abs));
-  lua.set_function("floor", GEN_TYPE_X(glm::floor));
-  lua.set_function("ceil", GEN_TYPE_X(glm::ceil));
-
-  lua.set_function("min", GEN_TYPE_X2(glm::min));
-  lua.set_function("max", GEN_TYPE_X2(glm::max));
-  lua.set_function("clamp", GEN_TYPE_X3(glm::clamp));
-
-  lua.set_function("mix", GEN_TYPE_X3(glm::mix));
-
+#pragma endregion
+#pragma region noise
   lua.set_function(
     "noise", sol::overload(sol::resolve<float(const glm::vec2 &)>(glm::perlin),
                            [](float x, float y) {
                              return glm::perlin(glm::vec2{x, y});
                            }));
+#pragma endregion
 }
 
 template <typename T> void addArithmeticOperators(sol::usertype<T> &type) {
@@ -339,6 +372,8 @@ void registerQuat(sol::table &lua) {
   );
   // clang-format on
 
+  lua["eulerAngles"] =
+    sol::resolve<glm::vec3(const glm::quat &)>(glm::eulerAngles);
   lua["angleAxis"] =
     sol::resolve<glm::quat(const float &, const glm::vec3 &)>(glm::angleAxis);
   lua["lookAt"] = sol::resolve<glm::quat(const glm::vec3 &, const glm::vec3 &)>(

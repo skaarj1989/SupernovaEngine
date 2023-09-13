@@ -18,6 +18,10 @@
 --- @operator div(number): quat
 math.quat = {}
 
+--- @return vec3
+--- @param q quat
+function math.eulerAngles(q) end
+
 --- @return quat
 --- @param angle number
 --- @param v vec3
