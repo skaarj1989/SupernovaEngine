@@ -48,6 +48,21 @@ struct GUI {
   };
 };
 
+[[nodiscard]] auto createLuaState() {
+  sol::state lua;
+
+  using enum sol::lib;
+  lua.open_libraries(base, package, string, os, math, table);
+  registerModules(lua);
+
+  const auto scriptLibraryPath =
+    std::filesystem::current_path().parent_path() / "lua/";
+  lua["package"]["path"] =
+    std::format("{}?.lua;", scriptLibraryPath.lexically_normal().string());
+
+  return lua;
+}
+
 } // namespace
 
 //
@@ -82,10 +97,7 @@ App::App(std::span<char *> args)
 
   _setupWidgets();
 
-  m_luaState.open_libraries(sol::lib::base, sol::lib::package, sol::lib::os,
-                            sol::lib::math, sol::lib::table);
-  registerModules(m_luaState);
-
+  m_luaState = createLuaState();
   m_luaState["GameWindow"] = std::ref(getWindow());
   m_luaState["InputSystem"] = std::ref(getInputSystem());
 
