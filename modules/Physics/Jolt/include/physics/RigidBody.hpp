@@ -6,6 +6,7 @@
 #include "CollisionLayer.hpp"
 
 #include "glm/vec3.hpp"
+#include "glm/gtc/quaternion.hpp"
 
 enum class MotionType { Dynamic, Static, Kinematic };
 
@@ -38,10 +39,15 @@ public:
 
   JPH::BodyID getBodyId() const;
 
-  glm::vec3 getLinearVelocity() const;
+  void setPosition(const glm::vec3 &);
+  void setRotation(const glm::quat &);
   void setLinearVelocity(const glm::vec3 &);
 
   void applyImpulse(const glm::vec3 &);
+
+  [[nodiscard]] glm::vec3 getPosition() const;
+  [[nodiscard]] glm::quat getRotation() const;
+  [[nodiscard]] glm::vec3 getLinearVelocity() const;
 
   // ---
 

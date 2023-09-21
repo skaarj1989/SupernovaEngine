@@ -148,10 +148,15 @@ void registerRigidBodyComponent(sol::state &lua) {
     
     BIND(getSettings),
 
+    BIND(setPosition),
+    BIND(setRotation),
     BIND(setLinearVelocity),
-    BIND(getLinearVelocity),
 
     BIND(applyImpulse),
+    
+    BIND(getPosition),
+    BIND(getRotation),
+    BIND(getLinearVelocity),
 
     BIND_TYPEID(RigidBody),
     BIND_TOSTRING(RigidBody)
