@@ -4,45 +4,41 @@
     - ColliderComponent
     - CharacterVirtual
     - ScriptComponent (this code)
-
-    Child Entity:
-    - Transform
-    - CameraComponent
+    + Child Entity:
+      - Transform
+      + Child Entity:
+        - Transform
+        - CameraComponent
 ]]
-local bulletPrefab <const> = {
-  collider = loadCollider("Colliders/Sphere.json"),
-  mesh = loadMesh("BasicShapes:Sphere"),
-  material = loadMaterial("Materials/Graph/Surface/Emissive/Emissive.material")
+
+local CharacterController = require "Scripts.behavior.CharacterController"
+local ShakeableTransform = require "Scripts.behavior.ShakeableTransform"
+local HeadBobbing = require "Scripts.behavior.HeadBobbing"
+local Cannon = require "Scripts.behavior.Cannon"
+
+local node = {
+  lookSpeed = 7,
 }
 
-math.randomseed(os.time())
+function node:init()
+  local character = self.entity:get(CharacterVirtual)
+  self.characterController = CharacterController:new(character)
 
-local function getRandomColor()
-  return math.vec3(math.random(), math.random(), math.random())
-end
+  local head = self.entity:getChildren()[1]
 
---- @class Player: ScriptNode
-local node = {
-  walkSpeed = 6,
-  sprintMultiplier = 2.5,
-  lookSpeed = 7,
-  jumpSpeed = 4,
+  local headXf <const> = head:get(Transform)
+  self.cameraShake = ShakeableTransform:new(headXf)
 
-  projectile = {
+  self.cameraXf = head:getChildren()[1]:get(Transform)
+  self.headBobbing = HeadBobbing:new(headXf, self.cameraXf)
+
+  self.cannon = Cannon:new({
     speed = 30,
     mass = 0.5,
-  },
+  })
+end
 
-  hasControl = false,
-
-  moveDirection = math.vec3(0),
-  desiredVelocity = math.vec3(0),
-  allowSliding = false,
-  wantJump = false,
-
-  spawns = {},
-}
-
+--- @param evt InputEvent
 function node:input(evt)
   if self.hasControl and isTypeOf(evt, MouseButtonEvent) then
     --- @cast evt MouseButtonEvent
@@ -55,80 +51,50 @@ function node:input(evt)
     --- @cast evt KeyboardEvent
     if evt.state == KeyState.Up then
       if evt.keyCode == KeyCode.R then
-        self:_clearSpawns()
+        self.cannon:clearSpawns()
       elseif evt.keyCode == KeyCode.C then
-        self.hasControl = not self.hasControl
-        InputSystem:showCursor(not self.hasControl)
+        self:_takeControl(not self.hasControl)
+      elseif evt.keyCode == KeyCode.Esc then
+        self:_takeControl(false)
       end
     else -- KeyDown
       if evt.keyCode == KeyCode.Space then
-        self.wantJump = true
+        self.characterController:jump()
       end
     end
   end
 end
 
-function node:_fire()
-  local bullet <const> = createEntity()
-
-  local cameraForward = self.cameraXf:getForward()
-  local offset = 4
-  local spawnPos = self.cameraXf:getPosition() + (cameraForward * offset)
-  bullet:emplace(Transform(spawnPos))
-
-  bullet:emplace(ColliderComponent(bulletPrefab.collider))
-  local body = bullet:emplace(RigidBody(RigidBodySettings({
-    motionType = MotionType.Dynamic,
-    mass = self.projectile.mass,
-    restitution = 0.6,
-  })))
-  body:setLinearVelocity(cameraForward * self.projectile.speed)
-
-  local color <const> = getRandomColor()
-  bullet:emplace(Light({
-    type = LightType.Point,
-    color = color,
-    range = 10,
-    intensity = 30,
-    shadowBias = 0.035,
-    castsShadow = true
-  }))
-
-  local meshInstance = bullet:emplace(MeshInstance(bulletPrefab.mesh))
-  meshInstance:setMaterial(0, bulletPrefab.material)
-  local materialInstance = meshInstance:getMaterial(0)
-  materialInstance.receivesShadow = false
-  materialInstance.castsShadow = false
-  local intensity <const> = 500
-  materialInstance:setProperty("fs_emissiveFactor", math.vec4(color, intensity))
-
-  table.insert(self.spawns, bullet)
-end
-
-function node:_clearSpawns()
-  for i = 1, #self.spawns do
-    self.spawns[i]:destroy()
-  end
-  self.spawns = {}
-end
-
-function node:_processMouse(dt)
-  local mouseDelta = InputSystem:getMouseDelta()
-  if (mouseDelta ~= math.ivec2(0)) then
-    -- Horizontal axis: rotate character body around Y axis.
-    local qYaw = math.angleAxis(math.radians(-mouseDelta.x * self.lookSpeed * dt), Transform.Up)
-    self.character:setRotation(self.character:getRotation() * qYaw)
-
-    -- Vertical axis: rotate camera (up/down).
-    local qPitch = math.angleAxis(math.radians(mouseDelta.y * self.lookSpeed * dt), Transform.Right)
-    self.cameraXf:rotate(qPitch)
+--- @param dt number
+function node:update(dt)
+  if self.hasControl then
+    self:_processKeyboard()
+    self:_processMouse(dt)
   end
 
-  -- Lock the mouse cursor in the center of the GameWindow.
-  InputSystem:setMousePosition(math.ivec2(getCenter(GameWindow)))
+  if self.characterController:isMoving() then
+    self.headBobbing.isWalking = true
+    self.headBobbing.frequency = self.characterController:isWalking() and 6 or 12
+  else
+    self.headBobbing.isWalking = false
+  end
+
+  self.headBobbing:update(dt)
+  self.cameraShake:update(dt)
 end
 
-function node:_processKeyboard(dt)
+--- @param dt number
+function node:physicsStep(dt)
+  self.characterController:physicsStep(dt)
+end
+
+--- @param b boolean
+function node:_takeControl(b)
+  self.hasControl = b
+  InputSystem:showCursor(not self.hasControl)
+end
+
+function node:_processKeyboard()
   local moveDirection = math.vec3()
   if InputSystem:isKeyDown(KeyCode.W) then
     moveDirection.z = moveDirection.z + 1
@@ -142,85 +108,36 @@ function node:_processKeyboard(dt)
   if InputSystem:isKeyDown(KeyCode.D) then
     moveDirection.x = moveDirection.x - 1
   end
-
-  if math.length(moveDirection) ~= 0 then
-    moveDirection = self.character:getRotation() * math.normalize(moveDirection)
-  end
-
-  self.moveDirection = moveDirection
+  self.characterController:setMoveDirection(moveDirection)
+  self.characterController:sprint(InputSystem:isKeyDown(KeyCode.Shift))
 end
 
-function node:init()
-  self.xf        = self.entity:get(Transform)
-  self.character = self.entity:get(CharacterVirtual)
+--- @param dt number
+function node:_processMouse(dt)
+  local mouseDelta <const> = InputSystem:getMouseDelta()
+  if (mouseDelta ~= math.ivec2(0)) then
+    -- Horizontal axis: rotate character body around Y axis.
+    local qYaw = math.angleAxis(math.radians(-mouseDelta.x * self.lookSpeed * dt), Transform.Up)
+    self.characterController:setYaw(qYaw)
 
-  local children = self.entity:getChildren()
-  self.cameraXf  = children[1]:get(Transform)
+    -- Vertical axis: rotate camera (up/down).
+    local qPitch = math.angleAxis(math.radians(mouseDelta.y * self.lookSpeed * dt), Transform.Right)
+    local eulerAngles = math.eulerAngles(self.cameraXf:getLocalOrientation() * qPitch)
+    local maxAngle <const> = 1.4 -- in radians (1.4 = ~80deg)
+    eulerAngles.x = math.clamp(eulerAngles.x, -maxAngle, maxAngle)
+    self.cameraXf:setOrientation(math.quat(eulerAngles))
+  end
+
+  -- Lock the mouse cursor in the center of the GameWindow.
+  InputSystem:setMousePosition(math.ivec2(getCenter(GameWindow)))
 end
 
-function node:update(dt)
-  if self.hasControl then
-    self:_processKeyboard(dt)
-    self:_processMouse(dt)
-  end
-end
-
-function node:_getCharacterSpeed()
-  return self.walkSpeed * ((InputSystem:isKeyDown(KeyCode.Shift) and self.sprintMultiplier) or 1.0)
-end
-
-function node:physicsStep(dt)
-  local controlMovementDuringJump <const> = true
-
-  local playerControlsHorizontalVelocity = controlMovementDuringJump or self.character:isSupported()
-  if playerControlsHorizontalVelocity then
-    -- Smooth the player input.
-    self.desiredVelocity = 0.25 * self.moveDirection * self:_getCharacterSpeed() + 0.75 * self.desiredVelocity
-    self.allowSliding = self.moveDirection ~= math.vec3(0)
-  else
-    -- While in air we allow sliding.
-    self.allowSliding = true
-  end
-
-  -- Determine new basic velocity:
-
-  local up <const> = self.character:getUp()
-
-  local currentVelocity = self.character:getLinearVelocity()
-  local currentVerticalVelocity = math.dot(currentVelocity, up) * up --[[@as vec3]]
-  local groundVelocity = self.character:getGroundVelocity()
-  local movingTowardsGround = (currentVerticalVelocity.y - groundVelocity.y) < 0.1
-
-  local newVelocity = math.vec3()
-
-  if self.character:getGroundState() == GroundState.OnGround and movingTowardsGround then
-    -- Assume velocity of ground when no ground.
-    newVelocity = groundVelocity
-
-    -- Jump:
-    if self.wantJump and movingTowardsGround then
-      newVelocity = newVelocity + (self.jumpSpeed * up)
-    end
-  else
-    newVelocity = currentVerticalVelocity
-  end
-
-  -- Gravity.
-  local gravity <const> = math.vec3(0, -9.8, 0)
-  newVelocity = newVelocity + (gravity * dt)
-
-  if playerControlsHorizontalVelocity then
-    -- Player input.
-    newVelocity = newVelocity + self.desiredVelocity
-  else
-    -- Preserve horizontal velocity.
-    local currentHorizontalVelocity = currentVelocity - currentVerticalVelocity;
-    newVelocity = newVelocity + currentHorizontalVelocity
-  end
-
-  self.character:setLinearVelocity(newVelocity)
-
-  self.wantJump = false
+function node:_fire()
+  local cameraForward = self.cameraXf:getForward()
+  local offset <const> = 4
+  local spawnPos = self.cameraXf:getPosition() + (cameraForward * offset)
+  self.cannon:fire(createEntity(), spawnPos, cameraForward)
+  self.cameraShake:induceStress(0.15)
 end
 
 return node

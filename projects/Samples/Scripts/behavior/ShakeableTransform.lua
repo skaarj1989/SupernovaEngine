@@ -1,25 +1,26 @@
---- @class Shake: ScriptNode
-local node = {}
+local class = require "middleclass"
 
 -- https://github.com/IronWarrior/UnityCameraShake
 
-math.randomseed(os.time())
+local ShakeableTransform = class("ShakeableTransform")
 
-function node:init()
+--- @param xf Transform
+function ShakeableTransform:construct(xf)
+  self.xf = xf
+
+  math.randomseed(os.time())
   self.seed = math.random()
-  print("seed: " .. self.seed)
 
   self.traumaExponent = 1.0
   self.frequency = 25
   self.recoverySpeed = 1.0
 
   self.totalTime = 0.0
-  self.trauma = 1.0
-
-  self.xf = self.entity:get(Transform)
+  self.trauma = 0.0
 end
 
-function node:update(dt)
+--- @param dt number
+function ShakeableTransform:update(dt)
   self.totalTime = self.totalTime + dt
 
   if self.trauma <= 0.0 then return end
@@ -49,8 +50,9 @@ function node:update(dt)
   self.trauma = math.clamp(self.trauma - self.recoverySpeed * dt, 0.0, 1.0)
 end
 
-function node:_induceStress(stress)
+--- @param stress number
+function ShakeableTransform:induceStress(stress)
   self.trauma = math.clamp(self.trauma + stress, 0.0, 1.0)
 end
 
-return node
+return ShakeableTransform
