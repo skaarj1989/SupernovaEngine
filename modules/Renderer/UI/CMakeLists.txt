@@ -6,3 +6,4 @@ add_resources(
 
 add_subdirectory(ImGuiRenderer)
 add_subdirectory(NuklearRenderer)
+add_subdirectory(RmlUiRenderer)

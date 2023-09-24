@@ -77,7 +77,7 @@ VCPKG_DEFAULT_TRIPLET=x64-windows
 Install dependencies:
 
 ```bash
-> vcpkg install minizip robin-hood-hashing glm spdlog nlohmann-json cereal glslang spirv-cross ktx[vulkan] stb lua argparse meshoptimizer boost-graph catch2
+> vcpkg install minizip robin-hood-hashing glm spdlog nlohmann-json cereal glslang spirv-cross ktx[vulkan] stb lua argparse meshoptimizer boost-graph rmlui[freetype] catch2
 ```
 
 ## Third-party
@@ -117,6 +117,7 @@ Install dependencies:
 - [ImGuiColorTextEdit](https://github.com/BalazsJako/ImGuiColorTextEdit)
 - [Nuklear](https://github.com/Immediate-Mode-UI/Nuklear)
 - [IconFontCppHeaders](https://github.com/juliettef/IconFontCppHeaders)
+- [RmlUi](https://github.com/mikke89/RmlUi)
 - [Catch2](https://github.com/catchorg/Catch2)
 
 ## Lua annotations for Visual Studio Code

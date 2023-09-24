@@ -9,6 +9,8 @@ add_subdirectory(OS)
 add_subdirectory(ImGuiPlatformInterface)
 add_subdirectory(ImGuiStyleJSON)
 
+add_subdirectory(RmlUiPlatformInterface)
+
 add_subdirectory(Resource)
 add_subdirectory(MetaHelper)
 add_subdirectory(MetaComponent)
