@@ -119,7 +119,6 @@ RmlUiRenderer::_createPipeline(rhi::PixelFormat colorFormat,
           .type = rhi::VertexAttribute::Type::Float2,
           .offset = offsetof(Rml::Vertex, tex_coord),
         }},
-
     })
     .addShader(rhi::ShaderType::Vertex, vertCode)
     .addShader(rhi::ShaderType::Fragment, fragCode)
