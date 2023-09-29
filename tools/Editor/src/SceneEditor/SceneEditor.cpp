@@ -406,9 +406,27 @@ SceneEditor::SceneEditor(os::InputSystem &is, gfx::WorldRenderer &renderer,
   m_dispatcher.sink<SelectEntityRequest>().connect<&SceneEditor::_selectEntity>(
     this);
 
+  m_uiFileInterface = std::make_unique<RmlUiFileInterface>();
+  Rml::SetFileInterface(m_uiFileInterface.get());
+
+  m_uiSystemInterface = std::make_unique<RmlUiSystemInterface>();
+  Rml::SetSystemInterface(m_uiSystemInterface.get());
+
+  m_gameUiRenderInterface =
+    std::make_unique<RmlUiRenderInterface>(m_worldRenderer.getRenderDevice());
+  Rml::SetRenderInterface(m_gameUiRenderInterface.get());
+
+  Rml::Initialise();
+
   ImGuizmo::StyleColorsBlender();
 
   _expose(m_lua);
+}
+SceneEditor::~SceneEditor() {
+  m_playTest.reset();
+  closeAllScenes();
+
+  Rml::Shutdown();
 }
 
 SceneEditor::Entry *SceneEditor::getActiveSceneEntry() {
@@ -503,10 +521,27 @@ void SceneEditor::show(const char *name, bool *open) {
   // ImGuizmo::PrintContext();
 }
 
+auto adjustMousePosition(os::InputEvent evt, const glm::ivec2 windowPos) {
+  std::visit(
+    [windowPos](auto &arg) {
+      using T = std::decay_t<decltype(arg)>;
+
+      if constexpr (std::is_base_of_v<os::MouseMoveEvent, T>) {
+        const auto p = ImGui::GetMousePos();
+        arg.position = glm::ivec2{p.x, p.y} - windowPos;
+      }
+    },
+    evt);
+  return evt;
+}
+
 void SceneEditor::onInput(const os::InputEvent &evt) {
   if (m_passthroughInput) {
     assert(m_playTest);
-    ScriptSystem::onInput(m_playTest->getRegistry(), evt);
+
+    ScriptSystem::onInput(
+      m_playTest->getRegistry(),
+      adjustMousePosition(evt, m_renderTargetPreview.getPosition()));
   }
 }
 void SceneEditor::onUpdate(float dt) {
