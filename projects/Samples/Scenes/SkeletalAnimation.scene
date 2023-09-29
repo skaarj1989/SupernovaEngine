@@ -1014,12 +1014,13 @@
         "value3": true,
         "value4": true
     },
-    "value102": [
+    "value102": [],
+    "value103": [
         1680050497
     ],
-    "value103": 1,
-    "value104": 3,
-    "value105": {
+    "value104": 1,
+    "value105": 3,
+    "value106": {
         "value0": {
             "nullopt": false,
             "data": "Scripts\\behavior\\BasicCameraController.lua"

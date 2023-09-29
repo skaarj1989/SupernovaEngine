@@ -355,19 +355,20 @@
         ]
     },
     "value41": [],
-    "value42": [
+    "value42": [],
+    "value43": [
         1680050497
     ],
-    "value43": 2,
-    "value44": 1,
-    "value45": {
+    "value44": 2,
+    "value45": 1,
+    "value46": {
         "value0": {
             "nullopt": false,
             "data": "Scripts\\behavior\\FloatingActor.lua"
         }
     },
-    "value46": 3,
-    "value47": {
+    "value47": 3,
+    "value48": {
         "value0": {
             "nullopt": false,
             "data": "Scripts\\behavior\\BasicCameraController.lua"
