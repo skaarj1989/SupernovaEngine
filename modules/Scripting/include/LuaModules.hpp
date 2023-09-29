@@ -66,6 +66,10 @@
 #  include "LuaCameraComponent.hpp"
 #endif
 
+#if __has_include("LuaUIComponent.hpp")
+#  include "LuaUIComponent.hpp"
+#endif
+
 #if __has_include("LuaNameComponent.hpp")
 #  include "LuaNameComponent.hpp"
 #endif
@@ -141,6 +145,10 @@ inline void registerModules(sol::state &lua) {
 #endif
 #if __has_include("LuaCameraComponent.hpp")
   registerCameraComponent(lua);
+#endif
+
+#if __has_include("LuaUIComponent.hpp")
+  registerUIComponent(lua);
 #endif
 
 #if __has_include("LuaNameComponent.hpp")

@@ -312,6 +312,10 @@ void showComponentsMenuItems(entt::handle h) {
     ImGui::EndMenu();
   }
 
+  if (ImGui::MenuItemEx("UI", ICON_FA_CHALKBOARD_USER)) {
+    h.emplace_or_replace<UIComponent>();
+  }
+
   if (ImGui::BeginMenu("Physics")) {
     if (ImGui::MenuItem("ColliderComponent")) {
       h.emplace_or_replace<ColliderComponent>();
