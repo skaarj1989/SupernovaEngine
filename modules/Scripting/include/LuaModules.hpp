@@ -73,6 +73,10 @@
 #  include "LuaScriptComponent.hpp"
 #endif
 
+#if __has_include("LuaRmlUi.hpp")
+#  include "LuaRmlUi.hpp"
+#endif
+
 inline void registerModules(sol::state &lua) {
 #if __has_include("LuaUtility.hpp")
   registerUtility(lua);
@@ -144,5 +148,9 @@ inline void registerModules(sol::state &lua) {
 #endif
 #if __has_include("LuaScriptComponent.hpp")
   registerScriptComponent(lua);
+#endif
+
+#if __has_include("LuaRmlUi.hpp")
+  registerRmlUi(lua);
 #endif
 }
