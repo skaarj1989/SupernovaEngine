@@ -25,6 +25,7 @@ public:
   // clang-format on
 
   Scene();
+  Scene(gfx::WorldRenderer &, RmlUiRenderInterface &, sol::state &);
   Scene(const Scene &);
   Scene(Scene &&) noexcept = default;
   ~Scene();

@@ -15,6 +15,15 @@
 
 namespace {
 
+void setupSystems(entt::registry &r, gfx::WorldRenderer &worldRenderer,
+                  RmlUiRenderInterface &uiRenderInterface, sol::state &lua) {
+  HierarchySystem::setup(r);
+  PhysicsSystem::setup(r);
+  RenderSystem::setup(r, worldRenderer);
+  UISystem::setup(r, uiRenderInterface);
+  ScriptSystem::setup(r, lua);
+}
+
 constexpr entt::type_list<NameComponent, Transform, ChildrenComponent>
   kCoreTypes{};
 
@@ -154,6 +163,10 @@ std::istream &operator>>(std::istream &is, entt::registry &r) {
 //
 
 Scene::Scene() = default;
+Scene::Scene(gfx::WorldRenderer &worldRenderer,
+             RmlUiRenderInterface &uiRenderInterface, sol::state &lua) {
+  setupSystems(m_registry, worldRenderer, uiRenderInterface, lua);
+}
 Scene::Scene(const Scene &other) { copyFrom(other); }
 Scene::~Scene() { clear(); }
 
@@ -166,9 +179,16 @@ entt::registry &Scene::getRegistry() { return m_registry; }
 const entt::registry &Scene::getRegistry() const { return m_registry; }
 
 void Scene::copyFrom(const Scene &src) {
+  auto &srcCtx = src.m_registry.ctx();
+  setupSystems(m_registry, *srcCtx.get<gfx::WorldRenderer *>(),
+               *srcCtx.get<RmlUiRenderInterface *>(),
+               *srcCtx.get<ScriptContext>().lua);
+
   std::stringstream ss;
   ss << ArchiveType::Binary << src.m_registry;
   ss >> m_registry;
+
+  m_registry.ctx().get<MainCamera>().e = srcCtx.get<MainCamera>().e;
 }
 
 entt::handle Scene::createEntity(std::optional<std::string> name) {

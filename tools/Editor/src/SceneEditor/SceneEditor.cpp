@@ -1,5 +1,6 @@
 #include "SceneEditor/SceneEditor.hpp"
 #include "Services.hpp"
+#include "TypeTraits.hpp"
 
 #include "Inspectors/CameraInspector.hpp"
 #include "Inspectors/SkyLightInspector.hpp"
@@ -15,11 +16,7 @@
 
 #include "RenderSettings.hpp"
 
-#include "HierarchySystem.hpp"
-#include "PhysicsSystem.hpp"
-#include "RenderSystem.hpp"
-#include "AnimationSystem.hpp"
-#include "ScriptSystem.hpp"
+#include "RmlUi/Core.h"
 
 #include "glm/gtc/type_ptr.hpp" // value_ptr
 
@@ -77,13 +74,6 @@ void print(const entt::entity e) {
   ImGui::BulletText("Version: %hu", entt::to_version(e));
 }
 
-void setupEditorViewport(SceneEditor::Viewport &viewport) {
-  viewport.camera.invertY(true)
-    .setFov(60.0f)
-    .setClippingPlanes({.zNear = 0.1f, .zFar = 1000.0f})
-    .setPosition({0.0f, 3.0f, -10.0f});
-  viewport.renderSettings.debugFlags |= gfx::DebugFlags::InfiniteGrid;
-}
 void setupSimpleScene(Scene &scene) {
   auto &meshManager = Services::Resources::Meshes::value();
   using BasicShapes = gfx::MeshManager::BasicShapes;
@@ -384,11 +374,26 @@ createEditorSceneView(SceneEditor::Viewport &viewport, rhi::Texture &target) {
 } // namespace
 
 //
+// SceneEditor::Viewport struct:
+//
+
+SceneEditor::Viewport::Viewport() {
+  camera.invertY(true)
+    .setFov(60.0f)
+    .setClippingPlanes({.zNear = 0.1f, .zFar = 1000.0f})
+    .setPosition({0.0f, 3.0f, -10.0f});
+  renderSettings.debugFlags |= gfx::DebugFlags::InfiniteGrid;
+}
+
+//
 // SceneEditor class:
 //
 
-SceneEditor::SceneEditor(os::InputSystem &is, rhi::RenderDevice &rd)
-    : m_inputSystem{is}, m_renderDevice{rd}, m_renderTargetPreview{rd} {
+SceneEditor::SceneEditor(os::InputSystem &is, gfx::WorldRenderer &renderer,
+                         sol::state &lua)
+    : m_inputSystem{is}, m_worldRenderer{renderer}, m_lua{lua},
+      m_renderTargetPreview{renderer.getRenderDevice()} {
+
   _connectInspectors2<NameComponent, ParentComponent, ChildrenComponent,
                       Transform>();
   _connectInspectors(PhysicsSystem::kIntroducedComponents);
@@ -402,6 +407,8 @@ SceneEditor::SceneEditor(os::InputSystem &is, rhi::RenderDevice &rd)
     this);
 
   ImGuizmo::StyleColorsBlender();
+
+  _expose(m_lua);
 }
 
 SceneEditor::Entry *SceneEditor::getActiveSceneEntry() {
@@ -417,25 +424,10 @@ Scene *SceneEditor::getCurrentScene() {
   }
   return scene;
 }
-ScriptContext *SceneEditor::getScriptContext() {
-  if (auto *scene = getCurrentScene(); scene) {
-    return &scene->getRegistry().ctx().get<ScriptContext>();
-  }
-  return nullptr;
-}
 
 void SceneEditor::closeAllScenes() {
   m_scenes.clear();
   m_activeSceneId = std::nullopt;
-}
-
-void SceneEditor::expose(sol::state &lua) {
-  lua["inEditor"] = sol::readonly_property([] { return true; });
-
-  lua["getSelectedEntity"] = [this] {
-    const auto *entry = getActiveSceneEntry();
-    return entry ? entry->selectedEntity : entt::handle{};
-  };
 }
 
 void SceneEditor::show(const char *name, bool *open) {
@@ -542,19 +534,33 @@ void SceneEditor::onRender(rhi::CommandBuffer &cb, float dt) {
 // (private):
 //
 
+void SceneEditor::_expose(sol::state &lua) {
+  lua["inEditor"] = sol::readonly_property([] { return true; });
+  lua["getPreviewExtent"] = [this] {
+    return m_renderTargetPreview.getExtent();
+  };
+
+  lua["getSelectedEntity"] = [this] {
+    const auto *entry = getActiveSceneEntry();
+    return entry ? entry->selectedEntity : entt::handle{};
+  };
+}
+
+SceneEditor::Entry SceneEditor::_createEntry() {
+  return Entry{
+    .scene = Scene{m_worldRenderer, *m_gameUiRenderInterface, m_lua},
+  };
+}
 SceneEditor::Entry &SceneEditor::_addScene() {
-  auto &entry = m_scenes.emplace_back(std::make_unique<Entry>());
-  publish(NewSceneEvent{.scene = &entry->scene});
+  const auto &entry =
+    m_scenes.emplace_back(std::make_unique<Entry>(_createEntry()));
   setupSimpleScene(entry->scene);
-  setupEditorViewport(entry->viewport);
   return *entry;
 }
 void SceneEditor::_openScene(const std::filesystem::path &p) {
   if (_hasScene(p)) return;
 
-  auto entry = std::make_unique<Entry>();
-  publish(NewSceneEvent{.scene = &entry->scene});
-  setupEditorViewport(entry->viewport);
+  auto entry = std::make_unique<Entry>(_createEntry());
 
   const auto relativePath = os::FileSystem::relativeToRoot(p);
   if (entry->scene.load(p, Scene::ArchiveType::JSON)) {
@@ -660,13 +666,7 @@ void SceneEditor::_menuBar() {
 
     if (ImGui::MenuItem(ICON_FA_PLAY " Play", nullptr, nullptr,
                         hasScene && !m_playTest)) {
-      publish(NewSceneEvent{&m_playTest.emplace()});
-
-      auto &srcScene = getActiveSceneEntry()->scene;
-      m_playTest->copyFrom(srcScene);
-
-      getMainCamera(m_playTest->getRegistry()).e =
-        getMainCamera(srcScene.getRegistry()).e;
+      m_playTest.emplace(activeEntry->scene);
     }
     if (ImGui::MenuItem(ICON_FA_STOP " Stop", nullptr, nullptr,
                         m_playTest.has_value())) {

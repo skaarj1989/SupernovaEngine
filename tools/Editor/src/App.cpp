@@ -95,23 +95,14 @@ App::App(std::span<char *> args)
   m_cubemapConverter = std::make_unique<gfx::CubemapConverter>(rd);
   m_renderer = std::make_unique<gfx::WorldRenderer>(*m_cubemapConverter);
 
-  _setupWidgets();
-
   m_luaState = createLuaState();
   m_luaState["GameWindow"] = std::ref(getWindow());
   m_luaState["InputSystem"] = std::ref(getInputSystem());
 
-  auto &sceneEditor = m_widgets.get<SceneEditor>();
-  sceneEditor.expose(m_luaState);
+  _setupWidgets();
 
-  sceneEditor.on<SceneEditor::NewSceneEvent>(
-    [this](SceneEditor::NewSceneEvent &evt, auto &) {
-      auto &r = evt.scene->getRegistry();
-      HierarchySystem::setup(r);
-      PhysicsSystem::setup(r);
-      RenderSystem::setup(r, *m_renderer);
-      ScriptSystem::setup(r, m_luaState);
-    });
+  auto &sceneEditor = m_widgets.get<SceneEditor>();
+
   sceneEditor.on<SceneEditor::EditScriptRequest>(
     [this](SceneEditor::EditScriptRequest &evt, auto &) {
       m_widgets.getConfig<ScriptEditor>().open = true;
@@ -209,7 +200,7 @@ void App::_setupWidgets() {
                                .open = true,
                                .section = DockSpaceSection::Center,
                              },
-                             getInputSystem(), getRenderDevice());
+                             getInputSystem(), *m_renderer, m_luaState);
   m_widgets.add<ScriptEditor>("Script Editor",
                               {
                                 .name = ICON_FA_CODE " Script Editor",
