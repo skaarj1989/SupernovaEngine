@@ -19,7 +19,7 @@ constexpr entt::type_list<NameComponent, Transform, ChildrenComponent>
   kCoreTypes{};
 
 constexpr entt::type_list<PhysicsSystem, RenderSystem, AnimationSystem,
-                          ScriptSystem>
+                          UISystem, ScriptSystem>
   kSystemTypes{};
 
 template <class UnderlyingArchive>

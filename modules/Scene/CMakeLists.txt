@@ -18,6 +18,7 @@ target_link_libraries(Scene
   AnimationSystem
   PhysicsSystem
   RenderSystem
+  UISystem
   ScriptSystem
 )
 set_target_properties(Scene PROPERTIES FOLDER "Framework")

@@ -6,6 +6,7 @@
 #include "PhysicsSystem.hpp"
 #include "RenderSystem.hpp"
 #include "AnimationSystem.hpp"
+#include "UISystem.hpp"
 #include "ScriptSystem.hpp"
 
 #include "entt/entity/handle.hpp"
@@ -19,6 +20,7 @@ public:
     PhysicsSystem::kIntroducedComponents +
     RenderSystem::kIntroducedComponents +
     AnimationSystem::kIntroducedComponents +
+    UISystem::kIntroducedComponents +
     ScriptSystem::kIntroducedComponents;
   // clang-format on
 

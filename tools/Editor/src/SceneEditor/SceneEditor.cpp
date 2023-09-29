@@ -523,6 +523,7 @@ void SceneEditor::onUpdate(float dt) {
     auto &r = m_playTest->getRegistry();
     AnimationSystem::update(r, dt);
     ScriptSystem::onUpdate(r, dt);
+    UISystem::update(r);
   }
 }
 void SceneEditor::onPhysicsUpdate(float dt) {
@@ -1009,6 +1010,7 @@ void SceneEditor::_drawWorld(Scene &scene, rhi::CommandBuffer &cb,
     PhysicsSystem::debugDraw(r, mainCamera->debugDraw);
     // AnimationSystem::debugDraw(r, mainCamera->debugDraw);
     RenderSystem::update(r, cb, dt, nullptr, debugOutput);
+    UISystem::render(r, cb);
     if (auto *src = mainCamera->target.get(); src) {
       cb.blit(*src, texture, VK_FILTER_LINEAR);
     }
