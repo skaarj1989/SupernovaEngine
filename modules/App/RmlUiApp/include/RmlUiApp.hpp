@@ -28,6 +28,6 @@ private:
 
   std::unique_ptr<RmlUiFileInterface> m_uiFileInterface;
   std::unique_ptr<RmlUiSystemInterface> m_uiSystemInterface;
-  std::unique_ptr<RmlUiRenderer> m_uiRenderer;
   std::unique_ptr<RmlUiRenderInterface> m_uiRenderInterface;
+  RmlUiRenderData m_uiRenderData;
 };

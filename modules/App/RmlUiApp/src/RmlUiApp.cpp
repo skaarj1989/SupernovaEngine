@@ -225,10 +225,11 @@ RmlUiApp::RmlUiApp(std::span<char *> args, const Config &config)
   m_uiSystemInterface = std::make_unique<RmlUiSystemInterface>();
   Rml::SetSystemInterface(m_uiSystemInterface.get());
 
-  m_uiRenderer = std::make_unique<RmlUiRenderer>(getRenderDevice());
   m_uiRenderInterface =
-    std::make_unique<RmlUiRenderInterface>(*m_uiRenderer, kFramesInFlight);
+    std::make_unique<RmlUiRenderInterface>(getRenderDevice());
   Rml::SetRenderInterface(m_uiRenderInterface.get());
+
+  m_uiRenderData = m_uiRenderInterface->CreateRenderData();
 
   Rml::Initialise();
 
@@ -241,7 +242,8 @@ RmlUiApp::~RmlUiApp() {
   getRenderDevice().waitIdle();
 
   Rml::Shutdown();
-  m_uiRenderer.reset();
+  m_uiRenderData = {};
+  m_uiRenderInterface.reset();
   m_uiSystemInterface.reset();
   m_uiFileInterface.reset();
 }
@@ -257,7 +259,7 @@ void RmlUiApp::drawGui(rhi::CommandBuffer &cb, rhi::RenderTargetView rtv,
       .clearValue = std::move(clearColor),
     }},
   });
-  m_uiRenderInterface->Set(cb, rtv);
+  m_uiRenderInterface->Set(cb, target, m_uiRenderData);
   m_context->Render();
   cb.endRendering();
 }

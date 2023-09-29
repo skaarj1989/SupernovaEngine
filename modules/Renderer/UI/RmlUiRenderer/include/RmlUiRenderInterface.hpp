@@ -2,13 +2,42 @@
 
 #include "RmlUiRenderer.hpp"
 #include "RmlUi/Core/RenderInterface.h"
-#include "rhi/RenderTargetView.hpp"
+#include "rhi/FrameIndex.hpp"
+
+struct RmlUiRenderData {
+  RmlUiRenderData() = default;
+  explicit RmlUiRenderData(const RmlUiRenderer &);
+  RmlUiRenderData(const RmlUiRenderData &) {}
+  RmlUiRenderData(RmlUiRenderData &&) noexcept = default;
+  ~RmlUiRenderData() = default;
+
+  RmlUiRenderData &operator=(const RmlUiRenderData &) noexcept = delete;
+  RmlUiRenderData &operator=(RmlUiRenderData &&) noexcept = default;
+
+  void resize(const rhi::Extent2D &);
+  [[nodiscard]] RmlUiRenderer::FrameResources *swapBuffers();
+
+  void transform(std::optional<glm::mat4>);
+  void translate(const glm::vec2);
+
+  std::vector<RmlUiRenderer::FrameResources> frameResources;
+  rhi::FrameIndex frameIndex;
+
+  glm::mat4 projection{1.0f};
+  RmlUiRenderer::Uniforms uniforms;
+
+  rhi::Rect2D scissorOriginal;
+  rhi::Rect2D scissor;
+
+  bool isTransformEnabled{false};
+  bool isUseScissorSpecified{false};
+};
 
 class RmlUiRenderInterface : public Rml::RenderInterface {
 public:
-  RmlUiRenderInterface(RmlUiRenderer &, const int32_t numFrames);
+  explicit RmlUiRenderInterface(rhi::RenderDevice &);
 
-  void Set(rhi::CommandBuffer &, const rhi::RenderTargetView);
+  void Set(rhi::CommandBuffer &, rhi::Texture &target, RmlUiRenderData &);
 
   void RenderGeometry(Rml::Vertex *, int32_t numVertices, int32_t *indices,
                       int32_t numIndices, Rml::TextureHandle,
@@ -25,21 +54,14 @@ public:
 
   void SetTransform(const Rml::Matrix4f *) override;
 
+  RmlUiRenderer &GetRenderer();
+  [[nodiscard]] RmlUiRenderData CreateRenderData() const;
+
 private:
-  RmlUiRenderer &m_renderer;
+  std::unique_ptr<RmlUiRenderer> m_renderer;
 
   rhi::CommandBuffer *m_commandBuffer{nullptr};
   const rhi::Texture *m_target{nullptr};
-
-  std::vector<RmlUiRenderer::FrameResources> m_frameResources;
-  int32_t m_frameIndex{0};
-
-  glm::mat4 m_projection{1.0f};
-  RmlUiRenderer::Uniforms m_uniforms;
-
-  rhi::Rect2D m_scissorOriginal;
-  rhi::Rect2D m_scissor;
-
-  bool m_isTransformEnabled{false};
-  bool m_isUseScissorSpecified{false};
+  RmlUiRenderData *m_renderData{nullptr};
+  RmlUiRenderer::FrameResources *m_frameResources{nullptr};
 };

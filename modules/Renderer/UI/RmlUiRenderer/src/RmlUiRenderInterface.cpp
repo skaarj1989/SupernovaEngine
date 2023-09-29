@@ -1,4 +1,5 @@
 #include "RmlUiRenderInterface.hpp"
+#include "os/FileSystem.hpp"
 #include "STBImageLoader.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
@@ -24,30 +25,49 @@ namespace {
 } // namespace
 
 //
+// RmlUiRenderData struct:
+//
+
+RmlUiRenderData::RmlUiRenderData(const RmlUiRenderer &renderer) {
+  constexpr auto kFramesInFlight = 2;
+  frameResources = renderer.createResources(kFramesInFlight);
+  frameIndex = rhi::FrameIndex{kFramesInFlight};
+}
+
+void RmlUiRenderData::resize(const rhi::Extent2D &extent) {
+  projection = buildProjectionMatrix(extent);
+  scissorOriginal = {.offset = {0, 0}, .extent = extent};
+  scissor = scissorOriginal;
+}
+RmlUiRenderer::FrameResources *RmlUiRenderData::swapBuffers() {
+  auto *resources = &frameResources[frameIndex];
+  resources->vertexOffset = 0;
+  resources->indexOffset = 0;
+  ++frameIndex;
+  return resources;
+}
+
+void RmlUiRenderData::transform(std::optional<glm::mat4> m) {
+  uniforms.transform = m ? projection * m.value() : projection;
+}
+void RmlUiRenderData::translate(const glm::vec2 v) { uniforms.translate = v; }
+
+//
 // RmlUiRenderInterface class:
 //
 
-RmlUiRenderInterface::RmlUiRenderInterface(RmlUiRenderer &renderer,
-                                           const int32_t numFrames)
-    : m_renderer{renderer} {
-  m_frameResources = m_renderer.createResources(numFrames);
-}
+RmlUiRenderInterface::RmlUiRenderInterface(rhi::RenderDevice &rd)
+    : m_renderer{std::make_unique<RmlUiRenderer>(rd)} {}
 
-void RmlUiRenderInterface::Set(rhi::CommandBuffer &cb,
-                               const rhi::RenderTargetView rtv) {
+void RmlUiRenderInterface::Set(rhi::CommandBuffer &cb, rhi::Texture &target,
+                               RmlUiRenderData &renderData) {
   m_commandBuffer = &cb;
-  m_target = &rtv.texture;
-  m_frameIndex = rtv.frameIndex;
+  m_target = &target;
+  m_renderData = &renderData;
 
-  auto &resources = m_frameResources[m_frameIndex];
-  resources.vertexOffset = 0;
-  resources.indexOffset = 0;
+  m_renderData->resize(m_target->getExtent());
+  m_frameResources = m_renderData->swapBuffers();
 
-  const auto extent = m_target->getExtent();
-  m_scissorOriginal = {.offset = {0, 0}, .extent = extent};
-  m_scissor = m_scissorOriginal;
-
-  m_projection = buildProjectionMatrix(extent);
   SetTransform(nullptr);
 }
 
@@ -56,38 +76,39 @@ void RmlUiRenderInterface::RenderGeometry(Rml::Vertex *vertices,
                                           int32_t numIndices,
                                           Rml::TextureHandle textureHandle,
                                           const Rml::Vector2f &translation) {
-  m_uniforms.translate = {translation.x, translation.y};
-  m_renderer.draw(*m_commandBuffer, m_target->getPixelFormat(),
-                  m_frameResources[m_frameIndex],
-                  {
-                    .vertices = std::span{vertices, std::size_t(numVertices)},
-                    .indices = std::span{indices, std::size_t(numIndices)},
-                  },
-                  std::bit_cast<const rhi::Texture *>(textureHandle),
-                  m_uniforms);
+  m_renderData->translate({translation.x, translation.y});
+  m_renderer->draw(
+    *m_commandBuffer, m_target->getPixelFormat(), *m_frameResources,
+    {
+      .vertices = std::span{vertices, std::size_t(numVertices)},
+      .indices = std::span{indices, std::size_t(numIndices)},
+    },
+    std::bit_cast<const rhi::Texture *>(textureHandle), m_renderData->uniforms);
 }
 
 void RmlUiRenderInterface::EnableScissorRegion(bool enable) {
-  m_isUseScissorSpecified = enable;
-  if (m_isUseScissorSpecified == false)
-    m_commandBuffer->setScissor(m_scissorOriginal);
+  m_renderData->isUseScissorSpecified = enable;
+  if (m_renderData->isUseScissorSpecified == false)
+    m_commandBuffer->setScissor(m_renderData->scissorOriginal);
 }
 
 void RmlUiRenderInterface::SetScissorRegion(int x, int y, int width,
                                             int height) {
-  if (m_isUseScissorSpecified && !m_isTransformEnabled) {
-    m_scissor = {
+  if (m_renderData->isUseScissorSpecified &&
+      !m_renderData->isTransformEnabled) {
+    m_renderData->scissor = {
       .offset = {.x = std::abs(x), .y = std::abs(y)},
       .extent = {.width = uint32_t(width), .height = uint32_t(height)},
     };
-    m_commandBuffer->setScissor(m_scissor);
+    m_commandBuffer->setScissor(m_renderData->scissor);
   }
 }
 
 bool RmlUiRenderInterface::LoadTexture(Rml::TextureHandle &handle,
                                        Rml::Vector2i &dimensions,
                                        const Rml::String &source) {
-  if (auto texture = loadTextureSTB(source, m_renderer.getRenderDevice());
+  if (auto texture = loadTextureSTB(os::FileSystem::getRoot() / source,
+                                    m_renderer->getRenderDevice());
       texture) {
     const auto extent = texture->getExtent();
     dimensions = {int32_t(extent.width), int32_t(extent.height)};
@@ -100,7 +121,7 @@ bool RmlUiRenderInterface::LoadTexture(Rml::TextureHandle &handle,
 bool RmlUiRenderInterface::GenerateTexture(Rml::TextureHandle &handle,
                                            const byte *pixels,
                                            const Rml::Vector2i &dimensions) {
-  auto &rd = m_renderer.getRenderDevice();
+  auto &rd = m_renderer->getRenderDevice();
 
   const auto uploadSize = dimensions.x * dimensions.y * 4 * sizeof(byte);
   auto stagingBuffer = rd.createStagingBuffer(uploadSize, pixels);
@@ -144,6 +165,12 @@ void RmlUiRenderInterface::ReleaseTexture(Rml::TextureHandle handle) {
 }
 
 void RmlUiRenderInterface::SetTransform(const Rml::Matrix4f *m) {
-  m_uniforms.transform =
-    m ? m_projection * glm::make_mat4(m->data()) : m_projection;
+  m_renderData->transform(m ? std::make_optional(glm::make_mat4(m->data()))
+                            : std::nullopt);
+}
+
+RmlUiRenderer &RmlUiRenderInterface::GetRenderer() { return *m_renderer; }
+
+RmlUiRenderData RmlUiRenderInterface::CreateRenderData() const {
+  return RmlUiRenderData{*m_renderer};
 }
