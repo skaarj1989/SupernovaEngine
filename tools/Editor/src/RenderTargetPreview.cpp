@@ -4,6 +4,7 @@
 RenderTargetPreview::RenderTargetPreview(rhi::RenderDevice &rd)
     : m_renderDevice{rd} {}
 
+glm::ivec2 RenderTargetPreview::getPosition() const { return m_position; }
 rhi::Extent2D RenderTargetPreview::getExtent() const {
   return m_target.getExtent();
 }
@@ -34,5 +35,8 @@ void RenderTargetPreview::_resize(glm::uvec2 contentSize) {
 }
 
 void RenderTargetPreview::_present(glm::vec2 size) {
+  auto vp = ImGui::GetWindowViewport();
+  m_position = glm::vec2{ImGui::GetWindowPos()};
+  auto wtf = ImGui::GetCursorScreenPos();
   ::preview(&m_target, size);
 }

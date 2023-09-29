@@ -42,6 +42,7 @@ public:
 
   rhi::RenderDevice &getRenderDevice() { return m_renderDevice; }
 
+  [[nodiscard]] glm::ivec2 getPosition() const;
   [[nodiscard]] rhi::Extent2D getExtent() const;
 
 private:
@@ -56,4 +57,5 @@ protected:
 private:
   rhi::Texture m_target;
   bool m_requiresPaint{false};
+  glm::ivec2 m_position{};
 };
