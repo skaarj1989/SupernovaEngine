@@ -57,7 +57,7 @@ void registerDocument(sol::table &lua) {
 
     "isModal", &ElementDocument::IsModal,
 
-    "UpdateDocument", &ElementDocument::UpdateDocument,
+    "updateDocument", &ElementDocument::UpdateDocument,
 
     sol::meta_function::to_string, [](const ElementDocument &self) {
       return std::format("Document({})", self.GetTitle());
