@@ -13,6 +13,23 @@ using namespace Rml;
 
 void registerElement(sol::table &lua) {
   // clang-format off
+#define MAKE_PAIR(Value) _MAKE_PAIR(ScrollBehavior, Value)
+  DEFINE_ENUM(ScrollBehavior, {
+    MAKE_PAIR(Auto),
+    MAKE_PAIR(Smooth),
+    MAKE_PAIR(Instant),
+  });
+#undef MAKE_PAIR
+
+#define MAKE_PAIR(Value) _MAKE_PAIR(ScrollAlignment, Value)
+  DEFINE_ENUM(ScrollAlignment, {
+    MAKE_PAIR(Start),
+    MAKE_PAIR(Center),
+    MAKE_PAIR(End),
+    MAKE_PAIR(Nearest),
+  });
+#undef MAKE_PAIR
+
   DEFINE_USERTYPE(Element,
     sol::call_constructor,
     sol::constructors<Element(const String &)>(),
@@ -83,7 +100,7 @@ void registerElement(sol::table &lua) {
       Vector2f dimensions_;
       float ratio;
       auto rv = self.GetIntrinsicDimensions(dimensions_, ratio);
-      return std::tuple{to_glm(dimensions_), ratio};
+      return std::tuple{rv, to_glm(dimensions_), ratio};
     },
 
     "isPointWithinElement", [](Element &self, const glm::vec2 v) {
