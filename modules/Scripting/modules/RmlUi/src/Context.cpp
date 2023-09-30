@@ -27,6 +27,7 @@ void registerContext(sol::table &lua) {
     "loadDocument",
       sol::resolve<ElementDocument *(const String &)>(&Context::LoadDocument),
     "unloadDocument", &Context::UnloadDocument,
+    "unloadAllDocuments", &Context::UnloadAllDocuments,
 
     "activateTheme", &Context::ActivateTheme,
     "isThemeActive", &Context::IsThemeActive,
