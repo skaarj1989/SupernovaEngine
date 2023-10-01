@@ -101,3 +101,8 @@ function ui.Context:removeEventListener(event, listener, inCapturePhase) end
 ---@return boolean # True if the mouse hovers over or has activated an element in this context, otherwise false.
 ---Interaction is determined irrespective of background and opacity. See the RCSS property 'pointer-events' to disable interaction for specific elements.
 function ui.Context:isMouseInteracting() end
+
+---@param name string
+---@param table table
+---@return ui.ScriptDataModel
+function ui.Context:bindDataModel(name, table) end

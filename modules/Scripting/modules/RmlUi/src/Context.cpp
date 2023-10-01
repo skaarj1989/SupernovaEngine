@@ -2,6 +2,7 @@
 #include "RmlUi/Core/Context.h"
 #include "RmlUi/Core/ElementDocument.h"
 #include "EventListener.hpp"
+#include "DataModel.hpp"
 #include "glm2Rml.hpp"
 #include "Rml2glm.hpp"
 
@@ -68,6 +69,10 @@ void registerContext(sol::table &lua) {
       }
     ),
     "isMouseInteracting", &Context::IsMouseInteracting,
+
+    "bindDataModel", [](Context &self, const String &name, sol::table t) {
+      return std::make_unique<ScriptDataModel>(self, name, t);
+    },
 
     sol::meta_function::to_string, [](const Context &self) {
       return std::format("Context({})", self.GetName());

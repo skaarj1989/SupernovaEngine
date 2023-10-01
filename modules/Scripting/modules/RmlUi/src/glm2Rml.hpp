@@ -12,9 +12,9 @@
 [[nodiscard]] inline Rml::Vector2f to_Rml(const glm::vec2 v) {
   return {v.x, v.y};
 }
-[[nodiscard]] inline Rml::Vector3f to_Rml(const glm::vec3 v) {
+[[nodiscard]] inline Rml::Vector3f to_Rml(const glm::vec3 &v) {
   return {v.x, v.y, v.z};
 }
-[[nodiscard]] inline Rml::Vector4f to_Rml(const glm::vec4 v) {
+[[nodiscard]] inline Rml::Vector4f to_Rml(const glm::vec4 &v) {
   return {v.x, v.y, v.z, v.w};
 }
