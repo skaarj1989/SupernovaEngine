@@ -222,6 +222,11 @@ function ui.Element:arePseudoClassesSet(pseudoClasses) end
 ---@return string[] # The list of active pseudo-classes.
 function ui.Element:getActivePseudoClasses() end
 
+---Gets the specified attribute.
+---@param name string # Name of the attribute to retrieve.
+---@return ui.Variant
+function ui.Element:getAttribute(name) end
+
 ---Checks if the element has a certain attribute.
 ---@param name string # The name of the attribute to check for.
 ---@return boolean # True if the element has the given attribute, false if not.

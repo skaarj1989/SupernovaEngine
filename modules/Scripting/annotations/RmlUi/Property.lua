@@ -36,6 +36,9 @@ function ui.Variant:clear() end
 ---@return ui.VariantType
 function ui.Variant:getType() end
 
+---@return any # boolean|integer|number|string|vec2|vec3|vec4|nil
+function ui.Variant:get() end
+
 ---@class ui.PropertyDictionary
 ---@overload fun(): ui.PropertyDictionary
 ui.PropertyDictionary = {}

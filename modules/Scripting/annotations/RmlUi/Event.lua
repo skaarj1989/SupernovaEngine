@@ -56,6 +56,11 @@ function ui.Event:isPropagating() end
 ---@return boolean
 function ui.Event:isImmediatePropagating() end
 
+---Returns the value of one of the event's parameters.
+---@param key string # The name of the desired parameter.
+---@return ui.Variant # The value of the requested parameter.
+function ui.Event:getParameter(key) end
+
 ---Return the unprojected mouse screen position.<br/>
 ---NOTE: Only specified for events with 'mouse_x' and 'mouse_y' parameters.
 ---@return vec2

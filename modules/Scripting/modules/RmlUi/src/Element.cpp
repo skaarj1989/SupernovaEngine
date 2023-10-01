@@ -194,9 +194,11 @@ void registerElement(sol::table &lua) {
     "arePseudoClassesSet", &Element::ArePseudoClassesSet,
     "getActivePseudoClasses", &Element::GetActivePseudoClasses,
 
+    "getAttribute", [](const Element &self, const String &name) {
+      return self.GetAttribute(name);
+    },
     "hasAttribute", &Element::HasAttribute,
     "removeAttribute", &Element::RemoveAttribute,
-
     "getNumAttributes", &Element::GetNumAttributes,
     
     "getFocusLeafNode", &Element::GetFocusLeafNode,

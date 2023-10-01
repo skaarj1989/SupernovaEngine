@@ -1,6 +1,7 @@
 #include "Property.hpp"
 #include "RmlUi/Core/PropertyDictionary.h"
 #include "glm2Rml.hpp"
+#include "Rml2glm.hpp"
 
 #include "Sol2HelperMacros.hpp"
 
@@ -45,16 +46,31 @@ void registerVariant(sol::table &lua) {
       [](bool b) { return Variant{b}; },
       [](int v) { return Variant{v}; },
       [](float v) { return Variant{v}; },
-      [](String s) { return Variant{s}; },
+      [](const String &s) { return Variant{s}; },
       [](glm::vec2 v) { return Variant{to_Rml(v)}; },
-      [](glm::vec3 v) { return Variant{to_Rml(v)}; },
-      [](glm::vec4 v) { return Variant{to_Rml(v)}; }
+      [](const glm::vec3 &v) { return Variant{to_Rml(v)}; },
+      [](const glm::vec4 &v) { return Variant{to_Rml(v)}; }
     ),
 
     sol::meta_function::equal_to, &Variant::operator==,
 
     "clear", &Variant::Clear,
     "getType", &Variant::GetType,
+
+    "get", [](const Variant &self, sol::this_state s) {
+      switch (self.GetType()) {
+        using enum Variant::Type;
+
+        case BOOL: return sol::make_object(s, self.Get<bool>());
+        case INT: return sol::make_object(s, self.Get<int>());
+        case FLOAT: return sol::make_object(s, self.Get<float>());
+        case STRING: return sol::make_object(s, self.Get<String>());
+        case VECTOR2: return sol::make_object(s, to_glm(self.Get<Vector2f>()));
+        case VECTOR3: return sol::make_object(s, to_glm(self.Get<Vector3f>()));
+        case VECTOR4: return sol::make_object(s, to_glm(self.Get<Vector4f>()));
+      }
+      return sol::object{};
+    },
 
     BIND_TOSTRING(Variant)
   );

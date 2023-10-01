@@ -46,6 +46,12 @@ void registerEvent(sol::table &lua) {
     "isPropagating", &Event::IsPropagating,
     "isImmediatePropagating", &Event::IsImmediatePropagating,
 
+    "getParameter", [](const Event &self, const String &name) {
+      const auto &parameters = self.GetParameters();
+      const auto it = parameters.find(name);
+      return it != parameters.cend() ? it->second : Variant{};
+    },
+
     "getUnprojectedMouseScreenPos", [](const Event &self) {
       return to_glm(self.GetUnprojectedMouseScreenPos());
     },
