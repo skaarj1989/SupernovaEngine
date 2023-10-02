@@ -1,0 +1,23 @@
+<rml>
+<head>
+	<title>SkeletalAnimation Demo</title>
+	<link type="text/rcss" href="invader.rcss"/>
+	<style>
+		body {
+			display: block;
+			margin-top: 8px;
+			margin-left: -8px;
+		}
+	</style>
+</head>
+<body>
+	<div data-model="data">
+		<select data-event-change="switchAnimation">
+			<option value="Mutant Idle">Idle</option>
+			<option value="Mutant Roaring">Roaring</option>
+			<option value="Mutant Walking">Walking</option>
+			<option value="Mutant Run">Run</option>
+		</select>
+	</div>
+</body>
+</rml>

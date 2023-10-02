@@ -1,6 +1,6 @@
 {
-    "value0": 9,
-    "value1": 9,
+    "value0": 10,
+    "value1": 10,
     "value2": 0,
     "value3": 1,
     "value4": 2,
@@ -10,51 +10,56 @@
     "value8": 6,
     "value9": 7,
     "value10": 8,
-    "value11": [
+    "value11": 9,
+    "value12": [
         3697051614,
         715670787,
         23910234
     ],
-    "value12": 9,
-    "value13": 0,
-    "value14": {
+    "value13": 10,
+    "value14": 0,
+    "value15": {
         "value0": "GroundPlane"
     },
-    "value15": 1,
-    "value16": {
+    "value16": 1,
+    "value17": {
         "value0": "X Bot"
     },
-    "value17": 2,
-    "value18": {
+    "value18": 2,
+    "value19": {
         "value0": "Sun"
     },
-    "value19": 3,
-    "value20": {
+    "value20": 3,
+    "value21": {
         "value0": "Camera"
     },
-    "value21": 4,
-    "value22": {
+    "value22": 4,
+    "value23": {
         "value0": "Y Bot"
     },
-    "value23": 5,
-    "value24": {
+    "value24": 5,
+    "value25": {
         "value0": "Mutant"
     },
-    "value25": 6,
-    "value26": {
+    "value26": 6,
+    "value27": {
         "value0": "DecalA"
     },
-    "value27": 7,
-    "value28": {
+    "value28": 7,
+    "value29": {
         "value0": "DecalB"
     },
-    "value29": 8,
-    "value30": {
+    "value30": 8,
+    "value31": {
         "value0": "DecalC"
     },
-    "value31": 9,
-    "value32": 0,
+    "value32": 9,
     "value33": {
+        "value0": "CameraController"
+    },
+    "value34": 10,
+    "value35": 0,
+    "value36": {
         "value0": {
             "value0": 0.0,
             "value1": -1.0,
@@ -72,8 +77,8 @@
             "value2": 5.0
         }
     },
-    "value34": 1,
-    "value35": {
+    "value37": 1,
+    "value38": {
         "value0": {
             "value0": -21.5,
             "value1": -1.0,
@@ -91,8 +96,8 @@
             "value2": 0.10000000149011612
         }
     },
-    "value36": 2,
-    "value37": {
+    "value39": 2,
+    "value40": {
         "value0": {
             "value0": 59.213748931884769,
             "value1": 33.19234848022461,
@@ -110,18 +115,18 @@
             "value2": 1.0
         }
     },
-    "value38": 3,
-    "value39": {
+    "value41": 3,
+    "value42": {
         "value0": {
-            "value0": 30.243196487426759,
-            "value1": 5.211306095123291,
-            "value2": 33.55650329589844
+            "value0": 0.0,
+            "value1": 0.0,
+            "value2": 0.0
         },
         "value1": {
-            "value0": -0.010699252597987652,
-            "value1": 0.9123432040214539,
-            "value2": -0.023890584707260133,
-            "value3": -0.40858879685401919
+            "value0": 0.0,
+            "value1": 0.0,
+            "value2": 0.0,
+            "value3": 1.0
         },
         "value2": {
             "value0": 1.0,
@@ -129,8 +134,8 @@
             "value2": 1.0
         }
     },
-    "value40": 4,
-    "value41": {
+    "value43": 4,
+    "value44": {
         "value0": {
             "value0": 18.467538833618165,
             "value1": -1.0,
@@ -148,8 +153,8 @@
             "value2": 0.10000000894069672
         }
     },
-    "value42": 5,
-    "value43": {
+    "value45": 5,
+    "value46": {
         "value0": {
             "value0": 1.0000004768371583,
             "value1": -1.0,
@@ -167,8 +172,8 @@
             "value2": 0.15000000596046449
         }
     },
-    "value44": 6,
-    "value45": {
+    "value47": 6,
+    "value48": {
         "value0": {
             "value0": -3.9800000190734865,
             "value1": -0.002927735447883606,
@@ -186,8 +191,8 @@
             "value2": 0.009999998845160008
         }
     },
-    "value46": 7,
-    "value47": {
+    "value49": 7,
+    "value50": {
         "value0": {
             "value0": 4.140000343322754,
             "value1": -0.0001697838306427002,
@@ -205,8 +210,8 @@
             "value2": 0.009999998845160008
         }
     },
-    "value48": 8,
-    "value49": {
+    "value51": 8,
+    "value52": {
         "value0": {
             "value0": -0.08000000566244126,
             "value1": 0.00461733341217041,
@@ -224,24 +229,49 @@
             "value2": 0.009999998845160008
         }
     },
-    "value50": 1,
-    "value51": 0,
-    "value52": {
+    "value53": 9,
+    "value54": {
+        "value0": {
+            "value0": 30.243000030517579,
+            "value1": 5.210999965667725,
+            "value2": 33.55699920654297
+        },
+        "value1": {
+            "value0": 0.010699331760406495,
+            "value1": -0.9123431444168091,
+            "value2": 0.023890607059001924,
+            "value3": 0.4085887372493744
+        },
+        "value2": {
+            "value0": 1.0,
+            "value1": 1.0,
+            "value2": 1.0
+        }
+    },
+    "value55": 2,
+    "value56": 0,
+    "value57": {
         "value0": [
             6,
             7,
             8
         ]
     },
-    "value53": {
+    "value58": 9,
+    "value59": {
+        "value0": [
+            3
+        ]
+    },
+    "value60": {
         "value0": {
             "value0": 0.0,
             "value1": -9.8100004196167,
             "value2": 0.0
         }
     },
-    "value54": [],
-    "value55": {
+    "value61": [],
+    "value62": {
         "value0": {
             "value0": -10.0,
             "value1": -10.0,
@@ -253,16 +283,16 @@
             "value2": 10.0
         }
     },
-    "value56": 3,
-    "value57": [
+    "value63": 3,
+    "value64": [
         3696644661,
         1608732653,
         3477267598,
         976720766
     ],
-    "value58": 1,
-    "value59": 3,
-    "value60": {
+    "value65": 1,
+    "value66": 3,
+    "value67": {
         "value0": {
             "value0": 1280,
             "value1": 720
@@ -276,15 +306,15 @@
                 "value1": 1000.0
             },
             "value4": {
-                "value0": 30.243196487426759,
-                "value1": 5.211306095123291,
-                "value2": 33.55650329589844
+                "value0": 30.243000030517579,
+                "value1": 5.210999965667725,
+                "value2": 33.55699920654297
             },
             "value5": {
-                "value0": -0.010699252597987652,
-                "value1": 0.9123432040214539,
-                "value2": -0.023890584707260133,
-                "value3": -0.40858879685401919
+                "value0": 0.010699331760406495,
+                "value1": -0.9123431444168091,
+                "value2": 0.023890607059001924,
+                "value3": 0.4085887372493744
             }
         },
         "value2": {
@@ -394,9 +424,9 @@
             }
         ]
     },
-    "value61": 1,
-    "value62": 2,
-    "value63": {
+    "value68": 1,
+    "value69": 2,
+    "value70": {
         "value0": 0,
         "value1": true,
         "value2": true,
@@ -421,9 +451,9 @@
         "value9": 35.0,
         "value10": 0.0
     },
-    "value64": 4,
-    "value65": 0,
-    "value66": {
+    "value71": 4,
+    "value72": 0,
+    "value73": {
         "value0": {
             "nullopt": false,
             "data": "BasicShapes:Plane"
@@ -498,8 +528,8 @@
             }
         ]
     },
-    "value67": 1,
-    "value68": {
+    "value74": 1,
+    "value75": {
         "value0": {
             "nullopt": false,
             "data": "Meshes\\X Bot\\X Bot.mesh"
@@ -581,8 +611,8 @@
             }
         ]
     },
-    "value69": 4,
-    "value70": {
+    "value76": 4,
+    "value77": {
         "value0": {
             "nullopt": false,
             "data": "Meshes\\Y Bot\\Y Bot.mesh"
@@ -664,8 +694,8 @@
             }
         ]
     },
-    "value71": 5,
-    "value72": {
+    "value78": 5,
+    "value79": {
         "value0": {
             "nullopt": false,
             "data": "Meshes\\Mutant\\Mutant.mesh"
@@ -729,9 +759,9 @@
             }
         ]
     },
-    "value73": 3,
-    "value74": 6,
-    "value75": {
+    "value80": 3,
+    "value81": 6,
+    "value82": {
         "value0": {
             "nullopt": false,
             "data": "BasicShapes:Cube"
@@ -806,8 +836,8 @@
             }
         ]
     },
-    "value76": 7,
-    "value77": {
+    "value83": 7,
+    "value84": {
         "value0": {
             "nullopt": false,
             "data": "BasicShapes:Cube"
@@ -882,8 +912,8 @@
             }
         ]
     },
-    "value78": 8,
-    "value79": {
+    "value85": 8,
+    "value86": {
         "value0": {
             "nullopt": false,
             "data": "BasicShapes:Cube"
@@ -940,87 +970,99 @@
             }
         ]
     },
-    "value80": [
+    "value87": [
         1738049970,
         15292189,
         820180132
     ],
-    "value81": 3,
-    "value82": 1,
-    "value83": {
-        "value0": {
-            "nullopt": false,
-            "data": "Meshes\\X Bot\\skeleton.ozz"
-        }
-    },
-    "value84": 4,
-    "value85": {
-        "value0": {
-            "nullopt": false,
-            "data": "Meshes\\Y Bot\\skeleton.ozz"
-        }
-    },
-    "value86": 5,
-    "value87": {
-        "value0": {
-            "nullopt": false,
-            "data": "Meshes\\Mutant\\skeleton.ozz"
-        }
-    },
     "value88": 3,
     "value89": 1,
     "value90": {
         "value0": {
             "nullopt": false,
-            "data": "Meshes\\X Bot\\animations\\Idle.ozz"
+            "data": "Meshes\\X Bot\\skeleton.ozz"
         }
     },
     "value91": 4,
     "value92": {
         "value0": {
             "nullopt": false,
-            "data": "Meshes\\Y Bot\\animations\\Idle.ozz"
+            "data": "Meshes\\Y Bot\\skeleton.ozz"
         }
     },
     "value93": 5,
     "value94": {
         "value0": {
             "nullopt": false,
-            "data": "Meshes\\Mutant\\animations\\Mutant Flexing Muscles.ozz"
+            "data": "Meshes\\Mutant\\skeleton.ozz"
         }
     },
     "value95": 3,
     "value96": 1,
     "value97": {
-        "value0": 0.0,
-        "value1": 0.0,
-        "value2": 1.0,
-        "value3": true,
-        "value4": true
+        "value0": {
+            "nullopt": false,
+            "data": "Meshes\\X Bot\\animations\\Idle.ozz"
+        }
     },
     "value98": 4,
     "value99": {
-        "value0": 0.0,
-        "value1": 0.0,
-        "value2": 1.0,
-        "value3": true,
-        "value4": true
+        "value0": {
+            "nullopt": false,
+            "data": "Meshes\\Y Bot\\animations\\Idle.ozz"
+        }
     },
     "value100": 5,
     "value101": {
+        "value0": {
+            "nullopt": false,
+            "data": "Meshes\\Mutant\\animations\\Mutant Flexing Muscles.ozz"
+        }
+    },
+    "value102": 3,
+    "value103": 1,
+    "value104": {
         "value0": 0.0,
         "value1": 0.0,
         "value2": 1.0,
         "value3": true,
         "value4": true
     },
-    "value102": [],
-    "value103": [
+    "value105": 4,
+    "value106": {
+        "value0": 0.0,
+        "value1": 0.0,
+        "value2": 1.0,
+        "value3": true,
+        "value4": true
+    },
+    "value107": 5,
+    "value108": {
+        "value0": 0.0,
+        "value1": 0.0,
+        "value2": 1.0,
+        "value3": true,
+        "value4": true
+    },
+    "value109": [
+        1043494673
+    ],
+    "value110": 1,
+    "value111": 3,
+    "value112": {},
+    "value113": [
         1680050497
     ],
-    "value104": 1,
-    "value105": 3,
-    "value106": {
+    "value114": 2,
+    "value115": 3,
+    "value116": {
+        "value0": {
+            "nullopt": false,
+            "data": "Scripts\\behavior\\SkeletalAnimationDemoHUD.lua"
+        }
+    },
+    "value117": 9,
+    "value118": {
         "value0": {
             "nullopt": false,
             "data": "Scripts\\behavior\\BasicCameraController.lua"

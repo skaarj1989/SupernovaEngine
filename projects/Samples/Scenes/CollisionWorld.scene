@@ -983,12 +983,12 @@
                         "value0": "fs_strength",
                         "value1": {
                             "index": 2,
-                            "data": 0.25
+                            "data": 0.0
                         }
                     }
                 ],
                 "value2": [],
-                "value3": 0
+                "value3": 4
             },
             {
                 "value0": {
@@ -2060,7 +2060,8 @@
     "value230": 3,
     "value231": {
         "value0": {
-            "nullopt": true
+            "nullopt": false,
+            "data": "Scripts\\behavior\\CharacterControllerDemoUI.lua"
         }
     }
 }
