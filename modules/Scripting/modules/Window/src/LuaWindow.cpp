@@ -42,8 +42,8 @@ void registerMouseEvents(sol::state &lua) {
   // clang-format off
   DEFINE_USERTYPE(MouseButtonEvent,
     sol::no_constructor,
-    sol::base_classes, sol::bases<MouseMoveEvent>(),
 
+    BIND(position),
     BIND(state),
     BIND(button),
 

@@ -30,6 +30,9 @@ add_subdirectory(Animation)
 add_subdirectory(RHI)
 add_subdirectory(WorldRenderer)
 add_subdirectory(Components/CameraComponent)
+add_subdirectory(Components/UIComponent)
+
+add_subdirectory(RmlUi)
 
 add_subdirectory(Scene)
 

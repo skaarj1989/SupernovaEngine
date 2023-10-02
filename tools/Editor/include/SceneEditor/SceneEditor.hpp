@@ -12,6 +12,9 @@
 
 #include "ScriptContext.hpp"
 
+#include "RmlUiPlatformInterface.hpp"
+#include "RmlUiRenderInterface.hpp"
+
 #include "entt/signal/dispatcher.hpp"
 #include "sol/forward.hpp"
 
@@ -25,6 +28,8 @@ public:
   using entt::emitter<SceneEditor>::on;
 
   struct Viewport {
+    Viewport();
+
     gfx::PerspectiveCamera camera;
     gfx::RenderSettings renderSettings;
     gfx::SkyLight skyLight;
@@ -42,28 +47,22 @@ public:
     Viewport viewport;
   };
 
-  struct NewSceneEvent {
-    Scene *scene;
-  };
   struct EditScriptRequest {
     std::shared_ptr<ScriptResource> resource;
   };
 
-  SceneEditor(os::InputSystem &, rhi::RenderDevice &);
+  SceneEditor(os::InputSystem &, gfx::WorldRenderer &, sol::state &);
   SceneEditor(const SceneEditor &) = delete;
+  ~SceneEditor() override;
 
   SceneEditor &operator=(const SceneEditor &) = delete;
 
   bool hasActiveScene() const { return m_activeSceneId.has_value(); }
 
   Entry *getActiveSceneEntry();
-
   Scene *getCurrentScene();
-  ScriptContext *getScriptContext();
 
   void closeAllScenes();
-
-  void expose(sol::state &);
 
   void show(const char *name, bool *open) override;
 
@@ -73,6 +72,9 @@ public:
   void onRender(rhi::CommandBuffer &, float dt) override;
 
 private:
+  void _expose(sol::state &);
+
+  [[nodiscard]] Entry _createEntry();
   Entry &_addScene();
   void _openScene(const std::filesystem::path &);
   [[nodiscard]] bool _hasScene(const std::filesystem::path &) const;
@@ -136,7 +138,8 @@ private:
 
 private:
   os::InputSystem &m_inputSystem;
-  rhi::RenderDevice &m_renderDevice;
+  gfx::WorldRenderer &m_worldRenderer;
+  sol::state &m_lua;
 
   entt::dispatcher m_dispatcher;
 
@@ -150,4 +153,8 @@ private:
   std::optional<Scene> m_playTest;
 
   RenderTargetPreview m_renderTargetPreview;
+
+  std::unique_ptr<RmlUiFileInterface> m_uiFileInterface;
+  std::unique_ptr<RmlUiSystemInterface> m_uiSystemInterface;
+  std::unique_ptr<RmlUiRenderInterface> m_gameUiRenderInterface;
 };

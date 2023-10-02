@@ -1,5 +1,6 @@
 #include "SceneEditor/SceneEditor.hpp"
 #include "Services.hpp"
+#include "TypeTraits.hpp"
 
 #include "Inspectors/CameraInspector.hpp"
 #include "Inspectors/SkyLightInspector.hpp"
@@ -15,11 +16,7 @@
 
 #include "RenderSettings.hpp"
 
-#include "HierarchySystem.hpp"
-#include "PhysicsSystem.hpp"
-#include "RenderSystem.hpp"
-#include "AnimationSystem.hpp"
-#include "ScriptSystem.hpp"
+#include "RmlUi/Core.h"
 
 #include "glm/gtc/type_ptr.hpp" // value_ptr
 
@@ -77,13 +74,6 @@ void print(const entt::entity e) {
   ImGui::BulletText("Version: %hu", entt::to_version(e));
 }
 
-void setupEditorViewport(SceneEditor::Viewport &viewport) {
-  viewport.camera.invertY(true)
-    .setFov(60.0f)
-    .setClippingPlanes({.zNear = 0.1f, .zFar = 1000.0f})
-    .setPosition({0.0f, 3.0f, -10.0f});
-  viewport.renderSettings.debugFlags |= gfx::DebugFlags::InfiniteGrid;
-}
 void setupSimpleScene(Scene &scene) {
   auto &meshManager = Services::Resources::Meshes::value();
   using BasicShapes = gfx::MeshManager::BasicShapes;
@@ -312,6 +302,10 @@ void showComponentsMenuItems(entt::handle h) {
     ImGui::EndMenu();
   }
 
+  if (ImGui::MenuItemEx("UI", ICON_FA_CHALKBOARD_USER)) {
+    h.emplace_or_replace<UIComponent>();
+  }
+
   if (ImGui::BeginMenu("Physics")) {
     if (ImGui::MenuItem("ColliderComponent")) {
       h.emplace_or_replace<ColliderComponent>();
@@ -380,11 +374,26 @@ createEditorSceneView(SceneEditor::Viewport &viewport, rhi::Texture &target) {
 } // namespace
 
 //
+// SceneEditor::Viewport struct:
+//
+
+SceneEditor::Viewport::Viewport() {
+  camera.invertY(true)
+    .setFov(60.0f)
+    .setClippingPlanes({.zNear = 0.1f, .zFar = 1000.0f})
+    .setPosition({0.0f, 3.0f, -10.0f});
+  renderSettings.debugFlags |= gfx::DebugFlags::InfiniteGrid;
+}
+
+//
 // SceneEditor class:
 //
 
-SceneEditor::SceneEditor(os::InputSystem &is, rhi::RenderDevice &rd)
-    : m_inputSystem{is}, m_renderDevice{rd}, m_renderTargetPreview{rd} {
+SceneEditor::SceneEditor(os::InputSystem &is, gfx::WorldRenderer &renderer,
+                         sol::state &lua)
+    : m_inputSystem{is}, m_worldRenderer{renderer}, m_lua{lua},
+      m_renderTargetPreview{renderer.getRenderDevice()} {
+
   _connectInspectors2<NameComponent, ParentComponent, ChildrenComponent,
                       Transform>();
   _connectInspectors(PhysicsSystem::kIntroducedComponents);
@@ -397,7 +406,27 @@ SceneEditor::SceneEditor(os::InputSystem &is, rhi::RenderDevice &rd)
   m_dispatcher.sink<SelectEntityRequest>().connect<&SceneEditor::_selectEntity>(
     this);
 
+  m_uiFileInterface = std::make_unique<RmlUiFileInterface>();
+  Rml::SetFileInterface(m_uiFileInterface.get());
+
+  m_uiSystemInterface = std::make_unique<RmlUiSystemInterface>();
+  Rml::SetSystemInterface(m_uiSystemInterface.get());
+
+  m_gameUiRenderInterface =
+    std::make_unique<RmlUiRenderInterface>(m_worldRenderer.getRenderDevice());
+  Rml::SetRenderInterface(m_gameUiRenderInterface.get());
+
+  Rml::Initialise();
+
   ImGuizmo::StyleColorsBlender();
+
+  _expose(m_lua);
+}
+SceneEditor::~SceneEditor() {
+  m_playTest.reset();
+  closeAllScenes();
+
+  Rml::Shutdown();
 }
 
 SceneEditor::Entry *SceneEditor::getActiveSceneEntry() {
@@ -413,25 +442,10 @@ Scene *SceneEditor::getCurrentScene() {
   }
   return scene;
 }
-ScriptContext *SceneEditor::getScriptContext() {
-  if (auto *scene = getCurrentScene(); scene) {
-    return &scene->getRegistry().ctx().get<ScriptContext>();
-  }
-  return nullptr;
-}
 
 void SceneEditor::closeAllScenes() {
   m_scenes.clear();
   m_activeSceneId = std::nullopt;
-}
-
-void SceneEditor::expose(sol::state &lua) {
-  lua["inEditor"] = sol::readonly_property([] { return true; });
-
-  lua["getSelectedEntity"] = [this] {
-    const auto *entry = getActiveSceneEntry();
-    return entry ? entry->selectedEntity : entt::handle{};
-  };
 }
 
 void SceneEditor::show(const char *name, bool *open) {
@@ -507,10 +521,27 @@ void SceneEditor::show(const char *name, bool *open) {
   // ImGuizmo::PrintContext();
 }
 
+auto adjustMousePosition(os::InputEvent evt, const glm::ivec2 windowPos) {
+  std::visit(
+    [windowPos](auto &arg) {
+      using T = std::decay_t<decltype(arg)>;
+
+      if constexpr (std::is_base_of_v<os::MouseMoveEvent, T>) {
+        const auto p = ImGui::GetMousePos();
+        arg.position = glm::ivec2{p.x, p.y} - windowPos;
+      }
+    },
+    evt);
+  return evt;
+}
+
 void SceneEditor::onInput(const os::InputEvent &evt) {
   if (m_passthroughInput) {
     assert(m_playTest);
-    ScriptSystem::onInput(m_playTest->getRegistry(), evt);
+
+    ScriptSystem::onInput(
+      m_playTest->getRegistry(),
+      adjustMousePosition(evt, m_renderTargetPreview.getPosition()));
   }
 }
 void SceneEditor::onUpdate(float dt) {
@@ -519,6 +550,7 @@ void SceneEditor::onUpdate(float dt) {
     auto &r = m_playTest->getRegistry();
     AnimationSystem::update(r, dt);
     ScriptSystem::onUpdate(r, dt);
+    UISystem::update(r);
   }
 }
 void SceneEditor::onPhysicsUpdate(float dt) {
@@ -537,19 +569,33 @@ void SceneEditor::onRender(rhi::CommandBuffer &cb, float dt) {
 // (private):
 //
 
+void SceneEditor::_expose(sol::state &lua) {
+  lua["inEditor"] = sol::readonly_property([] { return true; });
+  lua["getPreviewExtent"] = [this] {
+    return m_renderTargetPreview.getExtent();
+  };
+
+  lua["getSelectedEntity"] = [this] {
+    const auto *entry = getActiveSceneEntry();
+    return entry ? entry->selectedEntity : entt::handle{};
+  };
+}
+
+SceneEditor::Entry SceneEditor::_createEntry() {
+  return Entry{
+    .scene = Scene{m_worldRenderer, *m_gameUiRenderInterface, m_lua},
+  };
+}
 SceneEditor::Entry &SceneEditor::_addScene() {
-  auto &entry = m_scenes.emplace_back(std::make_unique<Entry>());
-  publish(NewSceneEvent{.scene = &entry->scene});
+  const auto &entry =
+    m_scenes.emplace_back(std::make_unique<Entry>(_createEntry()));
   setupSimpleScene(entry->scene);
-  setupEditorViewport(entry->viewport);
   return *entry;
 }
 void SceneEditor::_openScene(const std::filesystem::path &p) {
   if (_hasScene(p)) return;
 
-  auto entry = std::make_unique<Entry>();
-  publish(NewSceneEvent{.scene = &entry->scene});
-  setupEditorViewport(entry->viewport);
+  auto entry = std::make_unique<Entry>(_createEntry());
 
   const auto relativePath = os::FileSystem::relativeToRoot(p);
   if (entry->scene.load(p, Scene::ArchiveType::JSON)) {
@@ -655,13 +701,7 @@ void SceneEditor::_menuBar() {
 
     if (ImGui::MenuItem(ICON_FA_PLAY " Play", nullptr, nullptr,
                         hasScene && !m_playTest)) {
-      publish(NewSceneEvent{&m_playTest.emplace()});
-
-      auto &srcScene = getActiveSceneEntry()->scene;
-      m_playTest->copyFrom(srcScene);
-
-      getMainCamera(m_playTest->getRegistry()).e =
-        getMainCamera(srcScene.getRegistry()).e;
+      m_playTest.emplace(activeEntry->scene);
     }
     if (ImGui::MenuItem(ICON_FA_STOP " Stop", nullptr, nullptr,
                         m_playTest.has_value())) {
@@ -1005,6 +1045,7 @@ void SceneEditor::_drawWorld(Scene &scene, rhi::CommandBuffer &cb,
     PhysicsSystem::debugDraw(r, mainCamera->debugDraw);
     // AnimationSystem::debugDraw(r, mainCamera->debugDraw);
     RenderSystem::update(r, cb, dt, nullptr, debugOutput);
+    UISystem::render(r, cb);
     if (auto *src = mainCamera->target.get(); src) {
       cb.blit(*src, texture, VK_FILTER_LINEAR);
     }

@@ -2,6 +2,7 @@
 
 #include "RmlUi/Core/SystemInterface.h"
 #include "RmlUi/Core/FileInterface.h"
+#include "os/InputEvents.hpp"
 #include <chrono>
 
 class RmlUiSystemInterface : public Rml::SystemInterface {
@@ -24,3 +25,5 @@ public:
   bool Seek(Rml::FileHandle, long offset, int origin) override;
   size_t Tell(Rml::FileHandle) override;
 };
+
+void processEvent(Rml::Context &, const os::InputEvent &);

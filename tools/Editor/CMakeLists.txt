@@ -285,6 +285,9 @@ target_link_libraries(Editor
   MetaHelper
   Scene
 
+  RmlUiPlatformInterface
+  RmlUiRenderer
+
   Boost::graph
 
   # -- Scripting:
@@ -307,7 +310,9 @@ target_link_libraries(Editor
   LuaVulkanRHI
   LuaWorldRenderer
   LuaCameraComponent
+  LuaUIComponent
   LuaDebugDraw
+  LuaRmlUi
   LuaNameComponent
   LuaScriptComponent
 )

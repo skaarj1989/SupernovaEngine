@@ -1,0 +1,33 @@
+<rml>
+<head>
+	<title>CharacterController Demo</title>
+	<link type="text/rcss" href="invader.rcss"/>
+	<style>
+		.flex {
+			display: flex;
+			padding: 8px;
+		}
+		.flex > div {
+			padding: 8px;
+			margin: 4px;
+			flex: 1;
+		}
+		p {
+			display: block;
+			margin-top: 0.5em;
+			font-size: 14dp;
+			font-weight: bold;
+		}
+	</style>
+</head>
+<body>
+	<div class="flex" data-model="data">
+		<div>
+			<p>Glitch</p>
+		</div>
+		<div>
+			<input type="range" min="0.0" max="1.0" step="0.01" data-value="glitch"/>
+		</div>
+	</div>
+</body>
+</rml>

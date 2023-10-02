@@ -1,0 +1,5 @@
+ui.loadFontFace("UI/Fonts/LatoLatin/LatoLatin-Regular.ttf")
+ui.loadFontFace("UI/Fonts/LatoLatin/LatoLatin-Italic.ttf")
+ui.loadFontFace("UI/Fonts/LatoLatin/LatoLatin-Bold.ttf")
+ui.loadFontFace("UI/Fonts/LatoLatin/LatoLatin-BoldItalic.ttf")
+ui.loadFontFace("UI/Fonts/LatoLatin/NotoEmoji-Regular.ttf")

@@ -6,7 +6,7 @@ add_library(RmlUiPlatformInterface
 )
 target_include_directories(RmlUiPlatformInterface PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(RmlUiPlatformInterface
-  PRIVATE FileSystem
-  PUBLIC RmlCore RmlDebugger
+  PRIVATE Common FileSystem
+  PUBLIC InputEvents RmlCore RmlDebugger
 )
 set_target_properties(RmlUiPlatformInterface PROPERTIES FOLDER "Framework/GUI")

@@ -140,7 +140,7 @@ RmlUiRenderer::_createPipeline(rhi::PixelFormat colorFormat,
 
       .srcAlpha = rhi::BlendFactor::One,
       .dstAlpha = rhi::BlendFactor::OneMinusSrcAlpha,
-      .alphaOp = rhi::BlendOp::Subtract,
+      .alphaOp = rhi::BlendOp::Add,
     })
     .build(getRenderDevice());
   // clang-format on
