@@ -1,4 +1,4 @@
---- @class FloatingActor: ScriptNode
+---@class FloatingActor : ScriptNode
 local node = {}
 
 function node:init()

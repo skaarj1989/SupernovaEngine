@@ -4,7 +4,7 @@ local class = require "middleclass"
 
 local ShakeableTransform = class("ShakeableTransform")
 
---- @param xf Transform
+---@param xf Transform
 function ShakeableTransform:construct(xf)
   self.xf = xf
 
@@ -19,7 +19,7 @@ function ShakeableTransform:construct(xf)
   self.trauma = 0.0
 end
 
---- @param dt number
+---@param dt number
 function ShakeableTransform:update(dt)
   self.totalTime = self.totalTime + dt
 
@@ -50,7 +50,7 @@ function ShakeableTransform:update(dt)
   self.trauma = math.clamp(self.trauma - self.recoverySpeed * dt, 0.0, 1.0)
 end
 
---- @param stress number
+---@param stress number
 function ShakeableTransform:induceStress(stress)
   self.trauma = math.clamp(self.trauma + stress, 0.0, 1.0)
 end

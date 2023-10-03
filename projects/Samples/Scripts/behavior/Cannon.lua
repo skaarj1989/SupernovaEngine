@@ -18,9 +18,9 @@ local function getRandomColor()
   return math.vec3(math.random(), math.random(), math.random())
 end
 
---- @param bullet Entity
---- @param position vec3
---- @param direction vec3
+---@param bullet Entity
+---@param position vec3
+---@param direction vec3
 function Cannon:fire(bullet, position, direction)
   bullet:emplace(Transform(position))
   bullet:emplace(ColliderComponent(bulletPrefab.collider))

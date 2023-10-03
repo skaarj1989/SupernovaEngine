@@ -1,5 +1,5 @@
---- @meta
+---@meta
 
---- @class EventBase
---- @field type_id integer
+---@class EventBase
+---@field type_id integer
 EventBase = {}

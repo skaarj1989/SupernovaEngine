@@ -1,10 +1,10 @@
---- @meta
+---@meta
 
---- @class PhysicsWorld
+---@class PhysicsWorld
 PhysicsWorld = {}
 
---- @param v vec3
+---@param v vec3
 function PhysicsWorld:setGravity(v) end
 
---- @return vec3
+---@return vec3
 function PhysicsWorld:getGravity() end

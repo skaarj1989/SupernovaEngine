@@ -1,5 +1,5 @@
---- @meta
+---@meta
 
---- @class SkyLight
---- @field source TextureResource
+---@class SkyLight
+---@field source TextureResource
 SkyLight = {}
