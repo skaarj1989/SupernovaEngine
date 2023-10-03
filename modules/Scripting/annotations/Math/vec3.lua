@@ -25,6 +25,9 @@ math.vec3 = {}
 ---@field x integer
 ---@field y integer
 ---@field z integer
+---@overload fun(): ivec3
+---@overload fun(v: number|vec3|ivec3|uvec3): ivec3
+---@overload fun(x: number, y: number, z: number): ivec3
 ---@operator add(number): ivec3
 ---@operator add(ivec3): ivec3
 ---@operator sub(number): ivec3
@@ -39,6 +42,9 @@ math.ivec3 = {}
 ---@field x integer
 ---@field y integer
 ---@field z integer
+---@overload fun(): uvec3
+---@overload fun(v: number|vec3|ivec3|uvec3): uvec3
+---@overload fun(x: number, y: number, z: number): uvec3
 ---@operator add(number): uvec3
 ---@operator add(uvec3): uvec3
 ---@operator sub(number): uvec3
@@ -53,4 +59,7 @@ math.uvec3 = {}
 ---@field x boolean
 ---@field y boolean
 ---@field z boolean
+---@overload fun(): bvec3
+---@overload fun(v: bvec3): bvec3
+---@overload fun(x: boolean, y: boolean, z: boolean): bvec3
 math.bvec3 = {}

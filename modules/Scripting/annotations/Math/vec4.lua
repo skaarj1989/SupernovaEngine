@@ -75,4 +75,7 @@ math.uvec4 = {}
 ---@field y boolean
 ---@field z boolean
 ---@field w boolean
+---@overload fun(): bvec4
+---@overload fun(v: bvec4): bvec4
+---@overload fun(x: boolean, y: boolean, z: boolean, w: boolean): bvec4
 math.bvec4 = {}

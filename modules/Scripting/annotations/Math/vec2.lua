@@ -51,4 +51,7 @@ math.uvec2 = {}
 ---@class bvec2
 ---@field x boolean
 ---@field y boolean
+---@overload fun(): bvec2
+---@overload fun(v: bvec2): bvec2
+---@overload fun(x: boolean, y: boolean): bvec2
 math.bvec2 = {}
