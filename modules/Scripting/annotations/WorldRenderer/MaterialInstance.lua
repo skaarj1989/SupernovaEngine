@@ -19,7 +19,7 @@ function MaterialInstance:hasTextures() end
 ---@alias PropertyValue integer|number|vec2|vec4
 
 ---@enum Numeric
-Numeric = { Int = 0, Uint = 1, Flaot = 2 }
+Numeric = { Int = 0, UInt = 1, Float = 2 }
 
 ---@param name string
 ---@param value PropertyValue
