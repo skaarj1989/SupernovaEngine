@@ -1,4 +1,4 @@
---- @meta
+---@meta
 
---- @class Mesh
+---@class Mesh
 Mesh = {}

@@ -1,13 +1,13 @@
---- @meta
+---@meta
 
---- @class Resource
+---@class Resource
 Resource = {}
 
---- @return boolean
+---@return boolean
 function Resource:valid() end
 
---- @return integer
+---@return integer
 function Resource:getResourceId() end
 
---- @return string
+---@return string
 function Resource:getPath() end

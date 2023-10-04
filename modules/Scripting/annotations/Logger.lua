@@ -1,6 +1,6 @@
---- @meta
+---@meta
 
 spdlog = {}
 
---- @param msg string
+---@param msg string
 function spdlog.log(msg) end

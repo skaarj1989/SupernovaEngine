@@ -38,17 +38,17 @@ function node:init()
   })
 end
 
---- @param evt InputEvent
+---@param evt InputEvent
 function node:input(evt)
   if self.hasControl and isTypeOf(evt, MouseButtonEvent) then
-    --- @cast evt MouseButtonEvent
+    ---@cast evt MouseButtonEvent
     if evt.state == MouseButtonState.Released and evt.button == MouseButton.Left then
       self:_fire()
     end
   end
 
   if isTypeOf(evt, KeyboardEvent) then
-    --- @cast evt KeyboardEvent
+    ---@cast evt KeyboardEvent
     if evt.state == KeyState.Up then
       if evt.keyCode == KeyCode.R then
         self.cannon:clearSpawns()
@@ -65,7 +65,7 @@ function node:input(evt)
   end
 end
 
---- @param dt number
+---@param dt number
 function node:update(dt)
   if self.hasControl then
     self:_processKeyboard()
@@ -83,12 +83,12 @@ function node:update(dt)
   self.cameraShake:update(dt)
 end
 
---- @param dt number
+---@param dt number
 function node:physicsStep(dt)
   self.characterController:physicsStep(dt)
 end
 
---- @param b boolean
+---@param b boolean
 function node:_takeControl(b)
   self.hasControl = b
   InputSystem:showCursor(not self.hasControl)
@@ -112,7 +112,7 @@ function node:_processKeyboard()
   self.characterController:sprint(InputSystem:isKeyDown(KeyCode.Shift))
 end
 
---- @param dt number
+---@param dt number
 function node:_processMouse(dt)
   local mouseDelta <const> = InputSystem:getMouseDelta()
   if (mouseDelta ~= math.ivec2(0)) then

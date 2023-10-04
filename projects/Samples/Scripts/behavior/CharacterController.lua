@@ -9,7 +9,7 @@ local State <const> = {
   IN_AIR = 3,
 }
 
---- @param character CharacterVirtual
+---@param character CharacterVirtual
 function CharacterController:construct(character)
   self.character = character
   self.state = State.IDLE
@@ -25,7 +25,7 @@ function CharacterController:construct(character)
   self.jumpSpeed = 5.0
 end
 
---- @param dt number
+---@param dt number
 function CharacterController:physicsStep(dt)
   local controlMovementDuringJump <const> = false
 
@@ -102,7 +102,7 @@ function CharacterController:isRunning()
   return self.state == State.RUNNING
 end
 
---- @param moveDirection vec3
+---@param moveDirection vec3
 function CharacterController:setMoveDirection(moveDirection)
   if math.length(moveDirection) ~= 0 then
     moveDirection = self.character:getRotation() * math.normalize(moveDirection)
@@ -110,12 +110,12 @@ function CharacterController:setMoveDirection(moveDirection)
   self.moveDirection = moveDirection
 end
 
---- @param q quat
+---@param q quat
 function CharacterController:setYaw(q)
   self.character:setRotation(self.character:getRotation() * q)
 end
 
---- @param b boolean
+---@param b boolean
 function CharacterController:sprint(b)
   self.wantSprint = b
 end

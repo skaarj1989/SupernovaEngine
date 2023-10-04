@@ -1,8 +1,8 @@
---- @meta
+---@meta
 
---- @class ScriptResource : Resource
+---@class ScriptResource : Resource
 ScriptResource = {}
 
---- @param path string
---- @return ScriptResource
+---@param path string
+---@return ScriptResource
 function loadScript(path) end

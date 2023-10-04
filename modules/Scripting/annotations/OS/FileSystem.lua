@@ -1,9 +1,9 @@
---- @meta
+---@meta
 
 FileSystem = {}
 
---- @return string
+---@return string
 function FileSystem.rootPath() end
 
---- @return string
+---@return string
 function FileSystem.currentPath() end

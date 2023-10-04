@@ -1,69 +1,69 @@
---- @meta
+---@meta
 
---- @class Window
+---@class Window
 Window = {}
 
---- @param v ivec2
---- @return Window self
+---@param v ivec2
+---@return self
 function Window:setPosition(v) end
 
---- @param v ivec2
---- @return Window self
+---@param v ivec2
+---@return self
 function Window:setSize(v) end
 
---- @param a number
---- @return Window self
+---@param a number
+---@return self
 function Window:setAlpha(a) end
 
---- @param s string
---- @return Window self
+---@param s string
+---@return self
 function Window:setCaption(s) end
 
---- @return ivec2
+---@return ivec2
 function Window:getPosition() end
 
---- @return ivec2
+---@return ivec2
 function Window:getSize() end
 
---- @return uvec2
+---@return uvec2
 function Window:getClientSize() end
 
---- @return string
+---@return string
 function Window:getCaption() end
 
---- @return boolean
+---@return boolean
 function Window:isMinimized() end
 
---- @return boolean
+---@return boolean
 function Window:hasFocus() end
 
---- @return Window self
+---@return self
 function Window:show() end
 
---- @return Window self
+---@return self
 function Window:hide() end
 
---- @return Window self
+---@return self
 function Window:minimize() end
 
---- @return Window self
+---@return self
 function Window:maximize() end
 
---- @return Window self
+---@return self
 function Window:focus() end
 
 function Window:close() end
 
---- @param w Window
---- @return number
+---@param w Window
+---@return number
 function getAspectRatio(w) end
 
---- @param w Window
+---@param w Window
 function center(w) end
 
---- @param w Window
---- @return uvec2
+---@param w Window
+---@return uvec2
 function getCenter(w) end
 
---- @type Window
+---@type Window
 GameWindow = {}

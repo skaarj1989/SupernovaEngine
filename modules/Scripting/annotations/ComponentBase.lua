@@ -1,5 +1,5 @@
---- @meta
+---@meta
 
---- @class ComponentBase
---- @field type_id integer
+---@class ComponentBase
+---@field type_id integer
 ComponentBase = {}

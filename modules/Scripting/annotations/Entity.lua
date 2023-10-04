@@ -1,49 +1,46 @@
---- @meta
+---@meta
 
---- @class Entity
+---@class Entity
 Entity = {}
 
---- @return integer
+---@return integer
 function Entity:id() end
 
---- @return boolean
+---@return boolean
 function Entity:valid() end
 
---- @generic T
---- @param type T
---- @return boolean
---- @overload fun(id: integer): boolean
+---@generic T
+---@param type T
+---@return boolean
 function Entity:has(type) end
 
---- @generic T
---- @param type T
---- @return T
---- @overload fun(id: integer): userdata
+---@generic T
+---@param type T
+---@return T
 function Entity:get(type) end
 
---- @generic T
---- @param component T
---- @return T
+---@generic T
+---@param component T
+---@return T
 function Entity:emplace(component) end
 
---- @generic T
---- @param type T
---- @return boolean
---- @overload fun(id: integer): boolean
+---@generic T
+---@param type T
+---@return boolean
 function Entity:remove(type) end
 
 function Entity:destroy() end
 
---- @return Entity
+---@return Entity
 function Entity:getParent() end
 
---- @return Entity[]
+---@return Entity[]
 function Entity:getChildren() end
 
---- @param entity Entity
+---@param entity Entity
 function Entity:attach(entity) end
 
---- @param newParent Entity
+---@param newParent Entity
 function Entity:attachTo(newParent) end
 
 function Entity:detach() end

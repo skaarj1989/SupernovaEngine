@@ -1,34 +1,34 @@
---- @meta
+---@meta
 
---- @class MeshInstance : ComponentBase
---- @overload fun(resource: MeshResource): MeshInstance
+---@class MeshInstance : ComponentBase
+---@overload fun(resource: MeshResource): MeshInstance
 MeshInstance = {}
 
---- @param b boolean
---- @return self
+---@param b boolean
+---@return self
 function MeshInstance:show(b) end
 
---- @return integer Number of visible sub-meshes
+---@return integer # Number of visible sub-meshes
 function MeshInstance:countVisible() end
 
---- @return MeshResource
+---@return MeshResource
 function MeshInstance:getResource() end
 
---- @return MeshResource
---- @param index integer
---- @param material MaterialResource
+---@param index integer
+---@param material MaterialResource
+---@return self
 function MeshInstance:setMaterial(index, material) end
 
---- @return MaterialInstance
---- @param index integer
+---@param index integer
+---@return MaterialInstance
 function MeshInstance:getMaterial(index) end
 
---- @return boolean
+---@return boolean
 function MeshInstance:hasSkin() end
 
---- @return MeshInstance self
+---@return self
 function MeshInstance:reset() end
 
---- @class DecalInstance : MeshInstance
---- @overload fun(resource: MeshResource): DecalInstance
+---@class DecalInstance : MeshInstance
+---@overload fun(resource: MeshResource): DecalInstance
 DecalInstance = {}

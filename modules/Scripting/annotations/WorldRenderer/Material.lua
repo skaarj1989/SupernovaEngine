@@ -1,45 +1,45 @@
---- @meta
+---@meta
 
---- @enum MaterialDomain
+---@enum MaterialDomain
 MaterialDomain = {
-    Surface = 0, PostProcess = 1,
+  Surface = 0, PostProcess = 1,
 }
 
---- @enum ShadingModel
+---@enum ShadingModel
 ShadingModel = {
-    Unlit = 0, Lit = 1
+  Unlit = 0, Lit = 1
 }
 
---- @enum BlendMode
+---@enum BlendMode
 BlendMode = {
-    Opaque = 0, Masked = 1, Transparent = 2, Add = 3, Modulate = 4
+  Opaque = 0, Masked = 1, Transparent = 2, Add = 3, Modulate = 4
 }
 
---- @enum LightingMode
+---@enum LightingMode
 LightingMode = {
-    Default = 0, Transmission = 1
+  Default = 0, Transmission = 1
 }
 
---- @class MaterialSurface
---- @field shadingModel ShadingModel
---- @field blendMode BlendMode
---- @field lightingMode LightingMode
---- @field cullMode CullMode
+---@class MaterialSurface
+---@field shadingModel ShadingModel
+---@field blendMode BlendMode
+---@field lightingMode LightingMode
+---@field cullMode CullMode
 MaterialSurface = {}
 
---- @class MaterialBlueprint
---- @field surface MaterialSurface
+---@class MaterialBlueprint
+---@field surface MaterialSurface
 MaterialBlueprint = {}
 
---- @class Material
+---@class Material
 Material = {}
 
---- @return string
+---@return string
 function Material:getName() end
 
---- @return MaterialBlueprint
+---@return MaterialBlueprint
 function Material:getBlueprint() end
 
---- @return MaterialDomain
---- @param blueprint MaterialBlueprint
+---@param blueprint MaterialBlueprint
+---@return MaterialDomain
 function getDomain(blueprint) end

@@ -1,10 +1,10 @@
---- @meta
+---@meta
 
---- @return number
+---@return number
 function math.PI() end
 
---- @return number
+---@return number
 function math.HALF_PI() end
 
---- @return number
+---@return number
 function math.EPSILON() end

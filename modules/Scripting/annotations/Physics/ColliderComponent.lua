@@ -1,6 +1,6 @@
---- @meta
+---@meta
 
---- @class ColliderComponent : ComponentBase
---- @field resource ColliderResource Read only
---- @overload fun(resource: ColliderResource): ColliderComponent
+---@class ColliderComponent : ComponentBase
+---@field resource ColliderResource # Read only
+---@overload fun(resource: ColliderResource): ColliderComponent
 ColliderComponent = {}

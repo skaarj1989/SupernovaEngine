@@ -1,10 +1,10 @@
---- @meta
+---@meta
 
---- @return boolean
+---@return boolean
 function inEditor() end
 
 ---@return Extent2D
 function getPreviewExtent() end
 
---- @return Entity
+---@return Entity
 function getSelectedEntity() end

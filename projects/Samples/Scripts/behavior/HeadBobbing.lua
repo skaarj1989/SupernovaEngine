@@ -2,8 +2,8 @@ local class = require "middleclass"
 
 local HeadBobbing = class("HeadBobbing")
 
---- @param headXf Transform
---- @param cameraXf Transform
+---@param headXf Transform
+---@param cameraXf Transform
 function HeadBobbing:construct(headXf, cameraXf)
   self.headXf = headXf
   self.cameraXf = cameraXf
@@ -17,7 +17,7 @@ function HeadBobbing:construct(headXf, cameraXf)
   self.walkingTime = 0.0
 end
 
---- @param dt number
+---@param dt number
 function HeadBobbing:update(dt)
   if self.isWalking then
     self.walkingTime = self.walkingTime + dt
@@ -34,7 +34,7 @@ function HeadBobbing:update(dt)
   self.cameraXf:setPosition(targetCameraPosition)
 end
 
---- @param t number
+---@param t number
 function HeadBobbing:_calculateHeadBobOffset(t)
   local offset = math.vec3(0.0)
   if t > 0.0 then

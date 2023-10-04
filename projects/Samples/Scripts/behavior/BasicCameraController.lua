@@ -1,4 +1,4 @@
---- @class BasicCameraController: ScriptNode
+---@class BasicCameraController : ScriptNode
 local node = {
   captureMouse = false,
 
@@ -10,10 +10,10 @@ function node:init()
   self.xf = self.entity:get(Transform)
 end
 
---- @param evt InputEvent
+---@param evt InputEvent
 function node:input(evt)
   if isTypeOf(evt, KeyboardEvent) then
-    --- @cast evt KeyboardEvent
+    ---@cast evt KeyboardEvent
     if evt.state == KeyState.Up then
       if evt.keyCode == KeyCode.C then
         self.capture = not self.capture
@@ -23,7 +23,7 @@ function node:input(evt)
   end
 end
 
---- @param dt number
+---@param dt number
 function node:_processMouse(dt)
   local mouseDelta <const> = InputSystem:getMouseDelta()
   if (mouseDelta ~= math.ivec2(0)) then
@@ -37,7 +37,7 @@ function node:_processMouse(dt)
   InputSystem:setMousePosition(math.ivec2(getCenter(GameWindow)))
 end
 
---- @param dt number
+---@param dt number
 function node:_processKeyboard(dt)
   local input = math.vec3()
 
@@ -62,7 +62,7 @@ function node:_processKeyboard(dt)
 
   if math.length(input) ~= 0 then
     input = math.normalize(input) --[[@as vec3]]
-
+    
     local q <const> = self.xf:getOrientation()
     local dir <const> = q * input
     local velocity <const> = dir * (self.moveSpeed * (InputSystem:isKeyDown(KeyCode.Shift) and 2 or 1)) * dt
