@@ -12,13 +12,11 @@ function Entity:valid() end
 ---@generic T
 ---@param type T
 ---@return boolean
----@overload fun(id: integer): boolean
 function Entity:has(type) end
 
 ---@generic T
 ---@param type T
 ---@return T
----@overload fun(id: integer): userdata
 function Entity:get(type) end
 
 ---@generic T
@@ -29,7 +27,6 @@ function Entity:emplace(component) end
 ---@generic T
 ---@param type T
 ---@return boolean
----@overload fun(id: integer): boolean
 function Entity:remove(type) end
 
 function Entity:destroy() end
