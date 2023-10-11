@@ -319,6 +319,8 @@ target_link_libraries(Editor
   LuaUIComponent
   LuaDebugDraw
   LuaRmlUi
+  LuaAudioDevice
+  LuaAudioWorld
   LuaNameComponent
   LuaScriptComponent
 )

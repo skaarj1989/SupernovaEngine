@@ -34,6 +34,8 @@ add_subdirectory(Components/UIComponent)
 
 add_subdirectory(RmlUi)
 
+add_subdirectory(Audio)
+
 add_subdirectory(Scene)
 
 add_subdirectory(Components/NameComponent)
