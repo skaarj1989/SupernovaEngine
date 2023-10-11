@@ -47,6 +47,8 @@ An experimental game engine.
   - Rigid bodies
   - Character controller
 - Skeletal animations ([ozz-animation](https://github.com/guillaumeblanc/ozz-animation))
+- Audio ([OpenAL Soft](https://github.com/kcat/openal-soft))
+  - Playback/Streaming (.wav, .ogg)
 - Lua scripting ([sol2](https://github.com/ThePhD/sol2))
 - Material Editor ([imgui](https://github.com/ocornut/imgui) w/ [imnodes](https://github.com/Nelarius/imnodes))
 
@@ -77,7 +79,7 @@ VCPKG_DEFAULT_TRIPLET=x64-windows
 Install dependencies:
 
 ```bash
-> vcpkg install minizip robin-hood-hashing glm spdlog nlohmann-json cereal glslang spirv-cross ktx[vulkan] stb lua argparse meshoptimizer boost-graph rmlui[freetype] catch2
+> vcpkg install minizip robin-hood-hashing glm spdlog nlohmann-json cereal glslang spirv-cross ktx[vulkan] stb openal-soft libvorbis libogg lua argparse meshoptimizer boost-graph rmlui[freetype] catch2
 ```
 
 ## Third-party
@@ -99,6 +101,9 @@ Install dependencies:
 - [stb_image](https://github.com/nothings/stb)
 - [JoltPhysics](https://github.com/jrouwe/JoltPhysics)
 - [ozz-animation](https://github.com/guillaumeblanc/ozz-animation)
+- [OpenAL Soft](https://github.com/kcat/openal-soft)
+- [Vorbis](https://github.com/xiph/vorbis)
+- [Ogg](https://github.com/xiph/ogg)
 - [Lua](https://www.lua.org/)
   - [inspect.lua](https://github.com/kikito/inspect.lua)
   - [middleclass](https://github.com/kikito/middleclass)
