@@ -90,8 +90,12 @@ App::App(std::span<char *> args)
 
   JoltPhysics::setup();
 
+  m_audioDevice = std::make_unique<audio::Device>(audio::Device::Config{
+    .maxNumSources = 10'000,
+  });
+
   auto &rd = getRenderDevice();
-  Services::init(rd);
+  Services::init(rd, *m_audioDevice);
   m_cubemapConverter = std::make_unique<gfx::CubemapConverter>(rd);
   m_renderer = std::make_unique<gfx::WorldRenderer>(*m_cubemapConverter);
 
