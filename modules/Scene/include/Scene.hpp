@@ -6,6 +6,7 @@
 #include "PhysicsSystem.hpp"
 #include "RenderSystem.hpp"
 #include "AnimationSystem.hpp"
+#include "AudioSystem.hpp"
 #include "UISystem.hpp"
 #include "ScriptSystem.hpp"
 
@@ -20,12 +21,14 @@ public:
     PhysicsSystem::kIntroducedComponents +
     RenderSystem::kIntroducedComponents +
     AnimationSystem::kIntroducedComponents +
+    AudioSystem::kIntroducedComponents +
     UISystem::kIntroducedComponents +
     ScriptSystem::kIntroducedComponents;
   // clang-format on
 
   Scene();
-  Scene(gfx::WorldRenderer &, RmlUiRenderInterface &, sol::state &);
+  Scene(gfx::WorldRenderer &, RmlUiRenderInterface &, audio::Device &,
+        sol::state &);
   Scene(const Scene &);
   Scene(Scene &&) noexcept = default;
   ~Scene();
