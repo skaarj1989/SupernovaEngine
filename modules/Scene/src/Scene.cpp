@@ -175,7 +175,7 @@ std::istream &operator>>(std::istream &is, entt::registry &r) {
 
 Scene::Scene() = default;
 Scene::Scene(gfx::WorldRenderer &worldRenderer,
-             RmlUiRenderInterface &uiRenderInterface, sol::state &lua) {
+             RmlUiRenderInterface &uiRenderInterface,
              audio::Device &audioDevice, sol::state &lua) {
   setupSystems(m_registry, worldRenderer, uiRenderInterface, audioDevice, lua);
 }
