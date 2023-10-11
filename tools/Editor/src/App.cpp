@@ -204,7 +204,8 @@ void App::_setupWidgets() {
                                .open = true,
                                .section = DockSpaceSection::Center,
                              },
-                             getInputSystem(), *m_renderer, m_luaState);
+                             getInputSystem(), *m_renderer, *m_audioDevice,
+                             m_luaState);
   m_widgets.add<ScriptEditor>("Script Editor",
                               {
                                 .name = ICON_FA_CODE " Script Editor",

@@ -241,6 +241,10 @@ set(SCENE_EDITOR_SOURCES
   "src/SceneEditor/Inspectors/Renderer/Camera.cpp"
   "src/SceneEditor/Inspectors/Renderer/Light.cpp"
   "src/SceneEditor/Inspectors/Renderer/Mesh.cpp"
+  "src/SceneEditor/Inspectors/Audio/ListenerComponentInspector.cpp"
+  "src/SceneEditor/Inspectors/Audio/AudioComponentInspector.hpp"
+  "src/SceneEditor/Inspectors/Audio/SoundSourceComponent.cpp"
+  "src/SceneEditor/Inspectors/Audio/AudioPlayerComponent.cpp"
   "src/SceneEditor/Inspectors/Script.cpp"
 )
 set(SOURCES
@@ -318,6 +322,13 @@ target_link_libraries(Editor
   LuaNameComponent
   LuaScriptComponent
 )
+
+if(MSVC)
+  target_compile_options(Editor PRIVATE /bigobj)
+else()
+  target_compile_options(Editor PRIVATE -Wa,-mbig-obj)
+endif()
+
 set_target_properties(Editor PROPERTIES
   FOLDER "Tools"
   VS_DEBUGGER_COMMAND_ARGUMENTS "../../../projects/Samples/Samples.project"
