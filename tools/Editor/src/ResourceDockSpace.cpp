@@ -8,6 +8,7 @@
 #include "SkeletonCache.hpp"
 #include "AnimationCache.hpp"
 #include "ColliderCache.hpp"
+#include "AudioClipCache.hpp"
 #include "ScriptCache.hpp"
 
 ResourcesWidget::ResourcesWidget() {
@@ -25,6 +26,8 @@ ResourcesWidget::ResourcesWidget() {
   ADD_CACHE(Animations);
 
   ADD_CACHE(Colliders);
+
+  ADD_CACHE(AudioClips);
 
   ADD_CACHE(Scripts);
 

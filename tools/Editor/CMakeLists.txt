@@ -44,6 +44,8 @@ set(WIDGET_SOURCES
   "src/MaterialCache.cpp"
   "include/TextureCache.hpp"
   "src/TextureCache.cpp"
+  "include/AudioClipCache.hpp"
+  "src/AudioClipCache.cpp"
   "include/ScriptCache.hpp"
   "src/ScriptCache.cpp"
 
