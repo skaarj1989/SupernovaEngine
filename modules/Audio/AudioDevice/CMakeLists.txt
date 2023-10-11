@@ -29,3 +29,5 @@ target_link_libraries(AudioDevice
 set_target_properties(AudioDevice PROPERTIES FOLDER "Framework/Audio")
 
 add_subdirectory(modules)
+
+add_subdirectory(test)
