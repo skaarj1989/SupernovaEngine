@@ -1044,25 +1044,39 @@
         "value3": true,
         "value4": true
     },
-    "value109": [
+    "value109": {
+        "value0": {
+            "value0": 2,
+            "value1": 1.0,
+            "value2": 343.29998779296877
+        }
+    },
+    "value110": 3,
+    "value111": [
+        3293377831
+    ],
+    "value112": 1,
+    "value113": 3,
+    "value114": {},
+    "value115": [
         1043494673
     ],
-    "value110": 1,
-    "value111": 3,
-    "value112": {},
-    "value113": [
+    "value116": 1,
+    "value117": 3,
+    "value118": {},
+    "value119": [
         1680050497
     ],
-    "value114": 2,
-    "value115": 3,
-    "value116": {
+    "value120": 2,
+    "value121": 3,
+    "value122": {
         "value0": {
             "nullopt": false,
             "data": "Scripts\\behavior\\SkeletalAnimationDemoHUD.lua"
         }
     },
-    "value117": 9,
-    "value118": {
+    "value123": 9,
+    "value124": {
         "value0": {
             "nullopt": false,
             "data": "Scripts\\behavior\\BasicCameraController.lua"

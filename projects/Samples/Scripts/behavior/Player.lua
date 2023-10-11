@@ -9,6 +9,7 @@
       + Child Entity:
         - Transform
         - CameraComponent
+        - ListenerComponent
 ]]
 
 local CharacterController = require "Scripts.behavior.CharacterController"
@@ -29,8 +30,11 @@ function node:init()
   local headXf <const> = head:get(Transform)
   self.cameraShake = ShakeableTransform:new(headXf)
 
-  self.cameraXf = head:getChildren()[1]:get(Transform)
+  local e = head:getChildren()[1]
+  self.cameraXf = e:get(Transform)
   self.headBobbing = HeadBobbing:new(headXf, self.cameraXf)
+
+  self.listener = e:get(ListenerComponent)
 
   self.cannon = Cannon:new({
     speed = 30,
@@ -78,6 +82,8 @@ function node:update(dt)
   else
     self.headBobbing.isWalking = false
   end
+
+  self.listener.velocity = self.characterController.character:getLinearVelocity()
 
   self.headBobbing:update(dt)
   self.cameraShake:update(dt)
