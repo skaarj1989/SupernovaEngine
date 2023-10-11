@@ -1,6 +1,6 @@
 #include "Services.hpp"
 
-void Services::init(rhi::RenderDevice &rd) {
+void Services::init(rhi::RenderDevice &rd, audio::Device &ad) {
   Resources::Skeletons::emplace();
   Resources::Animations::emplace();
 
@@ -10,10 +10,14 @@ void Services::init(rhi::RenderDevice &rd) {
   auto &materialManager = Resources::Materials::emplace(textureManager);
   Resources::Meshes::emplace(rd, materialManager);
 
+  Resources::AudioClips::emplace(ad);
+
   Resources::Scripts::emplace();
 }
 void Services::reset() {
   Resources::Scripts::reset();
+
+  Resources::AudioClips::reset();
 
   Resources::Colliders::reset();
 
@@ -29,6 +33,8 @@ void Services::Resources::clear() {
   Textures::value().clear();
   Materials::value().clear();
   Meshes::value().clear();
+
+  AudioClips::value().clear();
 
   Skeletons::value().clear();
   Animations::value().clear();

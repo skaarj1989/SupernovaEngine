@@ -14,4 +14,6 @@ constexpr auto kImGuiPayloadTypeAnimation = "ANIMATION";
 
 constexpr auto kImGuiPayloadTypeCollider = "COLLIDER";
 
+constexpr auto kImGuiPayloadTypeAudioClip = "AUDIO_CLIP";
+
 constexpr auto kImGuiPayloadTypeScript = "SCRIPT";

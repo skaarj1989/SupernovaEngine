@@ -158,6 +158,44 @@ void inspect(PhysicsWorld &physicsWorld) {
   }
 }
 
+[[nodiscard]] bool inspect(const char *label,
+                           audio::DistanceModel &distanceModel) {
+  auto changed = false;
+  if (ImGui::BeginCombo(label, audio::toString(distanceModel))) {
+    constexpr auto kNumOptions = 7;
+    for (auto i = 0; i < kNumOptions; ++i) {
+      const auto option = static_cast<audio::DistanceModel>(i);
+      auto selected = option == distanceModel;
+      if (ImGui::Selectable(audio::toString(option), &selected,
+                            selected ? ImGuiSelectableFlags_Disabled
+                                     : ImGuiSelectableFlags_None)) {
+        distanceModel = option;
+        changed = true;
+      }
+      if (selected) ImGui::SetItemDefaultFocus();
+    }
+    ImGui::EndCombo();
+  }
+  return changed;
+}
+void inspect(AudioWorld &world) {
+  auto dirty = false;
+  auto settings = world.getSettings();
+  if (inspect("distanceModel", settings.distanceModel)) {
+    dirty |= true;
+  }
+  if (ImGui::SliderFloat("dopplerFactor", &settings.dopplerFactor, 0.001f,
+                         100.0f, "%.3f", ImGuiSliderFlags_AlwaysClamp)) {
+    dirty |= true;
+  }
+  if (ImGui::DragFloat("speedOfSound", &settings.speedOfSound, 0.1f, 0.01f,
+                       1000.0f, "%.3f", ImGuiSliderFlags_AlwaysClamp)) {
+    dirty |= true;
+  }
+
+  if (dirty) world.setSettings(settings);
+}
+
 void inspect(SceneEditor::Viewport &viewport, gfx::WorldRenderer &renderer) {
   constexpr auto kTreeNodeFlags = ImGuiTreeNodeFlags_Bullet;
   if (ImGui::CollapsingHeader("Camera", kTreeNodeFlags)) {
@@ -302,10 +340,6 @@ void showComponentsMenuItems(entt::handle h) {
     ImGui::EndMenu();
   }
 
-  if (ImGui::MenuItemEx("UI", ICON_FA_CHALKBOARD_USER)) {
-    h.emplace_or_replace<UIComponent>();
-  }
-
   if (ImGui::BeginMenu("Physics")) {
     if (ImGui::MenuItem("ColliderComponent")) {
       h.emplace_or_replace<ColliderComponent>();
@@ -353,6 +387,26 @@ void showComponentsMenuItems(entt::handle h) {
     }
     ImGui::EndMenu();
   }
+
+  if (ImGui::BeginMenuEx("Audio", ICON_FA_MUSIC)) {
+    if (ImGui::MenuItemEx("Listener", ICON_FA_HEADPHONES)) {
+      h.emplace_or_replace<ListenerComponent>();
+}
+    if (ImGui::MenuItemEx("SoundSource", ICON_FA_RECORD_VINYL)) {
+      h.remove<SoundSourceComponent>();
+      h.emplace<SoundSourceComponent>();
+    }
+    if (ImGui::MenuItemEx("Player", ICON_FA_RADIO)) {
+      h.remove<AudioPlayerComponent>();
+      h.emplace<AudioPlayerComponent>();
+    }
+
+    ImGui::EndMenu();
+  }
+
+  if (ImGui::MenuItemEx("UI", ICON_FA_CHALKBOARD_USER)) {
+    h.emplace_or_replace<UIComponent>();
+  }
 }
 
 [[nodiscard]] gfx::SceneView
@@ -390,15 +444,16 @@ SceneEditor::Viewport::Viewport() {
 //
 
 SceneEditor::SceneEditor(os::InputSystem &is, gfx::WorldRenderer &renderer,
-                         sol::state &lua)
-    : m_inputSystem{is}, m_worldRenderer{renderer}, m_lua{lua},
-      m_renderTargetPreview{renderer.getRenderDevice()} {
+                         audio::Device &audioDevice, sol::state &lua)
+    : m_inputSystem{is}, m_worldRenderer{renderer}, m_audioDevice{audioDevice},
+      m_lua{lua}, m_renderTargetPreview{renderer.getRenderDevice()} {
 
   _connectInspectors2<NameComponent, ParentComponent, ChildrenComponent,
                       Transform>();
   _connectInspectors(PhysicsSystem::kIntroducedComponents);
   _connectInspectors(RenderSystem::kIntroducedComponents);
   _connectInspectors(AnimationSystem::kIntroducedComponents);
+  _connectInspectors(AudioSystem::kIntroducedComponents);
   _connectInspectors(ScriptSystem::kIntroducedComponents);
 
   m_dispatcher.sink<DetachEntityRequest>().connect<&SceneEditor::_detachEntity>(
@@ -549,6 +604,7 @@ void SceneEditor::onUpdate(float dt) {
   if (m_playTest) {
     auto &r = m_playTest->getRegistry();
     AnimationSystem::update(r, dt);
+    AudioSystem::update(r, dt);
     ScriptSystem::onUpdate(r, dt);
     UISystem::update(r);
   }
@@ -583,7 +639,8 @@ void SceneEditor::_expose(sol::state &lua) {
 
 SceneEditor::Entry SceneEditor::_createEntry() {
   return Entry{
-    .scene = Scene{m_worldRenderer, *m_gameUiRenderInterface, m_lua},
+    .scene =
+      Scene{m_worldRenderer, *m_gameUiRenderInterface, m_audioDevice, m_lua},
   };
 }
 SceneEditor::Entry &SceneEditor::_addScene() {
@@ -788,6 +845,9 @@ void SceneEditor::_showConfigWidget(Entry &e) {
 
     if (ImGui::CollapsingHeader("Physics")) {
       ImGui::Frame([&r] { inspect(getPhysicsWorld(r)); });
+    }
+    if (ImGui::CollapsingHeader("Audio")) {
+      ImGui::Frame([&r] { inspect(getAudioWorld(r)); });
     }
     if (ImGui::CollapsingHeader("Bounds")) {
       ImGui::Frame([&r] { inspect(r.ctx().get<AABB>()); });

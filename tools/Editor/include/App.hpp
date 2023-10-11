@@ -5,6 +5,7 @@
 #include "WidgetCache.hpp"
 #include "renderer/CubemapConverter.hpp"
 #include "renderer/WorldRenderer.hpp"
+#include "audio/Device.hpp"
 #include "sol/state.hpp"
 
 class App final : public ImGuiApp {
@@ -35,6 +36,8 @@ private:
 
   std::unique_ptr<gfx::CubemapConverter> m_cubemapConverter;
   std::unique_ptr<gfx::WorldRenderer> m_renderer;
+
+  std::unique_ptr<audio::Device> m_audioDevice;
 
   sol::state m_luaState;
 

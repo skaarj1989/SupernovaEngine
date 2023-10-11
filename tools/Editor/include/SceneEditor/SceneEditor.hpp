@@ -51,7 +51,8 @@ public:
     std::shared_ptr<ScriptResource> resource;
   };
 
-  SceneEditor(os::InputSystem &, gfx::WorldRenderer &, sol::state &);
+  SceneEditor(os::InputSystem &, gfx::WorldRenderer &, audio::Device &,
+              sol::state &);
   SceneEditor(const SceneEditor &) = delete;
   ~SceneEditor() override;
 
@@ -134,11 +135,16 @@ private:
   void _onInspect(entt::handle, gfx::MeshInstance &) const;
   void _onInspect(entt::handle, gfx::DecalInstance &) const;
 
+  void _onInspect(entt::handle, ListenerComponent &) const;
+  void _onInspect(entt::handle, SoundSourceComponent &) const;
+  void _onInspect(entt::handle, AudioPlayerComponent &) const;
+
   void _onInspect(entt::handle, const ScriptComponent &);
 
 private:
   os::InputSystem &m_inputSystem;
   gfx::WorldRenderer &m_worldRenderer;
+  audio::Device &m_audioDevice;
   sol::state &m_lua;
 
   entt::dispatcher m_dispatcher;

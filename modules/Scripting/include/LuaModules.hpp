@@ -81,6 +81,14 @@
 #  include "LuaRmlUi.hpp"
 #endif
 
+#if __has_include("LuaAudioDevice.hpp")
+#  include "LuaAudioDevice.hpp"
+#endif
+
+#if __has_include("LuaAudioWorld.hpp")
+#  include "LuaAudioWorld.hpp"
+#endif
+
 inline void registerModules(sol::state &lua) {
 #if __has_include("LuaUtility.hpp")
   registerUtility(lua);
@@ -160,5 +168,13 @@ inline void registerModules(sol::state &lua) {
 
 #if __has_include("LuaRmlUi.hpp")
   registerRmlUi(lua);
+#endif
+
+#if __has_include("LuaAudioDevice.hpp")
+  registerAudioDevice(lua);
+#endif
+
+#if __has_include("LuaAudioWorld.hpp")
+  registerAudioWorld(lua);
 #endif
 }

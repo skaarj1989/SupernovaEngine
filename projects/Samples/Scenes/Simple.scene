@@ -355,20 +355,34 @@
         ]
     },
     "value41": [],
-    "value42": [],
-    "value43": [
+    "value42": {
+        "value0": {
+            "value0": 2,
+            "value1": 1.0,
+            "value2": 343.29998779296877
+        }
+    },
+    "value43": 3,
+    "value44": [
+        3293377831
+    ],
+    "value45": 1,
+    "value46": 3,
+    "value47": {},
+    "value48": [],
+    "value49": [
         1680050497
     ],
-    "value44": 2,
-    "value45": 1,
-    "value46": {
+    "value50": 2,
+    "value51": 1,
+    "value52": {
         "value0": {
             "nullopt": false,
             "data": "Scripts\\behavior\\FloatingActor.lua"
         }
     },
-    "value47": 3,
-    "value48": {
+    "value53": 3,
+    "value54": {
         "value0": {
             "nullopt": false,
             "data": "Scripts\\behavior\\BasicCameraController.lua"

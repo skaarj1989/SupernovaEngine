@@ -16,19 +16,30 @@
 namespace {
 
 void setupSystems(entt::registry &r, gfx::WorldRenderer &worldRenderer,
-                  RmlUiRenderInterface &uiRenderInterface, sol::state &lua) {
+                  RmlUiRenderInterface &uiRenderInterface,
+                  audio::Device &audioDevice, sol::state &lua) {
   HierarchySystem::setup(r);
   PhysicsSystem::setup(r);
   RenderSystem::setup(r, worldRenderer);
+  AudioSystem::setup(r, audioDevice);
   UISystem::setup(r, uiRenderInterface);
   ScriptSystem::setup(r, lua);
-}
+
+  auto &env = r.ctx().get<ScriptContext>().defaultEnv;
+  env["getAudioWorld"] = [&r] { return r.ctx().find<AudioWorld>(); };
+  // clang-format off
+  env["setMainListener"] = sol::overload(
+    [&r](const entt::entity e) { getMainListener(r).e = e; },
+    [](const entt::handle h) { getMainListener(*h.registry()).e = h; }
+  );
+  // clang-format on
+};
 
 constexpr entt::type_list<NameComponent, Transform, ChildrenComponent>
   kCoreTypes{};
 
 constexpr entt::type_list<PhysicsSystem, RenderSystem, AnimationSystem,
-                          UISystem, ScriptSystem>
+                          AudioSystem, UISystem, ScriptSystem>
   kSystemTypes{};
 
 template <class UnderlyingArchive>
@@ -165,7 +176,8 @@ std::istream &operator>>(std::istream &is, entt::registry &r) {
 Scene::Scene() = default;
 Scene::Scene(gfx::WorldRenderer &worldRenderer,
              RmlUiRenderInterface &uiRenderInterface, sol::state &lua) {
-  setupSystems(m_registry, worldRenderer, uiRenderInterface, lua);
+             audio::Device &audioDevice, sol::state &lua) {
+  setupSystems(m_registry, worldRenderer, uiRenderInterface, audioDevice, lua);
 }
 Scene::Scene(const Scene &other) { copyFrom(other); }
 Scene::~Scene() { clear(); }
@@ -182,13 +194,16 @@ void Scene::copyFrom(const Scene &src) {
   auto &srcCtx = src.m_registry.ctx();
   setupSystems(m_registry, *srcCtx.get<gfx::WorldRenderer *>(),
                *srcCtx.get<RmlUiRenderInterface *>(),
+               srcCtx.get<AudioWorld>().getDevice(),
                *srcCtx.get<ScriptContext>().lua);
 
   std::stringstream ss;
   ss << ArchiveType::Binary << src.m_registry;
   ss >> m_registry;
 
-  m_registry.ctx().get<MainCamera>().e = srcCtx.get<MainCamera>().e;
+  auto &dstCtx = m_registry.ctx();
+  dstCtx.get<MainCamera>().e = srcCtx.get<MainCamera>().e;
+  dstCtx.get<MainListener>().e = srcCtx.get<MainListener>().e;
 }
 
 entt::handle Scene::createEntity(std::optional<std::string> name) {

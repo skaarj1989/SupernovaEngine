@@ -23,6 +23,8 @@ add_subdirectory(RHI)
 add_subdirectory(ImageLoader)
 add_subdirectory(Renderer)
 
+add_subdirectory(Audio)
+
 add_subdirectory(Animation)
 add_subdirectory(Physics)
 
