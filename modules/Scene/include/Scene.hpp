@@ -26,7 +26,7 @@ public:
     ScriptSystem::kIntroducedComponents;
   // clang-format on
 
-  Scene();
+  Scene() = delete;
   Scene(gfx::WorldRenderer &, RmlUiRenderInterface &, audio::Device &,
         sol::state &);
   Scene(const Scene &);
@@ -46,10 +46,10 @@ public:
   entt::handle clone(entt::handle);
 
   template <class Component> auto getEntityId(Component &&c) const {
-    return entt::to_entity(m_registry, std::forward<Component>(c));
+    return entt::to_entity(*m_registry, std::forward<Component>(c));
   }
 
-  auto each() { return m_registry.storage<entt::entity>().each(); }
+  auto each() { return m_registry->storage<entt::entity>().each(); }
 
   [[nodiscard]] PhysicsWorld *getPhysicsWorld();
 
@@ -64,5 +64,5 @@ public:
   bool load(const std::filesystem::path &, const ArchiveType);
 
 private:
-  entt::registry m_registry;
+  std::unique_ptr<entt::registry> m_registry;
 };

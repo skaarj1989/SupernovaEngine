@@ -62,7 +62,7 @@ void serialize(const entt::registry &r, std::ostream &os) {
     saveComponents<UnderlyingArchive>(archive, kCoreTypes);
     saveSystems<UnderlyingArchive>(archive, kSystemTypes);
   } catch (const std::exception &e) {
-    os.setstate(std::ios_base::failbit);
+    os.setstate(std::ios_base::badbit);
   }
 }
 template <class UnderlyingArchive>
@@ -73,6 +73,7 @@ void deserialize(std::istream &is, entt::registry &r) {
     InputContext inputContext{r, snapshotLoader};
     cereal::UserDataAdapter<InputContext, UnderlyingArchive> archive{
       inputContext, is};
+    is.clear();
 
     snapshotLoader.get<entt::entity>(archive);
 
@@ -87,7 +88,7 @@ void deserialize(std::istream &is, entt::registry &r) {
 
     snapshotLoader.orphans();
   } catch (const std::exception &e) {
-    r.clear();
+    is.setstate(std::ios::badbit);
   }
 }
 
@@ -175,74 +176,78 @@ std::istream &operator>>(std::istream &is, entt::registry &r) {
 // Scene class:
 //
 
-Scene::Scene() = default;
 Scene::Scene(gfx::WorldRenderer &worldRenderer,
              RmlUiRenderInterface &uiRenderInterface,
              audio::Device &audioDevice, sol::state &lua) {
-  setupSystems(m_registry, worldRenderer, uiRenderInterface, audioDevice, lua);
+  m_registry = std::make_unique<entt::registry>();
+  setupSystems(*m_registry, worldRenderer, uiRenderInterface, audioDevice, lua);
 }
 Scene::Scene(const Scene &other) { copyFrom(other); }
-Scene::~Scene() { clear(); }
+Scene::~Scene() {
+  if (m_registry) clear();
+}
 
 Scene &Scene::operator=(const Scene &rhs) {
-  copyFrom(rhs);
+  if (this != &rhs) copyFrom(rhs);
   return *this;
 }
 
-entt::registry &Scene::getRegistry() { return m_registry; }
-const entt::registry &Scene::getRegistry() const { return m_registry; }
+entt::registry &Scene::getRegistry() { return *m_registry; }
+const entt::registry &Scene::getRegistry() const { return *m_registry; }
 
 void Scene::copyFrom(const Scene &src) {
-  auto &srcCtx = src.m_registry.ctx();
-  setupSystems(m_registry, *srcCtx.get<gfx::WorldRenderer *>(),
+  m_registry = std::make_unique<entt::registry>();
+
+  auto &srcCtx = src.m_registry->ctx();
+  setupSystems(*m_registry, *srcCtx.get<gfx::WorldRenderer *>(),
                *srcCtx.get<RmlUiRenderInterface *>(),
                srcCtx.get<AudioWorld>().getDevice(),
                *srcCtx.get<ScriptContext>().lua);
 
   std::stringstream ss;
-  ss << ArchiveType::Binary << src.m_registry;
-  ss >> m_registry;
+  ss << ArchiveType::Binary << *src.m_registry;
+  ss >> *m_registry;
 
-  auto &dstCtx = m_registry.ctx();
+  auto &dstCtx = m_registry->ctx();
   dstCtx.get<MainCamera>().e = srcCtx.get<MainCamera>().e;
   dstCtx.get<MainListener>().e = srcCtx.get<MainListener>().e;
 }
 
 entt::handle Scene::createEntity(std::optional<std::string> name) {
-  auto h = get(m_registry.create());
+  auto h = get(m_registry->create());
   if (name) h.emplace<NameComponent>(std::move(*name));
   return h;
 }
 entt::handle Scene::get(entt::entity e) {
-  return m_registry.storage<entt::entity>().contains(e)
-           ? entt::handle{m_registry, e}
+  return m_registry->storage<entt::entity>().contains(e)
+           ? entt::handle{*m_registry, e}
            : entt::handle{};
 }
 entt::handle Scene::clone(entt::handle in) {
-  return get(::clone(m_registry, in));
+  return get(::clone(*m_registry, in));
 }
 
 PhysicsWorld *Scene::getPhysicsWorld() {
-  return m_registry.ctx().find<PhysicsWorld>();
+  return m_registry->ctx().find<PhysicsWorld>();
 }
 
 bool Scene::empty() const {
-  return m_registry.storage<entt::entity>()->empty();
+  return m_registry->storage<entt::entity>().empty();
 }
-void Scene::clear() { m_registry.clear(); }
+void Scene::clear() { m_registry->clear(); }
 
 bool Scene::save(const std::filesystem::path &p,
                  const ArchiveType archiveType) const {
   std::ostringstream os;
-  os << archiveType << m_registry;
+  os << archiveType << *m_registry;
   return os.good() && os::FileSystem::saveText(p, os.str());
 }
 bool Scene::load(const std::filesystem::path &p,
                  const ArchiveType archiveType) {
   if (auto text = os::FileSystem::readText(p); text) {
     std::istringstream is{*text};
-    is >> archiveType >> m_registry;
-    return !empty();
+    is >> archiveType >> *m_registry;
+    return is.good();
   }
   return false;
 }
