@@ -26,6 +26,8 @@ void setupSystems(entt::registry &r, gfx::WorldRenderer &worldRenderer,
   ScriptSystem::setup(r, lua);
 
   auto &env = r.ctx().get<ScriptContext>().defaultEnv;
+
+  env["getPhysicsWorld"] = [&r] { return r.ctx().find<PhysicsWorld>(); };
   env["getAudioWorld"] = [&r] { return r.ctx().find<AudioWorld>(); };
   // clang-format off
   env["setMainListener"] = sol::overload(
