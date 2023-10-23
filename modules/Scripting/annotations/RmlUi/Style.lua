@@ -167,25 +167,24 @@ ui.Style.JustifyContent = {
 
 ---@enum ui.BoxArea
 ui.BoxArea = {
-  MARGIN = 0,
-  BORDER = 1,
-  PADDING = 2,
-  CONTENT = 3,
-  NUM_AREAS = 3,
+  Margin = 0,
+  Border = 1,
+  Padding = 2,
+  Content = 3,
+  Auto = 4,
 }
 
 ---@enum ui.BoxEdge
 ui.BoxEdge = {
-  TOP = 0,
-  RIGHT = 1,
-  BOTTOM = 2,
-  LEFT = 3,
-  NUM_EDGES = 4,
+  Top = 0,
+  Right = 1,
+  Bottom = 2,
+  Left = 3,
 }
 
 ---@enum ui.BoxDirection
 ui.BoxDirection = {
-  VERTICAL = 0, HORIZONTAL = 1,
+  Vertical = 0, Horizontal = 1,
 }
 
 ---@class ui.Box

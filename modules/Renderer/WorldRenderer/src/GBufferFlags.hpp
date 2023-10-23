@@ -14,6 +14,7 @@ enum class GBufferFlags {
 
   All = Depth | Normal | Emissive | AlbedoSpecular | MetallicRoughnessAO | Misc
 };
-template <> struct has_flags<GBufferFlags> : std::true_type {};
 
 } // namespace gfx
+
+template <> struct has_flags<gfx::GBufferFlags> : std::true_type {};

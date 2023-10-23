@@ -35,3 +35,9 @@ public:
 };
 
 static_assert(std::is_copy_constructible_v<CameraComponent>);
+
+template <> struct entt::type_hash<CameraComponent> {
+  [[nodiscard]] static constexpr entt::id_type value() noexcept {
+    return 3696644661;
+  }
+};

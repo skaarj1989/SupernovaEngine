@@ -44,7 +44,6 @@ enum class MaterialFlags {
 
   Enabled = 1 << 2,
 };
-template <> struct has_flags<MaterialFlags> : std::true_type {};
 
 struct TextureInfo {
   rhi::TextureType type{rhi::TextureType::Undefined};
@@ -187,3 +186,5 @@ private:
 [[nodiscard]] std::vector<const char *> getValues(MaterialFlags);
 
 } // namespace gfx
+
+template <> struct has_flags<gfx::MaterialFlags> : std::true_type {};

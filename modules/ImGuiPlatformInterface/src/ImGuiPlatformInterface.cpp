@@ -1,6 +1,7 @@
 #include "ImGuiPlatformInterface.hpp"
+#include "os/Platform.hpp"
 #include "os/Monitor.hpp"
-#include "imgui.h"
+#include <algorithm> // transform
 
 namespace {
 
@@ -252,17 +253,24 @@ std::optional<ImGuiKey> getKeyModifier(os::KeyCode keyCode) {
 
 void setupPlatformInterface(os::Window &mainWindow) {
   auto &io = ImGui::GetIO();
-
 #ifdef WIN32
-  io.BackendPlatformName = "WIN32";
+  io.BackendPlatformName = "Windows";
+#elif defined(__linux)
+  io.BackendPlatformName = "Linux";
 #endif
-
   io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
 
 #ifdef IMGUI_HAS_VIEWPORT
   if (!(io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)) return;
 
   io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;
+
+  io.SetClipboardTextFn = [](void *, const char *text) {
+    os::Platform::setClipboardText(text);
+  };
+  io.GetClipboardTextFn = [](void *) {
+    return os::Platform::getClipboardText().data();
+  };
 
   ImGui::GetMainViewport()->PlatformHandle = &mainWindow;
   updateMonitors();
@@ -276,7 +284,7 @@ void setupPlatformInterface(os::Window &mainWindow) {
       builder.setParent(*getWindow(parentViewport));
     }
     builder.setPosition(glm::vec2{viewport->Pos})
-      .setSize(glm::vec2{viewport->Size});
+      .setExtent(glm::vec2{viewport->Size});
     auto window = std::make_unique<os::Window>(builder.build());
 
     window->on<os::CloseWindowEvent>([](auto, auto &sender) {
@@ -323,10 +331,10 @@ void setupPlatformInterface(os::Window &mainWindow) {
     return ImVec2{getWindow(viewport)->getPosition()};
   };
   platformIo.Platform_SetWindowSize = [](ImGuiViewport *viewport, ImVec2 size) {
-    getWindow(viewport)->setSize(glm::vec2{size});
+    getWindow(viewport)->setExtent(glm::vec2{size});
   };
   platformIo.Platform_GetWindowSize = [](ImGuiViewport *viewport) {
-    return ImVec2{getWindow(viewport)->getClientSize()};
+    return ImVec2{getWindow(viewport)->getExtent()};
   };
   platformIo.Platform_SetWindowFocus = [](ImGuiViewport *viewport) {
     getWindow(viewport)->focus();
@@ -335,7 +343,7 @@ void setupPlatformInterface(os::Window &mainWindow) {
     return getWindow(viewport)->hasFocus();
   };
   platformIo.Platform_GetWindowMinimized = [](ImGuiViewport *viewport) {
-    return getWindow(viewport)->isMinimized();
+    return getWindow(viewport)->getState() == os::Window::State::Minimized;
   };
   platformIo.Platform_SetWindowTitle = [](ImGuiViewport *viewport,
                                           const char *str) {

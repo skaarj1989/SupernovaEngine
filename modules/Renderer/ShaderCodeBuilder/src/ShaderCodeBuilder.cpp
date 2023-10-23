@@ -2,6 +2,7 @@
 #include "os/FileSystem.hpp"
 #include "spdlog/spdlog.h"
 
+#include <algorithm>
 #include <regex>
 
 namespace {
@@ -66,7 +67,7 @@ void resolveInclusions(std::string &src,
        ++match) {
     const auto includeInfo = statInclude(*match);
     if (!includeInfo) {
-      SPDLOG_WARN("Ill-formed directive: {}", match->_At(0).str());
+      SPDLOG_WARN("Ill-formed directive: {}", match->begin()->str());
       offset -= eraseLine(src, match->position() + offset).second;
       continue;
     }
@@ -110,7 +111,7 @@ ShaderCodeBuilder::ShaderCodeBuilder(const std::filesystem::path &rootPath)
     : m_rootPath{rootPath} {}
 
 ShaderCodeBuilder &ShaderCodeBuilder::include(const std::filesystem::path &p) {
-  m_includes.emplace(p.lexically_normal().string());
+  m_includes.emplace(p.lexically_normal().generic_string());
   return *this;
 }
 
@@ -173,7 +174,7 @@ ShaderCodeBuilder::buildFromString(std::string sourceCode,
 
   std::unordered_set<std::size_t> includedPaths;
   resolveInclusions(sourceCode, includedPaths, m_rootPath, 0,
-                    m_rootPath / origin);
+                    m_rootPath == origin ? m_rootPath : m_rootPath / origin);
 
   for (const auto &[phrase, patch] : m_patches) {
     if (const auto pos = sourceCode.find(phrase); pos != std::string::npos)

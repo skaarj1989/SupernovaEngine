@@ -1,3 +1,4 @@
+find_package(EnTT REQUIRED)
 find_package(RmlUi REQUIRED)
 
 add_library(LuaRmlUi
@@ -40,6 +41,4 @@ set_target_properties(LuaRmlUi PROPERTIES FOLDER "Framework/ScriptingModules")
 
 if(MSVC)
   target_compile_options(LuaRmlUi PRIVATE /bigobj)
-else()
-  target_compile_options(LuaRmlUi PRIVATE -Wa,-mbig-obj)
 endif()

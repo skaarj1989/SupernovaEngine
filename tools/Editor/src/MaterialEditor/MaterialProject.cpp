@@ -21,6 +21,8 @@
 #include "MaterialExporter.hpp"
 
 #include <fstream>
+#include <ranges>
+#include <format>
 
 namespace gfx {
 

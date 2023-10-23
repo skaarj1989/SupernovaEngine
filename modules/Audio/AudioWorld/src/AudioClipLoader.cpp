@@ -31,7 +31,8 @@ AudioClipLoader::operator()(const std::filesystem::path &p,
     return std::make_shared<AudioClipResource>(std::move(*buffer), p);
   } else {
     SPDLOG_ERROR("{}: Audio clip loading failed. {}",
-                 os::FileSystem::relativeToRoot(p)->string(), buffer.error());
+                 os::FileSystem::relativeToRoot(p)->generic_string(),
+                 buffer.error());
     return {};
   }
 }

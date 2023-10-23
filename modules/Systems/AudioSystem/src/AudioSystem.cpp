@@ -7,7 +7,7 @@ template <class T> void initComponent(entt::registry &r, entt::entity e) {
   world.init(r.try_get<Transform>(e), r.get<T>(e));
 }
 template <class T> void connectComponent(entt::registry &r) {
-  r.on_construct<T>().connect<&initComponent<T>>();
+  r.on_construct<T>().template connect<&initComponent<T>>();
 }
 
 } // namespace

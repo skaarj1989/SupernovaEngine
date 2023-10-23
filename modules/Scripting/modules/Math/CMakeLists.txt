@@ -5,6 +5,4 @@ define_script_module(
 
 if(MSVC)
   target_compile_options(LuaMath PRIVATE /bigobj)
-else()
-  target_compile_options(LuaMath PRIVATE -Wa,-mbig-obj)
 endif()

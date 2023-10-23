@@ -1,5 +1,7 @@
 #pragma once
 
+#include "entt/core/type_info.hpp"
+
 #include "Jolt/Jolt.h"
 #include "Jolt/Physics/PhysicsSystem.h"
 
@@ -31,7 +33,12 @@ public:
     }
   };
 
+#ifdef __GNUG__
+  static constexpr Settings defaultSettings() { return Settings{}; }
+  explicit RigidBody(const Settings & = defaultSettings());
+#else
   explicit RigidBody(const Settings & = {});
+#endif
 
   explicit operator bool() const;
 
@@ -63,3 +70,9 @@ private:
 };
 
 static_assert(std::is_copy_constructible_v<RigidBody>);
+
+template <> struct entt::type_hash<RigidBody> {
+  [[nodiscard]] static constexpr entt::id_type value() noexcept {
+    return 1548160800;
+  }
+};

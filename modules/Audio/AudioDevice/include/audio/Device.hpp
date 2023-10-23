@@ -22,7 +22,12 @@ public:
     uint32_t maxNumSources{255};
   };
 
+#ifdef __GNUG__
+  static constexpr Config defaultConfig() { return Config{}; }
+  explicit Device(const Config & = defaultConfig());
+#else
   explicit Device(const Config & = {});
+#endif
   Device(const Device &) = delete;
   Device(Device &&) noexcept = default;
   ~Device();

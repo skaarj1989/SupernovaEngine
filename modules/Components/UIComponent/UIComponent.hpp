@@ -1,5 +1,6 @@
 #pragma once
 
+#include "entt/core/type_info.hpp"
 #include "RmlUi/Core/Context.h"
 #include "RmlUiRenderInterface.hpp"
 
@@ -13,3 +14,9 @@ struct UIComponent {
 };
 
 static_assert(std::is_copy_constructible_v<UIComponent>);
+
+template <> struct entt::type_hash<UIComponent> {
+  [[nodiscard]] static constexpr entt::id_type value() noexcept {
+    return 1043494673;
+  }
+};

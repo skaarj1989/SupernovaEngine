@@ -2,6 +2,7 @@
 #include "NodesInternal.hpp"
 #include "MaterialEditor/MaterialGenerationContext.hpp"
 #include "imgui_stdlib.h" // InputTextWithHint
+#include <format>
 
 namespace {
 

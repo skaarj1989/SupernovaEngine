@@ -25,7 +25,6 @@ enum class ImageUsage {
   RenderTarget = 1 << 3,
   Sampled = 1 << 4,
 };
-template <> struct has_flags<ImageUsage> : std::true_type {};
 
 class RenderDevice;
 class Swapchain;
@@ -171,3 +170,5 @@ private:
 [[nodiscard]] std::string toString(ImageUsage);
 
 } // namespace rhi
+
+template <> struct has_flags<rhi::ImageUsage> : std::true_type {};

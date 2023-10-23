@@ -12,11 +12,15 @@ set(TARGET_SAMPLES OFF CACHE BOOL "")
 set(TARGET_VIEWER OFF CACHE BOOL "")
 FetchContent_MakeAvailable(Jolt)
 
-target_compile_options(Jolt PRIVATE /WX-)
-set_target_properties(Jolt PROPERTIES
-  MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
-  FOLDER "Third-party/Jolt"
-)
+target_compile_definitions(Jolt PUBLIC JPH_DEBUG_RENDERER)
+
+if(MSVC)
+  target_compile_options(Jolt PRIVATE /WX-)
+  set_target_properties(Jolt PROPERTIES
+    MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
+    FOLDER "Third-party/Jolt"
+  )
+endif()
 
 add_library(JoltPhysics
   "include/physics/JoltPhysics.hpp"
@@ -50,7 +54,6 @@ add_library(JoltPhysics
   "src/CharacterVirtual.cpp"
 )
 
-target_compile_definitions(JoltPhysics PUBLIC JPH_DEBUG_RENDERER)
 target_include_directories(JoltPhysics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(JoltPhysics
   PRIVATE spdlog::spdlog

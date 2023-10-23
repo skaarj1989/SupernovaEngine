@@ -17,7 +17,7 @@ namespace {
 }
 [[nodiscard]] auto makeTooltip(const std::filesystem::path &p) {
   assert(!p.empty());
-  return os::FileSystem::relativeToRoot(p)->string();
+  return os::FileSystem::relativeToRoot(p)->generic_string();
 }
 
 } // namespace

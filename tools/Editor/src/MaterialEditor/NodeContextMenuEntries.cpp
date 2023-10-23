@@ -13,6 +13,8 @@
 
 #include "tracy/Tracy.hpp"
 
+#include <ranges>
+
 namespace {
 
 // Key = Category
@@ -85,17 +87,18 @@ void insertScriptedFunctionEntries(MenuEntries &entries,
 
 [[nodiscard]] auto
 buildUserFunctionEntries(const UserFunctions &userFunctions) {
-  constexpr auto matchShaderType = [](const rhi::ShaderStages shaderStages) {
-    return [shaderStages](const rhi::ShaderType shaderType, auto) {
-      switch (shaderType) {
-      case rhi::ShaderType::Vertex:
-        return bool(shaderStages & rhi::ShaderStages::Vertex);
-      case rhi::ShaderType::Fragment:
-        return bool(shaderStages & rhi::ShaderStages::Fragment);
-      }
-      return false;
+  static constexpr auto matchShaderType =
+    [](const rhi::ShaderStages shaderStages) {
+      return [shaderStages](const rhi::ShaderType shaderType, auto) {
+        switch (shaderType) {
+        case rhi::ShaderType::Vertex:
+          return bool(shaderStages & rhi::ShaderStages::Vertex);
+        case rhi::ShaderType::Fragment:
+          return bool(shaderStages & rhi::ShaderStages::Fragment);
+        }
+        return false;
+      };
     };
-  };
 
   MenuEntries entries;
   entries.reserve(userFunctions.size());

@@ -367,14 +367,14 @@
         "value3": {
             "value0": {
                 "nullopt": false,
-                "data": "Textures\\Environment\\kiara_1_dawn_2k.hdr"
+                "data": "Textures/Environment/kiara_1_dawn_2k.hdr"
             }
         },
         "value4": [
             {
                 "value0": {
                     "nullopt": false,
-                    "data": "Materials\\Graph\\PostProcess\\ChromaticAberration\\ChromaticAberration.material"
+                    "data": "Materials/Graph/PostProcess/ChromaticAberration/ChromaticAberration.material"
                 },
                 "value1": [
                     {
@@ -391,7 +391,7 @@
             {
                 "value0": {
                     "nullopt": false,
-                    "data": "Materials\\Graph\\PostProcess\\FilmGrain\\FilmGrain.material"
+                    "data": "Materials/Graph/PostProcess/FilmGrain/FilmGrain.material"
                 },
                 "value1": [
                     {
@@ -408,7 +408,7 @@
             {
                 "value0": {
                     "nullopt": false,
-                    "data": "Materials\\Graph\\PostProcess\\Vignette\\Vignette.material"
+                    "data": "Materials/Graph/PostProcess/Vignette/Vignette.material"
                 },
                 "value1": [
                     {
@@ -464,7 +464,7 @@
                 "value1": {
                     "value0": {
                         "nullopt": false,
-                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\VintageTile\\VintageTile.material"
+                        "data": "Materials/Graph/Surface/ExtraMaterials/VintageTile/VintageTile.material"
                     },
                     "value1": [],
                     "value2": [
@@ -473,7 +473,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Materials\\Graph\\Surface\\ExtraMaterials\\VintageTile\\vintage-tile1_albedo.png"
+                                    "data": "Materials/Graph/Surface/ExtraMaterials/VintageTile/vintage-tile1_albedo.png"
                                 }
                             }
                         },
@@ -482,7 +482,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Materials\\Graph\\Surface\\ExtraMaterials\\VintageTile\\vintage-tile1_ao.png"
+                                    "data": "Materials/Graph/Surface/ExtraMaterials/VintageTile/vintage-tile1_ao.png"
                                 }
                             }
                         },
@@ -491,7 +491,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Materials\\Graph\\Surface\\ExtraMaterials\\VintageTile\\vintage-tile1_height.png"
+                                    "data": "Materials/Graph/Surface/ExtraMaterials/VintageTile/vintage-tile1_height.png"
                                 }
                             }
                         },
@@ -500,7 +500,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Materials\\Graph\\Surface\\ExtraMaterials\\VintageTile\\vintage-tile1_metallic.png"
+                                    "data": "Materials/Graph/Surface/ExtraMaterials/VintageTile/vintage-tile1_metallic.png"
                                 }
                             }
                         },
@@ -509,7 +509,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Materials\\Graph\\Surface\\ExtraMaterials\\VintageTile\\vintage-tile1_normal-ogl.png"
+                                    "data": "Materials/Graph/Surface/ExtraMaterials/VintageTile/vintage-tile1_normal-ogl.png"
                                 }
                             }
                         },
@@ -518,7 +518,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Materials\\Graph\\Surface\\ExtraMaterials\\VintageTile\\vintage-tile1_roughness.png"
+                                    "data": "Materials/Graph/Surface/ExtraMaterials/VintageTile/vintage-tile1_roughness.png"
                                 }
                             }
                         }
@@ -532,7 +532,7 @@
     "value75": {
         "value0": {
             "nullopt": false,
-            "data": "Meshes\\X Bot\\X Bot.mesh"
+            "data": "Meshes/X Bot/X Bot.mesh"
         },
         "value1": [
             {
@@ -540,7 +540,7 @@
                 "value1": {
                     "value0": {
                         "nullopt": false,
-                        "data": "Meshes\\X Bot\\materials\\Beta_HighLimbsGeoSG3\\Beta_HighLimbsGeoSG3.material"
+                        "data": "Meshes/X Bot/materials/Beta_HighLimbsGeoSG3/Beta_HighLimbsGeoSG3.material"
                     },
                     "value1": [
                         {
@@ -577,7 +577,7 @@
                 "value1": {
                     "value0": {
                         "nullopt": false,
-                        "data": "Meshes\\X Bot\\materials\\Beta_Joints_MAT1\\Beta_Joints_MAT1.material"
+                        "data": "Meshes/X Bot/materials/Beta_Joints_MAT1/Beta_Joints_MAT1.material"
                     },
                     "value1": [
                         {
@@ -615,7 +615,7 @@
     "value77": {
         "value0": {
             "nullopt": false,
-            "data": "Meshes\\Y Bot\\Y Bot.mesh"
+            "data": "Meshes/Y Bot/Y Bot.mesh"
         },
         "value1": [
             {
@@ -623,7 +623,7 @@
                 "value1": {
                     "value0": {
                         "nullopt": false,
-                        "data": "Meshes\\Y Bot\\materials\\Alpha_Body_MAT\\Alpha_Body_MAT.material"
+                        "data": "Meshes/Y Bot/materials/Alpha_Body_MAT/Alpha_Body_MAT.material"
                     },
                     "value1": [
                         {
@@ -660,7 +660,7 @@
                 "value1": {
                     "value0": {
                         "nullopt": false,
-                        "data": "Meshes\\Y Bot\\materials\\Alpha_Joints_MAT\\Alpha_Joints_MAT.material"
+                        "data": "Meshes/Y Bot/materials/Alpha_Joints_MAT/Alpha_Joints_MAT.material"
                     },
                     "value1": [
                         {
@@ -698,7 +698,7 @@
     "value79": {
         "value0": {
             "nullopt": false,
-            "data": "Meshes\\Mutant\\Mutant.mesh"
+            "data": "Meshes/Mutant/Mutant.mesh"
         },
         "value1": [
             {
@@ -706,7 +706,7 @@
                 "value1": {
                     "value0": {
                         "nullopt": false,
-                        "data": "Meshes\\Mutant\\materials\\mutant_M\\mutant_M.material"
+                        "data": "Meshes/Mutant/materials/mutant_M/mutant_M.material"
                     },
                     "value1": [
                         {
@@ -740,7 +740,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Meshes\\Mutant\\materials\\mutant_M\\..\\textures\\Mutant_diffuse.png"
+                                    "data": "Meshes/Mutant/materials/mutant_M/../textures/Mutant_diffuse.png"
                                 }
                             }
                         },
@@ -749,7 +749,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Meshes\\Mutant\\materials\\mutant_M\\..\\textures\\Mutant_normal.png"
+                                    "data": "Meshes/Mutant/materials/mutant_M/../textures/Mutant_normal.png"
                                 }
                             }
                         }
@@ -772,7 +772,7 @@
                 "value1": {
                     "value0": {
                         "nullopt": false,
-                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\WornShinyMetal\\WornShinyMetal.material"
+                        "data": "Materials/Graph/Surface/ExtraMaterials/WornShinyMetal/WornShinyMetal.material"
                     },
                     "value1": [],
                     "value2": [
@@ -781,7 +781,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Materials\\Graph\\Surface\\ExtraMaterials\\WornShinyMetal\\worn-shiny-metal-albedo.png"
+                                    "data": "Materials/Graph/Surface/ExtraMaterials/WornShinyMetal/worn-shiny-metal-albedo.png"
                                 }
                             }
                         },
@@ -790,7 +790,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Materials\\Graph\\Surface\\ExtraMaterials\\WornShinyMetal\\worn-shiny-metal-ao.png"
+                                    "data": "Materials/Graph/Surface/ExtraMaterials/WornShinyMetal/worn-shiny-metal-ao.png"
                                 }
                             }
                         },
@@ -799,7 +799,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Materials\\Graph\\Surface\\ExtraMaterials\\WornShinyMetal\\worn-shiny-metal-Height.png"
+                                    "data": "Materials/Graph/Surface/ExtraMaterials/WornShinyMetal/worn-shiny-metal-Height.png"
                                 }
                             }
                         },
@@ -808,7 +808,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Materials\\Graph\\Surface\\ExtraMaterials\\WornShinyMetal\\worn-shiny-metal-Metallic.png"
+                                    "data": "Materials/Graph/Surface/ExtraMaterials/WornShinyMetal/worn-shiny-metal-Metallic.png"
                                 }
                             }
                         },
@@ -817,7 +817,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Materials\\Graph\\Surface\\ExtraMaterials\\WornShinyMetal\\worn-shiny-metal-Normal-ogl.png"
+                                    "data": "Materials/Graph/Surface/ExtraMaterials/WornShinyMetal/worn-shiny-metal-Normal-ogl.png"
                                 }
                             }
                         },
@@ -826,7 +826,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Materials\\Graph\\Surface\\ExtraMaterials\\WornShinyMetal\\worn-shiny-metal-Roughness.png"
+                                    "data": "Materials/Graph/Surface/ExtraMaterials/WornShinyMetal/worn-shiny-metal-Roughness.png"
                                 }
                             }
                         }
@@ -848,7 +848,7 @@
                 "value1": {
                     "value0": {
                         "nullopt": false,
-                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\SteelPlate\\SteelPlate.material"
+                        "data": "Materials/Graph/Surface/ExtraMaterials/SteelPlate/SteelPlate.material"
                     },
                     "value1": [],
                     "value2": [
@@ -857,7 +857,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Materials\\Graph\\Surface\\ExtraMaterials\\SteelPlate\\steelplate1_albedo.png"
+                                    "data": "Materials/Graph/Surface/ExtraMaterials/SteelPlate/steelplate1_albedo.png"
                                 }
                             }
                         },
@@ -866,7 +866,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Materials\\Graph\\Surface\\ExtraMaterials\\SteelPlate\\steelplate1_ao.png"
+                                    "data": "Materials/Graph/Surface/ExtraMaterials/SteelPlate/steelplate1_ao.png"
                                 }
                             }
                         },
@@ -875,7 +875,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Materials\\Graph\\Surface\\ExtraMaterials\\SteelPlate\\steelplate1_height.png"
+                                    "data": "Materials/Graph/Surface/ExtraMaterials/SteelPlate/steelplate1_height.png"
                                 }
                             }
                         },
@@ -884,7 +884,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Materials\\Graph\\Surface\\ExtraMaterials\\SteelPlate\\steelplate1_metallic.png"
+                                    "data": "Materials/Graph/Surface/ExtraMaterials/SteelPlate/steelplate1_metallic.png"
                                 }
                             }
                         },
@@ -893,7 +893,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Materials\\Graph\\Surface\\ExtraMaterials\\SteelPlate\\steelplate1_normal-ogl.png"
+                                    "data": "Materials/Graph/Surface/ExtraMaterials/SteelPlate/steelplate1_normal-ogl.png"
                                 }
                             }
                         },
@@ -902,7 +902,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Materials\\Graph\\Surface\\ExtraMaterials\\SteelPlate\\steelplate1_roughness.png"
+                                    "data": "Materials/Graph/Surface/ExtraMaterials/SteelPlate/steelplate1_roughness.png"
                                 }
                             }
                         }
@@ -924,7 +924,7 @@
                 "value1": {
                     "value0": {
                         "nullopt": false,
-                        "data": "Materials\\Graph\\Surface\\ExtraMaterials\\TitaniumScuffed\\TitaniumScuffed.material"
+                        "data": "Materials/Graph/Surface/ExtraMaterials/TitaniumScuffed/TitaniumScuffed.material"
                     },
                     "value1": [],
                     "value2": [
@@ -933,7 +933,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Materials\\Graph\\Surface\\ExtraMaterials\\TitaniumScuffed\\Titanium-Scuffed_basecolor.png"
+                                    "data": "Materials/Graph/Surface/ExtraMaterials/TitaniumScuffed/Titanium-Scuffed_basecolor.png"
                                 }
                             }
                         },
@@ -942,7 +942,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Materials\\Graph\\Surface\\ExtraMaterials\\TitaniumScuffed\\Titanium-Scuffed_metallic.png"
+                                    "data": "Materials/Graph/Surface/ExtraMaterials/TitaniumScuffed/Titanium-Scuffed_metallic.png"
                                 }
                             }
                         },
@@ -951,7 +951,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Materials\\Graph\\Surface\\ExtraMaterials\\TitaniumScuffed\\Titanium-Scuffed_normal.png"
+                                    "data": "Materials/Graph/Surface/ExtraMaterials/TitaniumScuffed/Titanium-Scuffed_normal.png"
                                 }
                             }
                         },
@@ -960,7 +960,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Materials\\Graph\\Surface\\ExtraMaterials\\TitaniumScuffed\\Titanium-Scuffed_roughness.png"
+                                    "data": "Materials/Graph/Surface/ExtraMaterials/TitaniumScuffed/Titanium-Scuffed_roughness.png"
                                 }
                             }
                         }
@@ -980,21 +980,21 @@
     "value90": {
         "value0": {
             "nullopt": false,
-            "data": "Meshes\\X Bot\\skeleton.ozz"
+            "data": "Meshes/X Bot/skeleton.ozz"
         }
     },
     "value91": 4,
     "value92": {
         "value0": {
             "nullopt": false,
-            "data": "Meshes\\Y Bot\\skeleton.ozz"
+            "data": "Meshes/Y Bot/skeleton.ozz"
         }
     },
     "value93": 5,
     "value94": {
         "value0": {
             "nullopt": false,
-            "data": "Meshes\\Mutant\\skeleton.ozz"
+            "data": "Meshes/Mutant/skeleton.ozz"
         }
     },
     "value95": 3,
@@ -1002,21 +1002,21 @@
     "value97": {
         "value0": {
             "nullopt": false,
-            "data": "Meshes\\X Bot\\animations\\Idle.ozz"
+            "data": "Meshes/X Bot/animations/Idle.ozz"
         }
     },
     "value98": 4,
     "value99": {
         "value0": {
             "nullopt": false,
-            "data": "Meshes\\Y Bot\\animations\\Idle.ozz"
+            "data": "Meshes/Y Bot/animations/Idle.ozz"
         }
     },
     "value100": 5,
     "value101": {
         "value0": {
             "nullopt": false,
-            "data": "Meshes\\Mutant\\animations\\Mutant Flexing Muscles.ozz"
+            "data": "Meshes/Mutant/animations/Mutant Flexing Muscles.ozz"
         }
     },
     "value102": 3,
@@ -1072,14 +1072,14 @@
     "value122": {
         "value0": {
             "nullopt": false,
-            "data": "Scripts\\behavior\\SkeletalAnimationDemoHUD.lua"
+            "data": "Scripts/behavior/SkeletalAnimationDemoHUD.lua"
         }
     },
     "value123": 9,
     "value124": {
         "value0": {
             "nullopt": false,
-            "data": "Scripts\\behavior\\BasicCameraController.lua"
+            "data": "Scripts/behavior/BasicCameraController.lua"
         }
     }
 }

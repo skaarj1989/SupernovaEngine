@@ -4,6 +4,7 @@
 #include "RmlUi/Core/ElementDocument.h"
 
 #include "Sol2HelperMacros.hpp"
+#include <format>
 
 using namespace Rml;
 

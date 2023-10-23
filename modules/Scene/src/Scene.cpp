@@ -147,13 +147,15 @@ std::istream &operator>>(std::istream &is, entt::registry &r) {
   return is;
 }
 
-[[nodiscard]] auto clone(entt::registry &r, entt::entity in) {
-  constexpr auto kIgnoredTypes = std::array{
+[[nodiscard]] auto cloneEntity(entt::registry &r, entt::entity in) {
+  static constexpr auto kIgnoredTypes = std::array{
     entt::type_hash<entt::entity>::value(),
     entt::type_hash<ParentComponent>::value(),
     entt::type_hash<ChildrenComponent>::value(),
   };
-  constexpr auto equals = [](auto v) { return [v](auto e) { return e == v; }; };
+  static constexpr auto equals = [](auto v) {
+    return [v](auto e) { return e == v; };
+  };
 
   auto out = r.create();
   for (auto &&[componentId, pool] : r.storage()) {
@@ -224,7 +226,7 @@ entt::handle Scene::get(entt::entity e) {
            : entt::handle{};
 }
 entt::handle Scene::clone(entt::handle in) {
-  return get(::clone(*m_registry, in));
+  return get(::cloneEntity(*m_registry, in));
 }
 
 PhysicsWorld *Scene::getPhysicsWorld() {

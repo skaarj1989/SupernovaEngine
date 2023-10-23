@@ -2,6 +2,8 @@
 #include "NodesInternal.hpp"
 #include "MaterialEditor/MaterialGenerationContext.hpp"
 
+#include <format>
+
 PostProcessMasterNode PostProcessMasterNode::create(ShaderGraph &g,
                                                     VertexDescriptor parent) {
   return {

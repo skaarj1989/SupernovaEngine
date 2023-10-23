@@ -37,8 +37,7 @@ void registerListenerComponent(sol::state &lua) {
 }
 
 void registerSoundSettings(sol::state &lua) {
-#define CAPTURE_FIELD(name, defaultValue)                                      \
-  .##name = t.get_or(#name, defaultValue)
+#define CAPTURE_FIELD(name, defaultValue) .name = t.get_or(#name, defaultValue)
 
 #define BIND(Member) _BIND(SoundSettings, Member)
   // clang-format off

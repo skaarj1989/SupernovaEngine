@@ -4,6 +4,8 @@
 #include "PerspectiveCamera.hpp"
 #include "Sol2HelperMacros.hpp"
 
+#include <format>
+
 using namespace gfx;
 
 void registerCamera(sol::state &lua) {

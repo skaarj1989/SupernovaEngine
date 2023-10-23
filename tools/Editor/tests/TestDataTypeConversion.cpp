@@ -1,5 +1,3 @@
-#pragma once
-
 #include "catch.hpp"
 
 #include "MaterialEditor/DataType.hpp"
@@ -9,7 +7,7 @@ template <typename Func> void eachType(Func f) {
   using enum DataType;
 
   // clang-format off
-  constexpr auto allTypes = {
+  static constexpr auto allTypes = {
     Bool, BVec2, BVec3, BVec4,
     UInt32, UVec2, UVec3, UVec4,
     Int32, IVec2, IVec3, IVec4,

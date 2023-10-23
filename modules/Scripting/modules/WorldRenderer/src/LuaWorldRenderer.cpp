@@ -25,10 +25,9 @@ void registerLight(sol::state &lua) {
 
 #define BIND(Member) _BIND(Light, Member)
 
-#define CAPTURE_FIELD(name, defaultValue)                                      \
-  .##name = t.get_or(#name, defaultValue)
+#define CAPTURE_FIELD(name, defaultValue) .name = t.get_or(#name, defaultValue)
 #define CAPTURE_FIELD_T(name, T, defaultValue)                                 \
-  .##name = t.get_or<const T &>(#name, T{defaultValue})
+  .name = t.get_or<const T &>(#name, T{defaultValue})
 
   // clang-format off
 	DEFINE_USERTYPE(Light,

@@ -20,7 +20,7 @@ template <typename Type, typename Loader, typename... Args>
   }
   if (emplaced) {
     SPDLOG_INFO("Loaded resource: {}",
-                os::FileSystem::relativeToRoot(p)->string());
+                os::FileSystem::relativeToRoot(p)->generic_string());
   }
   return it->second;
 }

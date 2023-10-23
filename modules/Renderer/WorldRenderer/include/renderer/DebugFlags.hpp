@@ -20,8 +20,9 @@ enum class DebugFlags : int32_t {
   VPL = 1 << 6,
   IrradianceOnly = 1 << 7,
 };
-template <> struct has_flags<DebugFlags> : std::true_type {};
 
 [[nodiscard]] std::string toString(DebugFlags);
 
 } // namespace gfx
+
+template <> struct has_flags<gfx::DebugFlags> : std::true_type {};

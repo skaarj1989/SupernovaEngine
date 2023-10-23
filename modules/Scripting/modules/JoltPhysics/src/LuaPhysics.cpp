@@ -81,11 +81,9 @@ void registerCollisionLayer(sol::state &lua) {
 #undef BIND
 }
 
-#define CAPTURE_FIELD(name, defaultValue)                                      \
-  .##name = t.get_or(#name, defaultValue)
-
+#define CAPTURE_FIELD(name, defaultValue) .name = t.get_or(#name, defaultValue)
 #define CAPTURE_FIELD_T(name, T, defaultValue)                                 \
-  .##name = t.get_or<const T &>(#name, T{defaultValue})
+  .name = t.get_or<const T &>(#name, T{defaultValue})
 
 void registerRigidBodyComponent(sol::state &lua) {
   // -- MotionType enum:

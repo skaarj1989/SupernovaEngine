@@ -68,9 +68,10 @@ enum class ReadFlags {
   Attachment = 1 << 1,
   Sampling = 1 << 2,
 };
-template <> struct has_flags<ReadFlags> : std::true_type {};
 
 void readSceneDepth(FrameGraph::Builder &, FrameGraphResource sceneDepth,
                     ReadFlags);
 
 } // namespace gfx
+
+template <> struct has_flags<gfx::ReadFlags> : std::true_type {};

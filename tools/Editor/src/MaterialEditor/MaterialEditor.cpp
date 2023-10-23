@@ -25,6 +25,7 @@
 #include "spdlog/fmt/chrono.h"
 
 #include <fstream> // ofstream
+#include <ranges>
 
 namespace {
 
@@ -326,7 +327,7 @@ MaterialEditor::MaterialEditor(os::InputSystem &inputSystem,
   _loadFunctions();
 
   ImNodes::CreateContext();
-  load("../assets/MaterialEditor/ImNodes.json", ImNodes::GetStyle());
+  load("./assets/MaterialEditor/ImNodes.json", ImNodes::GetStyle());
 
 #define SET_MODIFIER(Name, Key)                                                \
   ImNodes::GetIO().Name.Modifier = &ImGui::GetIO().Key
@@ -447,7 +448,7 @@ void MaterialEditor::onRender(rhi::CommandBuffer &cb, float dt) {
 void MaterialEditor::_loadFunctions() {
   std::vector<std::filesystem::path> scripts;
   scripts.reserve(100);
-  listFiles("../assets/MaterialEditor/nodes", scripts);
+  listFiles("./assets/MaterialEditor/nodes", scripts);
 
   for (const auto &p : scripts) {
     if (auto data = loadFunction(p, m_luaState); data) {
@@ -472,7 +473,7 @@ void MaterialEditor::_initMaterial(gfx::MaterialDomain domain) {
 bool MaterialEditor::_loadProject(const std::filesystem::path &p) {
   if (m_project.path && m_project.path == p) return false;
 
-  const auto relativePath = os::FileSystem::relativeToRoot(p)->string();
+  const auto relativePath = os::FileSystem::relativeToRoot(p)->generic_string();
 
   MaterialProject project;
   auto payload = project.load(p);

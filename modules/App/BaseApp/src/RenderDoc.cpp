@@ -3,6 +3,7 @@
 #if WIN32
 #  include <Windows.h>
 #elif defined __linux
+#  include <dlfcn.h>
 #endif
 #include <bit> // bit_cast
 
@@ -23,7 +24,15 @@ RenderDoc::RenderDoc() {
     }
   }
 #elif defined __linux
-  // TODO ...
+  if (auto *module = dlopen("librenderdoc.so", RTLD_NOW | RTLD_NOLOAD);
+      module) {
+    if (auto GetAPI =
+          std::bit_cast<pRENDERDOC_GetAPI>(dlsym(module, "RENDERDOC_GetAPI"));
+        GetAPI) {
+      GetAPI(eRENDERDOC_API_Version_1_6_0,
+             std::bit_cast<void **>(&g_renderdocAPI));
+    }
+  }
 #endif
   if (g_renderdocAPI) g_renderdocAPI->MaskOverlayBits(0, 0);
 }

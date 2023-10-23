@@ -16,6 +16,8 @@
 #include "FrameGraphData/SSAO.hpp"
 #include "FrameGraphData/GlobalIllumination.hpp"
 
+#include <utility>
+
 namespace gfx {
 
 void getLightingPassFeatures(LightingPassFeatures &features,

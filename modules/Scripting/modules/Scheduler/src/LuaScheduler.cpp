@@ -14,7 +14,7 @@ class ScriptProcess final : public entt::process<ScriptProcess, fsec> {
 public:
   ScriptProcess(const sol::table &t, fsec freq = 250ms)
       : m_self{t}, m_update{m_self["update"]}, m_frequency{freq} {
-#define BIND(func) m_self.set_function(#func, &ScriptProcess::##func, this)
+#define BIND(func) m_self.set_function(#func, &ScriptProcess::func, this)
 
     BIND(succeed);
     BIND(fail);
@@ -74,9 +74,8 @@ void registerScheduler(sol::state &lua) {
     "attach",
       [](Scheduler &self, const sol::table &process,
          const sol::variadic_args &va) {
-        auto continuator =
-          self.attach<ScriptProcess>(process);
-        for (auto &&childProcess : va) {
+        auto continuator = self.attach<ScriptProcess>(process);
+        for (sol::table &&childProcess : va) {
           continuator =
             continuator.then<ScriptProcess>(childProcess);
         }

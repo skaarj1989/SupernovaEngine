@@ -33,7 +33,7 @@ namespace {
   };
 }
 
-[[nodisacrd]] auto getMesh(entt::id_type meshId) {
+[[nodiscard]] auto getMesh(entt::id_type meshId) {
   auto &meshes = Services::Resources::Meshes::value();
   return meshes[meshId].handle();
 }
@@ -69,7 +69,7 @@ MaterialPreviewWidget::MaterialPreviewWidget(os::InputSystem &inputSystem,
       Transform{}.setPosition({-2.0f, 1.0f, 2.0f}).lookAt(m_meshTransform));
 
   if (auto envMap = gfx::TextureLoader{}(
-        "../assets/MaterialEditor/DefaultEnvironmentMap.hdr",
+        "./assets/MaterialEditor/DefaultEnvironmentMap.hdr",
         m_renderer.getRenderDevice());
       envMap) {
     m_skyLight = m_renderer.createSkyLight(gfx::TextureResourceHandle{envMap});

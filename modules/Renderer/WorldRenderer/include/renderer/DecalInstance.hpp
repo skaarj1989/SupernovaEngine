@@ -19,3 +19,9 @@ public:
 static_assert(std::is_copy_constructible_v<DecalInstance>);
 
 } // namespace gfx
+
+template <> struct entt::type_hash<gfx::DecalInstance> {
+  [[nodiscard]] static constexpr entt::id_type value() noexcept {
+    return 976720766;
+  }
+};

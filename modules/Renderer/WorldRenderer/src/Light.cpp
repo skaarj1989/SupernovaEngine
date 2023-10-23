@@ -5,6 +5,8 @@
 
 #include "tracy/Tracy.hpp"
 
+#include <utility>
+
 namespace gfx {
 
 std::vector<const Light *> getVisibleLights(std::span<const Light *> lights,
@@ -116,7 +118,7 @@ float calculateLightRadius(const glm::vec3 &lightColor) {
   constexpr auto kQuadratic = 1.8f;
 
   return (-kLinear +
-          std::sqrtf(kLinear * kLinear -
+          glm::sqrt(kLinear * kLinear -
                      4.0f * kQuadratic *
                        (kConstant - (256.0f / 5.0f) * max3(lightColor)))) /
          (2.0f * kQuadratic);

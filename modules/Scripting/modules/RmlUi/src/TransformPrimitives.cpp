@@ -1,5 +1,6 @@
 #include "TransformPrimitives.hpp"
 #include "RmlUi/Core/Transform.h"
+#include "RmlUi/Core/Property.h"
 
 #include "Sol2HelperMacros.hpp"
 
@@ -15,7 +16,7 @@ void registerTransformPrimitives(sol::table &lua) {
     sol::call_constructor,
     sol::constructors<
       NumericValue(),
-      NumericValue(float, Property::Unit)
+      NumericValue(float, Unit)
     >(),
 
     "number", &NumericValue::number,
@@ -41,11 +42,11 @@ void registerTransformPrimitives(sol::table &lua) {
     sol::constructors<Type(const NumericValue *), __VA_ARGS__>(),              \
     BIND_TOSTRING(Type))
 
-  DEFINE_NUMERIC(TranslateX, TranslateX(float, Property::Unit));
-  DEFINE_NUMERIC(TranslateY, TranslateY(float, Property::Unit));
-  DEFINE_NUMERIC(TranslateZ, TranslateZ(float, Property::Unit));
-  DEFINE_NUMERIC(Translate2D, Translate2D(float, float, Property::Unit));
-  DEFINE_NUMERIC(Translate3D, Translate3D(float, float, float, Property::Unit));
+  DEFINE_NUMERIC(TranslateX, TranslateX(float, Unit));
+  DEFINE_NUMERIC(TranslateY, TranslateY(float, Unit));
+  DEFINE_NUMERIC(TranslateZ, TranslateZ(float, Unit));
+  DEFINE_NUMERIC(Translate2D, Translate2D(float, float, Unit));
+  DEFINE_NUMERIC(Translate3D, Translate3D(float, float, float, Unit));
 
   DEFINE_NUMERIC(ScaleX, ScaleX(float));
   DEFINE_NUMERIC(ScaleY, ScaleY(float));
@@ -53,15 +54,15 @@ void registerTransformPrimitives(sol::table &lua) {
   DEFINE_NUMERIC(Scale2D, Scale2D(float), Scale2D(float, float));
   DEFINE_NUMERIC(Scale3D, Scale3D(float), Scale3D(float, float, float));
 
-  DEFINE_NUMERIC(RotateX, RotateX(float, Property::Unit));
-  DEFINE_NUMERIC(RotateY, RotateY(float, Property::Unit));
-  DEFINE_NUMERIC(RotateZ, RotateZ(float, Property::Unit));
-  DEFINE_NUMERIC(Rotate2D, Rotate2D(float, Property::Unit));
-  DEFINE_NUMERIC(Rotate3D, Rotate3D(float, float, float, float, Property::Unit));
+  DEFINE_NUMERIC(RotateX, RotateX(float, Unit));
+  DEFINE_NUMERIC(RotateY, RotateY(float, Unit));
+  DEFINE_NUMERIC(RotateZ, RotateZ(float, Unit));
+  DEFINE_NUMERIC(Rotate2D, Rotate2D(float, Unit));
+  DEFINE_NUMERIC(Rotate3D, Rotate3D(float, float, float, float, Unit));
   
-  DEFINE_NUMERIC(SkewX, SkewX(float, Property::Unit));
-  DEFINE_NUMERIC(SkewY, SkewY(float, Property::Unit));
-  DEFINE_NUMERIC(Skew2D, Skew2D(float, float, Property::Unit));
+  DEFINE_NUMERIC(SkewX, SkewX(float, Unit));
+  DEFINE_NUMERIC(SkewY, SkewY(float, Unit));
+  DEFINE_NUMERIC(Skew2D, Skew2D(float, float, Unit));
 
 #undef DEFINE_NUMERIC
 

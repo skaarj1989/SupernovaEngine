@@ -1,24 +1,27 @@
+#include "os/Platform.hpp"
 #include "os/Window.hpp"
 #include "rhi/RenderDevice.hpp"
 #include "glm/ext/vector_float3.hpp"
 #include "spdlog/spdlog.h"
 
 int main(int argc, char *argv[]) {
-#ifdef _DEBUG
+#if WIN32 && _DEBUG
   _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
   _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
   _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
 #endif
 
   try {
+    os::Platform platform;
     rhi::RenderDevice renderDevice;
 
     auto window =
       os::Window::Builder{}
         .setCaption(std::format("HelloTriangle ({})", renderDevice.getName()))
         .setPosition({0, 0})
-        .setSize({640, 480})
+        .setExtent({640, 480})
         .build();
+    window.show();
     os::center(window);
 
     rhi::VertexBuffer vertexBuffer;
@@ -117,7 +120,7 @@ void main() {
 
     window.show();
     while (true) {
-      pollEvents(&window);
+      os::pollEvents();
       if (quit) break;
 
       if (!swapchain) continue;
@@ -174,6 +177,5 @@ void main() {
     SPDLOG_CRITICAL(e.what());
     return -1;
   }
-
   return 0;
 }

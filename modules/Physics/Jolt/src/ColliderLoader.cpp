@@ -216,7 +216,7 @@ ColliderLoader::operator()(const std::filesystem::path &p) const {
     return std::make_shared<ColliderResource>(shapeResult.Get(),
                                               p.lexically_normal());
   } catch (const std::exception &e) {
-    SPDLOG_WARN("{}: {}", os::FileSystem::relativeToRoot(p)->string(),
+    SPDLOG_WARN("{}: {}", os::FileSystem::relativeToRoot(p)->generic_string(),
                 e.what());
     return nullptr;
   }

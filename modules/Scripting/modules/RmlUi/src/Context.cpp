@@ -7,6 +7,7 @@
 #include "Rml2glm.hpp"
 
 #include "Sol2HelperMacros.hpp"
+#include <format>
 
 using namespace Rml;
 

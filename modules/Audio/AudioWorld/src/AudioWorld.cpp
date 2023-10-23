@@ -60,7 +60,7 @@ std::unique_ptr<audio::Decoder> createStream(const std::filesystem::path &p) {
   if (auto decoder = createDecoder(p)) {
     return std::move(*decoder);
   } else {
-    SPDLOG_ERROR("{}: {}", os::FileSystem::relativeToRoot(p)->string(),
+    SPDLOG_ERROR("{}: {}", os::FileSystem::relativeToRoot(p)->generic_string(),
                  decoder.error());
     return nullptr;
   }

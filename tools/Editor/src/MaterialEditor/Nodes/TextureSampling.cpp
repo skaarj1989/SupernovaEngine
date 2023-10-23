@@ -1,6 +1,7 @@
 #include "MaterialEditor/Nodes/TextureSampling.hpp"
 #include "NodesInternal.hpp"
 #include "MaterialEditor/MaterialGenerationContext.hpp"
+#include <format>
 
 namespace {
 

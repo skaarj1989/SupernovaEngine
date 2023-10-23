@@ -37,7 +37,6 @@ glm::ivec2 InputSystem::getMousePosition() const {
   ::GetCursorPos(&p);
   return {p.x, p.y};
 }
-glm::ivec2 InputSystem::getMouseDelta() const { return m_mouseDelta; }
 
 void InputSystem::showCursor(bool show) {
   if (os::isCursorVisible() != show) {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "entt/core/type_info.hpp"
 #include "ColliderManager.hpp"
 
 struct ColliderComponent {
@@ -16,3 +17,9 @@ struct ColliderComponent {
 };
 
 static_assert(std::is_copy_constructible_v<ColliderComponent>);
+
+template <> struct entt::type_hash<ColliderComponent> {
+  [[nodiscard]] static constexpr entt::id_type value() noexcept {
+    return 3929559123;
+  }
+};

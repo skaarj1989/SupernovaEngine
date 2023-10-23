@@ -9,6 +9,8 @@
 #include "renderer/PostProcess.hpp"
 #include "RenderContext.hpp"
 
+#include <format>
+
 namespace gfx {
 
 Blur::Blur(rhi::RenderDevice &rd, const CommonSamplers &commonSamplers)

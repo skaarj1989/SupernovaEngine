@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <optional>
 #include <map>
+#include <vector>
 
 class PathMap {
 public:

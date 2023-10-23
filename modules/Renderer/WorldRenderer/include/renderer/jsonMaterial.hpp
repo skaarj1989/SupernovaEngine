@@ -9,7 +9,7 @@
 namespace gfx {
 
 #  define MAKE_PAIR(Enum, Value)                                               \
-    { Enum::##Value, #Value }
+    { Enum::Value, #Value }
 
 NLOHMANN_JSON_SERIALIZE_ENUM(MaterialDomain,
                              {

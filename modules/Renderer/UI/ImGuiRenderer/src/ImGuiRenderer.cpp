@@ -145,7 +145,6 @@ void ImGuiRenderer::draw(rhi::CommandBuffer &cb, rhi::PixelFormat colorFormat,
   };
 
   // Avoid rendering when minimized.
-  assert(framebufferExtent);
   if (!framebufferExtent) return;
 
   cb.setViewport({.extent = framebufferExtent});

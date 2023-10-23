@@ -22,9 +22,9 @@ static void collectTypes(const entt::registry &r,
 template <class Archive, class T, class... Rest>
 static void saveComponents(Archive &archive, entt::type_list<T, Rest...>) {
   auto &[registry, snapshot] = cereal::get_user_data<OutputContext>(archive);
-  if (const auto *storage = registry.storage<T>();
+  if (const auto *storage = registry.template storage<T>();
       storage && !storage->empty()) {
-    snapshot.get<T>(archive);
+    snapshot.template get<T>(archive);
   }
   if constexpr (const auto typeList = entt::type_list<Rest...>{};
                 typeList.size > 0) {
@@ -39,7 +39,7 @@ constexpr auto has_save = requires(Archive &archive) {
 
 template <class Archive, class System> void saveSystem(Archive &archive) {
   if constexpr (has_save<System, Archive>) {
-    System::save<Archive>(archive);
+    System::template save<Archive>(archive);
   }
   auto &[registry, _] = cereal::get_user_data<OutputContext>(archive);
   std::vector<entt::id_type> types;
@@ -67,7 +67,7 @@ static void loadComponent(Archive &archive, const entt::id_type type,
                           entt::type_list<T, Rest...>) {
   if (entt::type_hash<T>().value() == type) {
     auto &[_, snapshotLoader] = cereal::get_user_data<InputContext>(archive);
-    snapshotLoader.get<T>(archive);
+    snapshotLoader.template get<T>(archive);
   } else {
     if constexpr (const auto typeList = entt::type_list<Rest...>{};
                   typeList.size > 0) {
@@ -83,7 +83,7 @@ constexpr auto has_load = requires(Archive &archive) {
 
 template <class Archive, class System> void loadSystem(Archive &archive) {
   if constexpr (has_load<System, Archive>) {
-    System::load<Archive>(archive);
+    System::template load<Archive>(archive);
   }
   std::vector<entt::id_type> types;
   types.reserve(System::kIntroducedComponents.size);

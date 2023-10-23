@@ -97,6 +97,7 @@ private:
   bool m_freezeFrustum{false};
 };
 
-template <> struct has_flags<PerspectiveCamera::DirtyFlags> : std::true_type {};
-
 } // namespace gfx
+
+template <>
+struct has_flags<gfx::PerspectiveCamera::DirtyFlags> : std::true_type {};

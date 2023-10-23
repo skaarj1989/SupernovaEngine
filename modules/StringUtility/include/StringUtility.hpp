@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <algorithm> // copy
+#include <iterator>
 
 void ltrim(std::string &);
 void rtrim(std::string &);

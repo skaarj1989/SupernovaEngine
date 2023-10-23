@@ -27,6 +27,7 @@ enum class PipelineStages : VkPipelineStageFlags2 {
   AllGraphics = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT,
   AllCommands = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,
 };
-template <> struct has_flags<PipelineStages> : std::true_type {};
 
 } // namespace rhi
+
+template <> struct has_flags<rhi::PipelineStages> : std::true_type {};

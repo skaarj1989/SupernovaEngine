@@ -4,6 +4,8 @@
 
 #include "ImGuiHelper.hpp"
 
+#include <format>
+
 namespace {
 
 [[nodiscard]] std::optional<DataType> combine(DataType a, DataType b) {

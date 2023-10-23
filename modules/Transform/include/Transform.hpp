@@ -1,5 +1,6 @@
 #pragma once
 
+#include "entt/core/type_info.hpp"
 #include "glm/ext/quaternion_float.hpp"
 
 class Transform {
@@ -105,6 +106,14 @@ private:
 
   mutable glm::mat4 m_modelMatrix{1.0f}; // Model-to-world.
   mutable bool m_dirty{false};
+};
+
+static_assert(std::is_copy_constructible_v<Transform>);
+
+template <> struct entt::type_hash<Transform> {
+  [[nodiscard]] static constexpr entt::id_type value() noexcept {
+    return 715670787;
+  }
 };
 
 [[nodiscard]] glm::vec3 calculateUpVector(const glm::vec3 &);

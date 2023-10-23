@@ -3,13 +3,19 @@
 ---@class Window
 Window = {}
 
+---@enum Window.Area
+Window.Area = {
+  Client = 0,
+  Absolute = 1
+}
+
 ---@param v ivec2
 ---@return self
 function Window:setPosition(v) end
 
 ---@param v ivec2
 ---@return self
-function Window:setSize(v) end
+function Window:setExtent(v) end
 
 ---@param a number
 ---@return self
@@ -19,14 +25,13 @@ function Window:setAlpha(a) end
 ---@return self
 function Window:setCaption(s) end
 
+---@param area? Window.Area
 ---@return ivec2
-function Window:getPosition() end
+function Window:getPosition(area) end
 
+---@param area? Window.Area
 ---@return ivec2
-function Window:getSize() end
-
----@return uvec2
-function Window:getClientSize() end
+function Window:getExtent(area) end
 
 ---@return string
 function Window:getCaption() end

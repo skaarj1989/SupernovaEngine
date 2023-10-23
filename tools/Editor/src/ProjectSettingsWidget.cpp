@@ -22,7 +22,7 @@ void inspect(ProjectSettings &settings) {
     }
 
     ImGui::TableSetColumnIndex(1);
-    ImGui::Text(settings.path.parent_path().string().c_str());
+    ImGui::Text(settings.path.parent_path().generic_string().c_str());
 
     ImGui::EndTable();
   }

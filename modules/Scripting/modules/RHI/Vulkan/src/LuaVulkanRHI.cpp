@@ -4,6 +4,8 @@
 #include "rhi/RenderDevice.hpp"
 #include "Sol2HelperMacros.hpp"
 
+#include <format>
+
 namespace {
 
 void registerExtent2D(sol::state &lua) {

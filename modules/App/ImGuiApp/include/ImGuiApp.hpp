@@ -6,7 +6,7 @@
 class ImGuiApp : public BaseApp {
 public:
   ImGuiApp(std::span<char *> args, const Config &,
-           const std::filesystem::path &iconsDir = "../fonts");
+           const std::filesystem::path &iconsDir = "./fonts");
   ~ImGuiApp() override;
 
   void drawGui(rhi::CommandBuffer &, rhi::RenderTargetView,

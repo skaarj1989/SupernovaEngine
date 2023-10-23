@@ -48,7 +48,7 @@ public:
 
   bool LoadTexture(Rml::TextureHandle &, Rml::Vector2i &dimensions,
                    const Rml::String &source) override;
-  bool GenerateTexture(Rml::TextureHandle &, const byte *,
+  bool GenerateTexture(Rml::TextureHandle &, const Rml::byte *,
                        const Rml::Vector2i &dimensions) override;
   void ReleaseTexture(Rml::TextureHandle) override;
 

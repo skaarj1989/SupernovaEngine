@@ -173,7 +173,9 @@ void Swapchain::_create(Format format, VerticalSync vsync) {
       .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
       .surface = m_surface,
       .minImageCount = std::clamp(3u, surfaceInfo.capabilities.minImageCount,
-                                  surfaceInfo.capabilities.maxImageCount),
+                                  surfaceInfo.capabilities.maxImageCount > 0
+                                    ? surfaceInfo.capabilities.maxImageCount
+                                    : 8u),
       .imageFormat = kSurfaceDefaultFormat.format,
       .imageColorSpace = kSurfaceDefaultFormat.colorSpace,
       .imageExtent = static_cast<VkExtent2D>(extent),
@@ -187,7 +189,6 @@ void Swapchain::_create(Format format, VerticalSync vsync) {
       .clipped = VK_TRUE,
       .oldSwapchain = oldSwapchain,
     };
-
     VK_CHECK(vkCreateSwapchainKHR(m_device, &createInfo, nullptr, &m_handle));
     _buildBuffers(extent, PixelFormat(createInfo.imageFormat));
     m_format = format;
@@ -203,6 +204,7 @@ void Swapchain::_buildBuffers(Extent2D extent, PixelFormat pixelFormat) {
 
   uint32_t imageCount{0};
   VK_CHECK(vkGetSwapchainImagesKHR(m_device, m_handle, &imageCount, nullptr));
+  assert(imageCount > 0);
   std::vector<VkImage> images(imageCount);
   VK_CHECK(
     vkGetSwapchainImagesKHR(m_device, m_handle, &imageCount, images.data()));

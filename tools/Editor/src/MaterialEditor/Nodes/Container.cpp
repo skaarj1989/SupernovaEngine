@@ -2,6 +2,8 @@
 #include "TypeTraits.hpp" // is_any_v
 #include "NodesInternal.hpp"
 
+#include <ranges>
+
 namespace {
 
 [[nodiscard]] auto getLine(const VertexProp::Variant &variant) {

@@ -5,6 +5,8 @@
 #include "MaterialEditor/MaterialGenerationContext.hpp"
 #include "ImGuiHelper.hpp" // ShowTooltip
 
+#include <ranges>
+
 namespace {
 
 [[nodiscard]] auto sameTypes(std::span<const DataType> a,

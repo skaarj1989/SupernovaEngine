@@ -4,6 +4,7 @@
 #include "StringHash.hpp"
 #include <filesystem>
 #include <memory>
+#include <vector>
 #include <unordered_map>
 
 namespace os {

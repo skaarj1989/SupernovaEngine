@@ -206,7 +206,7 @@
         "value3": {
             "value0": {
                 "nullopt": false,
-                "data": "Textures\\Environment\\syferfontein_1d_clear_puresky_2k.hdr"
+                "data": "Textures/Environment/syferfontein_1d_clear_puresky_2k.hdr"
             }
         },
         "value4": []
@@ -291,7 +291,7 @@
     "value40": {
         "value0": {
             "nullopt": false,
-            "data": "Meshes\\DamagedHelmet\\DamagedHelmet.mesh"
+            "data": "Meshes/DamagedHelmet/DamagedHelmet.mesh"
         },
         "value1": [
             {
@@ -299,7 +299,7 @@
                 "value1": {
                     "value0": {
                         "nullopt": false,
-                        "data": "Meshes\\DamagedHelmet\\materials\\Material_MR\\Material_MR.material"
+                        "data": "Meshes/DamagedHelmet/materials/Material_MR/Material_MR.material"
                     },
                     "value1": [],
                     "value2": [
@@ -308,7 +308,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Meshes\\DamagedHelmet\\materials\\Material_MR\\..\\textures\\Default_AO.jpg"
+                                    "data": "Meshes/DamagedHelmet/materials/Material_MR/../textures/Default_AO.jpg"
                                 }
                             }
                         },
@@ -317,7 +317,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Meshes\\DamagedHelmet\\materials\\Material_MR\\..\\textures\\Default_albedo.jpg"
+                                    "data": "Meshes/DamagedHelmet/materials/Material_MR/../textures/Default_albedo.jpg"
                                 }
                             }
                         },
@@ -326,7 +326,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Meshes\\DamagedHelmet\\materials\\Material_MR\\..\\textures\\Default_emissive.jpg"
+                                    "data": "Meshes/DamagedHelmet/materials/Material_MR/../textures/Default_emissive.jpg"
                                 }
                             }
                         },
@@ -335,7 +335,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Meshes\\DamagedHelmet\\materials\\Material_MR\\..\\textures\\Default_metalRoughness.jpg"
+                                    "data": "Meshes/DamagedHelmet/materials/Material_MR/../textures/Default_metalRoughness.jpg"
                                 }
                             }
                         },
@@ -344,7 +344,7 @@
                             "value": {
                                 "value0": {
                                     "nullopt": false,
-                                    "data": "Meshes\\DamagedHelmet\\materials\\Material_MR\\..\\textures\\Default_normal.jpg"
+                                    "data": "Meshes/DamagedHelmet/materials/Material_MR/../textures/Default_normal.jpg"
                                 }
                             }
                         }
@@ -378,14 +378,14 @@
     "value52": {
         "value0": {
             "nullopt": false,
-            "data": "Scripts\\behavior\\FloatingActor.lua"
+            "data": "Scripts/behavior/FloatingActor.lua"
         }
     },
     "value53": 3,
     "value54": {
         "value0": {
             "nullopt": false,
-            "data": "Scripts\\behavior\\BasicCameraController.lua"
+            "data": "Scripts/behavior/BasicCameraController.lua"
         }
     }
 }

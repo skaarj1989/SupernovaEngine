@@ -13,7 +13,7 @@
 
 #include "tracy/Tracy.hpp"
 
-#ifdef _DEBUG
+#if WIN32 && _DEBUG
 #  include <crtdbg.h> // _CrtSet*
 #endif
 
@@ -69,7 +69,7 @@ private:
 //
 
 BaseApp::BaseApp(std::span<char *>, const Config &config) : RenderDoc{} {
-#ifdef _DEBUG
+#if WIN32 && _DEBUG
   _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
   _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
   _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
@@ -82,7 +82,7 @@ BaseApp::BaseApp(std::span<char *>, const Config &config) : RenderDoc{} {
   m_window = os::Window::Builder{}
                .setCaption(std::format("{} ({})", config.caption,
                                        m_renderDevice->getName()))
-               .setSize({config.width, config.height})
+               .setExtent({config.width, config.height})
                .build();
   os::center(m_window);
 

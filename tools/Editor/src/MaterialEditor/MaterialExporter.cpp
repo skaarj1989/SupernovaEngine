@@ -2,6 +2,7 @@
 #include "rhi/json.hpp"
 #include "renderer/jsonMaterial.hpp"
 #include <fstream> // ofstream
+#include <format>
 
 using namespace nlohmann;
 
@@ -29,7 +30,7 @@ namespace {
     if (auto r = std::dynamic_pointer_cast<Resource>(value.texture); r) {
       j[key] = TextureMeta{
         .type = value.texture->getType(),
-        .path = r->getPath().lexically_relative(p).string(),
+        .path = r->getPath().lexically_relative(p).generic_string(),
       };
     }
   }

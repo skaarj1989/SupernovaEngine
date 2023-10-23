@@ -2,6 +2,8 @@
 #include "RmlUi/Core/Core.h"
 #include "CameraComponent.hpp"
 
+#include <format>
+
 namespace {
 
 [[nodiscard]] Rml::Vector2i to_Rml(const rhi::Extent2D extent) {

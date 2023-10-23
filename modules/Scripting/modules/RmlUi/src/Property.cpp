@@ -99,55 +99,65 @@ void registerPropertyDictionary(sol::table &lua) {
 
 } // namespace
 
-void registerProperty(sol::table &lua) {
-  using PropertyUnit = Property::Unit;
-#define MAKE_PAIR(Value) _MAKE_PAIR(PropertyUnit, Value)
+void registerUnit(sol::table &lua) {
+#define MAKE_PAIR(Value) _MAKE_PAIR(Unit, Value)
   // clang-format off
-  DEFINE_ENUM(PropertyUnit, {
+  DEFINE_ENUM(Unit, {
     MAKE_PAIR(UNKNOWN),
+
     MAKE_PAIR(KEYWORD),
     MAKE_PAIR(STRING),
-    MAKE_PAIR(NUMBER),
-    MAKE_PAIR(PX),
-    MAKE_PAIR(DEG),
-    MAKE_PAIR(RAD),
     MAKE_PAIR(COLOUR),
+    MAKE_PAIR(RATIO),
+
+    MAKE_PAIR(NUMBER),
+    MAKE_PAIR(PERCENT),
+    MAKE_PAIR(PX),
+
     MAKE_PAIR(DP),
-    MAKE_PAIR(X),
     MAKE_PAIR(VW),
     MAKE_PAIR(VH),
-    MAKE_PAIR(ABSOLUTE_UNIT),
+    MAKE_PAIR(X),
+
     MAKE_PAIR(EM),
-    MAKE_PAIR(PERCENT),
     MAKE_PAIR(REM),
-    MAKE_PAIR(RELATIVE_UNIT),
+
     MAKE_PAIR(INCH),
     MAKE_PAIR(CM),
     MAKE_PAIR(MM),
     MAKE_PAIR(PT),
     MAKE_PAIR(PC),
     MAKE_PAIR(PPI_UNIT),
+
+    MAKE_PAIR(DEG),
+    MAKE_PAIR(RAD),
+
     MAKE_PAIR(TRANSFORM),
     MAKE_PAIR(TRANSITION),
     MAKE_PAIR(ANIMATION),
     MAKE_PAIR(DECORATOR),
     MAKE_PAIR(FONTEFFECT),
-    MAKE_PAIR(RATIO),
+    MAKE_PAIR(COLORSTOPLIST),
+    MAKE_PAIR(SHADOWLIST),
+
     MAKE_PAIR(LENGTH),
     MAKE_PAIR(LENGTH_PERCENT),
     MAKE_PAIR(NUMBER_LENGTH_PERCENT),
-    MAKE_PAIR(ABSOLUTE_LENGTH),
+    MAKE_PAIR(DP_SCALABLE_LENGTH),
     MAKE_PAIR(ANGLE),
+    MAKE_PAIR(NUMERIC),
   });
   // clang-format on
 #undef MAKE_PAIR
-
+}
+void registerProperty(sol::table &lua) {
+  registerUnit(lua);
   registerVariant(lua);
 
 #define CTOR_2(Type, convert)                                                  \
-  [](Type v, Property::Unit unit) { return Property{convert(v), unit}; }
+  [](Type v, Unit unit) { return Property{convert(v), unit}; }
 #define CTOR_3(Type, convert)                                                  \
-  [](Type v, Property::Unit unit, int specificity) {                           \
+  [](Type v, Unit unit, int specificity) {                                     \
     return Property{convert(v), unit, specificity};                            \
   }
 #define CTORS(Type, convert) CTOR_2(Type, convert), CTOR_3(Type, convert)

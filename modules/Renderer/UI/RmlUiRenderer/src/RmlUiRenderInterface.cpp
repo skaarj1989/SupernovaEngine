@@ -119,11 +119,11 @@ bool RmlUiRenderInterface::LoadTexture(Rml::TextureHandle &handle,
   return false;
 }
 bool RmlUiRenderInterface::GenerateTexture(Rml::TextureHandle &handle,
-                                           const byte *pixels,
+                                           const Rml::byte *pixels,
                                            const Rml::Vector2i &dimensions) {
   auto &rd = m_renderer->getRenderDevice();
 
-  const auto uploadSize = dimensions.x * dimensions.y * 4 * sizeof(byte);
+  const auto uploadSize = dimensions.x * dimensions.y * 4 * sizeof(Rml::byte);
   auto stagingBuffer = rd.createStagingBuffer(uploadSize, pixels);
 
   auto font =

@@ -8,6 +8,7 @@
 #include "Inspectors/PropertyInspector.hpp"
 
 #include <array>
+#include <format>
 
 namespace {
 

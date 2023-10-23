@@ -100,7 +100,7 @@ bool DragFloat3(const char *label, glm::vec3 &v, float speed, float min,
 
 void PrintPath(const std::filesystem::path &p) {
   const auto rp = os::FileSystem::relativeToRoot(p);
-  BulletText("Path: %s", rp ? rp->string().c_str() : "(empty)");
+  BulletText("Path: %s", rp ? rp->generic_string().c_str() : "(empty)");
 }
 
 } // namespace ImGui

@@ -9,7 +9,11 @@ find_package(spirv_cross_reflect CONFIG REQUIRED)
 add_subdirectory(extern)
 
 find_file(GPU_MEM_DUMP_VIS "GpuMemDumpVis.py" "extern/VulkanMemoryAllocator/tools/GpuMemDumpVis")
-configure_file("cmake/GpuMemDumpVis.bat.in" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/GpuMemDumpVis.bat)
+if(WIN32)
+  configure_file("cmake/GpuMemDumpVis.bat.in" ${CMAKE_BINARY_DIR}/bin/GpuMemDumpVis.bat)
+elseif(LINUX)
+  configure_file("cmake/GpuMemDumpVis.sh.in" ${CMAKE_BINARY_DIR}/bin/GpuMemDumpVis.sh @ONLY)
+endif()
 
 add_library(VulkanRHI
   "src/VkCheck.hpp"
@@ -93,7 +97,6 @@ add_library(VulkanRHI
   # ---
   "include/rhi/Swapchain.hpp"
   "src/Swapchain.cpp"
-  "src/Win32Swapchain.cpp"
 
   # ---
   "include/rhi/Texture.hpp"
@@ -119,6 +122,12 @@ add_library(VulkanRHI
   "src/vk_mem_alloc.cpp"
 )
 
+if(WIN32)
+  target_sources(VulkanRHI PRIVATE "src/Win32Swapchain.cpp")
+elseif(LINUX)
+  target_sources(VulkanRHI PRIVATE "src/XSwapchain.cpp")
+endif()
+
 target_compile_definitions(VulkanRHI PUBLIC VULKAN_RHI GLM_FORCE_DEPTH_ZERO_TO_ONE)
 target_include_directories(VulkanRHI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(VulkanRHI
@@ -138,7 +147,7 @@ target_link_libraries(VulkanRHI
   spirv-cross-reflect
   spdlog::spdlog
 )
-set_target_properties(glad-vk VulkanMemoryAllocator VulkanRHI PROPERTIES FOLDER "Framework/RHI/Vulkan")
+set_target_properties(VulkanMemoryAllocator VulkanRHI PROPERTIES FOLDER "Framework/RHI/Vulkan")
 
 enable_profiler(VulkanRHI)
 

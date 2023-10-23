@@ -1,4 +1,5 @@
 #include "RenderSystem.hpp"
+#include <format>
 
 namespace {
 

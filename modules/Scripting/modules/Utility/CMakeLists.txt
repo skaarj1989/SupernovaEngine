@@ -1,3 +1,5 @@
+find_package(EnTT REQUIRED)
+
 add_library(LuaUtility "include/LuaUtility.hpp" "src/LuaUtility.cpp")
 target_include_directories(LuaUtility PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(LuaUtility

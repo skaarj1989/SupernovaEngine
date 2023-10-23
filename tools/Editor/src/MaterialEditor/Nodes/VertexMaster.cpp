@@ -1,6 +1,7 @@
 #include "MaterialEditor/Nodes/VertexMaster.hpp"
 #include "NodesInternal.hpp"
 #include "MaterialEditor/MaterialGenerationContext.hpp"
+#include <format>
 
 namespace {
 
@@ -24,7 +25,7 @@ bool VertexMasterNode::inspect(ShaderGraph &g, [[maybe_unused]] int32_t id) {
   auto changed = false;
 
 #define ADD_INPUT_PIN(name)                                                    \
-  changed |= addInputPin(g, ##name, {#name}, InspectorMode::Popup, false)
+  changed |= addInputPin(g, name, {#name}, InspectorMode::Popup, false)
 
   ADD_INPUT_PIN(localPos);
 

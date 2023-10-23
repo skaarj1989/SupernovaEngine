@@ -4,6 +4,9 @@
 #include "MaterialEditor/MaterialGenerationContext.hpp"
 #include "ImGuiHelper.hpp" // ShowTooltip
 
+#include <ranges>
+#include <format>
+
 ScriptedNode
 ScriptedNode::create(ShaderGraph &g, VertexDescriptor parent,
                      std::pair<uint32_t, const ScriptedFunctionData *> p) {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "entt/core/type_info.hpp"
 #include "ozz/animation/runtime/animation.h"
 
 class PlaybackController {
@@ -38,4 +39,10 @@ private:
 
   bool m_playing{true};
   bool m_loop{true};
+};
+
+template <> struct entt::type_hash<PlaybackController> {
+  [[nodiscard]] static constexpr entt::id_type value() noexcept {
+    return 820180132;
+  }
 };

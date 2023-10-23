@@ -24,6 +24,8 @@ void InputSystem::update() {
   m_lastMousePosition = currentMousePosition;
 }
 
+glm::ivec2 InputSystem::getMouseDelta() const { return m_mouseDelta; }
+
 bool InputSystem::isCursorVisible() const { return m_cursorVisible; }
 
 bool InputSystem::isMouseDown(MouseButton b) const {

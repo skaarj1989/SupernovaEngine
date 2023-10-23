@@ -23,8 +23,9 @@ enum class RenderFeatures : int32_t {
 
   All = Default | SoftShadows | GI | SSR,
 };
-template <> struct has_flags<RenderFeatures> : std::true_type {};
 
 [[nodiscard]] std::string toString(RenderFeatures);
 
 } // namespace gfx
+
+template <> struct has_flags<gfx::RenderFeatures> : std::true_type {};

@@ -7,6 +7,7 @@
 #  include <Windows.h>
 #endif
 #include <fstream>
+#include <algorithm> // transform
 
 namespace os {
 

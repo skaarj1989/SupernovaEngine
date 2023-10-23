@@ -1,6 +1,7 @@
 #include "BuildPropertyBuffer.hpp"
 #include "glm/common.hpp" // ceil, max
 #include "tracy/Tracy.hpp"
+#include <cstring> // memcpy
 
 namespace gfx {
 

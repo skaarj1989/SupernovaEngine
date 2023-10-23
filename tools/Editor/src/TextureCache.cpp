@@ -49,7 +49,7 @@ void view(gfx::TextureCache &cache, float windowWidth, float thumbnailSize) {
       ImGui::EndTooltip();
     }
 
-    constexpr auto kConfirmDestructionId = MAKE_WARNING("Remove");
+    static constexpr auto kConfirmDestructionId = MAKE_WARNING("Remove");
 
     std::optional<const char *> action;
     attachPopup(path.c_str(), ImGuiMouseButton_Right, [&action] {

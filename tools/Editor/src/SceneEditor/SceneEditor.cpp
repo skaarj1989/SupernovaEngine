@@ -391,7 +391,7 @@ void showComponentsMenuItems(entt::handle h) {
   if (ImGui::BeginMenuEx("Audio", ICON_FA_MUSIC)) {
     if (ImGui::MenuItemEx("Listener", ICON_FA_HEADPHONES)) {
       h.emplace_or_replace<ListenerComponent>();
-}
+    }
     if (ImGui::MenuItemEx("SoundSource", ICON_FA_RECORD_VINYL)) {
       h.remove<SoundSourceComponent>();
       h.emplace<SoundSourceComponent>();
@@ -659,9 +659,9 @@ void SceneEditor::_openScene(const std::filesystem::path &p) {
     entry->path = p;
     m_scenes.emplace_back(std::move(entry));
 
-    SPDLOG_INFO("Scene loaded: {}", relativePath->string());
+    SPDLOG_INFO("Scene loaded: {}", relativePath->generic_string());
   } else {
-    SPDLOG_ERROR("Could not load a scene: {}", relativePath->string());
+    SPDLOG_ERROR("Could not load a scene: {}", relativePath->generic_string());
   }
 }
 bool SceneEditor::_hasScene(const std::filesystem::path &p) const {

@@ -11,6 +11,7 @@ enum class PipelineStage {
   FragmentShader = 1 << 3,
   ComputeShader = 1 << 4,
 };
-template <> struct has_flags<PipelineStage> : std::true_type {};
 
 } // namespace gfx
+
+template <> struct has_flags<gfx::PipelineStage> : std::true_type {};

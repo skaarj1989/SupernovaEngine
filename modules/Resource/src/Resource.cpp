@@ -29,7 +29,8 @@ std::optional<std::string> serialize(const Resource &r) {
   if (!r) return std::nullopt;
 
   const auto &p = r.getPath();
-  return (r.isVirtual() ? p : *os::FileSystem::relativeToRoot(p)).string();
+  return (r.isVirtual() ? p : *os::FileSystem::relativeToRoot(p))
+    .generic_string();
 }
 
 bool isValid(const Resource *resource) { return resource && bool(*resource); }

@@ -1,6 +1,8 @@
 #include "MaterialEditor/SplitMatrix.hpp"
 #include "MaterialEditor/MaterialGenerationContext.hpp"
 
+#include <format>
+
 namespace {
 
 [[nodiscard]] constexpr auto getNumRequiredColumns(SplitMatrix e) {

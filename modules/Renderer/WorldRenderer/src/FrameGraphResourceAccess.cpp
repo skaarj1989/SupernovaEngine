@@ -1,5 +1,6 @@
 #include "FrameGraphResourceAccess.hpp"
 #include "glm/integer.hpp" // bitfield{Insert/Extract}
+#include <utility>
 
 namespace gfx {
 

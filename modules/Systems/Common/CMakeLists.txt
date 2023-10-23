@@ -1,3 +1,4 @@
+find_package(EnTT REQUIRED)
 find_package(cereal REQUIRED)
 
 add_library(SystemCommon INTERFACE "include/SystemSerializationContext.hpp" "include/SystemCommons.hpp")

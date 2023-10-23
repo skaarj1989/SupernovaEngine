@@ -21,6 +21,11 @@ An experimental game engine.
 <img src="media/fg.svg" alt="Material Editor (post process)" alt="FrameGraph"/>
 </details>
 
+## Platforms
+
+- Windows 10 / Visual Studio 2022
+- Ubuntu 22.04 / GCC 13.1.0
+
 ## Features
 
 - Entity Component System ([EnTT](https://github.com/skypjack/entt/wiki))
@@ -79,7 +84,12 @@ VCPKG_DEFAULT_TRIPLET=x64-windows
 Install dependencies:
 
 ```bash
-> vcpkg install minizip robin-hood-hashing glm spdlog nlohmann-json cereal glslang spirv-cross ktx[vulkan] stb openal-soft libvorbis libogg lua argparse meshoptimizer boost-graph rmlui[freetype] catch2
+> vcpkg install entt minizip robin-hood-hashing glm spdlog nlohmann-json cereal glslang spirv-cross ktx[vulkan] stb openal-soft libvorbis libogg lua argparse meshoptimizer boost-graph freetype catch2
+```
+
+Linux packages:
+```bash
+> sudo apt install libxcb-util-dev libxcb-icccm4-dev libxcb-ewmh-dev libxcb-xfixes0-dev libxcb-keysyms1-dev libxcb-randr0-dev libx11-xcb-dev
 ```
 
 ## Third-party

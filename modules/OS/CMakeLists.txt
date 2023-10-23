@@ -1,3 +1,4 @@
+add_subdirectory(Platform)
 add_subdirectory(FileSystem)
 add_subdirectory(InputEvents)
 add_subdirectory(Window)

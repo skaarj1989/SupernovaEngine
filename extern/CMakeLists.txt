@@ -1,11 +1,4 @@
-include(FetchContent)
-
-FetchContent_Declare(EnTT
-  GIT_REPOSITORY https://github.com/skypjack/entt.git
-  GIT_TAG v3.12.1
-)
-FetchContent_MakeAvailable(EnTT)
-
+find_package(EnTT CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(robin_hood CONFIG REQUIRED)
@@ -13,6 +6,7 @@ find_package(glm CONFIG REQUIRED)
 
 add_subdirectory(renderdoc)
 
+include(FetchContent)
 FetchContent_Declare(Tracy
   GIT_REPOSITORY https://github.com/wolfpld/tracy
   GIT_TAG v0.9.1

@@ -1,5 +1,6 @@
 #include "animation/PlaybackController.hpp"
 #include "glm/common.hpp" // clamp
+#include <cmath>
 
 void PlaybackController::update(const ozz::animation::Animation &animation,
                                 float dt) {
@@ -13,7 +14,7 @@ void PlaybackController::update(const ozz::animation::Animation &animation,
 PlaybackController &PlaybackController::setTimeRatio(float ratio) {
   m_previousTimeRatio = m_timeRatio;
   m_timeRatio =
-    m_loop ? ratio - std::floorf(ratio) : glm::clamp(ratio, 0.0f, 1.0f);
+    m_loop ? ratio - floorf(ratio) : glm::clamp(ratio, 0.0f, 1.0f);
   return *this;
 }
 PlaybackController &PlaybackController::setSpeed(float f) {

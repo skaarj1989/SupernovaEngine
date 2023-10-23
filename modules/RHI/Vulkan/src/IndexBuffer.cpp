@@ -1,5 +1,5 @@
 #include "rhi/IndexBuffer.hpp"
-#include <type_traits> // move
+#include <utility> // move
 #include <cassert>
 
 namespace rhi {

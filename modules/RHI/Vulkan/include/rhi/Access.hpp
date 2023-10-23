@@ -25,6 +25,7 @@ enum class Access : VkAccessFlags2 {
   ShaderStorageRead = VK_ACCESS_2_SHADER_STORAGE_READ_BIT,
   ShaderStorageWrite = VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT,
 };
-template <> struct has_flags<Access> : std::true_type {};
 
 } // namespace rhi
+
+template <> struct has_flags<rhi::Access> : std::true_type {};

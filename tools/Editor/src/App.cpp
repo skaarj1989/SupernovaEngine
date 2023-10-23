@@ -55,8 +55,7 @@ struct GUI {
   lua.open_libraries(base, package, string, os, math, table);
   registerModules(lua);
 
-  const auto scriptLibraryPath =
-    std::filesystem::current_path().parent_path() / "lua/";
+  const auto scriptLibraryPath = std::filesystem::current_path() / "lua/";
   lua["package"]["path"] =
     std::format("{}?.lua;", scriptLibraryPath.lexically_normal().string());
 
@@ -83,7 +82,7 @@ App::App(std::span<char *> args)
   io.ConfigWindowsMoveFromTitleBarOnly = true;
   // io.IniFilename = nullptr;
 #endif
-  load("../assets/DarkTheme.json", ImGui::GetStyle());
+  load("./assets/DarkTheme.json", ImGui::GetStyle());
 
   MetaComponent::registerMetaComponents(Scene::kComponentTypes);
   LuaComponent::extendMetaTypes(Scene::kComponentTypes);

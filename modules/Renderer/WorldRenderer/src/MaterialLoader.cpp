@@ -179,7 +179,7 @@ MaterialLoader::operator()(const std::filesystem::path &p,
     }
     return std::make_shared<MaterialResource>(builder.build(), p);
   } catch (const std::exception &e) {
-    SPDLOG_WARN("{}: {}", os::FileSystem::relativeToRoot(p)->string(),
+    SPDLOG_WARN("{}: {}", os::FileSystem::relativeToRoot(p)->generic_string(),
                 e.what());
     return nullptr;
   }

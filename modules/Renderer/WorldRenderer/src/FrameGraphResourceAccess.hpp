@@ -3,6 +3,7 @@
 #include "rhi/CubeFace.hpp"
 #include "PipelineStage.hpp"
 #include <optional>
+#include <cstdint>
 
 namespace gfx {
 

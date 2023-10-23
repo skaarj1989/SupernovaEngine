@@ -25,10 +25,10 @@ namespace {
 } // namespace
 
 void overlay(rhi::Texture *texture, glm::vec2 size) {
-  constexpr auto kTopLeft = glm::vec2{0, 0};
-  constexpr auto kTopRight = glm::vec2{1, 0};
-  constexpr auto kBottomRight = glm::vec2{1, 1};
-  constexpr auto kBottomLeft = glm::vec2{0, 1};
+  static constexpr auto kTopLeft = glm::vec2{0, 0};
+  static constexpr auto kTopRight = glm::vec2{1, 0};
+  static constexpr auto kBottomRight = glm::vec2{1, 1};
+  static constexpr auto kBottomLeft = glm::vec2{0, 1};
 
   static auto origin = kBottomRight;
 

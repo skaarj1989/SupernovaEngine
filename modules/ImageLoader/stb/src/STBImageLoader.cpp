@@ -5,6 +5,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#include <format>
+
 std::expected<rhi::Texture, std::string>
 loadTextureSTB(const std::filesystem::path &p, rhi::RenderDevice &rd) {
   stbi_set_flip_vertically_on_load(false);

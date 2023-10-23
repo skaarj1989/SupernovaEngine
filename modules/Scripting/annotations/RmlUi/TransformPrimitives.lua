@@ -2,115 +2,115 @@
 
 ui.Transforms = {}
 
----@class ui.Transforms.NumericValue
+---@class ui.NumericValue
 ---@field number number
----@field unit ui.PropertyUnit
----@overload fun(): ui.Transforms.NumericValue
----@overload fun(number: number, unit: ui.PropertyUnit): ui.Transforms.NumericValue
-ui.Transforms.NumericValue = {}
+---@field unit ui.Unit
+---@overload fun(): ui.NumericValue
+---@overload fun(number: number, unit: ui.Unit): ui.NumericValue
+ui.NumericValue = {}
 
 ---@class ui.Transforms.Matrix2D
----@overload fun(values: ui.Transforms.NumericValue[]): ui.Transforms.Matrix2D
+---@overload fun(values: ui.NumericValue[]): ui.Transforms.Matrix2D
 ui.Transforms.Matrix2D = {}
 
 ---@class ui.Transforms.Matrix3D
----@overload fun(values: ui.Transforms.NumericValue[]): ui.Transforms.Matrix3D
+---@overload fun(values: ui.NumericValue[]): ui.Transforms.Matrix3D
 ui.Transforms.Matrix3D = {}
 
 ---@class ui.Transforms.TranslateX
----@overload fun(values: ui.Transforms.NumericValue[]): ui.Transforms.TranslateX
----@overload fun(x: number, unit: ui.PropertyUnit): ui.Transforms.TranslateX
+---@overload fun(values: ui.NumericValue[]): ui.Transforms.TranslateX
+---@overload fun(x: number, unit: ui.Unit): ui.Transforms.TranslateX
 ui.Transforms.TranslateX = {}
 
 ---@class ui.Transforms.TranslateY
----@overload fun(values: ui.Transforms.NumericValue[]): ui.Transforms.TranslateY
----@overload fun(x: number, unit: ui.PropertyUnit): ui.Transforms.TranslateY
+---@overload fun(values: ui.NumericValue[]): ui.Transforms.TranslateY
+---@overload fun(x: number, unit: ui.Unit): ui.Transforms.TranslateY
 ui.Transforms.TranslateY = {}
 
 ---@class ui.Transforms.TranslateZ
----@overload fun(values: ui.Transforms.NumericValue[]): ui.Transforms.TranslateZ
----@overload fun(x: number, unit: ui.PropertyUnit): ui.Transforms.TranslateZ
+---@overload fun(values: ui.NumericValue[]): ui.Transforms.TranslateZ
+---@overload fun(x: number, unit: ui.Unit): ui.Transforms.TranslateZ
 ui.Transforms.TranslateZ = {}
 
 ---@class ui.Transforms.Translate2D
----@overload fun(values: ui.Transforms.NumericValue[]): ui.Transforms.Translate2D
----@overload fun(x: number, y: number, unit: ui.PropertyUnit): ui.Transforms.Translate2D
+---@overload fun(values: ui.NumericValue[]): ui.Transforms.Translate2D
+---@overload fun(x: number, y: number, unit: ui.Unit): ui.Transforms.Translate2D
 ui.Transforms.Translate2D = {}
 
 ---@class ui.Transforms.Translate3D
----@overload fun(values: ui.Transforms.NumericValue[]): ui.Transforms.Translate3D
----@overload fun(x: number, y: number, z: number, unit: ui.PropertyUnit): ui.Transforms.Translate3D
+---@overload fun(values: ui.NumericValue[]): ui.Transforms.Translate3D
+---@overload fun(x: number, y: number, z: number, unit: ui.Unit): ui.Transforms.Translate3D
 ui.Transforms.Translate3D = {}
 
 ---@class ui.Transforms.ScaleX
----@overload fun(values: ui.Transforms.NumericValue[]): ui.Transforms.ScaleX
+---@overload fun(values: ui.NumericValue[]): ui.Transforms.ScaleX
 ---@overload fun(values: number): ui.Transforms.ScaleX
 ui.Transforms.ScaleX = {}
 
 ---@class ui.Transforms.ScaleY
----@overload fun(values: ui.Transforms.NumericValue[]): ui.Transforms.ScaleY
+---@overload fun(values: ui.NumericValue[]): ui.Transforms.ScaleY
 ---@overload fun(values: number): ui.Transforms.ScaleY
 ui.Transforms.ScaleY = {}
 
 ---@class ui.Transforms.ScaleZ
----@overload fun(values: ui.Transforms.NumericValue[]): ui.Transforms.ScaleZ
+---@overload fun(values: ui.NumericValue[]): ui.Transforms.ScaleZ
 ---@overload fun(values: number): ui.Transforms.ScaleZ
 ui.Transforms.ScaleZ = {}
 
 ---@class ui.Transforms.Scale2D
----@overload fun(values: ui.Transforms.NumericValue[]): ui.Transforms.Scale2D
+---@overload fun(values: ui.NumericValue[]): ui.Transforms.Scale2D
 ---@overload fun(xy: number): ui.Transforms.Scale2D
 ---@overload fun(x: number, y: number): ui.Transforms.Scale2D
 ui.Transforms.Scale2D = {}
 
 ---@class ui.Transforms.Scale3D
----@overload fun(values: ui.Transforms.NumericValue[]): ui.Transforms.Scale3D
+---@overload fun(values: ui.NumericValue[]): ui.Transforms.Scale3D
 ---@overload fun(xyz: number): ui.Transforms.Scale3D
 ---@overload fun(x: number, y: number, z: number): ui.Transforms.Scale3D
 ui.Transforms.Scale3D = {}
 
 ---@class ui.Transforms.RotateX
----@overload fun(values: ui.Transforms.NumericValue[]): ui.Transforms.RotateX
----@overload fun(angle: number, unit: ui.PropertyUnit): ui.Transforms.RotateX
+---@overload fun(values: ui.NumericValue[]): ui.Transforms.RotateX
+---@overload fun(angle: number, unit: ui.Unit): ui.Transforms.RotateX
 ui.Transforms.RotateX = {}
 
 ---@class ui.Transforms.RotateY
----@overload fun(values: ui.Transforms.NumericValue[]): ui.Transforms.RotateY
----@overload fun(angle: number, unit: ui.PropertyUnit): ui.Transforms.RotateY
+---@overload fun(values: ui.NumericValue[]): ui.Transforms.RotateY
+---@overload fun(angle: number, unit: ui.Unit): ui.Transforms.RotateY
 ui.Transforms.RotateY = {}
 
 ---@class ui.Transforms.RotateZ
----@overload fun(values: ui.Transforms.NumericValue[]): ui.Transforms.RotateZ
----@overload fun(angle: number, unit: ui.PropertyUnit): ui.Transforms.RotateZ
+---@overload fun(values: ui.NumericValue[]): ui.Transforms.RotateZ
+---@overload fun(angle: number, unit: ui.Unit): ui.Transforms.RotateZ
 ui.Transforms.RotateZ = {}
 
 ---@class ui.Transforms.Rotate2D
----@overload fun(values: ui.Transforms.NumericValue[]): ui.Transforms.Rotate2D
----@overload fun(angle: number, unit: ui.PropertyUnit): ui.Transforms.Rotate2D
+---@overload fun(values: ui.NumericValue[]): ui.Transforms.Rotate2D
+---@overload fun(angle: number, unit: ui.Unit): ui.Transforms.Rotate2D
 ui.Transforms.Rotate2D = {}
 
 ---@class ui.Transforms.Rotate3D
----@overload fun(values: ui.Transforms.NumericValue[]): ui.Transforms.Rotate3D
----@overload fun(xy: number, y: number, z: number, angle: number, unit: ui.PropertyUnit): ui.Transforms.Rotate3D
+---@overload fun(values: ui.NumericValue[]): ui.Transforms.Rotate3D
+---@overload fun(xy: number, y: number, z: number, angle: number, unit: ui.Unit): ui.Transforms.Rotate3D
 ui.Transforms.Rotate3D = {}
 
 ---@class ui.Transforms.SkewX
----@overload fun(values: ui.Transforms.NumericValue[]): ui.Transforms.SkewX
----@overload fun(angle: number, unit: ui.PropertyUnit): ui.Transforms.SkewX
+---@overload fun(values: ui.NumericValue[]): ui.Transforms.SkewX
+---@overload fun(angle: number, unit: ui.Unit): ui.Transforms.SkewX
 ui.Transforms.SkewX = {}
 
 ---@class ui.Transforms.SkewY
----@overload fun(values: ui.Transforms.NumericValue[]): ui.Transforms.SkewY
----@overload fun(angle: number, unit: ui.PropertyUnit): ui.Transforms.SkewY
+---@overload fun(values: ui.NumericValue[]): ui.Transforms.SkewY
+---@overload fun(angle: number, unit: ui.Unit): ui.Transforms.SkewY
 ui.Transforms.SkewY = {}
 
 ---@class ui.Transforms.Skew2D
----@overload fun(values: ui.Transforms.NumericValue[]): ui.Transforms.Skew2D
----@overload fun(x: number, y: number, unit: ui.PropertyUnit): ui.Transforms.Skew2D
+---@overload fun(values: ui.NumericValue[]): ui.Transforms.Skew2D
+---@overload fun(x: number, y: number, unit: ui.Unit): ui.Transforms.Skew2D
 ui.Transforms.Skew2D = {}
 
 ---@class ui.Transforms.Perspective
----@overload fun(values: ui.Transforms.NumericValue[]): ui.Transforms.Perspective
+---@overload fun(values: ui.NumericValue[]): ui.Transforms.Perspective
 ui.Transforms.Perspective = {}
 
 ---@class ui.Transforms.DecomposedMatrix4

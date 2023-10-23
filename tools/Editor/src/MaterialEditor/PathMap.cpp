@@ -5,7 +5,7 @@ PathMap::PathMap(const std::filesystem::path &root) : m_root{root} {}
 
 void PathMap::addPath(const rhi::ShaderType shaderType, int32_t nodeId,
                       const std::filesystem::path &p) {
-  auto relativePath = p.lexically_relative(m_root).string();
+  auto relativePath = p.lexically_relative(m_root).generic_string();
   const auto it = std::ranges::find(m_relativePaths, relativePath);
   const auto idx = it == m_relativePaths.cend()
                      ? _emplace(std::move(relativePath))

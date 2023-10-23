@@ -4,12 +4,24 @@
 namespace os {
 
 PhysicalFile::PhysicalFile(const std::filesystem::path &p) {
+#if _MSC_VER >= 1930
   const auto result = fopen_s(&m_file, p.string().c_str(), "rb");
   if (result == 0) _fetchSize();
+#else
+  m_file = fopen(p.string().c_str(), "rb");
+  if (m_file) _fetchSize();
+#endif
 }
 PhysicalFile::~PhysicalFile() { close(); }
 
-int32_t PhysicalFile::close() { return m_file ? fclose(m_file) : -1; }
+int32_t PhysicalFile::close() {
+  if (m_file) {
+    const auto result = fclose(m_file);
+    m_file = nullptr;
+    return result;
+  }
+  return -1;
+}
 
 bool PhysicalFile::isOpen() const { return m_file != nullptr; }
 std::size_t PhysicalFile::getSize() const { return m_size; }

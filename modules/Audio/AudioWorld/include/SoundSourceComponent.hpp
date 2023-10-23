@@ -1,5 +1,6 @@
 #pragma once
 
+#include "entt/core/type_info.hpp"
 #include "audio/Source.hpp"
 #include "SoundSettings.hpp"
 #include "AudioClipManager.hpp"
@@ -53,3 +54,9 @@ private:
 };
 
 static_assert(std::is_copy_constructible_v<SoundSourceComponent>);
+
+template <> struct entt::type_hash<SoundSourceComponent> {
+  [[nodiscard]] static constexpr entt::id_type value() noexcept {
+    return 106080820;
+  }
+};

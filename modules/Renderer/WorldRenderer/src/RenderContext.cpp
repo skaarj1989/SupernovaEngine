@@ -2,6 +2,7 @@
 #include "Batch.hpp"
 
 #include <ranges>
+#include <format>
 
 namespace gfx {
 

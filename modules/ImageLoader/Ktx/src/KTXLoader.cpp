@@ -5,6 +5,7 @@
 #include "ktxvulkan.h" // ktxTexture_GetVkFormat
 
 #include <numeric> // lcm
+#include <format>
 
 // https://github.com/KhronosGroup/KTX-Software/blob/master/lib/vkloader.c
 

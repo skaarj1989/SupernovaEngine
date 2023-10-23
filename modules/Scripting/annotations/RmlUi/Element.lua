@@ -72,11 +72,10 @@ function ui.Element:setClientArea(clientArea) end
 ---@return ui.BoxArea # The box area used as the element's client area.
 function ui.Element:getClientArea() end
 
----Sets the dimensions of the element's internal content. This is the tightest fitting box surrounding all of
----this element's logical children, plus the element's padding.
----@param contentOffset vec2 # The offset of the box's internal content.
----@param contentBox vec2 # The dimensions of the box's internal content.
-function ui.Element:setContentBox(contentOffset, contentBox) end
+---Sets the dimensions of the element's scrollable overflow rectangle. This is the tightest fitting box surrounding
+---all of this element's logical children, and the element's padding box.
+---@param scrollableOverflowRectangle ivec2 # The dimensions of the box's scrollable content.
+function ui.Element:setScrollableOverflowRectangle(scrollableOverflowRectangle) end
 
 ---Sets the box describing the size of the element, and removes all others.
 ---@param box ui.Box # The new dimensions box for the element.
@@ -108,6 +107,10 @@ function ui.Element:getBaseline() end
 ---@return vec2 dimensions # The dimensions to size, if appropriate.
 ---@return number ratio # The intrinsic ratio (width/height), if appropriate.
 function ui.Element:getIntrinsicDimensions() end
+
+---Returns true if the element is replaced, thereby handling its own rendering.
+---@return boolean # True if the element is a replaced element.
+function ui.Element:isReplaced() end
 
 ---Checks if a given point in screen coordinates lies within the bordered area of this element.
 ---@param point vec2 # The point to test.
@@ -148,12 +151,18 @@ function ui.Element:getProperty(name) end
 ---@return ui.Property # The value of this property for this element, or nullptr if this property has not been explicitly defined for this element.
 function ui.Element:getLocalProperty(name) end
 
----Resolves a property with units of number, percentage, length, or angle to their canonical unit (unit-less, 'px', or 'rad').
+---Resolves a length to its canonical unit ('px').
+---@param value ui.NumericValue # The numeric value.
+---@return number # The resolved value in their canonical unit, or zero if it could not be resolved.
+---Font-relative and context-relative units will be resolved against this element's computed values and its context.
+function ui.Element:resolveLength(value) end
+
+---Resolves a numeric value with units of number, percentage, length, or angle to their canonical unit (unit-less, 'px', or 'rad').
 ---Numbers and percentages are scaled by the base value and returned.
----@param property ui.Property # The property to resolve the value for.
+---@param value ui.NumericValue # The value to be resolved.
 ---@param baseValue number # The value that is scaled by the number or percentage value, if applicable.
 ---@return number # The resolved value in their canonical unit, or zero if it could not be resolved.
-function ui.Element:resolveNumericProperty(property, baseValue) end
+function ui.Element:resolveNumericValue(value, baseValue) end
 
 ---Returns the size of the containing block. Often percentages are scaled relative to this.
 ---@return vec2

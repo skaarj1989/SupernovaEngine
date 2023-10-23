@@ -327,13 +327,11 @@ target_link_libraries(Editor
 
 if(MSVC)
   target_compile_options(Editor PRIVATE /bigobj)
-else()
-  target_compile_options(Editor PRIVATE -Wa,-mbig-obj)
 endif()
 
 set_target_properties(Editor PROPERTIES
   FOLDER "Tools"
-  VS_DEBUGGER_COMMAND_ARGUMENTS "../../../projects/Samples/Samples.project"
+  VS_DEBUGGER_COMMAND_ARGUMENTS "../../projects/Samples/Samples.project"
 )
 group_msvc_project(TARGET Editor)
 set_debugger_working_directory(Editor)

@@ -2,6 +2,8 @@
 
 #include "DataStream.hpp"
 #include <filesystem>
+#include <vector>
+#include <optional>
 #include <expected>
 
 namespace os {

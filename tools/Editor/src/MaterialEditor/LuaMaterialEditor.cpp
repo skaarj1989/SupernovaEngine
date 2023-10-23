@@ -8,8 +8,10 @@
 
 #include "entt/core/hashed_string.hpp"
 
+#include <format>
+
 #define MAKE_PAIR(EnumClass, Value)                                            \
-  { #Value, EnumClass::##Value }
+  { #Value, EnumClass::Value }
 
 namespace {
 
@@ -182,7 +184,7 @@ using ParameterVariant = Parameter::Variant;
 
 template <typename T>
 [[nodiscard]] std::expected<ParameterVariant, std::string> tryGet(auto &t) {
-  if (auto temp = t.get<sol::optional<T>>(); temp) {
+  if (auto temp = t.template get<sol::optional<T>>(); temp) {
     if constexpr (std::is_enum_v<T>) {
       if (isOutOfRange(*temp)) {
         return std::unexpected{"Enum value out of range."};
@@ -273,7 +275,7 @@ void registerFunctionInfo(sol::state &lua) {
     sol::meta_function::to_string, []{ return "Parameter"; }
   );
 
-  constexpr auto makeGuid = [](const std::string &name) {
+  static constexpr auto makeGuid = [](const std::string &name) {
     return entt::hashed_string{name.c_str()}.value();
   };
 
@@ -363,7 +365,7 @@ loadFunction(const std::filesystem::path &p, sol::state &lua) {
     return std::pair{data->guid, std::move(*data)};
   } else {
     return std::unexpected{
-      std::format("{}: Invalid data structure.", p.lexically_normal().string()),
+      std::format("{}: Invalid data structure.", p.generic_string()),
     };
   }
 }

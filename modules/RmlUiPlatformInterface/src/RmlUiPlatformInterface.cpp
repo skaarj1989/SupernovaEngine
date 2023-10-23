@@ -1,4 +1,5 @@
 #include "RmlUiPlatformInterface.hpp"
+#include "os/Platform.hpp"
 #include "os/FileSystem.hpp"
 #include "VisitorHelper.hpp"
 #include "RmlUi/Core/Context.h"
@@ -10,8 +11,15 @@
 RmlUiSystemInterface::RmlUiSystemInterface() { m_start = clock::now(); }
 
 double RmlUiSystemInterface::GetElapsedTime() {
-  using fsec = std::chrono::duration<double>;
-  return fsec{clock::now() - m_start}.count();
+  using dsec = std::chrono::duration<double>;
+  return dsec{clock::now() - m_start}.count();
+}
+
+void RmlUiSystemInterface::SetClipboardText(const Rml::String &in) {
+  os::Platform::setClipboardText(in);
+}
+void RmlUiSystemInterface::GetClipboardText(Rml::String &out) {
+  out = os::Platform::getClipboardText();
 }
 
 //

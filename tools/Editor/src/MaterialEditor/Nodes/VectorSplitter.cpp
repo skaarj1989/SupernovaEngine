@@ -1,6 +1,7 @@
 #include "MaterialEditor/Nodes/VectorSplitter.hpp"
 #include "NodesInternal.hpp"
 #include "MaterialEditor/MaterialGenerationContext.hpp"
+#include <format>
 
 VectorSplitterNode VectorSplitterNode::create(ShaderGraph &g,
                                               VertexDescriptor parent) {

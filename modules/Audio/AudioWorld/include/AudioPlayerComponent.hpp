@@ -1,5 +1,6 @@
 #pragma once
 
+#include "entt/core/type_info.hpp"
 #include "audio/StreamPlayer.hpp"
 #include "SoundSettings.hpp"
 
@@ -43,3 +44,9 @@ private:
 };
 
 static_assert(std::is_copy_constructible_v<AudioPlayerComponent>);
+
+template <> struct entt::type_hash<AudioPlayerComponent> {
+  [[nodiscard]] static constexpr entt::id_type value() noexcept {
+    return 2315303163;
+  }
+};

@@ -11,7 +11,7 @@
 namespace {
 
 [[nodiscard]] auto getScriptTemplateCode() {
-  constexpr auto kTemplateScriptPath = "../assets/EntityScriptTemplate.lua";
+  constexpr auto kTemplateScriptPath = "./assets/EntityScriptTemplate.lua";
   return os::FileSystem::readText(kTemplateScriptPath).value_or("");
 }
 [[nodiscard]] auto createScriptFromTemplate(const std::filesystem::path &p) {
@@ -36,7 +36,7 @@ void SceneEditor::_onInspect(entt::handle h, const ScriptComponent &c) {
     ImGui::EndDragDropTarget();
   }
 
-  constexpr auto kCreateScriptModalId = "CreateScript";
+  static constexpr auto kCreateScriptModalId = "CreateScript";
 
   std::optional<const char *> action{};
   attachPopup(IM_UNIQUE_ID, ImGuiMouseButton_Right,

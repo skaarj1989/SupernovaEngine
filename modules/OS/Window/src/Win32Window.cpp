@@ -128,15 +128,15 @@ Window &Window::operator=(Window &&rhs) noexcept {
   return *this;
 }
 
-Window &Window::setPosition(glm::ivec2 position) {
+Window &Window::setPosition(const Position position) {
   assert(isOpen());
   ::SetWindowPos(m_native.hWnd, nullptr, position.x, position.y, -1, -1,
                  SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE);
   return *this;
 }
-Window &Window::setSize(glm::ivec2 size) {
+Window &Window::setExtent(const Extent extent) {
   assert(isOpen());
-  ::SetWindowPos(m_native.hWnd, nullptr, -1, -1, size.x, size.y,
+  ::SetWindowPos(m_native.hWnd, nullptr, -1, -1, extent.x, extent.y,
                  SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
   return *this;
 }
@@ -158,28 +158,35 @@ Window &Window::setCaption(const std::string_view caption) {
   return *this;
 }
 
-glm::ivec2 Window::getPosition() const {
+Window::Position Window::getPosition(const Area area) const {
   assert(isOpen());
-  POINT pt{0, 0};
-  ::ClientToScreen(m_native.hWnd, &pt);
-  return {pt.x, pt.y};
+  if (area == Area::Client) {
+    POINT pt{0, 0};
+    ::ClientToScreen(m_native.hWnd, &pt);
+    return {pt.x, pt.y};
+  } else {
+    return {m_bounds.left, m_bounds.top};
+  }
 }
-glm::ivec2 Window::getSize() const {
+Window::Extent Window::getExtent(const Area area) const {
   assert(isOpen());
-  return {
-    m_bounds.right - m_bounds.left,
-    m_bounds.bottom - m_bounds.top,
-  };
+  return area == Area::Client ? Extent{m_clientSize.cx, m_clientSize.cy}
+                              : Extent{
+                                  m_bounds.right - m_bounds.left,
+                                  m_bounds.bottom - m_bounds.top,
+                                };
 }
-glm::uvec2 Window::getClientSize() const {
-  assert(isOpen());
-  return {m_clientSize.cx, m_clientSize.cy};
-}
+float Window::getAlpha() const { return m_alpha; }
 
 bool Window::isOpen() const { return ::IsWindow(m_native.hWnd); }
-bool Window::isMinimized() const {
-  assert(isOpen());
-  return ::IsIconic(m_native.hWnd);
+Window::State Window::getState() const {
+  using enum State;
+  if (::IsIconic(m_native.hWnd)) {
+    return Minimized;
+  } else if (::GetWindowLong(m_native.hWnd, GWL_STYLE) & WS_MAXIMIZE) {
+    return Maximized;
+  }
+  return Windowed;
 }
 bool Window::hasFocus() const {
   assert(isOpen());
@@ -225,9 +232,10 @@ void Window::close() {
 // (private):
 //
 
-Window::Window(HWND parent, RECT rect, DWORD style, DWORD exStyle,
+Window::Window(const Window *parent, const Position position,
+               const Extent extent, const float alpha,
                const std::string_view caption) {
-  assert(parent == HWND_DESKTOP || ::IsWindow(parent));
+  assert(!parent || parent->isOpen());
 
   static const WNDCLASSEX windowClass{
     .cbSize = sizeof(WNDCLASSEX),
@@ -243,6 +251,14 @@ Window::Window(HWND parent, RECT rect, DWORD style, DWORD exStyle,
   static const ATOM id = ::RegisterClassEx(&windowClass);
   assert(id != 0);
 
+  RECT rect{
+    position.x,
+    position.y,
+    position.x + extent.x,
+    position.y + extent.y,
+  };
+  const DWORD style{parent ? WS_POPUP : WS_OVERLAPPEDWINDOW};
+  const DWORD exStyle{WS_EX_APPWINDOW | WS_EX_LAYERED};
   if (style & WS_POPUP) ::AdjustWindowRectEx(&rect, style, FALSE, exStyle);
 
   // clang-format off
@@ -255,7 +271,7 @@ Window::Window(HWND parent, RECT rect, DWORD style, DWORD exStyle,
     rect.top,               // y
     rect.right - rect.left, // width
     rect.bottom - rect.top, // height
-    parent,
+    parent ? parent->m_native.hWnd : HWND_DESKTOP,
     nullptr,                // hMenu
     windowClass.hInstance,
     this
@@ -269,7 +285,7 @@ Window::Window(HWND parent, RECT rect, DWORD style, DWORD exStyle,
   retrieveBounds(m_native.hWnd, m_bounds, m_clientSize);
 
   setDarkMode(m_native.hWnd);
-  setAlpha(1.0f);
+  setAlpha(alpha);
 }
 
 LRESULT Window::_wndProcRouter(HWND hWnd, UINT uMsg, WPARAM wParam,
@@ -310,7 +326,7 @@ LRESULT Window::_wndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
   case WM_SIZE:
     retrieveBounds(hWnd, m_bounds, m_clientSize);
     if (contains<ResizeWindowEvent>()) {
-      publish(ResizeWindowEvent{getClientSize()});
+      publish(ResizeWindowEvent{getExtent()});
       return 0;
     }
     break;
@@ -492,13 +508,10 @@ void Window::_destroy() {
 // Utility:
 //
 
-uint32_t pollEvents(const Window *window) {
-  assert(!window || window->isOpen());
-
+uint32_t pollEvents() {
   MSG msg{};
   uint32_t count{0};
-  while (::PeekMessage(&msg, window ? window->getNativeData().hWnd : nullptr,
-                       0u, 0u, PM_REMOVE)) {
+  while (::PeekMessage(&msg, nullptr, 0u, 0u, PM_REMOVE)) {
     ::TranslateMessage(&msg);
     ::DispatchMessage(&msg);
 

@@ -53,7 +53,8 @@ private:
       ScriptListener(entt::dispatcher &dispatcher, const sol::function &f)
           : callback{f} {
         connection =
-          dispatcher.sink<Event>().connect<&ScriptListener::receive>(*this);
+          dispatcher.sink<Event>().template connect<&ScriptListener::receive>(
+            *this);
       }
       ScriptListener(const ScriptListener &) = delete;
       ScriptListener(ScriptListener &&) noexcept = default;

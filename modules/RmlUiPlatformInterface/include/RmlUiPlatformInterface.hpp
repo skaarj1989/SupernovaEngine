@@ -11,6 +11,9 @@ public:
 
   double GetElapsedTime() override;
 
+  void SetClipboardText(const Rml::String &) override;
+  void GetClipboardText(Rml::String &) override;
+
 private:
   using clock = std::chrono::high_resolution_clock;
   clock::time_point m_start;

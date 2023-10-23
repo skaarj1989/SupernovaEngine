@@ -6,6 +6,8 @@
 #include "FrameGraphResourceAccess.hpp"
 #include "RenderContext.hpp"
 
+#include <format>
+
 // https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VkAccessFlagBits.html
 
 namespace gfx {

@@ -104,7 +104,7 @@ void registerAudioDevice(sol::state &lua) {
 #undef BIND
 
 #define CAPTURE_FIELD(name, defaultValue)                                      \
-  .##name = t.get_or(#name, defaultValue)
+  .name = t.get_or(#name, defaultValue)
 
 #define BIND(Member) _BIND(Device::Settings, Member)
   m["Device"].get<sol::table>().new_usertype<Device::Settings>("Settings",

@@ -38,7 +38,6 @@ enum class AllocationHints {
   MinMemory = 1 << 0,
   SequentialWrite = 1 << 1,
 };
-template <> struct has_flags<AllocationHints> : std::true_type {};
 
 class RenderDevice final {
   friend class GraphicsPipeline; // Uses m_logicalDevice and m_pipelineCache.
@@ -57,7 +56,7 @@ public:
 
   [[nodiscard]] std::string getName() const;
 
-  [[noidscard]] PhysicalDeviceInfo getPhysicalDeviceInfo() const;
+  [[nodiscard]] PhysicalDeviceInfo getPhysicalDeviceInfo() const;
 
   [[nodiscard]] const VkPhysicalDeviceLimits &getDeviceLimits() const;
   [[nodiscard]] const VkPhysicalDeviceFeatures &getDeviceFeatures() const;
@@ -222,3 +221,5 @@ template <class T, class... Args>
 }
 
 } // namespace rhi
+
+template <> struct has_flags<rhi::AllocationHints> : std::true_type {};

@@ -1,6 +1,7 @@
 #include "MaterialEditor/Nodes/MatrixSplitter.hpp"
 #include "NodesInternal.hpp"
 #include "MaterialEditor/MaterialGenerationContext.hpp"
+#include <format>
 
 namespace {
 

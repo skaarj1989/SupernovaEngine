@@ -3,6 +3,8 @@
 #include "MaterialEditor/MaterialGenerationContext.hpp"
 #include "MaterialEditor/ChangeEnumCombo.hpp"
 
+#include <format>
+
 namespace {
 
 [[nodiscard]] auto makeHash(DataType lhs, ArithmeticNode::Operation op,

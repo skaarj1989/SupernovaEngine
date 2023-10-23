@@ -4,6 +4,8 @@
 #include "Resource.hpp"
 #include "Sol2HelperMacros.hpp"
 
+#include <format>
+
 void registerResource(sol::state &lua) {
   // clang-format off
   DEFINE_USERTYPE(Resource,

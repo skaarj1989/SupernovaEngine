@@ -8,6 +8,7 @@
 #include "Rml2glm.hpp"
 
 #include "Sol2HelperMacros.hpp"
+#include <format>
 
 using namespace Rml;
 
@@ -61,7 +62,7 @@ void registerElement(sol::table &lua) {
       [](Element &self) {
         return to_glm(self.GetRelativeOffset());
       },
-      [](Element &self, Box::Area area) {
+      [](Element &self, BoxArea area) {
         return to_glm(self.GetRelativeOffset(area));
       }
     ),
@@ -69,7 +70,7 @@ void registerElement(sol::table &lua) {
       [](Element &self) {
         return to_glm(self.GetAbsoluteOffset());
       },
-      [](Element &self, Box::Area area) {
+      [](Element &self, BoxArea area) {
         return to_glm(self.GetAbsoluteOffset(area));
       }
     ),
@@ -77,10 +78,7 @@ void registerElement(sol::table &lua) {
     "setClientArea", &Element::SetClientArea,
     "getClientArea", &Element::GetClientArea,
 
-    "setContentBox",
-      [](Element &self, const glm::vec2 offset, const glm::vec2 box) {
-        self.SetContentBox(to_Rml(offset), to_Rml(box));
-      },
+    "setScrollableOverflowRectangle", &Element::SetScrollableOverflowRectangle, 
     "setBox", &Element::SetBox,
     "addBox", [](Element &self, const Box &box, const glm::vec2 offset) {
       self.AddBox(box, to_Rml(offset));
@@ -102,6 +100,7 @@ void registerElement(sol::table &lua) {
       auto rv = self.GetIntrinsicDimensions(dimensions_, ratio);
       return std::tuple{rv, to_glm(dimensions_), ratio};
     },
+    "isReplaced", &Element::IsReplaced,
 
     "isPointWithinElement", [](Element &self, const glm::vec2 v) {
       return self.IsPointWithinElement(to_Rml(v));
@@ -132,14 +131,8 @@ void registerElement(sol::table &lua) {
       sol::resolve<const Property *(PropertyId)>(&Element::GetLocalProperty)
     ),
     
-    "resolveNumericProperty", sol::overload(
-      [](Element &self, const Property *property, float baseValue) {
-        self.ResolveNumericProperty(property, baseValue);
-      },
-      [](Element &self, const String &name) {
-        self.ResolveNumericProperty(name);
-      }
-    ),
+    "resolveLength", &Element::ResolveLength,
+    "resolveNumericValue", &Element::ResolveNumericValue,
 
     "getContainingBlock", [](Element &self) {
       return to_glm(self.GetContainingBlock());

@@ -1,3 +1,5 @@
+find_package(EnTT REQUIRED)
+
 add_library(LuaEntity "include/LuaEntity.hpp" "src/LuaEntity.cpp")
 target_include_directories(LuaEntity PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(LuaEntity

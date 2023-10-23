@@ -1,5 +1,6 @@
 #pragma once
 
+#include "entt/core/type_info.hpp"
 #include "math/Sphere.hpp"
 #include "math/Cone.hpp"
 #include "rhi/CubeFace.hpp"
@@ -59,3 +60,9 @@ buildPointLightMatrix(rhi::CubeFace, const glm::vec3 &position, float radius);
 [[nodiscard]] float calculateLightRadius(const glm::vec3 &lightColor);
 
 } // namespace gfx
+
+template <> struct entt::type_hash<gfx::Light> {
+  [[nodiscard]] static constexpr entt::id_type value() noexcept {
+    return 1608732653;
+  }
+};

@@ -2,6 +2,8 @@
 #include "VariantCast.hpp"
 #include "NodesInternal.hpp"
 #include "MaterialEditor/MaterialGenerationContext.hpp"
+#include <ranges>
+#include <format>
 
 namespace {
 

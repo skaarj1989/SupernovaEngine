@@ -20,8 +20,9 @@ enum class ShaderStages : VkShaderStageFlags {
   Fragment = VK_SHADER_STAGE_FRAGMENT_BIT,
   Compute = VK_SHADER_STAGE_COMPUTE_BIT
 };
-template <> struct has_flags<ShaderStages> : std::true_type {};
 
 [[nodiscard]] ShaderStages getStage(ShaderType);
 
 } // namespace rhi
+
+template <> struct has_flags<rhi::ShaderStages> : std::true_type {};

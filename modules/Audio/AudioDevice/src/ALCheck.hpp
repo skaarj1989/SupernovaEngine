@@ -4,6 +4,6 @@
 
 #define AL_CHECK(fn)                                                           \
   do {                                                                         \
-    ##fn;                                                                      \
+    fn;                                                                        \
     assert(alGetError() == AL_NO_ERROR);                                       \
   } while (false)

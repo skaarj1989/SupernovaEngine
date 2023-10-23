@@ -96,3 +96,9 @@ private:
 static_assert(std::is_copy_constructible_v<MeshInstance>);
 
 } // namespace gfx
+
+template <> struct entt::type_hash<gfx::MeshInstance> {
+  [[nodiscard]] static constexpr entt::id_type value() noexcept {
+    return 3477267598;
+  }
+};

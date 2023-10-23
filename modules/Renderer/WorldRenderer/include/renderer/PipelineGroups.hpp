@@ -13,6 +13,7 @@ enum class PipelineGroups {
 
   All = AllMaterials | BuiltIn,
 };
-template <> struct has_flags<PipelineGroups> : std::true_type {};
 
 } // namespace gfx
+
+template <> struct has_flags<gfx::PipelineGroups> : std::true_type {};

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderDoc.hpp"
+#include "os/Platform.hpp"
 #include "rhi/FrameController.hpp"
 #include "os/InputSystem.hpp"
 #include "spdlog/spdlog.h"
@@ -57,6 +58,7 @@ private:
 private:
   bool m_quit{false};
 
+  os::Platform m_platform;
   os::Window m_window;
   std::unique_ptr<rhi::RenderDevice> m_renderDevice;
   rhi::Swapchain m_swapchain;

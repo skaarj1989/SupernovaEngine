@@ -1,5 +1,6 @@
 #pragma once
 
+#include "entt/core/type_info.hpp"
 #include "ScriptManager.hpp"
 #include "entt/entity/handle.hpp"
 #include "ScriptNode.hpp"
@@ -41,3 +42,9 @@ private:
 };
 
 static_assert(std::is_copy_constructible_v<ScriptComponent>);
+
+template <> struct entt::type_hash<ScriptComponent> {
+  [[nodiscard]] static constexpr entt::id_type value() noexcept {
+    return 1680050497;
+  }
+};

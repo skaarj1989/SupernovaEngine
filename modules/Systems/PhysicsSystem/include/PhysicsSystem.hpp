@@ -30,11 +30,11 @@ struct PhysicsSystem {
 
   template <class Archive> static void save(Archive &archive) {
     auto &[registry, _] = cereal::get_user_data<OutputContext>(archive);
-    archive(registry.ctx().get<PhysicsWorld>());
+    archive(registry.ctx().template get<PhysicsWorld>());
   }
   template <class Archive> static void load(Archive &archive) {
     auto &[registry, _] = cereal::get_user_data<InputContext>(archive);
-    archive(registry.ctx().get<PhysicsWorld>());
+    archive(registry.ctx().template get<PhysicsWorld>());
   }
 };
 

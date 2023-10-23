@@ -4,6 +4,7 @@
 #include "ImGuiTitleBarMacro.hpp"
 #include "IconsFontAwesome6.h"
 #include "ImGuiModal.hpp"
+#include <variant>
 
 template <class Cache> void defaultMenuBar(Cache &cache) {
   if (ImGui::BeginMenuBar()) {
@@ -71,9 +72,10 @@ void view(Cache &cache, OnDragCallback onDrag, TooltipCallback tooltip,
       }
 
       ImGui::TableSetColumnIndex(1);
-      ImGui::Text(resource->isVirtual()
-                    ? "--"
-                    : os::FileSystem::relativeToRoot(path)->string().c_str());
+      ImGui::Text(
+        resource->isVirtual()
+          ? "--"
+          : os::FileSystem::relativeToRoot(path)->generic_string().c_str());
 
       ImGui::TableSetColumnIndex(2);
 

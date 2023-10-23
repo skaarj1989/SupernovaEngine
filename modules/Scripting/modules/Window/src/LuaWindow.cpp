@@ -246,21 +246,26 @@ void registerWindow(sol::state &lua) {
     sol::no_constructor,
 
     BIND(setPosition),
-    BIND(setSize),
+    BIND(setExtent),
     BIND(setAlpha),
     
     BIND(setCaption),
 
     // ---
 
-    BIND(getPosition),
-    BIND(getSize),
-    BIND(getClientSize),
+    "getPosition", sol::overload(
+      [](const Window &self) { return self.getPosition(); },
+      sol::resolve<glm::ivec2(const Window::Area) const>(&Window::getPosition)
+    ),
+    "getExtent", sol::overload(
+      [](const Window &self) { return self.getExtent(); },
+      sol::resolve<glm::ivec2(const Window::Area) const>(&Window::getExtent)
+    ),
     BIND(getCaption),
 
     // ---
 
-    BIND(isMinimized),
+    BIND(getState),
     BIND(hasFocus),
 
     // ---
@@ -277,8 +282,15 @@ void registerWindow(sol::state &lua) {
 
     BIND_TOSTRING(Window)
   );
-  // clang-format on
+
+#define MAKE_PAIR(Value) _MAKE_PAIR(Window::Area, Value)
+  lua["Window"].get<sol::table>().new_enum<Window::Area>("Area", {
+    MAKE_PAIR(Client),
+    MAKE_PAIR(Absolute),
+  });
+#undef MAKE_PAIR
 #undef BIND
+  // clang-format on
 
   registerFreeFunctions(lua);
 }

@@ -258,33 +258,29 @@ void registerStyleTypes(sol::table &lua) {
 
 void registerBox(sol::table &lua) {
   // clang-format off
-  using BoxArea = Box::Area;
 #define MAKE_PAIR(Value) _MAKE_PAIR(BoxArea, Value)
   DEFINE_ENUM(BoxArea, {
-    MAKE_PAIR(MARGIN),
-    MAKE_PAIR(BORDER),
-    MAKE_PAIR(PADDING),
-    MAKE_PAIR(CONTENT),
-    MAKE_PAIR(NUM_AREAS),
+    MAKE_PAIR(Margin),
+    MAKE_PAIR(Border),
+    MAKE_PAIR(Padding),
+    MAKE_PAIR(Content),
+    MAKE_PAIR(Auto),
   });
 #undef MAKE_PAIR
 
-  using BoxEdge = Box::Edge;
 #define MAKE_PAIR(Value) _MAKE_PAIR(BoxEdge, Value)
   DEFINE_ENUM(BoxEdge, {
-    MAKE_PAIR(TOP),
-    MAKE_PAIR(RIGHT),
-    MAKE_PAIR(BOTTOM),
-    MAKE_PAIR(LEFT),
-    MAKE_PAIR(NUM_EDGES),
+    MAKE_PAIR(Top),
+    MAKE_PAIR(Right),
+    MAKE_PAIR(Bottom),
+    MAKE_PAIR(Left),
   });
 #undef MAKE_PAIR
 
-  using BoxDirection = Box::Direction;
 #define MAKE_PAIR(Value) _MAKE_PAIR(BoxDirection, Value)
   DEFINE_ENUM(BoxDirection, {
-    MAKE_PAIR(VERTICAL),
-    MAKE_PAIR(HORIZONTAL),
+    MAKE_PAIR(Vertical),
+    MAKE_PAIR(Horizontal),
   });
 #undef MAKE_PAIR
 

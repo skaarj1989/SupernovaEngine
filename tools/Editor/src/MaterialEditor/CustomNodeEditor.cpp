@@ -3,6 +3,7 @@
 #include "ImGuiModal.hpp"
 #include "imgui_internal.h" // {Push/Pop}ItemFlag
 #include "imgui_stdlib.h"   // InputText{WithHint}
+#include <algorithm> // all_of
 #include <span>
 
 namespace {

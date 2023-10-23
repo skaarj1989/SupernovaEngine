@@ -82,7 +82,7 @@ void FileBrowserWidget::_viewDirectory(const std::filesystem::path &dir) {
       const auto payloadType = entry.is_directory() ? kImGuiPayloadTypeDirectory
                                                     : kImGuiPayloadTypeFile;
       const auto strPath =
-        os::FileSystem::relativeToRoot(entry.path())->string();
+        os::FileSystem::relativeToRoot(entry.path())->generic_string();
       ImGui::SetDragDropPayload(payloadType, strPath);
       ImGui::Text("%s %s", icon, strPath.c_str());
       ImGui::EndDragDropSource();

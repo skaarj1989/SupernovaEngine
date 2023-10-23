@@ -13,6 +13,14 @@ struct ListenerComponent {
   template <class Archive> void serialize(Archive &) {}
 };
 
+static_assert(std::is_copy_constructible_v<ListenerComponent>);
+
+template <> struct entt::type_hash<ListenerComponent> {
+  [[nodiscard]] static constexpr entt::id_type value() noexcept {
+    return 3293377831;
+  }
+};
+
 class AudioWorld {
 public:
   explicit AudioWorld(audio::Device &);

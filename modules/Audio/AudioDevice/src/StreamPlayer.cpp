@@ -39,8 +39,9 @@ fsec StreamPlayer::tell() const {
 }
 void StreamPlayer::seek(const fsec offset) {
   if (m_decoder) {
-    m_decoder->seek(std::clamp(
-      offset, fsec{0}, m_decoder->getInfo().duration() - fsec{FLT_EPSILON}));
+    m_decoder->seek(std::clamp(offset, fsec{0},
+                               m_decoder->getInfo().duration() -
+                                 fsec{std::numeric_limits<float>::epsilon()}));
   }
 }
 

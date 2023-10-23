@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PipelineGroups.hpp"
+#include <cstdint>
 
 namespace gfx {
 

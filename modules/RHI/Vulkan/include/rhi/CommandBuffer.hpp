@@ -152,9 +152,11 @@ private:
 
   bool m_insideRenderPass{false};
 };
-template <> struct has_flags<CommandBuffer::InvariantFlags> : std::true_type {};
 
 void prepareForAttachment(CommandBuffer &, const Texture &, bool readOnly);
 void prepareForReading(CommandBuffer &, const Texture &);
 
 } // namespace rhi
+
+template <>
+struct has_flags<rhi::CommandBuffer::InvariantFlags> : std::true_type {};

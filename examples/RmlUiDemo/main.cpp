@@ -7,12 +7,10 @@ public:
   DemoWindow(const Rml::String &title, Rml::Context &ctx) {
     using namespace Rml;
 
-    m_document = ctx.LoadDocument("../demo-assets/ui/animation.rml");
+    m_document = ctx.LoadDocument("./demo-assets/ui/animation.rml");
     if (!m_document) return;
 
     m_document->GetElementById("title")->SetInnerRML(title);
-
-    using Unit = Property::Unit;
 
     // Button fun
     {
@@ -154,7 +152,7 @@ public:
     };
     // clang-format on
     for (const auto filename : fonts) {
-      Rml::LoadFontFace(std::format("../demo-assets/ui/{}", filename));
+      Rml::LoadFontFace(std::format("./demo-assets/ui/{}", filename));
     }
     m_demoWindow =
       Rml::MakeUnique<DemoWindow>("Animation sample", getUiContext());

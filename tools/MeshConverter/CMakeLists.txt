@@ -19,12 +19,11 @@ set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT FALSE CACHE BOOL "")
 
 FetchContent_MakeAvailable(assimp)
 
-set_target_properties(
-  assimp
-  zlibstatic
-  UpdateAssimpLibsDebugSymbolsAndDLLs
-  PROPERTIES FOLDER "Third-party/assimp"
-)
+if (MSVC)
+  set_target_properties(assimp zlibstatic UpdateAssimpLibsDebugSymbolsAndDLLs
+    PROPERTIES FOLDER "Third-party/assimp"
+  )
+endif()
 
 add_executable(MeshConverter
   "src/main.cpp"

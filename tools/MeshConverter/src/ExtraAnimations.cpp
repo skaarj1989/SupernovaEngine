@@ -3,6 +3,7 @@
 #include "Logger.hpp"
 
 #include <expected>
+#include <utility>
 #include <cassert>
 
 namespace {

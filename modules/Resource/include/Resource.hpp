@@ -4,6 +4,7 @@
 #include "entt/resource/resource.hpp"
 #include "entt/locator/locator.hpp"
 #include <filesystem>
+#include <optional>
 
 class Resource {
 public:
@@ -24,7 +25,7 @@ public:
   [[nodiscard]] bool isVirtual() const;
   [[nodiscard]] const std::filesystem::path &getPath() const;
 
-  [[nodsicard]] bool operator==(const Resource &) const;
+  [[nodiscard]] bool operator==(const Resource &) const;
   [[nodiscard]] bool operator==(const std::filesystem::path &) const;
 
 private:

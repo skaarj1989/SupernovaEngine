@@ -11,6 +11,7 @@
 #include "renderer/jsonMaterial.hpp"
 
 #include <fstream> // ofstream
+#include <format>
 
 // https://assimp.sourceforge.net/lib_html/materials.html
 

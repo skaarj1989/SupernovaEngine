@@ -1,5 +1,6 @@
 #include "ScriptContext.hpp"
 #include "os/FileSystem.hpp"
+#include <format>
 
 ScriptContext::ScriptContext(sol::state &s)
     : lua{std::addressof(s)}, defaultEnv{*lua, sol::create, lua->globals()} {

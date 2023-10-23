@@ -34,14 +34,14 @@ public:
   template <class Archive> static void save(Archive &archive) {
     auto &[registry, _] = cereal::get_user_data<OutputContext>(archive);
     auto &ctx = registry.ctx();
-    archive(ctx.get<AABB>());
-    archive(ctx.get<MainCamera>().e);
+    archive(ctx.template get<AABB>());
+    archive(ctx.template get<MainCamera>().e);
   }
   template <class Archive> static void load(Archive &archive) {
     auto &[registry, _] = cereal::get_user_data<InputContext>(archive);
     auto &ctx = registry.ctx();
-    archive(ctx.get<AABB>());
-    archive(ctx.get<MainCamera>().e);
+    archive(ctx.template get<AABB>());
+    archive(ctx.template get<MainCamera>().e);
   }
 };
 
