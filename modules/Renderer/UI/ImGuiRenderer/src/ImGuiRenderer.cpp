@@ -77,10 +77,6 @@ namespace {
 }
 #endif
 
-[[nodiscard]] auto getDrawLists(const ImDrawData *drawData) {
-  return std::span{drawData->CmdLists, std::size_t(drawData->CmdListsCount)};
-}
-
 void uploadGeometry(const ImDrawData *drawData,
                     ImGuiRenderer::FrameResources &resources) {
   auto &[vertexBuffer, indexBuffer] = resources;
@@ -88,7 +84,7 @@ void uploadGeometry(const ImDrawData *drawData,
   auto *vertexDest = static_cast<ImDrawVert *>(vertexBuffer.map());
   auto *indexDest = static_cast<ImDrawIdx *>(indexBuffer.map());
 
-  for (const auto *cmdList : getDrawLists(drawData)) {
+  for (const auto *cmdList : drawData->CmdLists) {
     std::memcpy(vertexDest, cmdList->VtxBuffer.Data,
                 sizeof(ImDrawVert) * cmdList->VtxBuffer.Size);
     vertexDest += cmdList->VtxBuffer.Size;
@@ -175,7 +171,7 @@ void ImGuiRenderer::draw(rhi::CommandBuffer &cb, rhi::PixelFormat colorFormat,
 
   uint32_t globalVertexOffset{0};
   uint32_t globalIndexOffset{0};
-  for (const auto *cmdList : getDrawLists(drawData)) {
+  for (const auto *cmdList : drawData->CmdLists) {
     for (const auto &drawCmd : cmdList->CmdBuffer) {
       if (drawCmd.UserCallback != nullptr) {
         // User callback, registered via ImDrawList::AddCallback().

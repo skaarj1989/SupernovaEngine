@@ -46,6 +46,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(ImGuiCol_,
                                MAKE_COLOR_PAIR(TabActive),
                                MAKE_COLOR_PAIR(TabUnfocused),
                                MAKE_COLOR_PAIR(TabUnfocusedActive),
+                               MAKE_COLOR_PAIR(DockingPreview),
                                MAKE_COLOR_PAIR(DockingEmptyBg),
                                MAKE_COLOR_PAIR(PlotLines),
                                MAKE_COLOR_PAIR(PlotLinesHovered),
@@ -122,6 +123,7 @@ static void from_json(const nlohmann::json &j, ImGuiStyle &out) {
   GET_VALUE(SeparatorTextPadding, ImVec2{20.0f, 3.0f});
   GET_VALUE(DisplayWindowPadding, ImVec2{19, 19});
   GET_VALUE(DisplaySafeAreaPadding, ImVec2{3, 3});
+  GET_VALUE(DockingSeparatorSize, 2.0f);
   GET_VALUE(MouseCursorScale, 1.0f);
   GET_VALUE(AntiAliasedLines, true);
   GET_VALUE(AntiAliasedLinesUseTex, true);
@@ -185,6 +187,7 @@ static void to_json(nlohmann::ordered_json &j, const ImGuiStyle &in) {
     STORE_VALUE(SeparatorTextAlign),
     STORE_VALUE(SeparatorTextPadding),
     STORE_VALUE(DisplaySafeAreaPadding),
+    STORE_VALUE(DockingSeparatorSize),
     STORE_VALUE(MouseCursorScale),
     STORE_VALUE(AntiAliasedLines),
     STORE_VALUE(AntiAliasedLinesUseTex),
