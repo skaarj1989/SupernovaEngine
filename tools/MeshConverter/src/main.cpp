@@ -48,7 +48,69 @@ private:
 
 class App {
 public:
-  App() : m_program{_prepareParser()} {
+  App() {
+    m_program.add_argument("input")
+      .help("Input resource file")
+      .metavar("RESOURCE_PATH")
+      .required();
+
+    m_program.add_argument("--verbose")
+      .default_value(false)
+      .implicit_value(true);
+    m_program.add_argument("--stats")
+      .help("Prints file stats")
+      .default_value(false)
+      .implicit_value(true);
+
+    // Transform:
+
+    m_program.add_argument("--translate")
+      .help(
+        "Position as vec3, comma separated values without whitespace: x,y,z")
+      .metavar("VEC3")
+      .action(parseVec3);
+    m_program.add_argument("--rotate")
+      .help("Rotation as vec3 (Euler angles, in degrees), comma separated "
+            "values without whitespace: x,y,z")
+      .metavar("VEC3")
+      .action(parseVec3);
+    m_program.add_argument("--scale")
+      .help("Scale as vec3, comma separated values without whitespace: x,y,z")
+      .metavar("VEC3")
+      .action(parseVec3);
+
+    // aiPostProcessSteps flags:
+
+    m_program.add_argument("--pre-transform-vertices")
+      .help("Use if input contains instanced meshes")
+      .default_value(false)
+      .implicit_value(true);
+
+    m_program.add_argument("--smooth-normals")
+      .help("Generates smooth normals")
+      .default_value(false)
+      .implicit_value(true);
+    m_program.add_argument("--calculate-tangents")
+      .help("Generates tangent space")
+      .default_value(false)
+      .implicit_value(true);
+
+    // Exporter internal flags:
+
+    m_program.add_argument("--ignore-materials")
+      .default_value(false)
+      .implicit_value(true);
+    m_program.add_argument("--generate-lods")
+      .default_value(false)
+      .implicit_value(true);
+
+    // ---
+
+    m_program.add_argument("--extra-animations")
+      .help("Load extra animations separated into multiple files")
+      .metavar("RELATIVE_PATH")
+      .remaining();
+
     auto &logger = *spdlog::default_logger();
     logger.set_pattern("[%^%l%$] %v");
     logger.set_level(spdlog::level::debug);
@@ -98,71 +160,6 @@ public:
   }
 
 private:
-  [[nodiscard]] argparse::ArgumentParser _prepareParser() const {
-    argparse::ArgumentParser parser{"MeshConverter"};
-    parser.add_argument("input")
-      .help("Input resource file")
-      .metavar("RESOURCE_PATH")
-      .required();
-
-    parser.add_argument("--verbose").default_value(false).implicit_value(true);
-    parser.add_argument("--stats")
-      .help("Prints file stats")
-      .default_value(false)
-      .implicit_value(true);
-
-    // Transform:
-
-    parser.add_argument("--translate")
-      .help(
-        "Position as vec3, comma separated values without whitespace: x,y,z")
-      .metavar("VEC3")
-      .action(parseVec3);
-    parser.add_argument("--rotate")
-      .help("Rotation as vec3 (Euler angles, in degrees), comma separated "
-            "values without whitespace: x,y,z")
-      .metavar("VEC3")
-      .action(parseVec3);
-    parser.add_argument("--scale")
-      .help("Scale as vec3, comma separated values without whitespace: x,y,z")
-      .metavar("VEC3")
-      .action(parseVec3);
-
-    // aiPostProcessSteps flags:
-
-    parser.add_argument("--pre-transform-vertices")
-      .help("Use if input contains instanced meshes")
-      .default_value(false)
-      .implicit_value(true);
-
-    parser.add_argument("--smooth-normals")
-      .help("Generates smooth normals")
-      .default_value(false)
-      .implicit_value(true);
-    parser.add_argument("--calculate-tangents")
-      .help("Generates tangent space")
-      .default_value(false)
-      .implicit_value(true);
-
-    // Exporter internal flags:
-
-    parser.add_argument("--ignore-materials")
-      .default_value(false)
-      .implicit_value(true);
-    parser.add_argument("--generate-lods")
-      .default_value(false)
-      .implicit_value(true);
-
-    // ---
-
-    parser.add_argument("--extra-animations")
-      .help("Load extra animations separated into multiple files")
-      .metavar("RELATIVE_PATH")
-      .remaining();
-
-    return parser;
-  }
-
   std::expected<std::chrono::milliseconds, std::string>
   _load(const std::filesystem::path &p) {
     Stopwatch stopwatch;
