@@ -1,4 +1,5 @@
 #include "MaterialConverter.hpp"
+#include "ScopedEnumFlags.hpp"
 #include "os/FileSystem.hpp"
 
 #include "ai2glm.hpp" // to_vec4
@@ -6,10 +7,12 @@
 #ifdef _DEBUG
 #  include "MaterialDebugInfo.hpp"
 #endif
+#include "aiStringHash.hpp"
 
 #include "rhi/json.hpp"
 #include "renderer/jsonMaterial.hpp"
 
+#include <bit>     // popcount
 #include <fstream> // ofstream
 #include <format>
 
@@ -112,6 +115,14 @@ void eraseForbiddenCharacters(std::string &s) {
                  : std::format("HAS_{}_{}", n, suffix);
 }
 
+enum class TextureFlags {
+  None = 0,
+  Metallic = 1 << aiTextureType_METALNESS,          // .b
+  Roughness = 1 << aiTextureType_DIFFUSE_ROUGHNESS, // .g
+  Occlusion = 1 << aiTextureType_LIGHTMAP,          // .r
+};
+template <> struct has_flags<TextureFlags> : std::true_type {};
+
 class Decorator {
 public:
   Decorator(const aiMaterial &src, offline::Material &target)
@@ -125,6 +136,8 @@ public:
       m_target.blendMode = getBlendMode(alphaMode->C_Str());
     }
     m_source.Get(AI_MATKEY_TWOSIDED, m_target.twoSided);
+
+    _scanPackedTexture();
   }
 
   template <typename T>
@@ -135,13 +148,15 @@ public:
         if constexpr (std::is_same_v<T, aiColor4D>) {
           return to_vec4(v);
         } else {
-          return v;
+          // nlohmann::json writes infinity as "null" which triggers an
+          // exception in json::parse (MaterialLoader).
+          return !glm::isinf(v) ? v : 0.0f;
         }
       };
       _add({
         .name = name,
         .variant = toPropertyValue(),
-        .define = makeDefine(name),
+        .define = std::pair{makeDefine(name), 1},
       });
       return true;
     }
@@ -152,29 +167,66 @@ public:
     uint32_t uvIndex{0};
     if (m_source.GetTexture(type, index, &path, nullptr, &uvIndex) ==
         AI_SUCCESS) {
-      std::filesystem::path p{path.C_Str()};
-      p = "../textures" / p.filename();
+      assert(uvIndex == 0);
+      if (m_packedTexture && m_packedTexture->first == path) {
+        return false;
+      }
       _add({
         .name = std::format("t_{}", name),
-        .variant =
-          offline::Material::Texture{
-            .path = p.generic_string(),
-            .uvIndex = uvIndex,
-          },
-        .define = makeDefine(name, "TEXTURE"),
+        .variant = offline::Material::Texture{.path = _makePath(path)},
+        .define = std::pair{makeDefine(name, "TEXTURE"), 1},
       });
       return true;
     }
     return false;
   }
 
+  void addPackedTexture() {
+    if (!m_packedTexture) return;
+
+    _add({
+      .name = "t_Packed",
+      .variant =
+        offline::Material::Texture{.path = _makePath(m_packedTexture->first)},
+      .define = std::pair{"PACKED_TEXTURE",
+                          std::to_underlying(m_packedTexture->second)},
+    });
+  }
+
 private:
+  void _scanPackedTexture() {
+    std::unordered_map<aiString, TextureFlags, aiStringHash> map;
+    for (const auto type : {
+           aiTextureType_METALNESS,
+           aiTextureType_DIFFUSE_ROUGHNESS,
+           aiTextureType_LIGHTMAP,
+         }) {
+      if (aiString p; m_source.GetTexture(type, 0, &p) != AI_FAILURE) {
+        map[p] |= TextureFlags(1 << type);
+      }
+    }
+    std::erase_if(map, [](const auto &p) {
+      return std::popcount(static_cast<uint32_t>(p.second)) == 1;
+    });
+    assert(map.size() <= 1);
+
+    if (map.size() == 1) {
+      m_packedTexture = *map.begin();
+    }
+  }
+
+  static std::string _makePath(const aiString &path) {
+    std::filesystem::path p{path.C_Str()};
+    p = "../textures" / p.filename();
+    return p.generic_string();
+  }
+
   struct Record {
     std::string name;
     using Variant =
       std::variant<gfx::Property::Value, offline::Material::Texture>;
     Variant variant;
-    std::optional<std::string> define;
+    std::optional<gfx::Material::Blueprint::Code::Define> define;
   };
 
   void _add(const Record &record) {
@@ -195,6 +247,7 @@ private:
 
 private:
   const aiMaterial &m_source;
+  std::optional<std::pair<aiString, TextureFlags>> m_packedTexture;
   offline::Material &m_target;
 };
 
@@ -208,11 +261,13 @@ void getBaseInfo(Decorator &decorator) {
 }
 void getMetallicRoughnessWorkflowInfo(Decorator &decorator) {
   decorator.addTexture("BaseColor", AI_MATKEY_BASE_COLOR_TEXTURE);
+  decorator.addTexture("Metallic", AI_MATKEY_METALLIC_TEXTURE);
   decorator.addProperty<float>("metallicFactor", AI_MATKEY_METALLIC_FACTOR);
+  decorator.addTexture("Roughness", AI_MATKEY_ROUGHNESS_TEXTURE);
   decorator.addProperty<float>("roughnessFactor", AI_MATKEY_ROUGHNESS_FACTOR);
-  decorator.addTexture(
-    "MetallicRoughnessAO",
-    AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE);
+  decorator.addTexture("AmbientOcclusion", aiTextureType_LIGHTMAP, 0);
+
+  decorator.addPackedTexture();
 }
 bool getTransmissionInfo(Decorator &decorator) {
   auto b = decorator.addProperty<float>("transmissionFactor",
@@ -261,7 +316,7 @@ bool exportMaterial(const offline::Material &material,
 
   getBaseInfo(decorator);
   if (getShadingMode(src) == aiShadingMode_PBR_BRDF) {
-    out.userFragCodeDefines.emplace("IS_PBR");
+    out.userFragCodeDefines.emplace("IS_PBR", 1);
     getMetallicRoughnessWorkflowInfo(decorator);
     auto useTransmission = getTransmissionInfo(decorator);
     useTransmission |= getVolumeInfo(decorator);

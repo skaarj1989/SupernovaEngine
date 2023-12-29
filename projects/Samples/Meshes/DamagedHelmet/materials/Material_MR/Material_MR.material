@@ -5,8 +5,43 @@
   "blendMode": "Opaque",
   "lightingMode": "Default",
   "cullMode": "Back",
-  "properties": {},
+  "properties": {
+    "baseColorFactor": {
+      "type": "vec4",
+      "value": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "roughnessFactor": {
+      "type": "float",
+      "value": 1.0
+    },
+    "alphaCutOff": {
+      "type": "float",
+      "value": 0.5
+    },
+    "metallicFactor": {
+      "type": "float",
+      "value": 1.0
+    },
+    "emissiveColorFactor": {
+      "type": "vec4",
+      "value": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
+  },
   "samplers": {
+    "t_Packed": {
+      "type": "sampler2D",
+      "path": "../textures/Default_metalRoughness.jpg"
+    },
     "t_BaseColor": {
       "type": "sampler2D",
       "path": "../textures/Default_albedo.jpg"
@@ -15,11 +50,7 @@
       "type": "sampler2D",
       "path": "../textures/Default_normal.jpg"
     },
-    "t_MetallicRoughnessAO": {
-      "type": "sampler2D",
-      "path": "../textures/Default_metalRoughness.jpg"
-    },
-    "t_AO": {
+    "t_AmbientOcclusion": {
       "type": "sampler2D",
       "path": "../textures/Default_AO.jpg"
     },
@@ -29,6 +60,51 @@
     }
   },
   "fragmentShader": {
-    "path": "code.frag"
+    "defines": [
+      [
+        "HAS_ALPHA_CUT_OFF",
+        1
+      ],
+      [
+        "HAS_BASE_COLOR_FACTOR",
+        1
+      ],
+      [
+        "HAS_BASE_COLOR_TEXTURE",
+        1
+      ],
+      [
+        "HAS_EMISSIVE_COLOR_FACTOR",
+        1
+      ],
+      [
+        "HAS_EMISSIVE_COLOR_TEXTURE",
+        1
+      ],
+      [
+        "HAS_METALLIC_FACTOR",
+        1
+      ],
+      [
+        "HAS_NORMAL_TEXTURE",
+        1
+      ],
+      [
+        "HAS_AMBIENT_OCCLUSION_TEXTURE",
+        1
+      ],
+      [
+        "HAS_ROUGHNESS_FACTOR",
+        1
+      ],
+      [
+        "IS_PBR",
+        1
+      ],
+      [
+        "PACKED_TEXTURE",
+        98304
+      ]
+    ]
   }
 }

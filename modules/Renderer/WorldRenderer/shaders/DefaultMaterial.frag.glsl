@@ -1,3 +1,7 @@
+#define _METALLIC 1 << 15
+#define _ROUGHNESS 1 << 16
+#define _AMBIENT_OCCLUSION 1 << 10
+
 const vec2 texCoord = getTexCoord0();
 
 #ifdef HAS_BASE_COLOR_TEXTURE
@@ -28,18 +32,32 @@ const vec3 N = sampleNormalMap(t_Normal, texCoord);
 material.normal = tangentToWorld(N, getNormal(), texCoord);
 #endif
 
+material.roughness = 1.0;
+material.metallic = 0.0;
+
 #if IS_PBR
-#  ifdef HAS_METALLIC_ROUGHNESS_A_O_TEXTURE
-const vec3 temp = texture(t_MetallicRoughnessAO, texCoord).rgb;
+#  if PACKED_TEXTURE
+const vec3 temp = texture(t_Packed, texCoord).rgb;
+#    if PACKED_TEXTURE & _METALLIC
 material.metallic = temp.b;
+#    endif
+#    if PACKED_TEXTURE & _ROUGHNESS
 material.roughness = temp.g;
+#    endif
+#    if PACKED_TEXTURE & _AMBIENT_OCCLUSION
 material.ambientOcclusion = temp.r;
+#    endif
 #  endif
+
 #  ifdef HAS_METALLIC_FACTOR
 material.metallic *= properties.metallicFactor;
 #  endif
 #  ifdef HAS_ROUGHNESS_FACTOR
 material.roughness *= properties.roughnessFactor;
+#  endif
+
+#  ifdef HAS_AMBIENT_OCCLUSION_TEXTURE
+material.ambientOcclusion = texture(t_AmbientOcclusion, texCoord).r;
 #  endif
 
 #  ifdef HAS_TRANSMISSION_TEXTURE
@@ -70,10 +88,7 @@ material.attenuationColor = properties.attenuationColor.rgb;
 #  ifdef HAS_ATTENUATION_DISTANCE
 material.attenuationDistance = properties.attenuationDistance;
 #  endif
-#else
-material.roughness = 1.0;
-material.metallic = 0.0;
-#endif
+#endif // defined IS_PBR
 
 #ifdef HAS_EMISSIVE_COLOR_TEXTURE
 material.emissiveColor.rgb = texture(t_EmissiveColor, texCoord).rgb;

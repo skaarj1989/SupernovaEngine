@@ -38,25 +38,49 @@
     }
   },
   "samplers": {
+    "t_Packed": {
+      "type": "sampler2D",
+      "path": "../textures/Suzanne_MetallicRoughness.png"
+    },
     "t_BaseColor": {
       "type": "sampler2D",
       "path": "../textures/Suzanne_BaseColor.png"
-    },
-    "t_MetallicRoughnessAO": {
-      "type": "sampler2D",
-      "path": "../textures/Suzanne_MetallicRoughness.png"
     }
   },
   "fragmentShader": {
     "defines": [
-      "HAS_ALPHA_CUT_OFF",
-      "HAS_BASE_COLOR_FACTOR",
-      "HAS_BASE_COLOR_TEXTURE",
-      "HAS_EMISSIVE_COLOR_FACTOR",
-      "HAS_METALLIC_FACTOR",
-      "HAS_METALLIC_ROUGHNESS_A_O_TEXTURE",
-      "HAS_ROUGHNESS_FACTOR",
-      "IS_PBR"
+      [
+        "HAS_ALPHA_CUT_OFF",
+        1
+      ],
+      [
+        "HAS_BASE_COLOR_FACTOR",
+        1
+      ],
+      [
+        "HAS_BASE_COLOR_TEXTURE",
+        1
+      ],
+      [
+        "HAS_EMISSIVE_COLOR_FACTOR",
+        1
+      ],
+      [
+        "HAS_METALLIC_FACTOR",
+        1
+      ],
+      [
+        "HAS_ROUGHNESS_FACTOR",
+        1
+      ],
+      [
+        "IS_PBR",
+        1
+      ],
+      [
+        "PACKED_TEXTURE",
+        98304
+      ]
     ]
   }
 }

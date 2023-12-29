@@ -93,8 +93,8 @@ void addProperties(ShaderCodeBuilder &builder, const Material &material,
 
 void addCode(ShaderCodeBuilder &builder,
              const Material::Blueprint::Code &code) {
-  for (const auto &str : code.defines) {
-    builder.addDefine(str, 1);
+  for (const auto &[key, value] : code.defines) {
+    builder.addDefine(key, value);
   }
   builder.replace(kUserModulesRegion, makeCodePatch(1, code.includes))
     .replace(kUserCodeRegion, makeCodePatch(0, code.source));

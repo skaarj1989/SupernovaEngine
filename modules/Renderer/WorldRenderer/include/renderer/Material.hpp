@@ -98,7 +98,9 @@ public:
     TextureResources defaultTextures;
 
     struct Code {
-      std::vector<std::string> defines;
+      using Define = std::pair<std::string, int32_t>;
+      using Defines = std::vector<Define>;
+      Defines defines;
       std::string includes;
       std::string source;
     };

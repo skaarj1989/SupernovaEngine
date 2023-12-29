@@ -18,12 +18,11 @@ struct Material {
 
   struct Texture {
     std::string path;
-    uint32_t uvIndex{0};
   };
   using Textures = std::unordered_map<std::string, Texture>;
   Textures textures;
 
-  std::set<std::string> userFragCodeDefines;
+  std::set<gfx::Material::Blueprint::Code::Define> userFragCodeDefines;
 };
 
 } // namespace offline

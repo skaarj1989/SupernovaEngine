@@ -301,10 +301,56 @@
                         "nullopt": false,
                         "data": "Meshes/DamagedHelmet/materials/Material_MR/Material_MR.material"
                     },
-                    "value1": [],
+                    "value1": [
+                        {
+                            "value0": "alphaCutOff",
+                            "value1": {
+                                "index": 2,
+                                "data": 0.5
+                            }
+                        },
+                        {
+                            "value0": "baseColorFactor",
+                            "value1": {
+                                "index": 4,
+                                "data": {
+                                    "value0": 1.0,
+                                    "value1": 1.0,
+                                    "value2": 1.0,
+                                    "value3": 1.0
+                                }
+                            }
+                        },
+                        {
+                            "value0": "emissiveColorFactor",
+                            "value1": {
+                                "index": 4,
+                                "data": {
+                                    "value0": 1.0,
+                                    "value1": 1.0,
+                                    "value2": 1.0,
+                                    "value3": 1.0
+                                }
+                            }
+                        },
+                        {
+                            "value0": "metallicFactor",
+                            "value1": {
+                                "index": 2,
+                                "data": 1.0
+                            }
+                        },
+                        {
+                            "value0": "roughnessFactor",
+                            "value1": {
+                                "index": 2,
+                                "data": 1.0
+                            }
+                        }
+                    ],
                     "value2": [
                         {
-                            "key": "t_AO",
+                            "key": "t_AmbientOcclusion",
                             "value": {
                                 "value0": {
                                     "nullopt": false,
@@ -331,20 +377,20 @@
                             }
                         },
                         {
-                            "key": "t_MetallicRoughnessAO",
-                            "value": {
-                                "value0": {
-                                    "nullopt": false,
-                                    "data": "Meshes/DamagedHelmet/materials/Material_MR/../textures/Default_metalRoughness.jpg"
-                                }
-                            }
-                        },
-                        {
                             "key": "t_Normal",
                             "value": {
                                 "value0": {
                                     "nullopt": false,
                                     "data": "Meshes/DamagedHelmet/materials/Material_MR/../textures/Default_normal.jpg"
+                                }
+                            }
+                        },
+                        {
+                            "key": "t_Packed",
+                            "value": {
+                                "value0": {
+                                    "nullopt": false,
+                                    "data": "Meshes/DamagedHelmet/materials/Material_MR/../textures/Default_metalRoughness.jpg"
                                 }
                             }
                         }

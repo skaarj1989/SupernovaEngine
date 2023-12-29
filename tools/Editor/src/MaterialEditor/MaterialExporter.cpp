@@ -38,7 +38,7 @@ namespace {
 }
 
 struct ShaderCodeChunk {
-  std::vector<std::string> defines;
+  gfx::Material::Blueprint::Code::Defines defines;
   std::optional<std::filesystem::path> include;
   std::optional<std::filesystem::path> code;
 };

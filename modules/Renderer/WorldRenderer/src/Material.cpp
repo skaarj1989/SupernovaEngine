@@ -25,8 +25,8 @@ template <> struct hash<gfx::Material::Blueprint::Code> {
   auto operator()(const gfx::Material::Blueprint::Code &v) const noexcept {
     size_t h{0};
     hashCombine(h, v.source, v.includes);
-    for (const auto &str : v.defines) {
-      hashCombine(h, str);
+    for (const auto &[key, value] : v.defines) {
+      hashCombine(h, key, value);
     }
     return h;
   }

@@ -91,9 +91,11 @@ get(const aiMaterial &material, const aiMaterialProperty *p) {
   const auto addInfo = [&](const aiMaterialProperty *p) {
 #if 0
     os << std::format("{}\t| {}: [{}, {}, {}]\n", toString(p->mType),
-                      p->mKey.C_Str(), p->mSemantic, p->mIndex, p->mDataLength);
+                      p->mKey.C_Str(),
+                      aiTextureTypeToString(aiTextureType(p->mSemantic)),
+                      p->mIndex, p->mDataLength);
 #else
-    auto v = get(material, p);
+    const auto v = get(material, p);
     os << p->mKey.C_Str() << " = " << (v ? toString(*v) : "unknown") << "\n";
 #endif
   };

@@ -60,7 +60,7 @@ struct Material {
   TextureMap textures;
 
   struct Code {
-    using Defines = std::vector<std::string>;
+    using Defines = gfx::Material::Blueprint::Code::Defines;
     Defines defines;
     using Includes = std::vector<std::filesystem::path>;
     Includes includes;
@@ -76,8 +76,23 @@ void from_json(const json &j, Material::Texture &out) {
   j.at("type").get_to(out.type);
   j.at("path").get_to(out.path);
 }
+
+[[nodiscard]] auto readDefines(const json &j) {
+  Material::Code::Defines out;
+  if (constexpr auto kDefinesKey = "defines"; j.contains(kDefinesKey)) {
+    for (const auto &def : j[kDefinesKey]) {
+      if (def.is_string()) {
+        out.emplace_back(def, 1);
+      } else if (def.is_array()) {
+        out.emplace_back(def);
+      }
+    }
+  }
+  return out;
+}
+
 void from_json(const json &j, Material::Code &out) {
-  out.defines = j.value("defines", Material::Code::Defines{});
+  out.defines = readDefines(j);
   out.includes = j.value("includes", Material::Code::Includes{});
   if (auto p = j.value("path", std::filesystem::path{}); !p.empty()) {
     out.path = std::move(p);
