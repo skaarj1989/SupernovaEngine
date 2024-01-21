@@ -60,6 +60,8 @@ findFunction(MatrixTransformNode::Space source,
     return "View";
   case Clip:
     return "Clip";
+  case NDC:
+    return "NDC";
   }
   assert(false);
   return "Undefined";
