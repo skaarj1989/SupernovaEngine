@@ -6,6 +6,7 @@
 
 #include "Services.hpp"
 
+#include "ImNodesStyleWidget.hpp"
 #include "ImNodesStyleJSON.hpp"
 
 #include "NodeContextMenuEntries.hpp"
@@ -376,6 +377,13 @@ void MaterialEditor::show(const char *name, bool *open) {
   }
   ImGui::End();
 
+  constexpr auto kLoadStyleActionId = MAKE_TITLE_BAR(ICON_FA_UPLOAD, "Load");
+  constexpr auto kSaveStyleActionId =
+    MAKE_TITLE_BAR(ICON_FA_FLOPPY_DISK, "Save As ...");
+
+  std::optional<const char *> action;
+  static bool showStyleEditor = false;
+
   if (ImGui::Begin(GUI::Windows::kCanvas, nullptr, ImGuiWindowFlags_MenuBar)) {
     if (ImGui::BeginMenuBar()) {
       if (ImGui::BeginMenu("Debug")) {
@@ -410,6 +418,19 @@ void MaterialEditor::show(const char *name, bool *open) {
 
         ImGui::EndMenu();
       }
+      if (ImGui::BeginMenu("Style")) {
+        if (ImGui::MenuItem("Load")) {
+          action = kLoadStyleActionId;
+        }
+        if (ImGui::MenuItem("Save")) {
+          action = kSaveStyleActionId;
+        }
+        ImGui::Separator();
+        if (ImGui::MenuItem("Edit")) {
+          showStyleEditor = true;
+        }
+        ImGui::EndMenu();
+      }
 
       ImGui::Separator();
 
@@ -418,6 +439,44 @@ void MaterialEditor::show(const char *name, bool *open) {
 
       ImGui::EndMenuBar();
     }
+
+    if (showStyleEditor) {
+      if (ImGui::Begin(MAKE_TITLE_BAR(ICON_FA_PALETTE, "Style"),
+                       &showStyleEditor)) {
+        ImNodes::ShowStyleEditor();
+      }
+      ImGui::End();
+    }
+
+    if (action) ImGui::OpenPopup(*action, ImGuiWindowFlags_NoMove);
+
+    constexpr auto kStyleExtension = ".json";
+    constexpr auto styleFilter = makeExtensionFilter(kStyleExtension);
+
+    static auto rootPath = std::filesystem::current_path();
+
+    if (const auto p = showFileDialog(kLoadStyleActionId,
+                                      {
+                                        .dir = rootPath,
+                                        .entryFilter = styleFilter,
+                                      });
+        p) {
+      load(*p, ImNodes::GetStyle());
+    }
+    if (const auto p =
+          showFileDialog(kSaveStyleActionId,
+                         {
+                           .dir = rootPath,
+                           .entryFilter = styleFilter,
+                           .forceExtension = kStyleExtension,
+                           .flags = FileDialogFlags_AskOverwrite |
+                                    FileDialogFlags_CreateDirectoryButton,
+                         });
+        p) {
+      save(*p, ImNodes::GetStyle());
+    }
+
+    // ---
 
     const auto connectedVertices = findConnectedVertices(graph);
     changed |= _canvasWidget(graph, connectedVertices);

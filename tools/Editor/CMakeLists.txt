@@ -148,6 +148,8 @@ set(MATERIAL_EDITOR_SOURCES
   "include/MaterialEditor/Nodes/PostProcessMaster.hpp"
 
   # -- Source (and private headers) files:
+  "src/MaterialEditor/ImNodesStyleWidget.hpp"
+  "src/MaterialEditor/ImNodesStyleWidget.cpp"
   "src/MaterialEditor/ImNodesStyleJSON.hpp"
   "src/MaterialEditor/ImNodesStyleJSON.cpp"
 
