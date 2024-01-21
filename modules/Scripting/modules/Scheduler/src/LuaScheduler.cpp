@@ -74,10 +74,9 @@ void registerScheduler(sol::state &lua) {
     "attach",
       [](Scheduler &self, const sol::table &process,
          const sol::variadic_args &va) {
-        auto continuator = self.attach<ScriptProcess>(process);
+        auto &continuator = self.attach<ScriptProcess>(process);
         for (sol::table &&childProcess : va) {
-          continuator =
-            continuator.then<ScriptProcess>(childProcess);
+          continuator.then<ScriptProcess>(childProcess);
         }
       },
 
