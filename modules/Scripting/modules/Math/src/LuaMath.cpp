@@ -7,6 +7,7 @@
 #include "glm/gtc/quaternion.hpp" // quat
 #include "glm/gtc/noise.hpp"      // perlin
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/norm.hpp"          // length2
 #include "glm/gtx/perpendicular.hpp" // perp
 
@@ -230,25 +231,25 @@ void registerVec4(sol::table &lua) {
 
     sol::meta_function::addition,
       sol::overload(
-        sol::resolve<glm::vec4(const glm::vec4 &, const float &)>(glm::operator+),
+        sol::resolve<glm::vec4(const glm::vec4 &, const float)>(glm::operator+),
         sol::resolve<glm::vec4(float, const glm::vec4 &)>(glm::operator+),
         sol::resolve<glm::vec4(const glm::vec4 &, const glm::vec4 &)>(glm::operator+)
       ),
     sol::meta_function::subtraction,
       sol::overload(
-        sol::resolve<glm::vec4(const glm::vec4 &, const float &)>(glm::operator-),
+        sol::resolve<glm::vec4(const glm::vec4 &, const float)>(glm::operator-),
         sol::resolve<glm::vec4(float, const glm::vec4 &)>(glm::operator-),
         sol::resolve<glm::vec4(const glm::vec4 &, const glm::vec4 &)>(glm::operator-)
       ),
     sol::meta_function::multiplication,
       sol::overload(
-        sol::resolve<glm::vec4(const glm::vec4 &, const float &)>(glm::operator*),
+        sol::resolve<glm::vec4(const glm::vec4 &, const float)>(glm::operator*),
         sol::resolve<glm::vec4(float, const glm::vec4 &)>(glm::operator*),
         sol::resolve<glm::vec4(const glm::vec4 &, const glm::vec4 &)>(glm::operator*)
       ),
     sol::meta_function::division,
       sol::overload(
-        sol::resolve<glm::vec4(const glm::vec4 &, const float &)>(glm::operator/),
+        sol::resolve<glm::vec4(const glm::vec4 &, const float)>(glm::operator/),
         sol::resolve<glm::vec4(float, const glm::vec4 &)>(glm::operator/),
         sol::resolve<glm::vec4(const glm::vec4 &, const glm::vec4 &)>(glm::operator/)
       ),
@@ -288,28 +289,28 @@ void registerMat4(sol::table &lua) {
 
     sol::meta_function::addition,
       sol::overload(
-        sol::resolve<glm::mat4(const glm::mat4 &, const float &)>(glm::operator+),                    
-        sol::resolve<glm::mat4(const float &, const glm::mat4 &)>(glm::operator+),
+        sol::resolve<glm::mat4(const glm::mat4 &, const float)>(glm::operator+),                    
+        sol::resolve<glm::mat4(const float, const glm::mat4 &)>(glm::operator+),
         sol::resolve<glm::mat4(const glm::mat4 &, const glm::mat4 &)>(glm::operator+)                     
       ),
     sol::meta_function::subtraction,
       sol::overload(
-        sol::resolve<glm::mat4(const glm::mat4 &, const float &)>(glm::operator-),                    
-        sol::resolve<glm::mat4(const float &, const glm::mat4 &)>(glm::operator-),
+        sol::resolve<glm::mat4(const glm::mat4 &, const float)>(glm::operator-),                    
+        sol::resolve<glm::mat4(const float, const glm::mat4 &)>(glm::operator-),
         sol::resolve<glm::mat4(const glm::mat4 &, const glm::mat4 &)>(glm::operator-)                     
       ),
     sol::meta_function::multiplication,
       sol::overload(
-        sol::resolve<glm::mat4(const glm::mat4 &, const float &)>(glm::operator*),                    
-        sol::resolve<glm::mat4(const float &, const glm::mat4 &)>(glm::operator*),
+        sol::resolve<glm::mat4(const glm::mat4 &, const float)>(glm::operator*),                    
+        sol::resolve<glm::mat4(const float, const glm::mat4 &)>(glm::operator*),
         sol::resolve<glm::vec4(const glm::mat4 &, const glm::vec4 &)>(glm::operator*),                    
         sol::resolve<glm::vec4(const glm::vec4 &, const glm::mat4 &)>(glm::operator*),
         sol::resolve<glm::mat4(const glm::mat4 &, const glm::mat4 &)>(glm::operator*)                     
       ),
     sol::meta_function::division,
       sol::overload(
-        sol::resolve<glm::mat4(const glm::mat4 &, const float &)>(glm::operator/),                    
-        sol::resolve<glm::mat4(const float &, const glm::mat4 &)>(glm::operator/),
+        sol::resolve<glm::mat4(const glm::mat4 &, const float)>(glm::operator/),                    
+        sol::resolve<glm::mat4(const float, const glm::mat4 &)>(glm::operator/),
         sol::resolve<glm::vec4(const glm::mat4 &, const glm::vec4 &)>(glm::operator/),                    
         sol::resolve<glm::vec4(const glm::vec4 &, const glm::mat4 &)>(glm::operator/),
         sol::resolve<glm::mat4(const glm::mat4 &, const glm::mat4 &)>(glm::operator/)  

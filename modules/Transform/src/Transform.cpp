@@ -1,4 +1,5 @@
 #include "Transform.hpp"
+#define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/transform.hpp"        // translate, scale
 #include "glm/gtx/quaternion.hpp"       // toMat4
 #include "glm/gtx/matrix_decompose.hpp" // decompose

@@ -1,6 +1,7 @@
 #include "CameraController.hpp"
 #include "PerspectiveCamera.hpp"
 #include "imgui.h"
+#define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/quaternion.hpp" // normalize, angleAxis
 #include "glm/gtx/transform.inl"  // rotate
 

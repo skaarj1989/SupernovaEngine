@@ -7,6 +7,7 @@
 #include "imgui_internal.h"
 
 #include "glm/gtc/type_ptr.hpp"
+#define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/common.hpp" // fmod
 #include "glm/gtx/compatibility.hpp"
 #include "glm/gtx/transform.hpp"

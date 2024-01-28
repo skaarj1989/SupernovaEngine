@@ -1,6 +1,7 @@
 #include "DebugDraw.hpp"
 #include "math/Frustum.hpp"
 #include "math/Color.hpp"
+#define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/transform.hpp" // rotate
 
 const DebugDraw::Primitives &DebugDraw::getPrimitives() const {
