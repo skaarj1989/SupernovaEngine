@@ -374,18 +374,20 @@
             {
                 "value0": {
                     "nullopt": false,
-                    "data": "Materials/Graph/PostProcess/ChromaticAberration/ChromaticAberration.material"
+                    "data": "Materials/Graph/PostProcess/ColorGrading/ColorGrading.material"
                 },
-                "value1": [
+                "value1": [],
+                "value2": [
                     {
-                        "value0": "fs_strength",
-                        "value1": {
-                            "index": 2,
-                            "data": 3.0
+                        "key": "t_LUT",
+                        "value": {
+                            "value0": {
+                                "nullopt": false,
+                                "data": "Materials/Graph/PostProcess/ColorGrading/LUT_Greenish.png"
+                            }
                         }
                     }
                 ],
-                "value2": [],
                 "value3": 4
             },
             {
@@ -399,6 +401,23 @@
                         "value1": {
                             "index": 2,
                             "data": 6.0
+                        }
+                    }
+                ],
+                "value2": [],
+                "value3": 4
+            },
+            {
+                "value0": {
+                    "nullopt": false,
+                    "data": "Materials/Graph/PostProcess/ChromaticAberration/ChromaticAberration.material"
+                },
+                "value1": [
+                    {
+                        "value0": "fs_strength",
+                        "value1": {
+                            "index": 2,
+                            "data": 3.0
                         }
                     }
                 ],

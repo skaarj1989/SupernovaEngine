@@ -1,0 +1,21 @@
+{
+  "name": "ColorGrading",
+  "domain": "PostProcess",
+  "properties": {},
+  "samplers": {
+    "t_LUT": {
+      "type": "sampler2D",
+      "path": "LUT_Greenish.png"
+    }
+  },
+  "fragmentShader": {
+    "defines": [],
+    "includes": [
+      "frag.module.glsl"
+    ],
+    "path": "code.frag"
+  },
+  "flags": [
+    "Enabled"
+  ]
+}
