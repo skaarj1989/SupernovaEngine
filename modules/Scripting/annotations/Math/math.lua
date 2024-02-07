@@ -166,6 +166,16 @@ function math.refract(I, N, eta) end
 ---@overload fun(v: quat): quat
 function math.normalize(v) end
 
+--- MATRIX:
+
+---@param m mat4
+---@return mat4
+function math.inverse(m) end
+
+---@param m mat4
+---@return mat4
+function math.transpose(m) end
+
 --- NOISE:
 
 ---@param p vec2

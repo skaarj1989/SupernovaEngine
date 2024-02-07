@@ -125,6 +125,12 @@ void registerFreeFunctions(sol::table &lua) {
                   sol::resolve<glm::vec4(const glm::vec4 &)>(glm::normalize),
                   sol::resolve<glm::quat(const glm::quat &)>(glm::normalize)));
 #pragma endregion
+#pragma region matrix
+  lua.set_function("inverse",
+                   sol::resolve<glm::mat4(const glm::mat4 &)>(glm::inverse));
+  lua.set_function("transpose",
+                   sol::resolve<glm::mat4(const glm::mat4 &)>(glm::transpose));
+#pragma endregion
 #pragma region noise
   lua.set_function(
     "noise", sol::overload(sol::resolve<float(const glm::vec2 &)>(glm::perlin),
