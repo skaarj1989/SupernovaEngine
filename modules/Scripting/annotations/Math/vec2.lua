@@ -4,7 +4,7 @@
 ---@field x number
 ---@field y number
 ---@overload fun(): vec2
----@overload fun(v: number|vec2|ivec2|uvec2): vec2
+---@overload fun(v: number|vec2|vec3|vec4|ivec2|ivec3|ivec4|uvec2|uvec3|uvec4): vec2
 ---@overload fun(x: number, y: number): vec2
 ---@operator add(number): vec2
 ---@operator add(vec2): vec2
@@ -20,7 +20,7 @@ math.vec2 = {}
 ---@field x integer
 ---@field y integer
 ---@overload fun(): ivec2
----@overload fun(v: number|vec2|ivec2|uvec2): ivec2
+---@overload fun(v: number|vec2|vec3|vec4|ivec2|ivec3|ivec4|uvec2|uvec3|uvec4): ivec2
 ---@overload fun(x: number, y: number): ivec2
 ---@operator add(number): ivec2
 ---@operator add(ivec2): ivec2
@@ -36,7 +36,7 @@ math.ivec2 = {}
 ---@field x integer
 ---@field y integer
 ---@overload fun(): uvec2
----@overload fun(v: number|vec2|ivec2|uvec2): uvec2
+---@overload fun(v: number|vec2|vec3|vec4|ivec2|ivec3|ivec4|uvec2|uvec3|uvec4): uvec2
 ---@overload fun(x: number, y: number): uvec2
 ---@operator add(number): uvec2
 ---@operator add(uvec2): uvec2

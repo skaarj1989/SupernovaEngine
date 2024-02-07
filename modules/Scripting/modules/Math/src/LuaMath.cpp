@@ -159,8 +159,14 @@ void registerVec2(const char *name, sol::table &lua) {
       T(value_type),
       T(value_type, value_type),
       T(const glm::vec2 &),
+      T(const glm::vec3 &),
+      T(const glm::vec4 &),
       T(const glm::ivec2 &),
-      T(const glm::uvec2 &)
+      T(const glm::ivec3 &),
+      T(const glm::ivec4 &),
+      T(const glm::uvec2 &),
+      T(const glm::uvec3 &),
+      T(const glm::uvec4 &)
     >(),
 
     "x", &T::x, "y", &T::y,
@@ -189,8 +195,11 @@ void registerVec3(const char *name, sol::table &lua) {
       T(value_type),
       T(value_type, value_type, value_type),
       T(const glm::vec3 &),
+      T(const glm::vec4 &),
       T(const glm::ivec3 &),
-      T(const glm::uvec3 &)
+      T(const glm::ivec4 &),
+      T(const glm::uvec3 &),
+      T(const glm::uvec4 &)
     >(),
 
     "x", &T::x, "y", &T::y, "z", &T::z,

@@ -8,7 +8,7 @@
 ---@field g number
 ---@field b number
 ---@overload fun(): vec3
----@overload fun(v: number|vec3|ivec3|uvec3): vec3
+---@overload fun(v: number|vec3|vec4|ivec3|ivec4|uvec3|uvec4): vec3
 ---@overload fun(x: number, y: number, z: number): vec3
 ---@operator add(number): vec3
 ---@operator add(vec3): vec3
@@ -26,7 +26,7 @@ math.vec3 = {}
 ---@field y integer
 ---@field z integer
 ---@overload fun(): ivec3
----@overload fun(v: number|vec3|ivec3|uvec3): ivec3
+---@overload fun(v: number|vec3|vec4|ivec3|ivec4|uvec3|uvec4): ivec3
 ---@overload fun(x: number, y: number, z: number): ivec3
 ---@operator add(number): ivec3
 ---@operator add(ivec3): ivec3
@@ -43,7 +43,7 @@ math.ivec3 = {}
 ---@field y integer
 ---@field z integer
 ---@overload fun(): uvec3
----@overload fun(v: number|vec3|ivec3|uvec3): uvec3
+---@overload fun(v: number|vec3|vec4|ivec3|ivec4|uvec3|uvec4): uvec3
 ---@overload fun(x: number, y: number, z: number): uvec3
 ---@operator add(number): uvec3
 ---@operator add(uvec3): uvec3
