@@ -9,18 +9,44 @@
 namespace {
 
 void registerPhysicsWorld(sol::state &lua) {
-#define BIND(Member) _BIND(PhysicsWorld, Member)
   // clang-format off
+  #define BIND(Member) _BIND(RayCastBPResult, Member)
+  DEFINE_USERTYPE(RayCastBPResult,
+    sol::no_constructor,
+
+    BIND(position),
+    BIND(entityId),
+
+    BIND_TOSTRING(RayCastBPResult)
+  );
+#undef BIND
+
+#define BIND(Member) _BIND(RayCastNPResult, Member)
+  DEFINE_USERTYPE(RayCastNPResult,
+    sol::no_constructor,
+
+    BIND(position),
+    BIND(normal),
+    BIND(entityId),
+
+    BIND_TOSTRING(RayCastNPResult)
+  );
+#undef BIND
+
+#define BIND(Member) _BIND(PhysicsWorld, Member)
 	DEFINE_USERTYPE(PhysicsWorld,
     sol::no_constructor,
 
     BIND(setGravity),
     BIND(getGravity),
 
+    BIND(castRayBP),
+    BIND(castRayNP),
+
     BIND_TOSTRING(PhysicsWorld)
   );
-  // clang-format on
 #undef BIND
+  // clang-format on
 }
 
 void registerEvents(sol::state &lua) {

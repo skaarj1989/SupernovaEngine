@@ -10,6 +10,18 @@
 #include "physics/CharacterVirtual.hpp"
 #include "Transform.hpp"
 
+struct RayCastBPResult {
+  glm::vec3 position;
+  uint32_t entityId;
+};
+using RayCastBPResults = std::vector<RayCastBPResult>;
+
+struct RayCastNPResult {
+  glm::vec3 position;
+  glm::vec3 normal;
+  uint32_t entityId;
+};
+
 class PhysicsWorld {
 public:
   PhysicsWorld();
@@ -35,6 +47,14 @@ public:
   void setCollisionShape(RigidBody &, const JPH::Shape *);
   void setCollisionShape(Character &, const JPH::Shape *);
   void setCollisionShape(CharacterVirtual &, const JPH::Shape *);
+
+  // @note BroadPhase
+  [[nodiscard]] RayCastBPResults castRayBP(const glm::vec3 &from,
+                                           const glm::vec3 &direction);
+
+  // @note NarrowPhase
+  [[nodiscard]] std::optional<RayCastNPResult>
+  castRayNP(const glm::vec3 &from, const glm::vec3 &direction);
 
   [[nodiscard]] JPH::BodyManager::BodyStats getBodyStats() const;
 

@@ -2,6 +2,9 @@
 
 #include "Jolt/Core/JobSystemThreadPool.h"
 #include "Jolt/Physics/Body/BodyCreationSettings.h"
+#include "Jolt/Physics/Collision/RayCast.h"
+#include "Jolt/Physics/Collision/CastResult.h"
+#include "Jolt/Physics/Collision/CollisionCollectorImpl.h"
 
 #include "physics/JoltPhysics.hpp"
 #include "physics/Conversion.hpp"
@@ -274,6 +277,50 @@ void PhysicsWorld::setCollisionShape(CharacterVirtual &c,
     );
     // clang-format on
   }
+}
+
+RayCastBPResults PhysicsWorld::castRayBP(const glm::vec3 &from,
+                                         const glm::vec3 &direction) {
+  const JPH::RayCast ray{to_Jolt(from), to_Jolt(direction)};
+
+  JPH::RayCastResult result;
+  JPH::AllHitCollisionCollector<JPH::RayCastBodyCollector> collector;
+  m_physicsSystem.GetBroadPhaseQuery().CastRay(ray, collector);
+  collector.Sort();
+
+  RayCastBPResults results;
+  results.reserve(collector.mHits.size());
+  for (const auto &hit : collector.mHits) {
+    const auto hitPos = ray.GetPointOnRay(hit.mFraction);
+    results.emplace_back(
+      to_glm(hitPos),
+      static_cast<uint32_t>(getBodyInterface().GetUserData(hit.mBodyID)));
+  }
+  return results;
+}
+
+std::optional<RayCastNPResult>
+PhysicsWorld::castRayNP(const glm::vec3 &from, const glm::vec3 &direction) {
+  const JPH::RRayCast ray{to_Jolt(from), to_Jolt(direction)};
+
+  JPH::RayCastResult result;
+  if (!m_physicsSystem.GetNarrowPhaseQuery().CastRay(ray, result))
+    return std::nullopt;
+
+  JPH::BodyLockRead lock{m_physicsSystem.GetBodyLockInterface(),
+                         result.mBodyID};
+  if (!lock.Succeeded()) return std::nullopt;
+
+  const auto &body = lock.GetBody();
+  const auto hitPos = ray.GetPointOnRay(result.mFraction);
+  const auto normal =
+    body.GetWorldSpaceSurfaceNormal(result.mSubShapeID2, hitPos);
+
+  return RayCastNPResult{
+    .position = to_glm(hitPos),
+    .normal = to_glm(normal),
+    .entityId = static_cast<uint32_t>(body.GetUserData()),
+  };
 }
 
 JPH::BodyManager::BodyStats PhysicsWorld::getBodyStats() const {
