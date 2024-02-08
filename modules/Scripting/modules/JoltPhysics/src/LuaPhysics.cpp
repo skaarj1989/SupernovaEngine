@@ -170,6 +170,7 @@ void registerRigidBodyComponent(sol::state &lua) {
       [](const sol::table &t) {
         return RigidBodySettings{
           CAPTURE_FIELD_T(layer, CollisionLayer, {}),
+          CAPTURE_FIELD(isSensor, false),
           CAPTURE_FIELD(mass, 1.0f),
           CAPTURE_FIELD(motionType, MotionType::Static),
           CAPTURE_FIELD(friction, 0.2f),

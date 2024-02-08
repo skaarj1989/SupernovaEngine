@@ -51,6 +51,7 @@ namespace {
     convert(settings.motionType),
     encode(settings.layer),
   };
+  out.mIsSensor = settings.isSensor;
   out.mFriction = settings.friction;
   out.mRestitution = settings.restitution;
   out.mLinearDamping = glm::clamp(settings.linearDamping, 0.0f, 1.0f);

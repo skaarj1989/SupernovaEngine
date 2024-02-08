@@ -21,6 +21,7 @@ class RigidBody : private entt::emitter<RigidBody> {
 public:
   struct Settings {
     CollisionLayer layer;
+    bool isSensor{false};
     float mass{1.0f};
     MotionType motionType{MotionType::Static};
     float friction{0.2f};
@@ -30,8 +31,8 @@ public:
     float gravityFactor{1.0f};
 
     template <class Archive> void serialize(Archive &archive) {
-      archive(layer, mass, motionType, friction, restitution, linearDamping,
-              angularDamping, gravityFactor);
+      archive(layer, isSensor, mass, motionType, friction, restitution,
+              linearDamping, angularDamping, gravityFactor);
     }
   };
 

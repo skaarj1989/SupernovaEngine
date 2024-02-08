@@ -26,6 +26,7 @@ bool inspect(RigidBody::Settings &settings) {
   auto dirty = false;
 
   dirty |= inspect(settings.layer);
+  dirty |= ImGui::Checkbox("isSensor", &settings.isSensor);
   if (settings.motionType != MotionType::Static) {
     dirty |= ImGui::SliderFloat("mass", &settings.mass, 0.0f, 1000.0f);
   }
