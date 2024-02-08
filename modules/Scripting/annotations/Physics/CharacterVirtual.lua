@@ -1,6 +1,6 @@
 ---@meta
 
----@class CharacterVirtual : ComponentBase
+---@class CharacterVirtual : ComponentBase, Emitter
 ---@field stickToFloor boolean
 ---@field walkStairs boolean
 ---@overload fun(): CharacterVirtual

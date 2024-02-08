@@ -4,6 +4,7 @@
 #include "physics/PhysicsWorld.hpp"
 #include "physics/Collider.hpp"
 
+#include "LuaEmitter.hpp"
 #include "Sol2HelperMacros.hpp"
 
 namespace {
@@ -39,7 +40,7 @@ void registerPhysicsWorld(sol::state &lua) {
 
     BIND(setGravity),
     BIND(getGravity),
-
+    
     BIND(castRayBP),
     BIND(castRayNP),
 
@@ -49,8 +50,41 @@ void registerPhysicsWorld(sol::state &lua) {
   // clang-format on
 }
 
+template <typename Component> void registerMetaEvents() {
+  LuaEmitter::createMetaEvent<Component, CollisionStartedEvent>();
+  LuaEmitter::createMetaEvent<Component, CollisionEndedEvent>();
+}
+
 void registerEvents(sol::state &lua) {
-  // TODO ...
+  registerMetaEvents<RigidBody>();
+  registerMetaEvents<Character>();
+  registerMetaEvents<CharacterVirtual>();
+
+#define BIND(Member) _BIND(CollisionStartedEvent, Member)
+  // clang-format off
+  DEFINE_USERTYPE(CollisionStartedEvent,
+    sol::no_constructor,
+
+    BIND(other),
+    BIND(offset),
+    BIND(normal),
+
+    BIND_TYPEID(CollisionStartedEvent),
+    BIND_TOSTRING(CollisionStartedEvent)
+  );
+#undef BIND
+
+#define BIND(Member) _BIND(CollisionEndedEvent, Member)
+  DEFINE_USERTYPE(CollisionEndedEvent,
+    sol::no_constructor,
+    
+    BIND(other),
+
+    BIND_TYPEID(CollisionEndedEvent),
+    BIND_TOSTRING(CollisionEndedEvent)
+  );
+#undef BIND
+  // clang-format on
 }
 
 void registerResources(sol::state &lua) {
@@ -169,6 +203,9 @@ void registerRigidBodyComponent(sol::state &lua) {
       RigidBody(),
       RigidBody(const RigidBodySettings &)
     >(),
+
+    "connect", LuaEmitter::makeConnectLambda<RigidBody>(),
+    "disconnect", LuaEmitter::makeDisconnectLambda<RigidBody>(),
     
     BIND(getSettings),
 
@@ -244,6 +281,9 @@ void registerCharacterComponent(sol::state &lua) {
       Character(),
       Character(const CharacterSettings &)
     >(),
+
+    "connect", LuaEmitter::makeConnectLambda<Character>(),
+    "disconnect", LuaEmitter::makeDisconnectLambda<Character>(),
 
     BIND(getSettings),
 
@@ -327,6 +367,9 @@ void registerCharacterVirtualComponent(sol::state &lua) {
       CharacterVirtual(),
       CharacterVirtual(const CharacterVirtualSettings &)
     >(),
+
+    "connect", LuaEmitter::makeConnectLambda<CharacterVirtual>(),
+    "disconnect", LuaEmitter::makeDisconnectLambda<CharacterVirtual>(),
 
     BIND(getSettings),
     

@@ -141,13 +141,14 @@ public:
   }
 };
 
-class ContactListener final : public JPH::ContactListener {
-public:
-  void OnContactAdded(const JPH::Body &body1, const JPH::Body &body2,
-                      const JPH::ContactManifold &manifold,
-                      JPH::ContactSettings &settings) override {}
-  void OnContactRemoved(const JPH::SubShapeIDPair &subShapePair) override {}
-};
+[[nodiscard]] auto
+isNewContact(const JPH::CharacterVirtual::ContactList &activeContacts,
+             const JPH::BodyID &body2) {
+  const auto it = std::ranges::find_if(activeContacts, [body2](const auto &c) {
+    return body2 == c.mBodyB && c.mHadCollision;
+  });
+  return it == activeContacts.cend();
+}
 
 } // namespace
 
@@ -194,6 +195,7 @@ PhysicsWorld::PhysicsWorld() {
                        kMaxContactConstraints, *m_broadPhaseLayerInterface,
                        *m_objectVsBroadPhaseLayerFilter,
                        *m_objectVsObjectLayerFilter);
+  m_physicsSystem.SetContactListener(this);
 
   // We need a temp allocator for temporary allocations during the physics
   // update.
@@ -395,6 +397,50 @@ void PhysicsWorld::debugDraw(DebugDraw &dd) {
 // (private):
 //
 
+void PhysicsWorld::OnContactAdded(const JPH::Body &body1,
+                                  const JPH::Body &body2,
+                                  const JPH::ContactManifold &manifold,
+                                  JPH::ContactSettings &) {
+  publish(ContactAddedEvent{
+    .bodyUserDataPair =
+      {
+        static_cast<uint32_t>(body1.GetUserData()),
+        static_cast<uint32_t>(body2.GetUserData()),
+      },
+    .offset = to_glm(manifold.mBaseOffset),
+    .normal = to_glm(manifold.mWorldSpaceNormal),
+  });
+}
+void PhysicsWorld::OnContactRemoved(const JPH::SubShapeIDPair &subShapeIDPair) {
+  const auto &bi = m_physicsSystem.GetBodyInterfaceNoLock();
+  publish(ContactRemovedEvent{
+    .bodyUserDataPair =
+      {
+        static_cast<uint32_t>(bi.GetUserData(subShapeIDPair.GetBody1ID())),
+        static_cast<uint32_t>(bi.GetUserData(subShapeIDPair.GetBody2ID())),
+      },
+  });
+}
+void PhysicsWorld::OnContactAdded(const JPH::CharacterVirtual *character,
+                                  const JPH::BodyID &body2,
+                                  const JPH::SubShapeID &subShape2,
+                                  JPH::RVec3Arg contactPosition,
+                                  JPH::Vec3Arg contactNormal,
+                                  JPH::CharacterContactSettings &) {
+  if (!isNewContact(character->GetActiveContacts(), body2)) return;
+
+  const auto &bi = getBodyInterface();
+  publish(ContactAddedEvent{
+    .bodyUserDataPair =
+      {
+        static_cast<uint32_t>(character->GetUserData()),
+        static_cast<uint32_t>(bi.GetUserData(body2)),
+      },
+    .offset = to_glm(contactPosition),
+    .normal = to_glm(contactNormal),
+  });
+}
+
 void PhysicsWorld::_destroy(const JPH::BodyID bodyId) {
   if (!bodyId.IsInvalid()) {
     auto &bodyInterface = m_physicsSystem.GetBodyInterface();
@@ -432,8 +478,10 @@ PhysicsWorld::_createCharacter(const CharacterVirtual::Settings &settings,
     &characterSettings,
     to_Jolt(createInfo.transform.getPosition()),
     to_Jolt(createInfo.transform.getOrientation()),
+    createInfo.userData,
     &m_physicsSystem,
   };
+  character->SetListener(this);
   return character;
 }
 

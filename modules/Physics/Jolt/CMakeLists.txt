@@ -44,6 +44,7 @@ add_library(JoltPhysics
   "src/ColliderManager.cpp"
 
   "include/physics/CollisionLayer.hpp"
+  "include/physics/Events.hpp"
 
   "include/physics/RigidBody.hpp"
   "src/RigidBody.cpp"

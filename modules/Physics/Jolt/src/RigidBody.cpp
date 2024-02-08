@@ -2,6 +2,7 @@
 #include "physics/Conversion.hpp"
 
 RigidBody::RigidBody(const Settings &settings) : m_settings{settings} {}
+RigidBody::RigidBody(const RigidBody &other) : RigidBody{other.m_settings} {}
 
 RigidBody::operator bool() const {
   return m_joltPhysics && !m_bodyId.IsInvalid();

@@ -103,6 +103,7 @@ void initCharacterVirtual(entt::registry &r, entt::entity e) {
     getPhysicsWorld(r).initCharacter(c, {
                                           .transform = xf,
                                           .shape = collisionShape,
+                                          .userData = entt::to_integral(e),
                                         });
   }
 }
@@ -113,7 +114,42 @@ void connectCharacterVirtualComponent(entt::registry &r) {
 } // namespace
 
 void PhysicsSystem::setup(entt::registry &r) {
-  r.ctx().emplace<PhysicsWorld>();
+  auto &world = r.ctx().emplace<PhysicsWorld>();
+  world.on<ContactAddedEvent>([&r](const ContactAddedEvent &e, auto &) {
+#define FORWARD_EVT(T, first, second)                                          \
+  if (auto *c = r.try_get<T>(entt::entity{e.bodyUserDataPair.first}); c) {     \
+    c->publish(CollisionStartedEvent{                                          \
+      .other = e.bodyUserDataPair.second,                                      \
+      .offset = e.offset,                                                      \
+      .normal = e.normal,                                                      \
+    });                                                                        \
+  }
+    FORWARD_EVT(RigidBody, first, second)
+    FORWARD_EVT(RigidBody, second, first)
+
+    FORWARD_EVT(Character, first, second)
+    FORWARD_EVT(Character, second, first)
+
+    FORWARD_EVT(CharacterVirtual, first, second)
+    FORWARD_EVT(CharacterVirtual, second, first)
+#undef FORWARD_EVT
+  });
+  world.on<ContactRemovedEvent>([&r](const ContactRemovedEvent &e, auto &) {
+#define FORWARD_EVT(T, first, second)                                          \
+  if (auto *c = r.try_get<T>(entt::entity{e.bodyUserDataPair.first}); c) {     \
+    c->publish(CollisionEndedEvent{.other = e.bodyUserDataPair.second});       \
+  }
+    FORWARD_EVT(RigidBody, first, second)
+    FORWARD_EVT(RigidBody, second, first)
+
+    FORWARD_EVT(Character, first, second)
+    FORWARD_EVT(Character, second, first)
+
+    FORWARD_EVT(CharacterVirtual, first, second)
+    FORWARD_EVT(CharacterVirtual, second, first)
+#undef FORWARD_EVT
+  });
+
   connectColliderComponent(r);
   connectRigidBodyComponent(r);
   connectCharacterComponent(r);

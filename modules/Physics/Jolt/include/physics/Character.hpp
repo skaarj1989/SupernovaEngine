@@ -1,18 +1,19 @@
 #pragma once
 
-#include "entt/core/type_info.hpp"
+#include "entt/signal/emitter.hpp"
 
 #include "Jolt/Jolt.h"
 #include "Jolt/Physics/Collision/ObjectLayer.h"
 #include "Jolt/Physics/Character/Character.h"
 
 #include "CollisionLayer.hpp"
+#include "Events.hpp"
 
-#include "glm/vec3.hpp"
 #include "glm/gtc/quaternion.hpp"
 
-class Character {
+class Character : private entt::emitter<Character> {
   friend class PhysicsWorld;
+  friend class entt::emitter<Character>;
 
 public:
   struct Settings {
@@ -34,6 +35,13 @@ public:
 #else
   explicit Character(const Settings & = {});
 #endif
+  Character(const Character &);
+
+  using entt::emitter<Character>::emitter;
+
+  using entt::emitter<Character>::publish;
+  using entt::emitter<Character>::on;
+  using entt::emitter<Character>::erase;
 
   explicit operator bool() const;
 

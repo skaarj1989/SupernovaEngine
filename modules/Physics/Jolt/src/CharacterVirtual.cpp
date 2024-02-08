@@ -3,6 +3,8 @@
 
 CharacterVirtual::CharacterVirtual(const Settings &settings)
     : m_settings{settings} {}
+CharacterVirtual::CharacterVirtual(const CharacterVirtual &other)
+    : CharacterVirtual{other.m_settings} {}
 
 CharacterVirtual::operator bool() const { return m_character; }
 

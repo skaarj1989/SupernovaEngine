@@ -2,6 +2,7 @@
 #include "physics/Conversion.hpp"
 
 Character::Character(const Settings &settings) : m_settings{settings} {}
+Character::Character(const Character &other) : Character{other.m_settings} {}
 
 Character::operator bool() const {
   return m_character && !m_character->GetBodyID().IsInvalid();

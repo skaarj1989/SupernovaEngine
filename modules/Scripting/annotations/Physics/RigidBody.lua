@@ -1,6 +1,6 @@
 ---@meta
 
----@class RigidBody : ComponentBase
+---@class RigidBody : ComponentBase, Emitter
 ---@overload fun(): RigidBody
 ---@overload fun(settings: RigidBodySettings): RigidBody
 RigidBody = {}

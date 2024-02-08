@@ -22,9 +22,27 @@ struct RayCastNPResult {
   uint32_t entityId;
 };
 
-class PhysicsWorld {
+using BodyUserDataPair = std::pair<uint32_t, uint32_t>;
+
+struct ContactAddedEvent {
+  BodyUserDataPair bodyUserDataPair;
+  glm::vec3 offset;
+  glm::vec3 normal;
+};
+struct ContactRemovedEvent {
+  BodyUserDataPair bodyUserDataPair;
+};
+
+class PhysicsWorld : private entt::emitter<PhysicsWorld>,
+                     private JPH::ContactListener,
+                     private JPH::CharacterContactListener {
+  friend class entt::emitter<PhysicsWorld>;
+
 public:
   PhysicsWorld();
+
+  using entt::emitter<PhysicsWorld>::on;
+  using entt::emitter<PhysicsWorld>::erase;
 
   void enableDebugDraw(bool);
   bool isDebugDrawEnabled() const;
@@ -79,6 +97,17 @@ public:
     archive(v);
     setGravity(v);
   }
+
+private:
+  void OnContactAdded(const JPH::Body &body1, const JPH::Body &body2,
+                      const JPH::ContactManifold &,
+                      JPH::ContactSettings &) override;
+  void OnContactRemoved(const JPH::SubShapeIDPair &) override;
+
+  void OnContactAdded(const JPH::CharacterVirtual *, const JPH::BodyID &body2,
+                      const JPH::SubShapeID &, JPH::RVec3Arg position,
+                      JPH::Vec3Arg normal,
+                      JPH::CharacterContactSettings &) override;
 
 private:
   void _destroy(const JPH::BodyID);

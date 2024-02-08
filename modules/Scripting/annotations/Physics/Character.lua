@@ -1,6 +1,6 @@
 ---@meta
 
----@class Character : ComponentBase
+---@class Character : ComponentBase, Emitter
 ---@overload fun(): Character
 ---@overload fun(settings: CharacterSettings): Character
 Character = {}

@@ -1,19 +1,21 @@
 #pragma once
 
-#include "entt/core/type_info.hpp"
+#include "entt/signal/emitter.hpp"
 
 #include "Jolt/Jolt.h"
 #include "Jolt/Physics/PhysicsSystem.h"
 
 #include "CollisionLayer.hpp"
+#include "Events.hpp"
 
-#include "glm/vec3.hpp"
 #include "glm/gtc/quaternion.hpp"
 
 enum class MotionType { Dynamic, Static, Kinematic };
 
-class RigidBody {
+class RigidBody : private entt::emitter<RigidBody> {
   friend class PhysicsWorld;
+  friend class entt::emitter<RigidBody>;
+
   static constexpr auto in_place_delete = true;
 
 public:
@@ -39,6 +41,14 @@ public:
 #else
   explicit RigidBody(const Settings & = {});
 #endif
+
+  RigidBody(const RigidBody &);
+
+  using entt::emitter<RigidBody>::emitter;
+
+  using entt::emitter<RigidBody>::publish;
+  using entt::emitter<RigidBody>::on;
+  using entt::emitter<RigidBody>::erase;
 
   explicit operator bool() const;
 
