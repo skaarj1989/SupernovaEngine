@@ -82,6 +82,7 @@ ImGuiApp::~ImGuiApp() {
 
   m_uiResources.clear();
   m_uiRenderer.reset();
+  ImGui::GetIO().BackendRendererUserData = nullptr;
 
   ImGui::DestroyContext();
 }
