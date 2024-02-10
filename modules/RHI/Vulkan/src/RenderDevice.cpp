@@ -71,6 +71,15 @@ constexpr auto kTargetVersion = _TARGET_VERSION;
   VK_CHECK(vkEnumerateInstanceLayerProperties(&count, layerProperties.data()));
   return layerProperties;
 }
+[[nodiscard]] const VkLayerProperties *
+queryInstanceLayer(std::span<const VkLayerProperties> layers,
+                   const std::string_view name) {
+  for (const auto &properties : layers) {
+    if (properties.layerName == name) return &properties;
+  }
+  return nullptr;
+}
+
 [[nodiscard]] auto enumerateInstanceExtensions() {
   uint32_t count{0};
   VK_CHECK(vkEnumerateInstanceExtensionProperties(nullptr, &count, nullptr));
@@ -78,6 +87,14 @@ constexpr auto kTargetVersion = _TARGET_VERSION;
   VK_CHECK(vkEnumerateInstanceExtensionProperties(nullptr, &count,
                                                   extensionProperties.data()));
   return extensionProperties;
+}
+[[nodiscard]] std::optional<uint32_t>
+queryExtension(std::span<const VkExtensionProperties> extensions,
+               const std::string_view name) {
+  for (const auto &properties : extensions) {
+    if (properties.extensionName == name) return properties.specVersion;
+  }
+  return std::nullopt;
 }
 
 [[nodiscard]] auto enumeratePhysicalDevices(VkInstance instance) {
@@ -122,6 +139,15 @@ constexpr auto kTargetVersion = _TARGET_VERSION;
     if ((queues[i].queueFlags & requestedTypes) == requestedTypes) return i;
 
   return VK_QUEUE_FAMILY_IGNORED;
+}
+
+[[nodiscard]] auto enumeratePhysicalDeviceExtensions(VkPhysicalDevice device) {
+  uint32_t count{0};
+  vkEnumerateDeviceExtensionProperties(device, nullptr, &count, nullptr);
+  std::vector<VkExtensionProperties> properties(count);
+  vkEnumerateDeviceExtensionProperties(device, nullptr, &count,
+                                       properties.data());
+  return properties;
 }
 
 [[nodiscard]] constexpr auto makeAllocationFlags(AllocationHints hints) {
@@ -737,9 +763,16 @@ void RenderDevice::_createInstance() {
     "VK_LAYER_KHRONOS_validation",
     "VK_LAYER_KHRONOS_synchronization2",
   };
+  const auto supportedLayers = enumerateInstanceLayers();
+  for (const auto *name : validationLayerNames) {
+    if (!queryInstanceLayer(supportedLayers, name)) {
+      throw std::runtime_error{
+        std::format("VkInstance layer: '{}' is not supported", name)};
+    }
+  }
 #endif
 
-  const auto extensions = std::array {
+  const auto kExtensions = std::array {
     VK_KHR_SURFACE_EXTENSION_NAME,
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
       VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
@@ -750,6 +783,13 @@ void RenderDevice::_createInstance() {
       VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
 #endif
   };
+  const auto supportedExtensions = enumerateInstanceExtensions();
+  for (const auto *name : kExtensions) {
+    if (!queryExtension(supportedExtensions, name)) {
+      throw std::runtime_error{
+        std::format("VkInstance extension: '{}' is not supported", name)};
+    }
+  }
 
   const VkInstanceCreateInfo instanceInfo {
     .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
@@ -758,8 +798,8 @@ void RenderDevice::_createInstance() {
     .enabledLayerCount = uint32_t(validationLayerNames.size()),
     .ppEnabledLayerNames = validationLayerNames.data(),
 #endif
-    .enabledExtensionCount = uint32_t(extensions.size()),
-    .ppEnabledExtensionNames = extensions.data(),
+    .enabledExtensionCount = uint32_t(kExtensions.size()),
+    .ppEnabledExtensionNames = kExtensions.data(),
   };
   VK_CHECK(vkCreateInstance(&instanceInfo, nullptr, &m_instance));
 }
@@ -777,6 +817,21 @@ void RenderDevice::_selectPhysicalDevice(
 void RenderDevice::_createLogicalDevice(uint32_t familyIndex) {
   assert(familyIndex != VK_QUEUE_FAMILY_IGNORED);
 
+  constexpr auto kMandatoryDeviceExtensions = {
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+    VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME,
+    VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
+  };
+  const auto supportedDeviceExtensions =
+    enumeratePhysicalDeviceExtensions(m_physicalDevice.handle);
+  for (const auto *name : kMandatoryDeviceExtensions) {
+    if (!queryExtension(supportedDeviceExtensions, name)) {
+      throw std::runtime_error{
+        std::format("VkDevice extension: '{}' is not supported", name)};
+    }
+  }
+
+  std::vector<const char *> deviceExtensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
   FeatureBuilder featureBuilder{m_physicalDevice.handle};
   if constexpr (kTargetVersion >= VK_API_VERSION_1_2) {
     auto &vk12 =
@@ -801,14 +856,38 @@ void RenderDevice::_createLogicalDevice(uint32_t familyIndex) {
     vk13.synchronization2 = VK_TRUE;
     vk13.dynamicRendering = VK_TRUE;
   } else {
+    deviceExtensions.emplace_back(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME);
     featureBuilder
       .requestExtensionFeatures<VkPhysicalDeviceSynchronization2Features>(
         VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES)
       .synchronization2 = VK_TRUE;
+
+    deviceExtensions.emplace_back(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
     featureBuilder
       .requestExtensionFeatures<VkPhysicalDeviceDynamicRenderingFeatures>(
         VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES)
       .dynamicRendering = VK_TRUE;
+  }
+
+  if (queryExtension(supportedDeviceExtensions,
+                     VK_EXT_MEMORY_PRIORITY_EXTENSION_NAME)) {
+    deviceExtensions.emplace_back(VK_EXT_MEMORY_PRIORITY_EXTENSION_NAME);
+    featureBuilder
+      .requestExtensionFeatures<VkPhysicalDeviceMemoryPriorityFeaturesEXT>(
+        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PRIORITY_FEATURES_EXT)
+      .memoryPriority = VK_TRUE;
+
+    // UNASSIGNED-BestPractices-CreateDevice-PageableDeviceLocalMemory
+    if (queryExtension(supportedDeviceExtensions,
+                       VK_EXT_PAGEABLE_DEVICE_LOCAL_MEMORY_EXTENSION_NAME)) {
+      deviceExtensions.emplace_back(
+        VK_EXT_PAGEABLE_DEVICE_LOCAL_MEMORY_EXTENSION_NAME);
+      featureBuilder
+        .requestExtensionFeatures<
+          VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT>(
+          VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PAGEABLE_DEVICE_LOCAL_MEMORY_FEATURES_EXT)
+        .pageableDeviceLocalMemory = VK_TRUE;
+    }
   }
 
   const auto kDefaultQueuePriority = 1.0f;
@@ -817,20 +896,6 @@ void RenderDevice::_createLogicalDevice(uint32_t familyIndex) {
     .queueFamilyIndex = familyIndex,
     .queueCount = 1,
     .pQueuePriorities = &kDefaultQueuePriority,
-  };
-
-  const auto kDeviceExtensions = std::array{
-    // clang-format off
-    VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-    
-    "VK_EXT_memory_priority",
-    //"VK_EXT_pageable_device_local_memory",
-    
-    // 1.3:
-
-    VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME,
-    VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
-    // clang-format on
   };
 
   // clang-format off
@@ -861,8 +926,8 @@ void RenderDevice::_createLogicalDevice(uint32_t familyIndex) {
 
     // Device layers are deprecated and ignored.
 
-    .enabledExtensionCount = uint32_t(kDeviceExtensions.size()),
-    .ppEnabledExtensionNames = kDeviceExtensions.data(),
+    .enabledExtensionCount = uint32_t(deviceExtensions.size()),
+    .ppEnabledExtensionNames = deviceExtensions.data(),
     .pEnabledFeatures = &enabledFeatures,
   };
 
