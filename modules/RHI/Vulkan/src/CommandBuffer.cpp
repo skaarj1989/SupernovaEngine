@@ -70,7 +70,7 @@ CommandBuffer::CommandBuffer(CommandBuffer &&other) noexcept
     : m_device{other.m_device}, m_commandPool{other.m_commandPool},
       m_state{other.m_state}, m_handle{other.m_handle},
       m_tracyContext{other.m_tracyContext}, m_fence{other.m_fence},
-      m_descriptorPool{std::move(other.m_descriptorPool)},
+      m_descriptorSetAllocator{std::move(other.m_descriptorSetAllocator)},
       m_descriptorSetCache{std::move(other.m_descriptorSetCache)},
       m_barrierBuilder{std::move(other.m_barrierBuilder)},
       m_pipeline{other.m_pipeline}, m_vertexBuffer{other.m_vertexBuffer},
@@ -108,7 +108,7 @@ CommandBuffer &CommandBuffer::operator=(CommandBuffer &&rhs) noexcept {
 
     std::swap(m_fence, rhs.m_fence);
 
-    std::swap(m_descriptorPool, rhs.m_descriptorPool);
+    std::swap(m_descriptorSetAllocator, rhs.m_descriptorSetAllocator);
     std::swap(m_descriptorSetCache, rhs.m_descriptorSetCache);
 
     std::swap(m_barrierBuilder, rhs.m_barrierBuilder);
@@ -130,7 +130,8 @@ Barrier::Builder &CommandBuffer::getBarrierBuilder() {
 }
 
 DescriptorSetBuilder CommandBuffer::createDescriptorSetBuilder() {
-  return DescriptorSetBuilder{m_device, m_descriptorPool, m_descriptorSetCache};
+  return DescriptorSetBuilder{m_device, m_descriptorSetAllocator,
+                              m_descriptorSetCache};
 }
 
 CommandBuffer &CommandBuffer::begin() {
@@ -172,7 +173,7 @@ CommandBuffer &CommandBuffer::reset() {
       m_handle, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT));
 
     m_descriptorSetCache.clear();
-    m_descriptorPool.reset();
+    m_descriptorSetAllocator.reset();
 
     m_state = State::Initial;
   }
@@ -622,7 +623,7 @@ CommandBuffer::CommandBuffer(VkDevice device, VkCommandPool commandPool,
                              VkFence fence)
     : m_device{device}, m_commandPool{commandPool}, m_state{State::Initial},
       m_handle{handle}, m_tracyContext{tracy}, m_fence{fence},
-      m_descriptorPool{device} {}
+      m_descriptorSetAllocator{device} {}
 
 bool CommandBuffer::_invariant(State requiredState,
                                InvariantFlags flags) const {
@@ -668,7 +669,7 @@ void CommandBuffer::_destroy() noexcept {
 
     m_fence = VK_NULL_HANDLE;
 
-    m_descriptorPool = {};
+    m_descriptorSetAllocator = {};
     m_descriptorSetCache.clear();
 
     m_pipeline = nullptr;

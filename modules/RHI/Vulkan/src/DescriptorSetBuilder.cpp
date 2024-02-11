@@ -1,5 +1,5 @@
 #include "rhi/DescriptorSetBuilder.hpp"
-#include "rhi/DescriptorPool.hpp"
+#include "rhi/DescriptorSetAllocator.hpp"
 #include "rhi/Buffer.hpp"
 #include "rhi/Texture.hpp"
 #include "math/Hash.hpp"
@@ -25,10 +25,10 @@ namespace {
 // DescriptorSetBuilder class:
 //
 
-DescriptorSetBuilder::DescriptorSetBuilder(VkDevice device,
-                                           DescriptorPool &descriptorPool,
-                                           DescriptorSetCache &cache)
-    : m_device{device}, m_descriptorPool{descriptorPool},
+DescriptorSetBuilder::DescriptorSetBuilder(
+  VkDevice device, DescriptorSetAllocator &descriptorSetAllocator,
+  DescriptorSetCache &cache)
+    : m_device{device}, m_descriptorSetAllocator{descriptorSetAllocator},
       m_descriptorSetCache{cache} {
   m_bindings.reserve(10);
   m_descriptors.reserve(10);
@@ -185,7 +185,7 @@ VkDescriptorSet DescriptorSetBuilder::build(VkDescriptorSetLayout layout) {
       it != m_descriptorSetCache.cend()) {
     descriptorSet = it->second;
   } else {
-    descriptorSet = m_descriptorPool.allocate(layout);
+    descriptorSet = m_descriptorSetAllocator.allocate(layout);
     for (auto &record : writeDescriptors)
       record.dstSet = descriptorSet;
 

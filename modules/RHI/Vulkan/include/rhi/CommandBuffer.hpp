@@ -9,7 +9,7 @@
 #include "rhi/FramebufferInfo.hpp"
 #include "rhi/GeometryInfo.hpp"
 #include "rhi/Barrier.hpp"
-#include "rhi/DescriptorPool.hpp"
+#include "rhi/DescriptorSetAllocator.hpp"
 #include "rhi/DescriptorSetBuilder.hpp"
 #include "tracy/Tracy.hpp"
 #include "tracy/TracyVulkan.hpp"
@@ -141,7 +141,7 @@ private:
 
   VkFence m_fence{VK_NULL_HANDLE};
 
-  DescriptorPool m_descriptorPool;
+  DescriptorSetAllocator m_descriptorSetAllocator;
   DescriptorSetCache m_descriptorSetCache;
 
   Barrier::Builder m_barrierBuilder;

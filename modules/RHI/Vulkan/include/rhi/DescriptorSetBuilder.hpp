@@ -7,7 +7,7 @@
 
 namespace rhi {
 
-class DescriptorPool;
+class DescriptorSetAllocator;
 class Buffer;
 class Texture;
 
@@ -59,7 +59,8 @@ using ResourceBinding = std::variant<
 class DescriptorSetBuilder final {
 public:
   DescriptorSetBuilder() = delete;
-  DescriptorSetBuilder(VkDevice, DescriptorPool &, DescriptorSetCache &);
+  DescriptorSetBuilder(VkDevice, DescriptorSetAllocator &,
+                       DescriptorSetCache &);
   DescriptorSetBuilder(const DescriptorSetBuilder &) = delete;
   DescriptorSetBuilder(DescriptorSetBuilder &&) noexcept = delete;
 
@@ -89,7 +90,7 @@ private:
 
 private:
   VkDevice m_device{VK_NULL_HANDLE};
-  DescriptorPool &m_descriptorPool;
+  DescriptorSetAllocator &m_descriptorSetAllocator;
   DescriptorSetCache &m_descriptorSetCache;
 
   struct BindingInfo {
