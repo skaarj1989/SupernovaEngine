@@ -17,3 +17,6 @@
 ---@operator div(vec4): mat4
 ---@operator div(mat4): mat4
 math.mat4 = {}
+
+---@return mat4
+function math.mat4.identity() end
