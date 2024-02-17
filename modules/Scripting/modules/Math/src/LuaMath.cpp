@@ -382,7 +382,7 @@ void registerQuat(sol::table &lua) {
         sol::resolve<glm::quat(const glm::quat &, const float &)>(glm::operator/)
       ),
 
-    sol::meta_function::to_string, [](const glm::vec4 &v) {
+    sol::meta_function::to_string, [](const glm::quat &v) {
       return std::format("quat(w={}, {}, {}, {})", v.w, v.x, v.y, v.z);
     }
   );
