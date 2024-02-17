@@ -177,6 +177,8 @@ void registerVec2(const char *name, sol::table &lua) {
 
     "x", &T::x, "y", &T::y,
     
+    "makeArray", [] { return std::vector<T>{}; },
+    
     sol::meta_function::to_string,
       [name](const T &v) { return std::format("{}({}, {})", name, v.x, v.y); }
   );
@@ -211,6 +213,8 @@ void registerVec3(const char *name, sol::table &lua) {
     "x", &T::x, "y", &T::y, "z", &T::z,
     "r", &T::r, "g", &T::g, "b", &T::b,
     
+    "makeArray", [] { return std::vector<T>{}; },
+    
     sol::meta_function::to_string,
       [name](const T &v) { return std::format("{}({}, {}, {})", name, v.x, v.y, v.z); }
   );
@@ -241,6 +245,8 @@ void registerVec4(sol::table &lua) {
     "y", &glm::vec4::y, "g", &glm::vec4::g,
     "z", &glm::vec4::z, "b", &glm::vec4::b,
     "w", &glm::vec4::w, "a", &glm::vec4::a,
+
+    "makeArray", [] { return std::vector<glm::vec4>{}; },
 
     // glm/detail/type_vec4.inl
 

@@ -28,6 +28,9 @@
 ---@operator div(mat4): vec4
 math.vec4 = {}
 
+---@return vec4[]
+function math.vec4.makeArray() end
+
 ---@class ivec4
 ---@field x integer
 ---@field y integer
@@ -48,6 +51,9 @@ math.vec4 = {}
 ---@operator div(number): ivec4
 ---@operator div(ivec4): ivec4
 math.ivec4 = {}
+
+---@return ivec4[]
+function math.ivec4.makeArray() end
 
 ---@class uvec4
 ---@field x integer
@@ -70,6 +76,9 @@ math.ivec4 = {}
 ---@operator div(uvec4): uvec4
 math.uvec4 = {}
 
+---@return uvec4[]
+function math.uvec4.makeArray() end
+
 ---@class bvec4
 ---@field x boolean
 ---@field y boolean
@@ -79,3 +88,6 @@ math.uvec4 = {}
 ---@overload fun(v: bvec4): bvec4
 ---@overload fun(x: boolean, y: boolean, z: boolean, w: boolean): bvec4
 math.bvec4 = {}
+
+---@return bvec4[]
+function math.bvec4.makeArray() end

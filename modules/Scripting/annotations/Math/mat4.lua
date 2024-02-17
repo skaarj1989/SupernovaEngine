@@ -20,3 +20,6 @@ math.mat4 = {}
 
 ---@return mat4
 function math.mat4.identity() end
+
+---@return mat4[]
+function math.mat4.makeArray() end

@@ -16,6 +16,9 @@
 ---@operator div(vec2): vec2
 math.vec2 = {}
 
+---@return vec2[]
+function math.vec2.makeArray() end
+
 ---@class ivec2
 ---@field x integer
 ---@field y integer
@@ -31,6 +34,9 @@ math.vec2 = {}
 ---@operator div(number): ivec2
 ---@operator div(ivec2): ivec2
 math.ivec2 = {}
+
+---@return ivec2[]
+function math.ivec2.makeArray() end
 
 ---@class uvec2
 ---@field x integer
@@ -48,6 +54,9 @@ math.ivec2 = {}
 ---@operator div(uvec2): uvec2
 math.uvec2 = {}
 
+---@return uvec2[]
+function math.uvec2.makeArray() end
+
 ---@class bvec2
 ---@field x boolean
 ---@field y boolean
@@ -55,3 +64,6 @@ math.uvec2 = {}
 ---@overload fun(v: bvec2): bvec2
 ---@overload fun(x: boolean, y: boolean): bvec2
 math.bvec2 = {}
+
+---@return bvec2[]
+function math.bvec2.makeArray() end

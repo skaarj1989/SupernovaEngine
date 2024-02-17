@@ -21,6 +21,9 @@
 ---@operator div(vec3): vec3
 math.vec3 = {}
 
+---@return vec3[]
+function math.vec3.makeArray() end
+
 ---@class ivec3
 ---@field x integer
 ---@field y integer
@@ -37,6 +40,9 @@ math.vec3 = {}
 ---@operator div(number): ivec3
 ---@operator div(ivec3): ivec3
 math.ivec3 = {}
+
+---@return ivec3[]
+function math.ivec3.makeArray() end
 
 ---@class uvec3
 ---@field x integer
@@ -55,6 +61,9 @@ math.ivec3 = {}
 ---@operator div(uvec3): uvec3
 math.uvec3 = {}
 
+---@return uvec3[]
+function math.uvec3.makeArray() end
+
 ---@class bvec3
 ---@field x boolean
 ---@field y boolean
@@ -63,3 +72,6 @@ math.uvec3 = {}
 ---@overload fun(v: bvec3): bvec3
 ---@overload fun(x: boolean, y: boolean, z: boolean): bvec3
 math.bvec3 = {}
+
+---@return bvec3[]
+function math.bvec3.makeArray() end
