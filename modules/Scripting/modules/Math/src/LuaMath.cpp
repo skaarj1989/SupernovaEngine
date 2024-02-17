@@ -300,6 +300,8 @@ void registerMat4(sol::table &lua) {
       glm::mat4(const glm::mat4 &)
     >(),
 
+    "identity", glm::identity<glm::mat4>,
+
     // glm/detail/type_mat4x4.inl
 
     sol::meta_function::addition,
@@ -356,6 +358,8 @@ void registerQuat(sol::table &lua) {
     "y", &glm::quat::y,
     "z", &glm::quat::z,
     "w", &glm::quat::w,
+
+    "identity", glm::identity<glm::quat>,
 
     // glm/detail/type_quat.inl
 
