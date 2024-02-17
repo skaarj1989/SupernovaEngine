@@ -34,6 +34,9 @@ add_library(JoltPhysics
   "include/physics/DebugRenderer.hpp"
   "src/DebugRenderer.cpp"
 
+  "include/physics/ShapeBuilder.hpp"
+  "src/ShapeBuilder.cpp"
+
   "include/physics/ShapeSerialization.hpp"
   "src/ShapeSerialization.cpp"
 
@@ -61,6 +64,6 @@ add_library(JoltPhysics
 target_include_directories(JoltPhysics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(JoltPhysics
   PRIVATE spdlog::spdlog
-  PUBLIC Math Resource Transform DebugDraw Jolt
+  PUBLIC Common Math Resource Transform DebugDraw Jolt
 )
 set_target_properties(JoltPhysics PROPERTIES FOLDER "Framework")

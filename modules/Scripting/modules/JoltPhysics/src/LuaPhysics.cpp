@@ -3,6 +3,7 @@
 
 #include "physics/PhysicsWorld.hpp"
 #include "physics/Collider.hpp"
+#include "physics/ShapeBuilder.hpp"
 
 #include "LuaEmitter.hpp"
 #include "Sol2HelperMacros.hpp"
@@ -87,6 +88,45 @@ void registerEvents(sol::state &lua) {
   // clang-format on
 }
 
+void registerShapeBuilder(sol::state &lua) {
+  // clang-format off
+  DEFINE_USERTYPE(UncookedShape,
+    sol::no_constructor,
+
+    "isValid", &UncookedShape::IsValid,
+
+    sol::meta_function::to_string, [](const UncookedShape &self) {
+      return std::format("UncookedShape({})", self.IsValid() ? "Valid" : "Invalid");
+    }
+  );
+
+#define BIND(Member) _BIND(ShapeBuilder, Member)
+  auto type = DEFINE_USERTYPE(ShapeBuilder,
+    sol::call_constructor,
+    sol::constructors<ShapeBuilder()>(),
+
+    BIND(makeSphere),
+    BIND(makeBox),
+    BIND(makeCapsule),
+    BIND(makeConvexHull),
+
+    BIND(set),
+    BIND(reset),
+
+    BIND(add),
+    BIND(scale),
+    BIND(rotateTranslate),
+
+    BIND(size),
+
+    BIND(build),
+
+    BIND_TOSTRING(ShapeBuilder)
+  );
+#undef BIND
+  // clang-format on
+}
+
 void registerResources(sol::state &lua) {
   // clang-format off
   DEFINE_USERTYPE(ColliderResource,
@@ -106,13 +146,20 @@ void registerColliderComponent(sol::state &lua) {
     sol::factories(
       [](std::shared_ptr<ColliderResource> resource) {
         return ColliderComponent{resource};
-      }
-    ),
+      },
+      [](const UncookedShape &uncooked) {
+        return ColliderComponent{
+          uncooked.IsValid()
+            ? std::make_shared<ColliderResource>(uncooked.Get(), "")
+            : nullptr};
+      }),
 
     _BIND(ColliderComponent, resource),
 
     BIND_TYPEID(ColliderComponent),
-    BIND_TOSTRING(ColliderComponent)
+    sol::meta_function::to_string, [](const ColliderComponent &self) {
+      return std::format("ColliderComponent({})", self.resource ? "Valid" : "Invalid");
+    }
   );
   // clang-format on
 }
@@ -413,6 +460,7 @@ void registerJoltPhysics(sol::state &lua) {
   registerPhysicsWorld(lua);
 
   registerEvents(lua);
+  registerShapeBuilder(lua);
   registerResources(lua);
 
   registerColliderComponent(lua);
