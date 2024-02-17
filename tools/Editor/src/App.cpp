@@ -17,6 +17,8 @@
 #include "ScriptEditor.hpp"
 #include "MaterialEditor/MaterialEditor.hpp"
 
+#include "ShapeCreatorWidget.hpp"
+
 #include "ImGuiModal.hpp"
 #include "GPUWidget.hpp"
 #include "WorldRendererWidget.hpp"
@@ -196,6 +198,8 @@ void App::_setupWidgets() {
     [this](const char *name, bool *open) {
       showWorldRendererWindow(name, open, *m_renderer);
     });
+  m_widgets.add<ShapeCreatorWidget>("Shape Creator",
+                                    {.name = "Shape Creator", .open = false});
 
   m_widgets.add<SceneEditor>("Scene Editor",
                              {

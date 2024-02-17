@@ -19,6 +19,9 @@ set(WIDGET_SOURCES
   "src/RenderSettings.cpp"
   "include/RenderTargetPreview.hpp"
 
+  "include/ShapeCreatorWidget.hpp"
+  "src/ShapeCreatorWidget.cpp"
+
   "include/WidgetWindow.hpp"
 
   "src/RenderTargetPreview.cpp"
@@ -60,8 +63,6 @@ set(WIDGET_SOURCES
   "include/Inspectors/SkeletonInspector.hpp"
   "src/Inspectors/SkeletonInspector.cpp"
 
-  "include/Inspectors/JoltInspector.hpp"
-  "src/Inspectors/JoltInspector.cpp"
   "include/Inspectors/CollisionLayerInspector.hpp"
   "src/Inspectors/CollisionLayerInspector.cpp"
   "include/Inspectors/ColliderInspector.hpp"

@@ -1,34 +1,72 @@
 #include "Inspectors/ColliderInspector.hpp"
-#include "Inspectors/JoltInspector.hpp"
+
+#include "Jolt/Physics/Collision/Shape/SphereShape.h"
 #include "Jolt/Physics/Collision/Shape/BoxShape.h"
 #include "Jolt/Physics/Collision/Shape/CapsuleShape.h"
-#include "Jolt/Physics/Collision/Shape/SphereShape.h"
+#include "Jolt/Physics/Collision/Shape/ConvexHullShape.h"
 #include "Jolt/Physics/Collision/Shape/MeshShape.h"
-#include "Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h"
+#include "Jolt/Physics/Collision/Shape/StaticCompoundShape.h"
 #include "Jolt/Physics/Collision/Shape/ScaledShape.h"
+#include "Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h"
+
 #include "imgui.h"
 
 namespace {
 
-void print(const char *label, float s) { ImGui::Text("%s = %.2f", label, s); }
-void print(const char *label, uint32_t s) { ImGui::Text("%s = %u", label, s); }
-
+void print(const JPH::SphereShape *shape) {
+  ImGui::Text("Sphere{ .radius = %.2f }", shape->GetRadius());
+}
 void print(const JPH::BoxShape *shape) {
-  ImGui::Text("Shape: Box");
-  ::print("Half extents", shape->GetHalfExtent());
+  const auto &v = shape->GetHalfExtent();
+  ImGui::Text("Box{ .halfHeight = {%.2f, %.2f, %.2f} }", v.GetX(), v.GetY(),
+              v.GetZ());
 }
 void print(const JPH::CapsuleShape *shape) {
-  ImGui::Text("Shape: Capsule");
-  print("Radius", shape->GetRadius());
-  print("Half height", shape->GetHalfHeightOfCylinder());
+  ImGui::Text("Capsule{ .radius = %.2f, .halfHeight = %.2f }",
+              shape->GetRadius(), shape->GetHalfHeightOfCylinder());
 }
-void print(const JPH::SphereShape *shape) {
-  ImGui::Text("Shape: Sphere");
-  print("Radius", shape->GetRadius());
+void print(const JPH::ConvexHullShape *shape) {
+  ImGui::Text("ConvexHull{ .numPoints = %u }", shape->GetNumPoints());
 }
+
 void print(const JPH::MeshShape *shape) {
-  ImGui::Text("Shape: Mesh");
-  print("Num triangles", shape->GetStats().mNumTriangles);
+  ImGui::Text("Mesh{ .numTriangles = %u }", shape->GetStats().mNumTriangles);
+}
+
+void print(const JPH::StaticCompoundShape *shape) {
+  ImGui::SetNextItemOpen(true, ImGuiCond_FirstUseEver);
+  if (ImGui::TreeNode("Compound")) {
+    for (auto i = 0u; i < shape->GetNumSubShapes(); ++i) {
+      ::print(shape->GetSubShape(i).mShape.GetPtr());
+    }
+    ImGui::TreePop();
+  }
+}
+
+void print(const JPH::ScaledShape *shape) {
+  ImGui::SetNextItemOpen(true, ImGuiCond_FirstUseEver);
+  if (ImGui::TreeNode("Scaled")) {
+    const auto &s = shape->GetScale();
+    ImGui::Text("{ .scale = {%.2f, %.2f, %.2f} }", s.GetX(), s.GetY(),
+                s.GetZ());
+    ::print(shape->GetInnerShape());
+
+    ImGui::TreePop();
+  }
+}
+void print(const JPH::RotatedTranslatedShape *shape) {
+  ImGui::SetNextItemOpen(true, ImGuiCond_FirstUseEver);
+  if (ImGui::TreeNode("RotatedTranslated")) {
+    const auto &p = shape->GetPosition();
+    const auto &q = shape->GetRotation();
+    ImGui::Text("{\n  .offset = {%.2f, %.2f, %.2f},\n  .orientation = "
+                "{%.2f, %.2f,%.2f, .w=%.2f}\n}",
+                p.GetX(), p.GetY(), p.GetZ(), q.GetX(), q.GetY(), q.GetZ(),
+                q.GetW());
+    ::print(shape->GetInnerShape());
+
+    ImGui::TreePop();
+  }
 }
 
 } // namespace
@@ -37,42 +75,21 @@ void print(const JPH::Shape *shape) {
   assert(shape);
 
   switch (shape->GetSubType()) {
-    using enum JPH::EShapeSubType;
+#define CASE(T)                                                                \
+  case JPH::EShapeSubType::T:                                                  \
+    return print(static_cast<const JPH::T##Shape *>(shape))
 
-  case Box:
-    print(static_cast<const JPH::BoxShape *>(shape));
-    break;
-  case Capsule:
-    print(static_cast<const JPH::CapsuleShape *>(shape));
-    break;
-  case Sphere:
-    print(static_cast<const JPH::SphereShape *>(shape));
-    break;
-  case Mesh: {
-    print(static_cast<const JPH::MeshShape *>(shape));
-  } break;
+    CASE(Sphere);
+    CASE(Box);
+    CASE(Capsule);
+    CASE(ConvexHull);
 
-  case RotatedTranslated: {
-    if (ImGui::TreeNode("RotatedTranslatedShape")) {
-      auto rotatedTranslatedShape =
-        static_cast<const JPH::RotatedTranslatedShape *>(shape);
-      print("Offset", rotatedTranslatedShape->GetPosition());
-      print("Orientation", rotatedTranslatedShape->GetRotation());
-      ImGui::SeparatorText("Inner");
-      print(rotatedTranslatedShape->GetInnerShape());
+    CASE(StaticCompound);
 
-      ImGui::TreePop();
-    }
-  } break;
-  case Scaled: {
-    if (ImGui::TreeNode("ScaledShape")) {
-      auto scaledShape = static_cast<const JPH::ScaledShape *>(shape);
-      print("Scale", scaledShape->GetScale());
-      ImGui::SeparatorText("Inner");
-      print(scaledShape->GetInnerShape());
+    CASE(Scaled);
+    CASE(RotatedTranslated);
 
-      ImGui::TreePop();
-    }
-  } break;
+    CASE(Mesh);
+#undef CASE
   }
 }
