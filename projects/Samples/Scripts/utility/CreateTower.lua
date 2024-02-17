@@ -1,6 +1,6 @@
 local prefab <const> = {
   mesh = loadMesh("BasicShapes:Cube"),
-  collider = loadCollider("Colliders/Box.json")
+  collider = loadCollider("Colliders/Box")
 }
 
 local startPosition <const> = math.vec3(0.0, 2.5, 0.0)

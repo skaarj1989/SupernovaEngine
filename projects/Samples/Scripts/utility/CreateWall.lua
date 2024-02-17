@@ -1,6 +1,6 @@
 local prefab <const> = {
   mesh = loadMesh("BasicShapes:Cube"),
-  collider = loadCollider("Colliders/Box.json")
+  collider = loadCollider("Colliders/Box")
 }
 
 -- Config:

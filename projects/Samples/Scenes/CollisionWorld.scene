@@ -518,105 +518,105 @@
     "value114": {
         "value0": {
             "nullopt": false,
-            "data": "Meshes/CollisionWorld/Collider.json"
+            "data": "Meshes/CollisionWorld/Collider"
         }
     },
     "value115": 1,
     "value116": {
         "value0": {
             "nullopt": false,
-            "data": "Colliders/Box.json"
+            "data": "Colliders/Box"
         }
     },
     "value117": 4,
     "value118": {
         "value0": {
             "nullopt": false,
-            "data": "Colliders/Capsule.json"
+            "data": "Colliders/Capsule"
         }
     },
     "value119": 19,
     "value120": {
         "value0": {
             "nullopt": false,
-            "data": "Colliders/Box.json"
+            "data": "Colliders/Box"
         }
     },
     "value121": 8,
     "value122": {
         "value0": {
             "nullopt": false,
-            "data": "Colliders/Box.json"
+            "data": "Colliders/Box"
         }
     },
     "value123": 9,
     "value124": {
         "value0": {
             "nullopt": false,
-            "data": "Colliders/Box.json"
+            "data": "Colliders/Box"
         }
     },
     "value125": 10,
     "value126": {
         "value0": {
             "nullopt": false,
-            "data": "Colliders/Box.json"
+            "data": "Colliders/Box"
         }
     },
     "value127": 12,
     "value128": {
         "value0": {
             "nullopt": false,
-            "data": "Colliders/Sphere.json"
+            "data": "Colliders/Sphere"
         }
     },
     "value129": 13,
     "value130": {
         "value0": {
             "nullopt": false,
-            "data": "Colliders/Sphere.json"
+            "data": "Colliders/Sphere"
         }
     },
     "value131": 14,
     "value132": {
         "value0": {
             "nullopt": false,
-            "data": "Colliders/Sphere.json"
+            "data": "Colliders/Sphere"
         }
     },
     "value133": 15,
     "value134": {
         "value0": {
             "nullopt": false,
-            "data": "Colliders/Sphere.json"
+            "data": "Colliders/Sphere"
         }
     },
     "value135": 16,
     "value136": {
         "value0": {
             "nullopt": false,
-            "data": "Colliders/Sphere.json"
+            "data": "Colliders/Sphere"
         }
     },
     "value137": 17,
     "value138": {
         "value0": {
             "nullopt": false,
-            "data": "Colliders/Sphere.json"
+            "data": "Colliders/Sphere"
         }
     },
     "value139": 18,
     "value140": {
         "value0": {
             "nullopt": false,
-            "data": "Colliders/Sphere.json"
+            "data": "Colliders/Sphere"
         }
     },
     "value141": 1048583,
     "value142": {
         "value0": {
             "nullopt": false,
-            "data": "Colliders/Sphere.json"
+            "data": "Colliders/Sphere"
         }
     },
     "value143": 14,

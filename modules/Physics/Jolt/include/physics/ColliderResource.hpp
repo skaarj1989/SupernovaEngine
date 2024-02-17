@@ -4,16 +4,6 @@
 #include "Jolt/Jolt.h"
 #include "Jolt/Physics/Collision/Shape/Shape.h"
 
-enum class ColliderType {
-  Box,
-  Sphere,
-  Capsule,
-
-  ConvexHull,
-
-  TriangleMesh,
-};
-
 class ColliderResource final : public Resource {
 public:
   ColliderResource(const JPH::Shape *, const std::filesystem::path &);

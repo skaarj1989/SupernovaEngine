@@ -34,6 +34,9 @@ add_library(JoltPhysics
   "include/physics/DebugRenderer.hpp"
   "src/DebugRenderer.cpp"
 
+  "include/physics/ShapeSerialization.hpp"
+  "src/ShapeSerialization.cpp"
+
   "include/physics/Collider.hpp"
   "include/physics/ColliderResource.hpp"
   "src/ColliderResource.cpp"

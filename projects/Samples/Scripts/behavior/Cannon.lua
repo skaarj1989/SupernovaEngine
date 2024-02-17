@@ -10,7 +10,7 @@ function Cannon:construct(projectile)
 end
 
 local bulletPrefab <const> = {
-  collider = loadCollider("Colliders/Sphere.json"),
+  collider = loadCollider("Colliders/Sphere"),
   mesh = loadMesh("BasicShapes:Sphere"),
   material = loadMaterial("Materials/Graph/Surface/Emissive/Emissive.material")
 }
