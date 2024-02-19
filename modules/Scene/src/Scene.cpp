@@ -17,7 +17,15 @@ namespace {
 
 void registerScene(entt::registry &r) {
   auto &env = r.ctx().get<ScriptContext>().defaultEnv;
-  env["createEntity"] = [&r] { return entt::handle{r, r.create()}; };
+  env["createEntity"] = sol::overload(
+    [&r] {
+      return entt::handle{r, r.create()};
+    },
+    [&r](const std::string &name) {
+      auto h = entt::handle{r, r.create()};
+      h.emplace<NameComponent>(name);
+      return h;
+    });
   env["getEntity"] = [&r](entt::entity e) { return entt::handle{r, e}; };
 
   env["getPhysicsWorld"] = [&r]() -> decltype(auto) {

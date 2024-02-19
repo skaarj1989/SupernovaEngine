@@ -3,6 +3,7 @@
 -- Scene/Scene.cpp
 
 ---@return Entity
+---@overload fun(name: string): Entity
 function createEntity() end
 
 ---@return Entity
