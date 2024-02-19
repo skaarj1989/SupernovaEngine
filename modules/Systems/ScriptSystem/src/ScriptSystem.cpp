@@ -2,11 +2,7 @@
 #include "spdlog/spdlog.h"
 
 void ScriptSystem::setup(entt::registry &r, sol::state &lua) {
-  auto &scriptContext = r.ctx().emplace<ScriptContext>(lua);
-  auto &defaultEnv = scriptContext.defaultEnv;
-  defaultEnv["createEntity"] = [&r] { return entt::handle{r, r.create()}; };
-  defaultEnv["getEntity"] = [&r](entt::entity e) { return entt::handle{r, e}; };
-
+  r.ctx().emplace<ScriptContext>(lua);
   r.on_construct<ScriptComponent>().connect<&_initScriptComponent>();
   r.on_destroy<ScriptComponent>().connect<&_cleanupScriptComponent>();
 }

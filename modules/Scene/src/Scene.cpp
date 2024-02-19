@@ -15,6 +15,24 @@
 
 namespace {
 
+void registerScene(entt::registry &r) {
+  auto &env = r.ctx().get<ScriptContext>().defaultEnv;
+  env["createEntity"] = [&r] { return entt::handle{r, r.create()}; };
+  env["getEntity"] = [&r](entt::entity e) { return entt::handle{r, e}; };
+
+  env["getPhysicsWorld"] = [&r]() -> decltype(auto) {
+    return getPhysicsWorld(r);
+  };
+  env["getAudioWorld"] = [&r]() -> decltype(auto) { return getAudioWorld(r); };
+
+  env["setMainCamera"] = sol::overload(
+    [&r](const entt::entity e) { getMainCamera(r).e = e; },
+    [](const entt::handle h) { getMainCamera(*h.registry()).e = h; });
+  env["setMainListener"] = sol::overload(
+    [&r](const entt::entity e) { getMainListener(r).e = e; },
+    [](const entt::handle h) { getMainListener(*h.registry()).e = h; });
+}
+
 void setupSystems(entt::registry &r, gfx::WorldRenderer &worldRenderer,
                   RmlUiRenderInterface &uiRenderInterface,
                   audio::Device &audioDevice, sol::state &lua) {
@@ -25,16 +43,7 @@ void setupSystems(entt::registry &r, gfx::WorldRenderer &worldRenderer,
   UISystem::setup(r, uiRenderInterface);
   ScriptSystem::setup(r, lua);
 
-  auto &env = r.ctx().get<ScriptContext>().defaultEnv;
-
-  env["getPhysicsWorld"] = [&r] { return r.ctx().find<PhysicsWorld>(); };
-  env["getAudioWorld"] = [&r] { return r.ctx().find<AudioWorld>(); };
-  // clang-format off
-  env["setMainListener"] = sol::overload(
-    [&r](const entt::entity e) { getMainListener(r).e = e; },
-    [](const entt::handle h) { getMainListener(*h.registry()).e = h; }
-  );
-  // clang-format on
+  registerScene(r);
 };
 
 constexpr entt::type_list<NameComponent, Transform, ChildrenComponent>

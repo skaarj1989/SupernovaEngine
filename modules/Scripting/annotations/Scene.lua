@@ -1,6 +1,6 @@
 ---@meta
 
--- ScriptSystem.cpp
+-- Scene/Scene.cpp
 
 ---@return Entity
 function createEntity() end
@@ -14,6 +14,10 @@ function getPhysicsWorld() end
 
 ---@return AudioWorld
 function getAudioWorld() end
+
+---@param e integer # Entity ID
+---@overload fun(e: Entity)
+function setMainCamera(e) end
 
 ---@param e integer # Entity ID
 ---@overload fun(e: Entity)
