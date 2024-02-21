@@ -394,10 +394,7 @@ ReflectiveShadowMapData GlobalIllumination::_addReflectiveShadowMapPass(
   std::vector<GPUInstance> gpuInstances;
   auto batches = buildBatches(gpuInstances, renderables, propertyGroupOffsets,
                               batchCompatible);
-
-  std::optional<FrameGraphResource> instances;
-  if (!batches.empty())
-    instances = uploadInstances(fg, std::move(gpuInstances));
+  const auto instances = uploadInstances(fg, std::move(gpuInstances));
 
   const auto RSMData = fg.addCallbackPass<ReflectiveShadowMapData>(
     kPassName,

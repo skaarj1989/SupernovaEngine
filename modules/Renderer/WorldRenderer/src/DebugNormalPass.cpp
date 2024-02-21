@@ -39,7 +39,7 @@ FrameGraphResource DebugNormalPass::addGeometryPass(
     buildBatches(gpuInstances, viewData.visibleRenderables, {}, sameGeometry);
   if (batches.empty()) return target;
 
-  const auto instances = uploadInstances(fg, std::move(gpuInstances));
+  const auto instances = *uploadInstances(fg, std::move(gpuInstances));
 
   fg.addCallbackPass(
     kPassName,

@@ -3,8 +3,8 @@
 
 namespace gfx {
 
-FrameGraphResource uploadInstances(FrameGraph &fg,
-                                   std::vector<GPUInstance> &&gpuInstances) {
+std::optional<FrameGraphResource>
+uploadInstances(FrameGraph &fg, std::vector<GPUInstance> &&gpuInstances) {
   return uploadContainer(fg, "UploadInstances",
                          TransientBuffer{
                            .name = "Instances",

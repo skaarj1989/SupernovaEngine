@@ -68,9 +68,7 @@ void GBufferPass::addGeometryPass(
   // (Do not early-exit) Without renderables the pass clears GBuffer
   // attachments (the succeeding passes might need the DepthBuffer).
 
-  std::optional<FrameGraphResource> instances;
-  if (!batches.empty())
-    instances = uploadInstances(fg, std::move(gpuInstances));
+  const auto instances = uploadInstances(fg, std::move(gpuInstances));
 
   blackboard.add<GBufferData>() = fg.addCallbackPass<GBufferData>(
     kPassName,

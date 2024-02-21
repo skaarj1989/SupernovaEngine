@@ -16,7 +16,7 @@ void uploadTransforms(FrameGraph &fg, FrameGraphBlackboard &blackboard,
                                         .type = BufferType::StorageBuffer,
                                         .data = std::move(transforms),
                                       });
-  blackboard.add<TransformData>(buffer);
+  if (buffer) blackboard.add<TransformData>(*buffer);
 }
 
 } // namespace gfx

@@ -68,7 +68,7 @@ void DecalPass::addGeometryPass(
                               propertyGroupOffsets, batchCompatible);
   if (batches.empty()) return;
 
-  const auto instances = uploadInstances(fg, std::move(gpuInstances));
+  const auto instances = *uploadInstances(fg, std::move(gpuInstances));
 
   fg.addCallbackPass(
     kPassName,

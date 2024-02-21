@@ -8,9 +8,11 @@
 namespace gfx {
 
 template <typename T>
-[[nodiscard]] FrameGraphResource
+[[nodiscard]] std::optional<FrameGraphResource>
 uploadContainer(FrameGraph &fg, const std::string_view passName,
                 TransientBuffer<std::vector<T>> &&info) {
+  if (info.data.empty()) return std::nullopt;
+
   ZoneScoped;
 
   constexpr auto kStride = sizeof(T);

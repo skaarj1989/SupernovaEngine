@@ -113,7 +113,7 @@ std::optional<FrameGraphResource> TransparencyPass::addGeometryPass(
                               propertyGroupOffsets, batchCompatible);
   if (batches.empty()) return std::nullopt;
 
-  const auto instances = uploadInstances(fg, std::move(gpuInstances));
+  const auto instances = *uploadInstances(fg, std::move(gpuInstances));
 
   LightingPassFeatures features{.softShadows = softShadows};
   getLightingPassFeatures(features, blackboard);

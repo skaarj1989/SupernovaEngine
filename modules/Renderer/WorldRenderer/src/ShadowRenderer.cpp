@@ -325,10 +325,7 @@ FrameGraphResource ShadowRenderer::_addCascadePass(
   std::vector<GPUInstance> gpuInstances;
   auto batches = buildBatches(gpuInstances, renderables, propertyGroupOffsets,
                               batchCompatible);
-
-  std::optional<FrameGraphResource> instances;
-  if (!batches.empty())
-    instances = uploadInstances(fg, std::move(gpuInstances));
+  const auto instances = uploadInstances(fg, std::move(gpuInstances));
 
   const auto passName = std::format("CSM #{}", cascadeIndex);
 
@@ -417,10 +414,7 @@ FrameGraphResource ShadowRenderer::_addSpotLightPass(
   std::vector<GPUInstance> gpuInstances;
   auto batches = buildBatches(gpuInstances, renderables, propertyGroupOffsets,
                               batchCompatible);
-
-  std::optional<FrameGraphResource> instances;
-  if (!batches.empty())
-    instances = uploadInstances(fg, std::move(gpuInstances));
+  const auto instances = uploadInstances(fg, std::move(gpuInstances));
 
   const auto passName = std::format("SpotLightShadowPass #{}", index);
 
@@ -518,10 +512,7 @@ FrameGraphResource ShadowRenderer::_addOmniLightPass(
   std::vector<GPUInstance> gpuInstances;
   auto batches = buildBatches(gpuInstances, visibleShadowCasters,
                               propertyGroupOffsets, batchCompatible);
-
-  std::optional<FrameGraphResource> instances;
-  if (!batches.empty())
-    instances = uploadInstances(fg, std::move(gpuInstances));
+  const auto instances = uploadInstances(fg, std::move(gpuInstances));
 
   const auto passName =
     std::format("OmniShadowPass[#{}, {}]", index, toString(face));

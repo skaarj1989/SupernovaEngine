@@ -306,13 +306,9 @@ void WorldRenderer::drawFrame(rhi::CommandBuffer &commandBuffer,
   auto &[modelMatrices, joints, propertyGroups] = renderableStore;
   auto propertyBlock = mergeProperties(propertyGroups, minOffsetAlignment);
 
-  if (!modelMatrices.empty())
-    uploadTransforms(fg, blackboard, std::move(modelMatrices));
-  if (!joints.empty()) uploadSkins(fg, blackboard, std::move(joints));
-  if (!propertyBlock.buffer.empty()) {
-    blackboard.add<MaterialPropertiesData>().properties =
-      uploadMaterialProperties(fg, std::move(propertyBlock.buffer));
-  }
+  uploadTransforms(fg, blackboard, std::move(modelMatrices));
+  uploadSkins(fg, blackboard, std::move(joints));
+  uploadMaterialProperties(fg, blackboard, std::move(propertyBlock.buffer));
 
   blackboard.add<BRDF>(importTexture(fg, "BRDF LUT", &m_brdf));
 

@@ -16,7 +16,7 @@ void uploadSkins(FrameGraph &fg, FrameGraphBlackboard &blackboard,
                                         .type = BufferType::StorageBuffer,
                                         .data = std::move(skins),
                                       });
-  blackboard.add<SkinData>(buffer);
+  if (buffer) blackboard.add<SkinData>(*buffer);
 }
 
 } // namespace gfx

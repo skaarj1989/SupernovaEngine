@@ -75,7 +75,7 @@ void WeightedBlendedPass::addGeometryPass(
                               propertyGroupOffsets, batchCompatible);
   if (batches.empty()) return;
 
-  const auto instances = uploadInstances(fg, std::move(gpuInstances));
+  const auto instances = *uploadInstances(fg, std::move(gpuInstances));
 
   LightingPassFeatures features{.softShadows = softShadows};
   getLightingPassFeatures(features, blackboard);
