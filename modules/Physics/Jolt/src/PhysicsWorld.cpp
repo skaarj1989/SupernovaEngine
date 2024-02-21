@@ -226,8 +226,12 @@ PhysicsWorld::PhysicsWorld() {
     kMaxPhysicsJobs, kMaxPhysicsBarriers, numThreads);
 }
 
-void PhysicsWorld::enableDebugDraw(bool b) { m_debugDrawEnabled = b; }
-bool PhysicsWorld::isDebugDrawEnabled() const { return m_debugDrawEnabled; }
+void PhysicsWorld::setDebugDrawFlags(const DebugDrawFlags flags) {
+  m_debugDrawFlags = flags;
+}
+PhysicsWorld::DebugDrawFlags PhysicsWorld::getDebugDrawFlags() const {
+  return m_debugDrawFlags;
+}
 
 void PhysicsWorld::setGravity(const glm::vec3 &v) {
   m_physicsSystem.SetGravity(to_Jolt(v));
@@ -383,15 +387,17 @@ void PhysicsWorld::simulate(float timeStep) {
                          m_jobSystem.get());
 }
 void PhysicsWorld::debugDraw(DebugDraw &dd) {
-  if (!m_debugDrawEnabled) return;
+  if (m_debugDrawFlags == DebugDrawFlags::None) return;
 
-  JoltPhysics::debugRenderer->setSource(dd);
+  JoltPhysics::debugRenderer->SetTarget(dd);
   const JPH::BodyManager::DrawSettings settings{
-    .mDrawShape = false, // ... not supported (yet?).
-    .mDrawBoundingBox = true,
-    .mDrawWorldTransform = true,
+    .mDrawShape = bool(m_debugDrawFlags & DebugDrawFlags::Shape),
+    .mDrawBoundingBox = bool(m_debugDrawFlags & DebugDrawFlags::BoundingBox),
+    .mDrawWorldTransform =
+      bool(m_debugDrawFlags & DebugDrawFlags::WorldTransform),
   };
   m_physicsSystem.DrawBodies(settings, JoltPhysics::debugRenderer, nullptr);
+  JoltPhysics::debugRenderer->Submit();
 }
 
 //

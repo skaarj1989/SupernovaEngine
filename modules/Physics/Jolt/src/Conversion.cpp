@@ -13,6 +13,7 @@
 JPH::Vec3 to_Jolt(const glm::vec3 &v) { return {v.x, v.y, v.z}; }
 JPH::Quat to_Jolt(const glm::quat &q) { return {q.x, q.y, q.z, q.w}; }
 
+glm::vec3 to_glm(const JPH::Float3 &v) { return {v.x, v.y, v.z}; }
 glm::vec3 to_glm(const JPH::Vec3 &v) { return {v.GetX(), v.GetY(), v.GetZ()}; }
 glm::vec4 to_glm(const JPH::Vec4 &v) {
   return {v.GetX(), v.GetY(), v.GetZ(), v.GetW()};

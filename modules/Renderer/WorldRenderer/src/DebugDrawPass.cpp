@@ -22,29 +22,70 @@ namespace gfx {
 
 namespace {
 
-struct Info {
-  uint32_t numPoints;
-  uint32_t numLineVerts;
+struct PrimitiveInfo {
+  rhi::PrimitiveTopology topology;
+  DebugDraw::Range range;
 };
-[[nodiscard]] auto mergeVertices(const DebugDraw &debugDraw) {
-  const auto &[points, lines] = debugDraw.getPrimitives();
+using PrimitiveInfoList = std::array<PrimitiveInfo, 2>;
+
+[[nodiscard]] auto mergeVertices(const DebugDraw::Primitives &primitives) {
+  const auto &[points, lines, meshes] = primitives;
+  const auto &triangles = meshes.registry->getVertexList();
   return std::pair{
-    merge(points, lines),
-    Info{
-      .numPoints = uint32_t(points.size()),
-      .numLineVerts = uint32_t(lines.size()),
+    merge(triangles, points, lines),
+    PrimitiveInfoList{
+      PrimitiveInfo{
+        .topology = rhi::PrimitiveTopology::PointList,
+        .range =
+          {
+            .offset = uint32_t(triangles.size()),
+            .count = uint32_t(points.size()),
+          },
+      },
+      PrimitiveInfo{
+        .topology = rhi::PrimitiveTopology::LineList,
+        .range =
+          {
+            .offset = uint32_t(triangles.size() + points.size()),
+            .count = uint32_t(lines.size()),
+          },
+      },
     },
   };
 }
 
-[[nodiscard]] auto uploadVertices(FrameGraph &fg,
-                                  DebugDraw::Primitives::Vertices &&vertices) {
-  return uploadContainer(fg, "UploadDebugVertices",
-                         TransientBuffer{
-                           .name = "VertexBuffer",
-                           .type = BufferType::VertexBuffer,
-                           .data = std::move(vertices),
-                         });
+struct Buffers {
+  std::optional<FrameGraphResource> vertices;
+  std::optional<FrameGraphResource> indices;
+  std::optional<FrameGraphResource> instances;
+};
+[[nodiscard]] auto uploadBuffers(FrameGraph &fg,
+                                 const DebugDraw::Primitives &primitives) {
+  auto [vertices, info] = mergeVertices(primitives);
+  return std::pair{
+    Buffers{
+      .vertices = uploadContainer(fg, "UploadDebugVertices",
+                                  TransientBuffer{
+                                    .name = "VertexBuffer",
+                                    .type = BufferType::VertexBuffer,
+                                    .data = std::move(vertices),
+                                  }),
+      .indices =
+        uploadContainer(fg, "UploadDebugTriangles(indices)",
+                        TransientBuffer{
+                          .name = "IndexBuffer",
+                          .type = BufferType::IndexBuffer,
+                          .data = primitives.meshes.registry->getIndexList(),
+                        }),
+      .instances = uploadContainer(fg, "UploadDebugTriangles(instances)",
+                                   TransientBuffer{
+                                     .name = "InstanceBuffer",
+                                     .type = BufferType::StorageBuffer,
+                                     .data = primitives.meshes.instances,
+                                   }),
+    },
+    info,
+  };
 }
 
 } // namespace
@@ -73,67 +114,102 @@ DebugDrawPass::addGeometryPass(FrameGraph &fg,
 
   constexpr auto kPassName = "DebugDraw";
 
-  auto [buffer, info] = mergeVertices(debugDraw);
-  debugDraw.clear();
-
-  const auto vertices = uploadVertices(fg, std::move(buffer));
+  const auto &primitives = debugDraw.getPrimitives();
+  const auto [buffers, info] = uploadBuffers(fg, primitives);
 
   fg.addCallbackPass(
     kPassName,
-    [&blackboard, &target, vertices](FrameGraph::Builder &builder, auto &) {
-      builder.read(vertices,
-                   BindingInfo{.pipelineStage = PipelineStage::VertexShader});
+    [&blackboard, &target, buffers](FrameGraph::Builder &builder, auto &) {
+      if (buffers.vertices) {
+        builder.read(*buffers.vertices,
+                     BindingInfo{.pipelineStage = PipelineStage::VertexShader});
+      }
+      if (buffers.indices) {
+        builder.read(*buffers.indices,
+                     BindingInfo{.pipelineStage = PipelineStage::VertexShader});
+      }
+      if (buffers.instances) {
+        builder.read(*buffers.instances,
+                     BindingInfo{.pipelineStage = PipelineStage::VertexShader});
+      }
+
       builder.read(blackboard.get<GBufferData>().depth, Attachment{});
 
       target = builder.write(target, Attachment{.index = 0});
     },
-    [this, viewProjection, info,
-     vertices](const auto &, FrameGraphPassResources &resources, void *ctx) {
+    [this, viewProjection, buffers, info,
+     drawCalls = primitives.meshes.drawInfo](
+      const auto &, FrameGraphPassResources &resources, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
+      ZONE(rc, kPassName);
 
-      auto *vertexBuffer = static_cast<const rhi::VertexBuffer *>(
-        resources.get<FrameGraphBuffer>(vertices).buffer);
+      const auto *vertexBuffer =
+        buffers.vertices
+          ? static_cast<const rhi::VertexBuffer *>(
+              resources.get<FrameGraphBuffer>(*buffers.vertices).buffer)
+          : nullptr;
+      const auto *indexBuffer =
+        buffers.indices
+          ? static_cast<const rhi::IndexBuffer *>(
+              resources.get<FrameGraphBuffer>(*buffers.indices).buffer)
+          : nullptr;
 
       auto &[cb, framebufferInfo, sets] = rc;
       const auto depthFormat = rhi::getDepthFormat(*framebufferInfo);
       const auto colorFormat = rhi::getColorFormat(*framebufferInfo, 0);
 
       cb.beginRendering(*framebufferInfo);
-      if (info.numPoints > 0) {
+      if (!drawCalls.empty()) {
         const auto *pipeline = _getPipeline(PassInfo{
           .depthFormat = depthFormat,
           .colorFormat = colorFormat,
-          .primitiveTopology = rhi::PrimitiveTopology::PointList,
+          .primitiveTopology = rhi::PrimitiveTopology::TriangleList,
         });
         if (pipeline) {
-          cb.bindPipeline(*pipeline)
-            .pushConstants(rhi::ShaderStages::Vertex, 0, &viewProjection)
-            .draw({
-              .vertexBuffer = vertexBuffer,
-              .vertexOffset = 0,
-              .numVertices = info.numPoints,
-            });
+          cb.bindPipeline(*pipeline).pushConstants(rhi::ShaderStages::Vertex, 0,
+                                                   &viewProjection);
+          bindDescriptorSets(rc, *pipeline);
+          for (const auto &[mesh, instanceRange] : drawCalls) {
+            cb.pushConstants(rhi::ShaderStages::Vertex, sizeof(glm::mat4),
+                             &instanceRange.offset)
+              .draw(
+                {
+                  .topology = rhi::PrimitiveTopology::TriangleList,
+                  .vertexBuffer = vertexBuffer,
+                  .vertexOffset = mesh->vertices.offset,
+                  .numVertices = mesh->vertices.count,
+                  .indexBuffer = indexBuffer,
+                  .indexOffset = mesh->indices.offset,
+                  .numIndices = mesh->indices.count,
+                },
+                instanceRange.count);
+          }
         }
       }
-      if (info.numLineVerts > 0) {
-        const auto *pipeline = _getPipeline(PassInfo{
-          .depthFormat = depthFormat,
-          .colorFormat = colorFormat,
-          .primitiveTopology = rhi::PrimitiveTopology::LineList,
-        });
-        if (pipeline) {
-          cb.bindPipeline(*pipeline)
-            .pushConstants(rhi::ShaderStages::Vertex, 0, &viewProjection)
-            .draw({
-              .vertexBuffer = vertexBuffer,
-              .vertexOffset = info.numPoints,
-              .numVertices = info.numLineVerts,
-            });
+
+      for (const auto &[topology, range] : info) {
+        if (const auto [offset, count] = range; count > 0) {
+          const auto *pipeline = _getPipeline(PassInfo{
+            .depthFormat = depthFormat,
+            .colorFormat = colorFormat,
+            .primitiveTopology = topology,
+          });
+          if (pipeline) {
+            cb.bindPipeline(*pipeline)
+              .pushConstants(rhi::ShaderStages::Vertex, 0, &viewProjection)
+              .draw({
+                .topology = topology,
+                .vertexBuffer = vertexBuffer,
+                .vertexOffset = offset,
+                .numVertices = count,
+              });
+          }
         }
       }
       endRendering(rc);
     });
+
+  debugDraw.clear();
 
   return target;
 }
@@ -145,6 +221,9 @@ DebugDrawPass::addGeometryPass(FrameGraph &fg,
 rhi::GraphicsPipeline
 DebugDrawPass::_createPipeline(const PassInfo &passInfo) const {
   ShaderCodeBuilder shaderCodeBuilder{};
+  if (passInfo.primitiveTopology == rhi::PrimitiveTopology::TriangleList) {
+    shaderCodeBuilder.addDefine("TRIANGLE_MESH", 1);
+  }
 
   return rhi::GraphicsPipeline::Builder{}
     .setDepthFormat(passInfo.depthFormat)
@@ -169,15 +248,15 @@ DebugDrawPass::_createPipeline(const PassInfo &passInfo) const {
     .addShader(rhi::ShaderType::Vertex,
                shaderCodeBuilder.buildFromFile("DebugDraw.vert"))
     .addShader(rhi::ShaderType::Fragment,
-               shaderCodeBuilder.buildFromFile("DebugDraw.frag"))
+               shaderCodeBuilder.clearDefines().buildFromFile("DebugDraw.frag"))
 
     .setDepthStencil({
       .depthTest = true,
       .depthWrite = false,
     })
     .setRasterizer({
-      .polygonMode = rhi::PolygonMode::Fill,
-      .cullMode = rhi::CullMode::None,
+      .polygonMode = rhi::PolygonMode::Line,
+      .cullMode = rhi::CullMode::Back,
       .lineWidth = 1.6f,
     })
     .setBlending(0, {.enabled = false})

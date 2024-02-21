@@ -4,6 +4,8 @@
 #include "Jolt/Physics/PhysicsSystem.h"
 #include "Jolt/Core/JobSystemThreadPool.h"
 
+#include "ScopedEnumFlags.hpp"
+
 #include "physics/DebugRenderer.hpp"
 #include "physics/RigidBody.hpp"
 #include "physics/Character.hpp"
@@ -44,8 +46,15 @@ public:
   using entt::emitter<PhysicsWorld>::on;
   using entt::emitter<PhysicsWorld>::erase;
 
-  void enableDebugDraw(bool);
-  bool isDebugDrawEnabled() const;
+  enum class DebugDrawFlags {
+    None = 0,
+    Shape = 1 << 0,
+    BoundingBox = 1 << 1,
+    WorldTransform = 1 << 2,
+  };
+
+  void setDebugDrawFlags(const DebugDrawFlags);
+  DebugDrawFlags getDebugDrawFlags() const;
 
   void setGravity(const glm::vec3 &);
   [[nodiscard]] glm::vec3 getGravity() const;
@@ -130,8 +139,9 @@ private:
     m_objectVsBroadPhaseLayerFilter;
   std::unique_ptr<JPH::ObjectLayerPairFilter> m_objectVsObjectLayerFilter;
 
-  bool m_debugDrawEnabled{false};
+  DebugDrawFlags m_debugDrawFlags{DebugDrawFlags::None};
 };
+template <> struct has_flags<PhysicsWorld::DebugDrawFlags> : std::true_type {};
 
 // Jolt -> Engine
 void setTransform(const JPH::RMat44 &src, Transform &dst);

@@ -39,6 +39,9 @@ void registerPhysicsWorld(sol::state &lua) {
 	DEFINE_USERTYPE(PhysicsWorld,
     sol::no_constructor,
 
+    BIND(setDebugDrawFlags),
+    BIND(getDebugDrawFlags),
+
     BIND(setGravity),
     BIND(getGravity),
     
@@ -48,6 +51,15 @@ void registerPhysicsWorld(sol::state &lua) {
     BIND_TOSTRING(PhysicsWorld)
   );
 #undef BIND
+
+#define MAKE_PAIR(Value) _MAKE_PAIR(PhysicsWorld::DebugDrawFlags, Value)
+  lua["PhysicsWorld"].get<sol::table>().new_enum<PhysicsWorld::DebugDrawFlags>("DebugDrawFlags", {
+    MAKE_PAIR(None),
+    MAKE_PAIR(Shape),
+    MAKE_PAIR(BoundingBox),
+    MAKE_PAIR(WorldTransform),
+  });
+#undef MAKE_PAIR
   // clang-format on
 }
 

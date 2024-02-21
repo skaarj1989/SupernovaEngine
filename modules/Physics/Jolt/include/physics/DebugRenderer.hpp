@@ -3,13 +3,14 @@
 #include "Jolt/Jolt.h"
 #include "Jolt/Renderer/DebugRenderer.h"
 
-class DebugDraw;
+#include "DebugDraw.hpp"
 
 class DebugRenderer final : public JPH::DebugRenderer {
 public:
   DebugRenderer();
 
-  void setSource(DebugDraw &);
+  void SetTarget(DebugDraw &);
+  void Submit();
 
   void DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo,
                 JPH::ColorArg inColor) override;
@@ -28,4 +29,9 @@ public:
 
 private:
   DebugDraw *m_debugDraw{nullptr};
+
+  DebugDraw::MeshRegistry m_meshes;
+  using InstanceMap = std::unordered_map<JPH::DebugRenderer::GeometryRef,
+                                         DebugDraw::InstanceList>;
+  InstanceMap m_instanceMap;
 };

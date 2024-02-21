@@ -11,10 +11,10 @@ void registerDebugDraw(sol::state &lua) {
     sol::no_constructor,
 
     "addPoint",
-      sol::resolve<void(const glm::vec3 &, float, const glm::vec3 &)>(
+      sol::resolve<DebugDraw &(const glm::vec3 &, float, const glm::vec3 &)>(
         &DebugDraw::addPoint),
     "addLine",
-      sol::resolve<void(const glm::vec3 &, const glm::vec3 &, const glm::vec3 &)>(
+      sol::resolve<DebugDraw &(const glm::vec3 &, const glm::vec3 &, const glm::vec3 &)>(
        &DebugDraw::addLine),
 
     BIND(addCircle),

@@ -141,6 +141,11 @@ TransientResources::acquireBuffer(const FrameGraphBuffer::Desc &desc) {
       buffer = std::make_unique<rhi::VertexBuffer>(
         m_renderDevice.createVertexBuffer(desc.stride, desc.capacity));
       break;
+    case IndexBuffer:
+      buffer =
+        std::make_unique<rhi::IndexBuffer>(m_renderDevice.createIndexBuffer(
+          static_cast<rhi::IndexType>(desc.stride), desc.capacity));
+      break;
 
     default:
       assert(false);

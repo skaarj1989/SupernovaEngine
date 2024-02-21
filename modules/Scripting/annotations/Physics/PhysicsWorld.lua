@@ -3,6 +3,20 @@
 ---@class PhysicsWorld
 PhysicsWorld = {}
 
+---@enum PhysicsWorld.DebugDrawFlags
+PhysicsWorld.DebugDrawFlags = {
+    None = 0,
+    Shape = 1 << 0,
+    BoundingBox = 1 << 1,
+    WorldTransform = 1 << 2,
+}
+
+---@param flags PhysicsWorld.DebugDrawFlags
+function PhysicsWorld:setDebugDrawFlags(flags) end
+
+---@return PhysicsWorld.DebugDrawFlags
+function PhysicsWorld:getDebugDrawFlags() end
+
 ---@param v vec3
 function PhysicsWorld:setGravity(v) end
 

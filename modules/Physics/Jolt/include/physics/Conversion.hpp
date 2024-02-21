@@ -7,6 +7,7 @@ class Transform;
 
 namespace JPH {
 
+class Float3;
 class Vec3;
 class Vec4;
 class Quat;
@@ -18,6 +19,7 @@ class AABox;
 [[nodiscard]] JPH::Vec3 to_Jolt(const glm::vec3 &);
 [[nodiscard]] JPH::Quat to_Jolt(const glm::quat &);
 
+[[nodiscard]] glm::vec3 to_glm(const JPH::Float3 &);
 [[nodiscard]] glm::vec3 to_glm(const JPH::Vec3 &);
 [[nodiscard]] glm::vec4 to_glm(const JPH::Vec4 &);
 [[nodiscard]] glm::quat to_glm(const JPH::Quat &);
