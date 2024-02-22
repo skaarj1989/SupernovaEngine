@@ -30,7 +30,8 @@ using PrimitiveInfoList = std::array<PrimitiveInfo, 2>;
 
 [[nodiscard]] auto mergeVertices(const DebugDraw::Primitives &primitives) {
   const auto &[points, lines, meshes] = primitives;
-  const auto &triangles = meshes.registry->getVertexList();
+  const auto &triangles = meshes.registry ? meshes.registry->getVertexList()
+                                          : DebugDraw::VertexList{};
   return std::pair{
     merge(triangles, points, lines),
     PrimitiveInfoList{
@@ -75,7 +76,9 @@ struct Buffers {
                         TransientBuffer{
                           .name = "IndexBuffer",
                           .type = BufferType::IndexBuffer,
-                          .data = primitives.meshes.registry->getIndexList(),
+                          .data = primitives.meshes.registry
+                                    ? primitives.meshes.registry->getIndexList()
+                                    : DebugDraw::IndexList{},
                         }),
       .instances = uploadContainer(fg, "UploadDebugTriangles(instances)",
                                    TransientBuffer{
