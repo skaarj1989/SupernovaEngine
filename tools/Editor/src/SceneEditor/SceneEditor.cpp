@@ -122,12 +122,20 @@ void inspect(AABB &aabb) {
 }
 
 void inspect(PhysicsWorld &physicsWorld) {
+  ImGui::SeparatorText("DebugDraw");
+  auto f = physicsWorld.getDebugDrawFlags();
+  using enum PhysicsWorld::DebugDrawFlags;
+  auto dirty = ImGui::CheckboxFlags("Shape", f, Shape);
+  dirty |= ImGui::CheckboxFlags("BoundingBox", f, BoundingBox);
+  dirty |= ImGui::CheckboxFlags("WorldTransform", f, WorldTransform);
+  if (dirty) physicsWorld.setDebugDrawFlags(f);
+
+  ImGui::Spacing();
+  ImGui::Separator();
+  ImGui::Spacing();
+
   if (auto v = physicsWorld.getGravity(); ImGui::DragFloat3("Gravity", v)) {
     physicsWorld.setGravity(v);
-  }
-  if (auto b = physicsWorld.isDebugDrawEnabled();
-      ImGui::Checkbox("DebugDraw", &b)) {
-    physicsWorld.enableDebugDraw(b);
   }
 
   ImGui::Spacing();
