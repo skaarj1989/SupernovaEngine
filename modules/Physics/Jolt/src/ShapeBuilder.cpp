@@ -112,7 +112,7 @@ struct RawMesh {
 [[nodiscard]] auto toMesh(const RawMesh &in) {
   return JPH::MeshShapeSettings{in.vertices, in.triangles}.Create();
 }
-[[nodicsard]] auto toConvexHull(const RawMesh &in) {
+[[nodiscard]] auto toConvexHull(const RawMesh &in) {
   return JPH::ConvexHullShapeSettings{convert(in.vertices)}.Create();
 }
 
