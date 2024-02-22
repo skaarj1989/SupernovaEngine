@@ -18,7 +18,7 @@ void print(const JPH::SphereShape *shape) {
 }
 void print(const JPH::BoxShape *shape) {
   const auto &v = shape->GetHalfExtent();
-  ImGui::Text("Box{ .halfHeight = {%.2f, %.2f, %.2f} }", v.GetX(), v.GetY(),
+  ImGui::Text("Box{ .halfExtent = {%.2f, %.2f, %.2f} }", v.GetX(), v.GetY(),
               v.GetZ());
 }
 void print(const JPH::CapsuleShape *shape) {
