@@ -17,6 +17,7 @@ local ShakeableTransform = require "Scripts.behavior.ShakeableTransform"
 local HeadBobbing = require "Scripts.behavior.HeadBobbing"
 local Cannon = require "Scripts.behavior.Cannon"
 
+---@class Player: ScriptNode
 local node = {
   lookSpeed = 7,
 }
@@ -24,7 +25,7 @@ local node = {
 function node:init()
   local character = self.entity:get(CharacterVirtual)
   self.characterController = CharacterController:new(character)
-
+  
   local head = self.entity:getChildren()[1]
 
   local headXf <const> = head:get(Transform)

@@ -8,7 +8,7 @@
 
 void registerNameComponent(sol::state &lua) {
   // clang-format off
-  DEFINE_USERTYPE(NameComponent,
+  lua.DEFINE_USERTYPE(NameComponent,
     sol::call_constructor,
     sol::constructors<NameComponent(const std::string &)>(),
 

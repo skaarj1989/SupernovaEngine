@@ -7,7 +7,7 @@
 
 void registerUIComponent(sol::state &lua) {
   // clang-format off
-  DEFINE_USERTYPE(UIComponent,
+  lua.DEFINE_USERTYPE(UIComponent,
     sol::call_constructor,
     sol::constructors<UIComponent()>(),
 

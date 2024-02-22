@@ -4,10 +4,10 @@
 ---@field stickToFloor boolean
 ---@field walkStairs boolean
 ---@overload fun(): CharacterVirtual
----@overload fun(settings: CharacterVirtualSettings): CharacterVirtual
+---@overload fun(settings: CharacterVirtual.Settings): CharacterVirtual
 CharacterVirtual = {}
 
----@class CharacterVirtualSettings
+---@class CharacterVirtual.Settings
 ---@field maxSlopeAngle number # In degrees
 ---@field layer CollisionLayer
 ---@field mass number
@@ -22,9 +22,9 @@ CharacterVirtual = {}
 ---@field maxNumHits integer
 ---@field hitReductionCosMaxAngle number
 ---@field penetrationRecoverySpeed number
-CharacterVirtualSettings = {}
+CharacterVirtual.Settings = {}
 
----@return CharacterVirtualSettings
+---@return CharacterVirtual.Settings
 function CharacterVirtual:getSettings() end
 
 ---@param q quat

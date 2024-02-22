@@ -12,8 +12,8 @@ namespace {
 
 void registerPhysicsWorld(sol::state &lua) {
   // clang-format off
-  #define BIND(Member) _BIND(RayCastBPResult, Member)
-  DEFINE_USERTYPE(RayCastBPResult,
+#define BIND(Member) _BIND(RayCastBPResult, Member)
+  lua.DEFINE_USERTYPE(RayCastBPResult,
     sol::no_constructor,
 
     BIND(position),
@@ -24,7 +24,7 @@ void registerPhysicsWorld(sol::state &lua) {
 #undef BIND
 
 #define BIND(Member) _BIND(RayCastNPResult, Member)
-  DEFINE_USERTYPE(RayCastNPResult,
+  lua.DEFINE_USERTYPE(RayCastNPResult,
     sol::no_constructor,
 
     BIND(position),
@@ -36,7 +36,7 @@ void registerPhysicsWorld(sol::state &lua) {
 #undef BIND
 
 #define BIND(Member) _BIND(PhysicsWorld, Member)
-	DEFINE_USERTYPE(PhysicsWorld,
+	lua.DEFINE_USERTYPE(PhysicsWorld,
     sol::no_constructor,
 
     BIND(setDebugDrawFlags),
@@ -53,7 +53,7 @@ void registerPhysicsWorld(sol::state &lua) {
 #undef BIND
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(PhysicsWorld::DebugDrawFlags, Value)
-  lua["PhysicsWorld"].get<sol::table>().new_enum<PhysicsWorld::DebugDrawFlags>("DebugDrawFlags", {
+  lua DEFINE_NESTED_ENUM(PhysicsWorld, DebugDrawFlags, {
     MAKE_PAIR(None),
     MAKE_PAIR(Shape),
     MAKE_PAIR(BoundingBox),
@@ -75,7 +75,7 @@ void registerEvents(sol::state &lua) {
 
 #define BIND(Member) _BIND(CollisionStartedEvent, Member)
   // clang-format off
-  DEFINE_USERTYPE(CollisionStartedEvent,
+  lua.DEFINE_USERTYPE(CollisionStartedEvent,
     sol::no_constructor,
 
     BIND(other),
@@ -88,7 +88,7 @@ void registerEvents(sol::state &lua) {
 #undef BIND
 
 #define BIND(Member) _BIND(CollisionEndedEvent, Member)
-  DEFINE_USERTYPE(CollisionEndedEvent,
+  lua.DEFINE_USERTYPE(CollisionEndedEvent,
     sol::no_constructor,
     
     BIND(other),
@@ -102,7 +102,7 @@ void registerEvents(sol::state &lua) {
 
 void registerShapeBuilder(sol::state &lua) {
   // clang-format off
-  DEFINE_USERTYPE(UncookedShape,
+  lua.DEFINE_USERTYPE(UncookedShape,
     sol::no_constructor,
 
     "isValid", &UncookedShape::IsValid,
@@ -113,7 +113,7 @@ void registerShapeBuilder(sol::state &lua) {
   );
 
 #define BIND(Member) _BIND(ShapeBuilder, Member)
-  auto type = DEFINE_USERTYPE(ShapeBuilder,
+  lua.DEFINE_USERTYPE(ShapeBuilder,
     sol::call_constructor,
     sol::constructors<ShapeBuilder()>(),
 
@@ -141,19 +141,19 @@ void registerShapeBuilder(sol::state &lua) {
 
 void registerResources(sol::state &lua) {
   // clang-format off
-  DEFINE_USERTYPE(ColliderResource,
+  lua.DEFINE_USERTYPE(ColliderResource,
     sol::no_constructor,
     sol::base_classes, sol::bases<Resource>(),
     
     BIND_TOSTRING(ColliderResource)
   );
-  lua["loadCollider"] = loadResource<ColliderManager>;
   // clang-format on
+  lua["loadCollider"] = loadResource<ColliderManager>;
 }
 
 void registerColliderComponent(sol::state &lua) {
   // clang-format off
-  DEFINE_USERTYPE(ColliderComponent,
+  lua.DEFINE_USERTYPE(ColliderComponent,
     sol::call_constructor,
     sol::factories(
       [](std::shared_ptr<ColliderResource> resource) {
@@ -178,9 +178,8 @@ void registerColliderComponent(sol::state &lua) {
 
 void registerCollisionLayer(sol::state &lua) {
 #define BIND(Member) _BIND(CollisionLayer, Member)
-
   // clang-format off
-  DEFINE_USERTYPE(CollisionLayer,
+  lua.DEFINE_USERTYPE(CollisionLayer,
     sol::call_constructor,
     sol::constructors<
       CollisionLayer(),
@@ -196,38 +195,60 @@ void registerCollisionLayer(sol::state &lua) {
       }
   );
   // clang-format on
-
 #undef BIND
 }
-
-#define CAPTURE_FIELD(name, defaultValue) .name = t.get_or(#name, defaultValue)
-#define CAPTURE_FIELD_T(name, T, defaultValue)                                 \
-  .name = t.get_or<const T &>(#name, T{defaultValue})
 
 void registerRigidBodyComponent(sol::state &lua) {
   // -- MotionType enum:
 
+  // clang-format off
 #define MAKE_PAIR(Key) _MAKE_PAIR(MotionType, Key)
-  DEFINE_ENUM(MotionType, {
-                            MAKE_PAIR(Dynamic),
-                            MAKE_PAIR(Static),
-                            MAKE_PAIR(Kinematic),
-                          });
+  lua.DEFINE_ENUM(MotionType, {
+    MAKE_PAIR(Dynamic),
+    MAKE_PAIR(Static),
+    MAKE_PAIR(Kinematic),
+  });
 #undef MAKE_PAIR
 
-  // -- RigidBodySettings struct:
+  // -- RigidBody class:
 
-  using RigidBodySettings = RigidBody::Settings;
+#define BIND(Member) _BIND(RigidBody, Member)
+  lua.DEFINE_USERTYPE(RigidBody,
+    sol::call_constructor,
+    sol::constructors<
+      RigidBody(),
+      RigidBody(const RigidBody::Settings &)
+    >(),
 
-#define BIND(Member) _BIND(RigidBodySettings, Member)
+    "connect", LuaEmitter::makeConnectLambda<RigidBody>(),
+    "disconnect", LuaEmitter::makeDisconnectLambda<RigidBody>(),
+    
+    BIND(getSettings),
 
-  // clang-format off
-  DEFINE_USERTYPE(RigidBodySettings, 
+    BIND(setPosition),
+    BIND(setRotation),
+    BIND(setLinearVelocity),
+
+    BIND(applyImpulse),
+    
+    BIND(getPosition),
+    BIND(getRotation),
+    BIND(getLinearVelocity),
+
+    BIND_TYPEID(RigidBody),
+    BIND_TOSTRING(RigidBody)
+  );
+#undef BIND
+
+  // -- RigidBody::Settings struct:
+
+#define BIND(Member) _BIND(RigidBody::Settings, Member)
+  lua DEFINE_NESTED_USERTYPE(RigidBody, Settings, 
     sol::call_constructor,
     sol::factories(
-      [] { return RigidBodySettings{}; },
+      [] { return RigidBody::Settings{}; },
       [](const sol::table &t) {
-        return RigidBodySettings{
+        return RigidBody::Settings{
           CAPTURE_FIELD_T(layer, CollisionLayer, {}),
           CAPTURE_FIELD(isSensor, false),
           CAPTURE_FIELD(mass, 1.0f),
@@ -250,96 +271,34 @@ void registerRigidBodyComponent(sol::state &lua) {
     BIND(angularDamping),
     BIND(gravityFactor),
 
-    BIND_TOSTRING(RigidBodySettings)
+    BIND_TOSTRING(RigidBody::Settings)
   );
 #undef BIND
-
-  // -- RigidBody class:
-
-#define BIND(Member) _BIND(RigidBody, Member)
-  DEFINE_USERTYPE(RigidBody,
-    sol::call_constructor,
-    sol::constructors<
-      RigidBody(),
-      RigidBody(const RigidBodySettings &)
-    >(),
-
-    "connect", LuaEmitter::makeConnectLambda<RigidBody>(),
-    "disconnect", LuaEmitter::makeDisconnectLambda<RigidBody>(),
-    
-    BIND(getSettings),
-
-    BIND(setPosition),
-    BIND(setRotation),
-    BIND(setLinearVelocity),
-
-    BIND(applyImpulse),
-    
-    BIND(getPosition),
-    BIND(getRotation),
-    BIND(getLinearVelocity),
-
-    BIND_TYPEID(RigidBody),
-    BIND_TOSTRING(RigidBody)
-  );
   // clang-format on
-#undef BIND
 }
 void registerCharacterComponent(sol::state &lua) {
   // -- EGroundState enum:
 
-#define MAKE_PAIR(Key) _MAKE_PAIR(JPH::Character::EGroundState, Key)
-  lua.new_enum<JPH::Character::EGroundState>("GroundState",
-                                             {
-                                               MAKE_PAIR(OnGround),
-                                               MAKE_PAIR(OnSteepGround),
-                                               MAKE_PAIR(NotSupported),
-                                               MAKE_PAIR(InAir),
-                                             });
-#undef MAKE_PAIR
-
-  // -- CharacterSettings struct:
-
-  using CharacterSettings = Character::Settings;
-
-#define BIND(Member) _BIND(CharacterSettings, Member)
+  using GroundState = JPH::Character::EGroundState;
 
   // clang-format off
-  DEFINE_USERTYPE(CharacterSettings, 
-    sol::call_constructor,
-    sol::factories(
-      [] { return CharacterSettings{}; },
-      [](const sol::table &t) {
-        return CharacterSettings{
-          CAPTURE_FIELD(maxSlopeAngle, 50.0f),
-          CAPTURE_FIELD_T(layer, CollisionLayer, {}),
-
-          CAPTURE_FIELD(mass, 80.0f),
-          CAPTURE_FIELD(friction, 0.2f),
-          CAPTURE_FIELD(gravityFactor, 1.0f),
-        };
-      }
-    ),
-
-    BIND(maxSlopeAngle),
-    BIND(layer),
-    BIND(mass),
-    BIND(friction),
-    BIND(gravityFactor),
-
-    BIND_TOSTRING(CharacterSettings)
-  );
-#undef BIND
+#define MAKE_PAIR(Key) _MAKE_PAIR(GroundState, Key)
+  lua.DEFINE_ENUM(GroundState, {
+    MAKE_PAIR(OnGround),
+    MAKE_PAIR(OnSteepGround),
+    MAKE_PAIR(NotSupported),
+    MAKE_PAIR(InAir),
+  });
+#undef MAKE_PAIR
 
   // -- Character class:
 
 #define BIND(Member) _BIND(Character, Member)
-  // clang-format off
-  DEFINE_USERTYPE(Character,
+  lua.DEFINE_USERTYPE(Character,
     sol::call_constructor,
     sol::constructors<
       Character(),
-      Character(const CharacterSettings &)
+      Character(const Character::Settings &)
     >(),
 
     "connect", LuaEmitter::makeConnectLambda<Character>(),
@@ -362,24 +321,91 @@ void registerCharacterComponent(sol::state &lua) {
     BIND_TYPEID(Character),
     BIND_TOSTRING(Character)
   );
-  // clang-format on
 #undef BIND
+
+  // -- Character::Settings struct:
+
+#define BIND(Member) _BIND(Character::Settings, Member)
+  lua DEFINE_NESTED_USERTYPE(Character, Settings, 
+    sol::call_constructor,
+    sol::factories(
+      [] { return Character::Settings{}; },
+      [](const sol::table &t) {
+        return Character::Settings{
+          CAPTURE_FIELD(maxSlopeAngle, 50.0f),
+          CAPTURE_FIELD_T(layer, CollisionLayer, {}),
+
+          CAPTURE_FIELD(mass, 80.0f),
+          CAPTURE_FIELD(friction, 0.2f),
+          CAPTURE_FIELD(gravityFactor, 1.0f),
+        };
+      }
+    ),
+
+    BIND(maxSlopeAngle),
+    BIND(layer),
+    BIND(mass),
+    BIND(friction),
+    BIND(gravityFactor),
+
+    BIND_TOSTRING(Character::Settings)
+  );
+#undef BIND
+  // clang-format on
 }
 
 void registerCharacterVirtualComponent(sol::state &lua) {
-  using CharacterVirtualSettings = CharacterVirtual::Settings;
-
-  // -- Settings struct:
-
-#define BIND(Member) _BIND(CharacterVirtualSettings, Member)
-
   // clang-format off
-  DEFINE_USERTYPE(CharacterVirtualSettings, 
+#define BIND(Member) _BIND(CharacterVirtual, Member)
+  lua.DEFINE_USERTYPE(CharacterVirtual,
+    sol::call_constructor,
+    sol::constructors<
+      CharacterVirtual(),
+      CharacterVirtual(const CharacterVirtual::Settings &)
+    >(),
+
+    "connect", LuaEmitter::makeConnectLambda<CharacterVirtual>(),
+    "disconnect", LuaEmitter::makeDisconnectLambda<CharacterVirtual>(),
+
+    BIND(getSettings),
+    
+    BIND(setRotation),
+    BIND(setLinearVelocity),
+    
+    "stickToFloor", sol::property(
+      &CharacterVirtual::isStickToFloor,
+      &CharacterVirtual::setStickToFloor
+    ),
+    "walkStairs", sol::property(
+      &CharacterVirtual::canWalkStairs,
+      &CharacterVirtual::setWalkStairs
+    ),
+
+    BIND(getUp),
+
+    BIND(getPosition),
+    BIND(getRotation),
+    BIND(getLinearVelocity),
+
+    BIND(getGroundState),
+    BIND(isSupported),
+    BIND(getGroundNormal),
+    BIND(getGroundVelocity),
+
+    BIND_TYPEID(CharacterVirtual),
+    BIND_TOSTRING(CharacterVirtual)
+  );
+#undef BIND
+
+  // -- CharacterVirtual::Settings struct:
+
+#define BIND(Member) _BIND(CharacterVirtual::Settings, Member)
+  lua DEFINE_NESTED_USERTYPE(CharacterVirtual, Settings,
     sol::call_constructor,
     sol::factories(
-      [] { return CharacterVirtualSettings{}; },
+      [] { return CharacterVirtual::Settings{}; },
       [](const sol::table &t) {
-        return CharacterVirtualSettings{
+        return CharacterVirtual::Settings{
           CAPTURE_FIELD(maxSlopeAngle, 50.0f),
           CAPTURE_FIELD_T(layer, CollisionLayer, {}),
           CAPTURE_FIELD(mass, 70.0f),
@@ -415,56 +441,11 @@ void registerCharacterVirtualComponent(sol::state &lua) {
     BIND(hitReductionCosMaxAngle),
     BIND(penetrationRecoverySpeed),
 
-    BIND_TOSTRING(CharacterVirtualSettings)
+    BIND_TOSTRING(CharacterVirtual::Settings)
   );
 #undef BIND
-
-#define BIND(Member) _BIND(CharacterVirtual, Member)
-  // clang-format off
-  DEFINE_USERTYPE(CharacterVirtual,
-    sol::call_constructor,
-    sol::constructors<
-      CharacterVirtual(),
-      CharacterVirtual(const CharacterVirtualSettings &)
-    >(),
-
-    "connect", LuaEmitter::makeConnectLambda<CharacterVirtual>(),
-    "disconnect", LuaEmitter::makeDisconnectLambda<CharacterVirtual>(),
-
-    BIND(getSettings),
-    
-    BIND(setRotation),
-    BIND(setLinearVelocity),
-    
-    "stickToFloor", sol::property(
-      &CharacterVirtual::isStickToFloor,
-      &CharacterVirtual::setStickToFloor
-    ),
-    "walkStairs", sol::property(
-      &CharacterVirtual::canWalkStairs,
-      &CharacterVirtual::setWalkStairs
-    ),
-
-    BIND(getUp),
-
-    BIND(getPosition),
-    BIND(getRotation),
-    BIND(getLinearVelocity),
-
-    BIND(getGroundState),
-    BIND(isSupported),
-    BIND(getGroundNormal),
-    BIND(getGroundVelocity),
-
-    BIND_TYPEID(CharacterVirtual),
-    BIND_TOSTRING(CharacterVirtual)
-  );
   // clang-format on
-#undef BIND
 }
-
-#undef CAPTURE_FIELD
-#undef CAPTURE_FIELD_T
 
 } // namespace
 

@@ -17,7 +17,7 @@ void registerStyleTypes(sol::table &lua) {
 
   // clang-format off
 #define MAKE_PAIR(Value) _MAKE_PAIR(Display, Value)
-  DEFINE_ENUM(Display, {
+  lua.DEFINE_ENUM(Display, {
     MAKE_PAIR(None),
     MAKE_PAIR(Block),
     MAKE_PAIR(Inline),
@@ -33,7 +33,7 @@ void registerStyleTypes(sol::table &lua) {
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(Position, Value)
-  DEFINE_ENUM(Position, {
+  lua.DEFINE_ENUM(Position, {
     MAKE_PAIR(Static),
     MAKE_PAIR(Relative),
     MAKE_PAIR(Absolute),
@@ -42,7 +42,7 @@ void registerStyleTypes(sol::table &lua) {
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(Float, Value)
-  DEFINE_ENUM(Float, {
+  lua.DEFINE_ENUM(Float, {
     MAKE_PAIR(None),
     MAKE_PAIR(Left),
     MAKE_PAIR(Right),
@@ -50,7 +50,7 @@ void registerStyleTypes(sol::table &lua) {
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(Clear, Value)
-  DEFINE_ENUM(Clear, {
+  lua.DEFINE_ENUM(Clear, {
     MAKE_PAIR(None),
     MAKE_PAIR(Left),
     MAKE_PAIR(Right),
@@ -59,14 +59,14 @@ void registerStyleTypes(sol::table &lua) {
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(BoxSizing, Value)
-  DEFINE_ENUM(BoxSizing, {
+  lua.DEFINE_ENUM(BoxSizing, {
     MAKE_PAIR(ContentBox),
     MAKE_PAIR(BorderBox),
   });
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(Overflow, Value)
-  DEFINE_ENUM(Overflow, {
+  lua.DEFINE_ENUM(Overflow, {
     MAKE_PAIR(Visible),
     MAKE_PAIR(Hidden),
     MAKE_PAIR(Auto),
@@ -75,21 +75,21 @@ void registerStyleTypes(sol::table &lua) {
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(Visibility, Value)
-  DEFINE_ENUM(Visibility, {
+  lua.DEFINE_ENUM(Visibility, {
     MAKE_PAIR(Visible),
     MAKE_PAIR(Hidden),
   });
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(FontStyle, Value)
-  DEFINE_ENUM(FontStyle, {
+  lua.DEFINE_ENUM(FontStyle, {
     MAKE_PAIR(Normal),
     MAKE_PAIR(Italic),
   });
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(FontWeight, Value)
-  DEFINE_ENUM(FontWeight, {
+  lua.DEFINE_ENUM(FontWeight, {
     MAKE_PAIR(Auto),
     MAKE_PAIR(Normal),
     MAKE_PAIR(Bold),
@@ -97,7 +97,7 @@ void registerStyleTypes(sol::table &lua) {
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(TextAlign, Value)
-  DEFINE_ENUM(TextAlign, {
+  lua.DEFINE_ENUM(TextAlign, {
     MAKE_PAIR(Left),
     MAKE_PAIR(Right),
     MAKE_PAIR(Center),
@@ -106,7 +106,7 @@ void registerStyleTypes(sol::table &lua) {
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(TextDecoration, Value)
-  DEFINE_ENUM(TextDecoration, {
+  lua.DEFINE_ENUM(TextDecoration, {
     MAKE_PAIR(None),
     MAKE_PAIR(Underline),
     MAKE_PAIR(Overline),
@@ -115,7 +115,7 @@ void registerStyleTypes(sol::table &lua) {
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(TextTransform, Value)
-  DEFINE_ENUM(TextTransform, {
+  lua.DEFINE_ENUM(TextTransform, {
     MAKE_PAIR(None),
     MAKE_PAIR(Capitalize),
     MAKE_PAIR(Uppercase),
@@ -124,7 +124,7 @@ void registerStyleTypes(sol::table &lua) {
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(WhiteSpace, Value)
-  DEFINE_ENUM(WhiteSpace, {
+  lua.DEFINE_ENUM(WhiteSpace, {
     MAKE_PAIR(Normal),
     MAKE_PAIR(Pre),
     MAKE_PAIR(Nowrap),
@@ -134,7 +134,7 @@ void registerStyleTypes(sol::table &lua) {
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(WordBreak, Value)
-  DEFINE_ENUM(WordBreak, {
+  lua.DEFINE_ENUM(WordBreak, {
     MAKE_PAIR(Normal),
     MAKE_PAIR(BreakAll),
     MAKE_PAIR(BreakWord),
@@ -142,7 +142,7 @@ void registerStyleTypes(sol::table &lua) {
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(Drag, Value)
-  DEFINE_ENUM(Drag, {
+  lua.DEFINE_ENUM(Drag, {
     MAKE_PAIR(None),
     MAKE_PAIR(Drag),
     MAKE_PAIR(DragDrop),
@@ -152,35 +152,35 @@ void registerStyleTypes(sol::table &lua) {
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(TabIndex, Value)
-  DEFINE_ENUM(TabIndex, {
+  lua.DEFINE_ENUM(TabIndex, {
     MAKE_PAIR(None),
     MAKE_PAIR(Auto),
   });
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(Focus, Value)
-  DEFINE_ENUM(Focus, {
+  lua.DEFINE_ENUM(Focus, {
     MAKE_PAIR(None),
     MAKE_PAIR(Auto),
   });
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(OverscrollBehavior, Value)
-  DEFINE_ENUM(OverscrollBehavior, {
+  lua.DEFINE_ENUM(OverscrollBehavior, {
     MAKE_PAIR(Auto),
     MAKE_PAIR(Contain),
   });
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(PointerEvents, Value)
-  DEFINE_ENUM(PointerEvents, {
+  lua.DEFINE_ENUM(PointerEvents, {
     MAKE_PAIR(None),
     MAKE_PAIR(Auto),
   });
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(OriginX, Value)
-  DEFINE_ENUM(OriginX, {
+  lua.DEFINE_ENUM(OriginX, {
     MAKE_PAIR(Left),
     MAKE_PAIR(Center),
     MAKE_PAIR(Right),
@@ -188,7 +188,7 @@ void registerStyleTypes(sol::table &lua) {
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(OriginY, Value)
-  DEFINE_ENUM(OriginY, {
+  lua.DEFINE_ENUM(OriginY, {
     MAKE_PAIR(Top),
     MAKE_PAIR(Center),
     MAKE_PAIR(Bottom),
@@ -196,7 +196,7 @@ void registerStyleTypes(sol::table &lua) {
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(AlignContent, Value)
-  DEFINE_ENUM(AlignContent, {
+  lua.DEFINE_ENUM(AlignContent, {
     MAKE_PAIR(FlexStart),
     MAKE_PAIR(FlexEnd),
     MAKE_PAIR(Center),
@@ -207,7 +207,7 @@ void registerStyleTypes(sol::table &lua) {
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(AlignItems, Value)
-  DEFINE_ENUM(AlignItems, {
+  lua.DEFINE_ENUM(AlignItems, {
     MAKE_PAIR(FlexStart),
     MAKE_PAIR(FlexEnd),
     MAKE_PAIR(Center),
@@ -217,7 +217,7 @@ void registerStyleTypes(sol::table &lua) {
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(AlignSelf, Value)
-  DEFINE_ENUM(AlignSelf, {
+  lua.DEFINE_ENUM(AlignSelf, {
     MAKE_PAIR(Auto),
     MAKE_PAIR(FlexStart),
     MAKE_PAIR(FlexEnd),
@@ -228,7 +228,7 @@ void registerStyleTypes(sol::table &lua) {
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(FlexDirection, Value)
-  DEFINE_ENUM(FlexDirection, {
+  lua.DEFINE_ENUM(FlexDirection, {
     MAKE_PAIR(Row),
     MAKE_PAIR(RowReverse),
     MAKE_PAIR(Column),
@@ -237,7 +237,7 @@ void registerStyleTypes(sol::table &lua) {
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(FlexWrap, Value)
-  DEFINE_ENUM(FlexWrap, {
+  lua.DEFINE_ENUM(FlexWrap, {
     MAKE_PAIR(Nowrap),
     MAKE_PAIR(Wrap),
     MAKE_PAIR(WrapReverse),
@@ -245,7 +245,7 @@ void registerStyleTypes(sol::table &lua) {
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(JustifyContent, Value)
-  DEFINE_ENUM(JustifyContent, {
+  lua.DEFINE_ENUM(JustifyContent, {
     MAKE_PAIR(FlexStart),
     MAKE_PAIR(FlexEnd),
     MAKE_PAIR(Center),
@@ -259,7 +259,7 @@ void registerStyleTypes(sol::table &lua) {
 void registerBox(sol::table &lua) {
   // clang-format off
 #define MAKE_PAIR(Value) _MAKE_PAIR(BoxArea, Value)
-  DEFINE_ENUM(BoxArea, {
+  lua.DEFINE_ENUM(BoxArea, {
     MAKE_PAIR(Margin),
     MAKE_PAIR(Border),
     MAKE_PAIR(Padding),
@@ -269,7 +269,7 @@ void registerBox(sol::table &lua) {
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(BoxEdge, Value)
-  DEFINE_ENUM(BoxEdge, {
+  lua.DEFINE_ENUM(BoxEdge, {
     MAKE_PAIR(Top),
     MAKE_PAIR(Right),
     MAKE_PAIR(Bottom),
@@ -278,13 +278,13 @@ void registerBox(sol::table &lua) {
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(BoxDirection, Value)
-  DEFINE_ENUM(BoxDirection, {
+  lua.DEFINE_ENUM(BoxDirection, {
     MAKE_PAIR(Vertical),
     MAKE_PAIR(Horizontal),
   });
 #undef MAKE_PAIR
 
-  DEFINE_USERTYPE(Box,
+  lua.DEFINE_USERTYPE(Box,
     sol::call_constructor,
     sol::factories(
       []{ return Box{}; },
@@ -318,11 +318,11 @@ void registerBox(sol::table &lua) {
   // clang-format on
 }
 void registerStyleSheet(sol::table &lua) {
-  DEFINE_USERTYPE(StyleSheet, sol::no_constructor);
+  lua.DEFINE_USERTYPE(StyleSheet, sol::no_constructor);
 }
 void registerStyleSheetSpecification(sol::table &lua) {
   // clang-format off
-  DEFINE_USERTYPE(StyleSheetSpecification,
+  lua.DEFINE_USERTYPE(StyleSheetSpecification,
     sol::no_constructor,
 
     "parsePropertyDeclaration", StyleSheetSpecification::ParsePropertyDeclaration,

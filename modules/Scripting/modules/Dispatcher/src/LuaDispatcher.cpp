@@ -43,7 +43,7 @@ void registerDispatcher(sol::state &lua) {
     sol::table self;
   };
   // clang-format off
-  DEFINE_USERTYPE(BaseScriptEvent,
+  lua.DEFINE_USERTYPE(BaseScriptEvent,
     BIND_TYPEID(BaseScriptEvent),
     BIND_TOSTRING(BaseScriptEvent)
   );
@@ -82,7 +82,7 @@ void registerDispatcher(sol::state &lua) {
   using Dispatcher = entt::dispatcher;
 
   // clang-format off
-  lua.new_usertype<Dispatcher>("Dispatcher",
+  lua.DEFINE_USERTYPE(Dispatcher,
     sol::call_constructor,
     sol::constructors<Dispatcher()>(),
 

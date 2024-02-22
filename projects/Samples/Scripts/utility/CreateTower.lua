@@ -23,7 +23,7 @@ for row = 0, dimensions.height - 1 do
       local e = createEntity()
       e:emplace(Transform(startPosition + localPosition))
       e:emplace(ColliderComponent(prefab.collider))
-      e:emplace(RigidBody(RigidBodySettings({
+      e:emplace(RigidBody(RigidBody.Settings({
         motionType = MotionType.Dynamic,
         mass = 10,
         friction = 0.8,

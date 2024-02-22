@@ -9,7 +9,7 @@ void registerInputSystem(sol::state &lua) {
 
 #define BIND(Member) _BIND(InputSystem, Member)
   // clang-format off
-  DEFINE_USERTYPE(InputSystem,
+  lua.DEFINE_USERTYPE(InputSystem,
     sol::no_constructor,
 
     BIND(setMousePosition),

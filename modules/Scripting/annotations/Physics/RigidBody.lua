@@ -2,10 +2,10 @@
 
 ---@class RigidBody : ComponentBase, Emitter
 ---@overload fun(): RigidBody
----@overload fun(settings: RigidBodySettings): RigidBody
+---@overload fun(settings: RigidBody.Settings): RigidBody
 RigidBody = {}
 
----@class RigidBodySettings
+---@class RigidBody.Settings
 ---@field layer CollisionLayer
 ---@field isSensor boolean
 ---@field mass number
@@ -15,7 +15,7 @@ RigidBody = {}
 ---@field linearDamping number
 ---@field angularDamping number
 ---@field gravityFactor number
-RigidBodySettings = {}
+RigidBody.Settings = {}
 
 ---@enum MotionType
 MotionType = {
@@ -24,7 +24,7 @@ MotionType = {
   Kinemtaic = 2,
 }
 
----@return RigidBodySettings
+---@return RigidBody.Settings
 function RigidBody:getSettings() end
 
 ---@param v vec3

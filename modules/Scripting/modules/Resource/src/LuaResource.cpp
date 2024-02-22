@@ -8,7 +8,7 @@
 
 void registerResource(sol::state &lua) {
   // clang-format off
-  DEFINE_USERTYPE(Resource,
+  lua.DEFINE_USERTYPE(Resource,
     sol::no_constructor,
 
     "valid", &Resource::operator bool,

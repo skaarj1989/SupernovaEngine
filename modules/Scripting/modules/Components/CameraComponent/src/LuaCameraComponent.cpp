@@ -7,7 +7,7 @@
 void registerCameraComponent(sol::state &lua) {
 #define BIND(Member) _BIND(CameraComponent, Member)
   // clang-format off
-  DEFINE_USERTYPE(CameraComponent,
+  lua.DEFINE_USERTYPE(CameraComponent,
     sol::call_constructor,
     sol::constructors<
       CameraComponent(),

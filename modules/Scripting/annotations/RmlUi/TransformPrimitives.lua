@@ -1,13 +1,13 @@
 ---@meta
 
-ui.Transforms = {}
-
 ---@class ui.NumericValue
 ---@field number number
 ---@field unit ui.Unit
 ---@overload fun(): ui.NumericValue
 ---@overload fun(number: number, unit: ui.Unit): ui.NumericValue
 ui.NumericValue = {}
+
+ui.Transforms = {}
 
 ---@class ui.Transforms.Matrix2D
 ---@overload fun(values: ui.NumericValue[]): ui.Transforms.Matrix2D
@@ -116,8 +116,8 @@ ui.Transforms.Perspective = {}
 ---@class ui.Transforms.DecomposedMatrix4
 ui.Transforms.DecomposedMatrix4 = {}
 
----@enum ui.Transforms.TransformPrimitiveType
-ui.Transforms.TransformPrimitiveType = {
+---@enum ui.TransformPrimitive.Type
+ui.TransformPrimitive.Type = {
     MATRIX2D = 0,
     MATRIX3D = 1,
     TRANSLATEX = 2,
@@ -142,12 +142,12 @@ ui.Transforms.TransformPrimitiveType = {
     DECOMPOSEDMATRIX4 = 21,
 }
 
----@class ui.Transforms.TransformPrimitive
----@field type ui.Transforms.TransformPrimitiveType
----@overload fun(p: ui.Transforms.Matrix2D|ui.Transforms.Matrix3D|ui.Transforms.TranslateX|ui.Transforms.TranslateY|ui.Transforms.TranslateZ|ui.Transforms.Translate2D|ui.Transforms.Translate3D|ui.Transforms.ScaleX|ui.Transforms.ScaleY|ui.Transforms.ScaleZ|ui.Transforms.Scale2D|ui.Transforms.Scale3D|ui.Transforms.SkewX|ui.Transforms.SkewY|ui.Transforms.Skew2D|ui.Transforms.Perspective|ui.Transforms.DecomposedMatrix4): ui.Transforms.TransformPrimitive
+---@class ui.TransformPrimitive
+---@field type ui.TransformPrimitive.Type
+---@overload fun(p: ui.Transforms.Matrix2D|ui.Transforms.Matrix3D|ui.Transforms.TranslateX|ui.Transforms.TranslateY|ui.Transforms.TranslateZ|ui.Transforms.Translate2D|ui.Transforms.Translate3D|ui.Transforms.ScaleX|ui.Transforms.ScaleY|ui.Transforms.ScaleZ|ui.Transforms.Scale2D|ui.Transforms.Scale3D|ui.Transforms.SkewX|ui.Transforms.SkewY|ui.Transforms.Skew2D|ui.Transforms.Perspective|ui.Transforms.DecomposedMatrix4): ui.TransformPrimitive
 ui.Transforms.TransformPrimitive = {}
 
----@alias ui.PrimitiveList ui.Transforms.TransformPrimitive[]
+---@alias ui.PrimitiveList ui.TransformPrimitive[]
 
 ---@class ui.Transform
 ---@overload fun(primitives?: ui.PrimitiveList) ui.Transform
@@ -162,7 +162,7 @@ function ui.Transform.makeProperty(primitives) end
 function ui.Transform:clearPrimitives() end
 
 ---Add a Primitive to this Transform
----@param p ui.Transforms.TransformPrimitive
+---@param p ui.TransformPrimitive
 function ui.Transform:addPrimitive(p) end
 
 ---Return the number of Primitives in this Transform.
@@ -171,7 +171,7 @@ function ui.Transform:getNumPrimitives() end
 
 ---Return the i-th Primitive in this Transform.
 ---@param i integer
----@return ui.Transforms.TransformPrimitive
+---@return ui.TransformPrimitive
 function ui.Transform:getPrimitive(i) end
 
 ---@return ui.PrimitiveList

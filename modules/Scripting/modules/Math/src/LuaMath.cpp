@@ -227,7 +227,7 @@ void registerVec3(const char *name, sol::table &lua) {
 
 void registerVec4(sol::table &lua) {
   // clang-format off
-  auto type = lua.new_usertype<glm::vec4>("vec4",
+  lua.new_usertype<glm::vec4>("vec4",
     // vec4(...)
     sol::call_constructor,
     // vec4.new(...)
@@ -409,7 +409,7 @@ void registerQuat(sol::table &lua) {
 void registerShapes(sol::table &lua) {
 #define BIND(Member) _BIND(AABB, Member)
   // clang-format off
-  DEFINE_USERTYPE(AABB, 
+  lua.DEFINE_USERTYPE(AABB, 
     sol::call_constructor,
     sol::factories(
       [](const glm::vec3 &min, const glm::vec3 &max) { return AABB{min, max}; }
@@ -429,7 +429,7 @@ void registerShapes(sol::table &lua) {
 #undef BIND
 
 #define BIND(Member) _BIND(Sphere, Member)
-  DEFINE_USERTYPE(Sphere, 
+  lua.DEFINE_USERTYPE(Sphere, 
     sol::call_constructor,
     sol::factories([](const glm::vec3 &c, float r) { return Sphere{c, r}; }),
 
@@ -441,7 +441,7 @@ void registerShapes(sol::table &lua) {
 #undef BIND
 
 #define BIND(Member) _BIND(Cone, Member)
-  DEFINE_USERTYPE(Cone,
+  lua.DEFINE_USERTYPE(Cone,
     sol::call_constructor,
     sol::factories(
       [](const glm::vec3 &T, float h, const glm::vec3 &d, float r) {
@@ -462,7 +462,7 @@ void registerShapes(sol::table &lua) {
 void registerFrustum(sol::table &lua) {
 #define BIND(Member) _BIND(Frustum, Member)
   // clang-format off
-  DEFINE_USERTYPE(Frustum,
+  lua.DEFINE_USERTYPE(Frustum,
     sol::no_constructor,
 
     BIND(testPoint),

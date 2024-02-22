@@ -13,7 +13,7 @@ using namespace Rml;
 
 void registerContext(sol::table &lua) {
   // clang-format off
-  DEFINE_USERTYPE(Context,
+  lua.DEFINE_USERTYPE(Context,
     sol::no_constructor,
 
     "getName", &Context::GetName,

@@ -23,7 +23,7 @@ public:
                        const glm::mat4 & = glm::mat4{1.0f});
   DebugDraw &addAABB(const AABB &, const glm::vec3 &color = glm::vec3{1.0f});
   DebugDraw &addFrustum(const glm::mat4 &inversedViewProj,
-                        const glm::vec3 &color);
+                        const glm::vec3 &color = glm::vec3{1.0f});
 
   bool empty() const;
   DebugDraw &clear();

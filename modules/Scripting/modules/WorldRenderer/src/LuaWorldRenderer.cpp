@@ -15,22 +15,17 @@ using namespace gfx;
 namespace {
 
 void registerLight(sol::state &lua) {
+  // clang-format off
 #define MAKE_PAIR(Key) _MAKE_PAIR(LightType, Key)
-  DEFINE_ENUM(LightType, {
-                           MAKE_PAIR(Directional),
-                           MAKE_PAIR(Spot),
-                           MAKE_PAIR(Point),
-                         });
+  lua.DEFINE_ENUM(LightType, {
+    MAKE_PAIR(Directional),
+    MAKE_PAIR(Spot),
+    MAKE_PAIR(Point),
+  });
 #undef MAKE_PAIR
 
 #define BIND(Member) _BIND(Light, Member)
-
-#define CAPTURE_FIELD(name, defaultValue) .name = t.get_or(#name, defaultValue)
-#define CAPTURE_FIELD_T(name, T, defaultValue)                                 \
-  .name = t.get_or<const T &>(#name, T{defaultValue})
-
-  // clang-format off
-	DEFINE_USERTYPE(Light,
+	lua.DEFINE_USERTYPE(Light,
     sol::call_constructor,
     sol::factories(
       [] { return Light{}; },
@@ -67,19 +62,15 @@ void registerLight(sol::state &lua) {
     BIND_TYPEID(Light),
     BIND_TOSTRING(Light)
   );
-  // clang-format on
-
-#undef CAPTURE_FIELD_T
-#undef CAPTURE_FIELD
-
 #undef BIND
+  // clang-format on
 }
 
 void registerSkyLight(sol::state &lua) {
   using gfx::SkyLight;
 
   // clang-format off
-  DEFINE_USERTYPE(SkyLight,
+  lua.DEFINE_USERTYPE(SkyLight,
     sol::no_constructor,
 
     "source", sol::readonly_property([](const SkyLight &self) {
@@ -93,7 +84,7 @@ void registerSkyLight(sol::state &lua) {
 
 void registerResources(sol::state &lua) {
   // clang-format off
-  DEFINE_USERTYPE(TextureResource,
+  lua.DEFINE_USERTYPE(TextureResource,
     sol::no_constructor,
     sol::base_classes, sol::bases<Resource, rhi::Texture>(),
 
@@ -101,7 +92,7 @@ void registerResources(sol::state &lua) {
   );
   lua["loadTexture"] = loadResource<TextureManager>;
 
-  DEFINE_USERTYPE(MaterialResource,
+  lua.DEFINE_USERTYPE(MaterialResource,
     sol::no_constructor,
     sol::base_classes, sol::bases<Resource, Material>(),
 
@@ -109,7 +100,7 @@ void registerResources(sol::state &lua) {
   );
   lua["loadMaterial"] = loadResource<MaterialManager>;
 
-  DEFINE_USERTYPE(MeshResource,
+  lua.DEFINE_USERTYPE(MeshResource,
     sol::no_constructor,
     sol::base_classes, sol::bases<Resource, Mesh>(),
 
@@ -133,17 +124,17 @@ template <typename T> auto forceType(const gfx::Property::Value &v) {
 
 void registerMaterialInstance(sol::state &lua) {
   enum class Numeric { Int, UInt, Float };
+  // clang-format off
 #define MAKE_PAIR(Key) _MAKE_PAIR(Numeric, Key)
-  DEFINE_ENUM(Numeric, {
-                         MAKE_PAIR(Int),
-                         MAKE_PAIR(UInt),
-                         MAKE_PAIR(Float),
-                       });
+  lua.DEFINE_ENUM(Numeric, {
+    MAKE_PAIR(Int),
+    MAKE_PAIR(UInt),
+    MAKE_PAIR(Float),
+  });
 #undef MAKE_PAIR
 
 #define BIND(Member) _BIND(MaterialInstance, Member)
-  // clang-format off
-  DEFINE_USERTYPE(MaterialInstance,
+  lua.DEFINE_USERTYPE(MaterialInstance,
     sol::call_constructor,
     sol::factories(
       [](std::shared_ptr<MaterialResource> resource) {
@@ -199,14 +190,14 @@ void registerMaterialInstance(sol::state &lua) {
 
     BIND_TOSTRING(MaterialInstance)
   );
-  // clang-format on
 #undef BIND
+  // clang-format on
 }
 
 void registerMeshInstance(sol::state &lua) {
-#define BIND(Member) _BIND(MeshInstance, Member)
   // clang-format off
-	DEFINE_USERTYPE(MeshInstance,
+#define BIND(Member) _BIND(MeshInstance, Member)
+	lua.DEFINE_USERTYPE(MeshInstance,
     sol::call_constructor,
     sol::factories(
       [](std::shared_ptr<MeshResource> meshResource) {
@@ -236,12 +227,12 @@ void registerMeshInstance(sol::state &lua) {
     BIND_TYPEID(MeshInstance),
     BIND_TOSTRING(MeshInstance)
   );
-  // clang-format on
 #undef BIND
+  // clang-format on
 }
 void registerDecalInstance(sol::state &lua) {
   // clang-format off
-	DEFINE_USERTYPE(DecalInstance,
+	lua.DEFINE_USERTYPE(DecalInstance,
     sol::call_constructor,
     sol::factories(
       [](std::shared_ptr<MeshResource> resource) {
@@ -261,99 +252,9 @@ void registerDecalInstance(sol::state &lua) {
 }
 
 void registerRenderSettings(sol::state &lua) {
-#define MAKE_PAIR(Key) _MAKE_PAIR(OutputMode, Key)
-  DEFINE_ENUM(OutputMode, {
-                            MAKE_PAIR(Depth),
-                            MAKE_PAIR(Normal),
-                            MAKE_PAIR(Emissive),
-                            MAKE_PAIR(BaseColor),
-                            MAKE_PAIR(Metallic),
-                            MAKE_PAIR(Roughness),
-                            MAKE_PAIR(AmbientOcclusion),
-
-                            MAKE_PAIR(SSAO),
-                            MAKE_PAIR(BrightColor),
-                            MAKE_PAIR(Reflections),
-
-                            MAKE_PAIR(Accum),
-                            MAKE_PAIR(Reveal),
-
-                            MAKE_PAIR(LightHeatmap),
-
-                            MAKE_PAIR(HDR),
-                            MAKE_PAIR(FinalImage),
-                          });
-#undef MAKE_PAIR
-
-#define MAKE_PAIR(Key) _MAKE_PAIR(RenderFeatures, Key)
-  DEFINE_ENUM(RenderFeatures, {
-                                MAKE_PAIR(None),
-
-                                MAKE_PAIR(LightCulling),
-                                MAKE_PAIR(SoftShadows),
-                                MAKE_PAIR(GI),
-                                MAKE_PAIR(SSAO),
-                                MAKE_PAIR(SSR),
-                                MAKE_PAIR(Bloom),
-                                MAKE_PAIR(FXAA),
-                                MAKE_PAIR(EyeAdaptation),
-                                MAKE_PAIR(CustomPostprocess),
-
-                                MAKE_PAIR(Default),
-
-                                MAKE_PAIR(All),
-                              });
-#undef MAKE_PAIR
-
   // clang-format off
-#define BIND(Member) _BIND(RenderSettings::GlobalIllumination, Member)
-  lua.new_usertype<RenderSettings::GlobalIllumination>("GlobalIllumination",
-    BIND(numPropagations),
-    BIND(intensity)
-  );
-#undef BIND
-
-#define BIND(Member) _BIND(RenderSettings::Bloom, Member)
-  lua.new_usertype<RenderSettings::Bloom>("Bloom",
-    BIND(radius),
-    BIND(strength)
-  );
-#undef BIND
-  // clang-format on
-
-#define MAKE_PAIR(Key) _MAKE_PAIR(Tonemap, Key)
-  DEFINE_ENUM(Tonemap, {
-                         MAKE_PAIR(Clamp),
-                         MAKE_PAIR(ACES),
-                         MAKE_PAIR(Filmic),
-                         MAKE_PAIR(Reinhard),
-                         MAKE_PAIR(Uncharted),
-                       });
-#undef MAKE_PAIR
-
-#define MAKE_PAIR(Key) _MAKE_PAIR(DebugFlags, Key)
-  DEFINE_ENUM(DebugFlags, {
-                            MAKE_PAIR(None),
-
-                            MAKE_PAIR(WorldBounds),
-                            MAKE_PAIR(InfiniteGrid),
-
-                            MAKE_PAIR(Wireframe),
-                            MAKE_PAIR(VertexNormal),
-
-                            MAKE_PAIR(CascadeSplits),
-                            MAKE_PAIR(LightHeatmap),
-
-                            MAKE_PAIR(VPL),
-                            MAKE_PAIR(IrradianceOnly),
-                          });
-#undef MAKE_PAIR
-
-  // ---
-
 #define BIND(Member) _BIND(RenderSettings, Member)
-  // clang-format off
-  DEFINE_USERTYPE(RenderSettings,
+  lua.DEFINE_USERTYPE(RenderSettings,
     BIND(outputMode),
     BIND(features),
 
@@ -371,8 +272,94 @@ void registerRenderSettings(sol::state &lua) {
 
     BIND_TOSTRING(RenderSettings)
   );
-  // clang-format on
 #undef BIND
+
+#define MAKE_PAIR(Key) _MAKE_PAIR(OutputMode, Key)
+  lua.DEFINE_ENUM(OutputMode, {
+    MAKE_PAIR(Depth),
+    MAKE_PAIR(Normal),
+    MAKE_PAIR(Emissive),
+    MAKE_PAIR(BaseColor),
+    MAKE_PAIR(Metallic),
+    MAKE_PAIR(Roughness),
+    MAKE_PAIR(AmbientOcclusion),
+
+    MAKE_PAIR(SSAO),
+    MAKE_PAIR(BrightColor),
+    MAKE_PAIR(Reflections),
+
+    MAKE_PAIR(Accum),
+    MAKE_PAIR(Reveal),
+
+    MAKE_PAIR(LightHeatmap),
+
+    MAKE_PAIR(HDR),
+    MAKE_PAIR(FinalImage),
+  });
+#undef MAKE_PAIR
+
+#define MAKE_PAIR(Key) _MAKE_PAIR(RenderFeatures, Key)
+  lua.DEFINE_ENUM(RenderFeatures, {
+    MAKE_PAIR(None),
+
+    MAKE_PAIR(LightCulling),
+    MAKE_PAIR(SoftShadows),
+    MAKE_PAIR(GI),
+    MAKE_PAIR(SSAO),
+    MAKE_PAIR(SSR),
+    MAKE_PAIR(Bloom),
+    MAKE_PAIR(FXAA),
+    MAKE_PAIR(EyeAdaptation),
+    MAKE_PAIR(CustomPostprocess),
+
+    MAKE_PAIR(Default),
+
+    MAKE_PAIR(All),
+  });
+#undef MAKE_PAIR
+
+#define BIND(Member) _BIND(RenderSettings::GlobalIllumination, Member)
+  lua DEFINE_NESTED_USERTYPE(RenderSettings, GlobalIllumination,
+    BIND(numPropagations),
+    BIND(intensity)
+  );
+#undef BIND
+
+#define BIND(Member) _BIND(RenderSettings::Bloom, Member)
+  lua DEFINE_NESTED_USERTYPE(RenderSettings, Bloom,
+    BIND(radius),
+    BIND(strength)
+  );
+#undef BIND
+
+#define MAKE_PAIR(Key) _MAKE_PAIR(Tonemap, Key)
+  lua.DEFINE_ENUM(Tonemap, {
+    MAKE_PAIR(Clamp),
+    MAKE_PAIR(ACES),
+    MAKE_PAIR(Filmic),
+    MAKE_PAIR(Reinhard),
+    MAKE_PAIR(Uncharted),
+  });
+#undef MAKE_PAIR
+
+#define MAKE_PAIR(Key) _MAKE_PAIR(DebugFlags, Key)
+  lua.DEFINE_ENUM(DebugFlags, {
+    MAKE_PAIR(None),
+
+    MAKE_PAIR(WorldBounds),
+    MAKE_PAIR(InfiniteGrid),
+
+    MAKE_PAIR(Wireframe),
+    MAKE_PAIR(VertexNormal),
+
+    MAKE_PAIR(CascadeSplits),
+    MAKE_PAIR(LightHeatmap),
+
+    MAKE_PAIR(VPL),
+    MAKE_PAIR(IrradianceOnly),
+  });
+#undef MAKE_PAIR
+  // clang-format on
 }
 
 } // namespace

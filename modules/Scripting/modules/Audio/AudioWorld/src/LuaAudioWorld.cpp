@@ -11,7 +11,7 @@ namespace {
 
 void registerResource(sol::state &lua) {
   // clang-format off
-  DEFINE_USERTYPE(AudioClipResource,
+  lua.DEFINE_USERTYPE(AudioClipResource,
     sol::no_constructor,
     sol::base_classes, sol::bases<Resource, audio::Buffer>(),
 
@@ -24,24 +24,23 @@ void registerResource(sol::state &lua) {
 void registerListenerComponent(sol::state &lua) {
   // clang-format off
 #define BIND(Member) _BIND(ListenerComponent, Member)
-  DEFINE_USERTYPE(ListenerComponent,
+  lua.DEFINE_USERTYPE(ListenerComponent,
     sol::call_constructor,
     sol::factories([] { return ListenerComponent{}; }),
 
     BIND(velocity),
 
-    BIND_TYPEID(ListenerComponent)
+    BIND_TYPEID(ListenerComponent),
+    BIND_TOSTRING(ListenerComponent)
   );
 #undef BIND
   // clang-format on
 }
 
 void registerSoundSettings(sol::state &lua) {
-#define CAPTURE_FIELD(name, defaultValue) .name = t.get_or(#name, defaultValue)
-
 #define BIND(Member) _BIND(SoundSettings, Member)
   // clang-format off
-  DEFINE_USERTYPE(SoundSettings,
+  lua.DEFINE_USERTYPE(SoundSettings,
     sol::call_constructor,
     sol::factories(
       [] { return SoundSettings{}; },
@@ -73,12 +72,11 @@ void registerSoundSettings(sol::state &lua) {
   );
   // clang-format on
 #undef BIND
-#undef CAPTURE_FIELD
 }
 void registerSoundSourceComponent(sol::state &lua) {
   // clang-format off
 #define BIND(Member) _BIND(SoundSourceComponent, Member)
-  DEFINE_USERTYPE(SoundSourceComponent,
+  lua.DEFINE_USERTYPE(SoundSourceComponent,
     sol::call_constructor,
     sol::constructors<
       SoundSourceComponent(),
@@ -108,7 +106,8 @@ void registerSoundSourceComponent(sol::state &lua) {
     BIND(pause),
     BIND(stop),
   
-    BIND_TYPEID(SoundSourceComponent)
+    BIND_TYPEID(SoundSourceComponent),
+    BIND_TOSTRING(SoundSourceComponent)
   );
 #undef BIND
   // clang-format on
@@ -116,7 +115,7 @@ void registerSoundSourceComponent(sol::state &lua) {
 void registerAudioPlayerComponent(sol::state &lua) {
 #define BIND(Member) _BIND(AudioPlayerComponent, Member)
   // clang-format off
-  DEFINE_USERTYPE(AudioPlayerComponent,
+  lua.DEFINE_USERTYPE(AudioPlayerComponent,
     sol::call_constructor,
     sol::constructors<
       AudioPlayerComponent(),
@@ -148,12 +147,13 @@ void registerAudioPlayerComponent(sol::state &lua) {
     BIND(pause),
     BIND(stop),
 
-    BIND_TYPEID(AudioPlayerComponent)
+    BIND_TYPEID(AudioPlayerComponent),
+    BIND_TOSTRING(AudioPlayerComponent)
   );
   // clang-format on
 #undef BIND
 
-  lua["createStream"] = [](const std::string &path) {
+  lua["createStream"] = [](const std::string_view path) {
     return createStream(os::FileSystem::getRoot() / path);
   };
 }
@@ -163,7 +163,7 @@ void registerAudioPlayerComponent(sol::state &lua) {
 void registerAudioWorld(sol::state &lua) {
   // clang-format off
 #define BIND(Member) _BIND(AudioWorld, Member)
-  DEFINE_USERTYPE(AudioWorld,
+  lua.DEFINE_USERTYPE(AudioWorld,
     sol::no_constructor,
 
     BIND(setSettings),

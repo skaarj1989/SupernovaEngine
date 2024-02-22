@@ -24,7 +24,7 @@ end
 function Cannon:fire(bullet, position, direction)
   bullet:emplace(Transform(position))
   bullet:emplace(ColliderComponent(bulletPrefab.collider))
-  local body = bullet:emplace(RigidBody(RigidBodySettings({
+  local body = bullet:emplace(RigidBody(RigidBody.Settings({
     motionType = MotionType.Dynamic,
     mass = self.projectile.mass,
     restitution = 0.6,

@@ -11,7 +11,7 @@ namespace {
 
 void registerResources(sol::state &lua) {
   // clang-format off
-  DEFINE_USERTYPE(SkeletonResource,
+  lua.DEFINE_USERTYPE(SkeletonResource,
     sol::no_constructor,
     sol::base_classes, sol::bases<Resource, ozz::animation::Skeleton>(),
 
@@ -19,7 +19,7 @@ void registerResources(sol::state &lua) {
   );
   lua["loadSkeleton"] = loadResource<SkeletonManager>;
 
-  DEFINE_USERTYPE(AnimationResource,
+  lua.DEFINE_USERTYPE(AnimationResource,
     sol::no_constructor,
     sol::base_classes, sol::bases<Resource, ozz::animation::Animation>(),
 
@@ -31,7 +31,7 @@ void registerResources(sol::state &lua) {
 
 void registerSkeletonComponent(sol::state &lua) {
   // clang-format off
-  DEFINE_USERTYPE(SkeletonComponent,
+  lua.DEFINE_USERTYPE(SkeletonComponent,
     sol::call_constructor,
     sol::factories(
       [](std::shared_ptr<SkeletonResource> resource) {
@@ -53,7 +53,7 @@ void registerSkeletonComponent(sol::state &lua) {
 }
 void registerAnimationComponent(sol::state &lua) {
   // clang-format off
-  DEFINE_USERTYPE(AnimationComponent,
+  lua.DEFINE_USERTYPE(AnimationComponent,
     sol::call_constructor,
     sol::factories(
       [](std::shared_ptr<AnimationResource> resource) {
@@ -76,7 +76,7 @@ void registerAnimationComponent(sol::state &lua) {
 void registerPlaybackController(sol::state &lua) {
 #define BIND(Member) _BIND(PlaybackController, Member)
   // clang-format off
-  DEFINE_USERTYPE(PlaybackController,
+  lua.DEFINE_USERTYPE(PlaybackController,
     sol::call_constructor,
     sol::constructors<PlaybackController()>(),
 

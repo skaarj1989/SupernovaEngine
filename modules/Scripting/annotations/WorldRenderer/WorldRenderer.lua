@@ -5,10 +5,10 @@
 ---@field features RenderFeatures
 ---@field ambientLight vec4
 ---@field IBLIntensity number
----@field globalIllumination GlobalIllumination
+---@field globalIllumination RenderSettings.GlobalIllumination
 ---@field shadow ShadowSettings
 ---@field ssao SSAOSettings
----@field bloom Bloom
+---@field bloom RenderSettings.Bloom
 ---@field exposure number
 ---@field adaptiveExposure AdaptiveExposure
 ---@field tonemap Tonemap
@@ -58,10 +58,10 @@ RenderFeatures = {
   All = RenderFeatures.Default | RenderFeatures.SoftShadows | RenderFeatures.GI | RenderFeatures.SSR,
 }
 
----@class GlobalIllumination
+---@class RenderSettings.GlobalIllumination
 ---@field numPropagations integer
 ---@field intensity number
-GlobalIllumination = {}
+RenderSettings.GlobalIllumination = {}
 
 ---@class ShadowSettings
 ---@field cascadedShadowMaps CascadedShadowMaps
@@ -91,10 +91,10 @@ ShadowSettings = {
 ---@field bias number
 SSAOSettings = {}
 
----@class Bloom
+---@class RenderSettings.Bloom
 ---@field radius number
 ---@field strength number
-Bloom = {}
+RenderSettings.Bloom = {}
 
 ---@class AdaptiveExposure
 ---@field minLogLuminance number

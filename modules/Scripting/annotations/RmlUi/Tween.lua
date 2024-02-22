@@ -1,7 +1,12 @@
 ---@meta
 
----@enum ui.TweenType
-ui.TweenType = {
+---@class ui.Tween
+---@overload fun(type?: ui.Tween.Type, direction?: ui.Tween.Direction): ui.Tween
+---@overload fun(typeIn: ui.Tween.Type, typeOut: ui.Tween.Type): ui.Tween
+ui.Tween = {}
+
+---@enum ui.Tween.Type
+ui.Tween.Type = {
   None = 0,
   Back = 1,
   Bounce = 2,
@@ -18,15 +23,10 @@ ui.TweenType = {
   Count = 13,
 }
 
----@enum ui.TweenDirection
-ui.TweenDirection = {
+---@enum ui.Tween.Direction
+ui.Tween.Direction = {
   In = 1, Out = 2, InOut = 3,
 }
-
----@class ui.Tween
----@overload fun(type?: ui.TweenType, direction?: ui.TweenDirection): ui.Tween
----@overload fun(typeIn: ui.TweenType, typeOut: ui.TweenType): ui.Tween
-ui.Tween = {}
 
 ---Reverse direction of the tweening function.
 function ui.Tween:reverse() end

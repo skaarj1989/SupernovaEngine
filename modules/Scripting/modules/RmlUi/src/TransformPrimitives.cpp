@@ -9,10 +9,8 @@ using namespace Rml;
 namespace {
 
 void registerTransformPrimitives(sol::table &lua) {
-  using namespace Transforms;
-
   // clang-format off
-  DEFINE_USERTYPE(NumericValue,
+  lua.DEFINE_USERTYPE(NumericValue,
     sol::call_constructor,
     sol::constructors<
       NumericValue(),
@@ -25,19 +23,21 @@ void registerTransformPrimitives(sol::table &lua) {
     BIND_TOSTRING(NumericValue)
   );
 
-  DEFINE_USERTYPE(Matrix2D,
+  using namespace Transforms;
+
+  lua.DEFINE_USERTYPE(Matrix2D,
     sol::call_constructor,
     sol::constructors<Matrix2D(const NumericValue *)>(),
     BIND_TOSTRING(Matrix2D)
   );
-  DEFINE_USERTYPE(Matrix3D,
+  lua.DEFINE_USERTYPE(Matrix3D,
     sol::call_constructor,
     sol::constructors<Matrix3D(const NumericValue *)>(),
     BIND_TOSTRING(Matrix3D)
   );
 
 #define DEFINE_NUMERIC(Type, ...)                                              \
-  DEFINE_USERTYPE(Type,                                                        \
+  lua.DEFINE_USERTYPE(Type,                                                        \
     sol::call_constructor,                                                     \
     sol::constructors<Type(const NumericValue *), __VA_ARGS__>(),              \
     BIND_TOSTRING(Type))
@@ -66,15 +66,50 @@ void registerTransformPrimitives(sol::table &lua) {
 
 #undef DEFINE_NUMERIC
 
-  DEFINE_USERTYPE(Perspective,
+  lua.DEFINE_USERTYPE(Perspective,
     sol::call_constructor,
     sol::constructors<Perspective(const NumericValue *)>(),
     BIND_TOSTRING(Perspective)
   );
+  // clang-format on
+}
 
-  using TransformPrimitiveType = TransformPrimitive::Type;
-#define MAKE_PAIR(Value) _MAKE_PAIR(TransformPrimitiveType, Value)
-  DEFINE_ENUM(TransformPrimitiveType, {
+} // namespace
+
+void registerTransform(sol::table &lua) {
+  auto m = lua["Transforms"].get_or_create<sol::table>();
+  registerTransformPrimitives(m);
+
+  // clang-format off
+  lua.DEFINE_USERTYPE(TransformPrimitive,
+    sol::call_constructor,
+    sol::constructors<
+      TransformPrimitive(Transforms::Matrix2D),
+      TransformPrimitive(Transforms::Matrix3D),
+      TransformPrimitive(Transforms::TranslateX),
+      TransformPrimitive(Transforms::TranslateY),
+      TransformPrimitive(Transforms::TranslateZ),
+      TransformPrimitive(Transforms::Translate2D),
+      TransformPrimitive(Transforms::Translate3D),
+      TransformPrimitive(Transforms::ScaleX),
+      TransformPrimitive(Transforms::ScaleY),
+      TransformPrimitive(Transforms::ScaleZ),
+      TransformPrimitive(Transforms::Scale2D),
+      TransformPrimitive(Transforms::Scale3D),
+      TransformPrimitive(Transforms::SkewX),
+      TransformPrimitive(Transforms::SkewY),
+      TransformPrimitive(Transforms::Skew2D),
+      TransformPrimitive(Transforms::Perspective),
+      TransformPrimitive(Transforms::DecomposedMatrix4)
+    >(),
+
+    _BIND(TransformPrimitive, type),
+
+    BIND_TOSTRING(TransformPrimitive)
+  );
+
+#define MAKE_PAIR(Value) _MAKE_PAIR(TransformPrimitive::Type, Value)
+  lua DEFINE_NESTED_ENUM(TransformPrimitive, Type, {
     MAKE_PAIR(MATRIX2D), MAKE_PAIR(MATRIX3D),
     MAKE_PAIR(TRANSLATEX), MAKE_PAIR(TRANSLATEY), MAKE_PAIR(TRANSLATEZ),
     MAKE_PAIR(TRANSLATE2D), MAKE_PAIR(TRANSLATE3D), MAKE_PAIR(TRANSLATE3D),
@@ -87,43 +122,7 @@ void registerTransformPrimitives(sol::table &lua) {
   });
 #undef MAKE_PAIR
 
-  DEFINE_USERTYPE(TransformPrimitive,
-    sol::call_constructor,
-    sol::constructors<
-      TransformPrimitive(Matrix2D),
-      TransformPrimitive(Matrix3D),
-      TransformPrimitive(TranslateX),
-      TransformPrimitive(TranslateY),
-      TransformPrimitive(TranslateZ),
-      TransformPrimitive(Translate2D),
-      TransformPrimitive(Translate3D),
-      TransformPrimitive(ScaleX),
-      TransformPrimitive(ScaleY),
-      TransformPrimitive(ScaleZ),
-      TransformPrimitive(Scale2D),
-      TransformPrimitive(Scale3D),
-      TransformPrimitive(SkewX),
-      TransformPrimitive(SkewY),
-      TransformPrimitive(Skew2D),
-      TransformPrimitive(Perspective),
-      TransformPrimitive(DecomposedMatrix4)
-    >(),
-
-    "type", &TransformPrimitive::type,
-
-    BIND_TOSTRING(TransformPrimitive)
-  );
-  // clang-format on
-}
-
-} // namespace
-
-void registerTransform(sol::table &lua) {
-  auto m = lua["Transforms"].get_or_create<sol::table>();
-  registerTransformPrimitives(m);
-
-  // clang-format off
-  DEFINE_USERTYPE(Transform, 
+  lua.DEFINE_USERTYPE(Transform, 
     sol::call_constructor,
     sol::constructors<
       Transform(),

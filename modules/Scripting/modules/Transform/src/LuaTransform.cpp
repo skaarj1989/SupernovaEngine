@@ -7,7 +7,7 @@
 void registerTransform(sol::state &lua) {
 #define BIND(Member) _BIND(Transform, Member)
   // clang-format off
-  DEFINE_USERTYPE(Transform,
+  lua.DEFINE_USERTYPE(Transform,
     sol::call_constructor,
     sol::constructors<
       Transform(),

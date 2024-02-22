@@ -11,14 +11,14 @@ using namespace Rml;
 void registerDocument(sol::table &lua) {
   // clang-format off
 #define MAKE_PAIR(Value) _MAKE_PAIR(ModalFlag, Value)
-  DEFINE_ENUM(ModalFlag, {
+  lua.DEFINE_ENUM(ModalFlag, {
     MAKE_PAIR(None),
     MAKE_PAIR(Modal),
     MAKE_PAIR(Keep),
   });
 #undef MAKE_PAIR
 #define MAKE_PAIR(Value) _MAKE_PAIR(FocusFlag, Value)
-  DEFINE_ENUM(FocusFlag, {
+  lua.DEFINE_ENUM(FocusFlag, {
     MAKE_PAIR(None),
     MAKE_PAIR(Document),
     MAKE_PAIR(Keep),
@@ -26,7 +26,7 @@ void registerDocument(sol::table &lua) {
   });
 #undef MAKE_PAIR
 
-  DEFINE_USERTYPE(ElementDocument,
+  lua.DEFINE_USERTYPE(ElementDocument,
     sol::no_constructor,
     sol::base_classes, sol::bases<Element>(),
 

@@ -13,7 +13,7 @@ void registerVariant(sol::table &lua) {
   // clang-format off
   using VariantType = Variant::Type;
 #define MAKE_PAIR(Value) _MAKE_PAIR(VariantType, Value)
-  DEFINE_ENUM(VariantType, {
+  lua.DEFINE_ENUM(VariantType, {
     MAKE_PAIR(NONE),
     MAKE_PAIR(BOOL),
     MAKE_PAIR(BYTE),
@@ -40,7 +40,7 @@ void registerVariant(sol::table &lua) {
   });
 #undef MAKE_PAIR
 
-  DEFINE_USERTYPE(Variant,
+  lua.DEFINE_USERTYPE(Variant,
     sol::call_constructor,
     sol::factories(
       [](bool b) { return Variant{b}; },
@@ -78,7 +78,7 @@ void registerVariant(sol::table &lua) {
 }
 void registerPropertyDictionary(sol::table &lua) {
   // clang-format off
-  DEFINE_USERTYPE(PropertyDictionary,
+  lua.DEFINE_USERTYPE(PropertyDictionary,
     sol::call_constructor,
     sol::constructors<PropertyDictionary()>(),
 
@@ -102,7 +102,7 @@ void registerPropertyDictionary(sol::table &lua) {
 void registerUnit(sol::table &lua) {
 #define MAKE_PAIR(Value) _MAKE_PAIR(Unit, Value)
   // clang-format off
-  DEFINE_ENUM(Unit, {
+  lua.DEFINE_ENUM(Unit, {
     MAKE_PAIR(UNKNOWN),
 
     MAKE_PAIR(KEYWORD),
@@ -163,7 +163,7 @@ void registerProperty(sol::table &lua) {
 #define CTORS(Type, convert) CTOR_2(Type, convert), CTOR_3(Type, convert)
 
   // clang-format off
-  DEFINE_USERTYPE(Property,
+  lua.DEFINE_USERTYPE(Property,
     sol::call_constructor,
     sol::factories(
       []{ return Property{}; },

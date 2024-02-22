@@ -2,18 +2,18 @@
 
 ---@class Character : ComponentBase, Emitter
 ---@overload fun(): Character
----@overload fun(settings: CharacterSettings): Character
+---@overload fun(settings: Character.Settings): Character
 Character = {}
 
----@class CharacterSettings
+---@class Character.Settings
 ---@field maxSlopeAngle number # In degrees
 ---@field layer CollisionLayer
 ---@field mass number
 ---@field friction number
 ---@field gravityFactor number
-CharacterSettings = {}
+Character.Settings = {}
 
----@return CharacterSettings
+---@return Character.Settings
 function Character:getSettings() end
 
 ---@param q quat

@@ -10,7 +10,7 @@ namespace {
 void registerShorthandId(sol::table &lua) {
 #define MAKE_PAIR(Value) _MAKE_PAIR(ShorthandId, Value)
   // clang-format off
-  DEFINE_ENUM(ShorthandId, {
+  lua.DEFINE_ENUM(ShorthandId, {
     MAKE_PAIR(Invalid),
     MAKE_PAIR(Margin),
     MAKE_PAIR(Padding),
@@ -42,7 +42,7 @@ void registerShorthandId(sol::table &lua) {
 void registerPropertyId(sol::table &lua) {
 #define MAKE_PAIR(Value) _MAKE_PAIR(PropertyId, Value)
   // clang-format off
-  DEFINE_ENUM(PropertyId, {
+  lua.DEFINE_ENUM(PropertyId, {
     MAKE_PAIR(Invalid),
 
     MAKE_PAIR(MarginTop),
@@ -149,7 +149,7 @@ void registerPropertyId(sol::table &lua) {
 void registerEventId(sol::table &lua) {
 #define MAKE_PAIR(Value) _MAKE_PAIR(EventId, Value)
   // clang-format off
-  DEFINE_ENUM(EventId, {
+  lua.DEFINE_ENUM(EventId, {
     MAKE_PAIR(Invalid),
 
 	  MAKE_PAIR(Mousedown),
@@ -197,7 +197,7 @@ void registerEventId(sol::table &lua) {
 
 	  MAKE_PAIR(MaxNumIds),
   });
-  // clang-format off
+  // clang-format on
 #undef MAKE_PAIR
 }
 

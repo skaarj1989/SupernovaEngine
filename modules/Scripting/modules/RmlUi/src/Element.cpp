@@ -15,7 +15,7 @@ using namespace Rml;
 void registerElement(sol::table &lua) {
   // clang-format off
 #define MAKE_PAIR(Value) _MAKE_PAIR(ScrollBehavior, Value)
-  DEFINE_ENUM(ScrollBehavior, {
+  lua.DEFINE_ENUM(ScrollBehavior, {
     MAKE_PAIR(Auto),
     MAKE_PAIR(Smooth),
     MAKE_PAIR(Instant),
@@ -23,7 +23,7 @@ void registerElement(sol::table &lua) {
 #undef MAKE_PAIR
 
 #define MAKE_PAIR(Value) _MAKE_PAIR(ScrollAlignment, Value)
-  DEFINE_ENUM(ScrollAlignment, {
+  lua.DEFINE_ENUM(ScrollAlignment, {
     MAKE_PAIR(Start),
     MAKE_PAIR(Center),
     MAKE_PAIR(End),
@@ -31,7 +31,7 @@ void registerElement(sol::table &lua) {
   });
 #undef MAKE_PAIR
 
-  DEFINE_USERTYPE(Element,
+  lua.DEFINE_USERTYPE(Element,
     sol::call_constructor,
     sol::constructors<Element(const String &)>(),
 

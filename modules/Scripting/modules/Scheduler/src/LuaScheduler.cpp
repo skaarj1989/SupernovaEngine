@@ -63,7 +63,7 @@ void registerScheduler(sol::state &lua) {
 
 #define BIND(Member) _BIND(Scheduler, Member)
   // clang-format off
-  DEFINE_USERTYPE(Scheduler,
+  lua.DEFINE_USERTYPE(Scheduler,
     sol::call_constructor,
     sol::constructors<Scheduler()>(),
 

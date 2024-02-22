@@ -7,9 +7,22 @@ using namespace Rml;
 
 void registerTween(sol::table &lua) {
   // clang-format off
-  using TweenType = Tween::Type;
-#define MAKE_PAIR(Value) _MAKE_PAIR(TweenType, Value)
-  DEFINE_ENUM(TweenType, {
+  lua.DEFINE_USERTYPE(Tween,
+    sol::call_constructor,
+    sol::constructors<
+      Tween(),
+      Tween(Tween::Type),
+      Tween(Tween::Type, Tween::Direction),
+      Tween(Tween::Type, Tween::Type)
+    >(),
+
+    _BIND(Tween, reverse),
+
+    sol::meta_function::to_string, &Tween::to_string
+  );
+
+#define MAKE_PAIR(Value) _MAKE_PAIR(Tween::Type, Value)
+  lua DEFINE_NESTED_ENUM(Tween, Type, {
     MAKE_PAIR(None),
     MAKE_PAIR(Back),
     MAKE_PAIR(Bounce),
@@ -27,27 +40,12 @@ void registerTween(sol::table &lua) {
   });
 #undef MAKE_PAIR
 
-  using TweenDirection = Tween::Direction;
-#define MAKE_PAIR(Value) _MAKE_PAIR(TweenDirection, Value)
-  DEFINE_ENUM(TweenDirection, {
+#define MAKE_PAIR(Value) _MAKE_PAIR(Tween::Direction, Value)
+  lua DEFINE_NESTED_ENUM(Tween, Direction, {
     MAKE_PAIR(In),
     MAKE_PAIR(Out),
     MAKE_PAIR(InOut),
   });
 #undef MAKE_PAIR
-
-  DEFINE_USERTYPE(Tween,
-    sol::call_constructor,
-    sol::constructors<
-      Tween(),
-      Tween(TweenType),
-      Tween(TweenType, TweenDirection),
-      Tween(TweenType, TweenType)
-    >(),
-
-    "reverse", &Tween::reverse,
-
-    sol::meta_function::to_string, &Tween::to_string
-  );
   // clang-format on
 }

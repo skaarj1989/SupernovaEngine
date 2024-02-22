@@ -17,7 +17,7 @@ void registerFreeFunctions(sol::table &lua) {
 void registerBuffer(sol::table &lua) {
   // clang-format off
 #define MAKE_PAIR(Key) _MAKE_PAIR(NumChannels, Key)
-  DEFINE_ENUM(NumChannels, {
+  lua.DEFINE_ENUM(NumChannels, {
     MAKE_PAIR(Invalid),
     MAKE_PAIR(Mono),
     MAKE_PAIR(Stereo),
@@ -31,7 +31,7 @@ void registerBuffer(sol::table &lua) {
 #undef MAKE_PAIR
 
 #define BIND(Member) _BIND(ClipInfo, Member)
-  DEFINE_USERTYPE(ClipInfo,
+  lua.DEFINE_USERTYPE(ClipInfo,
     BIND(numChannels),
     BIND(bitsPerSample),
     BIND(sampleRate),
@@ -46,23 +46,24 @@ void registerBuffer(sol::table &lua) {
   );
 #undef BIND
 
-  DEFINE_USERTYPE(Buffer,
+  lua.DEFINE_USERTYPE(Buffer,
     sol::no_constructor,
-    _BIND(Buffer, getInfo)
+    _BIND(Buffer, getInfo),
+    BIND_TOSTRING(Buffer)
   );
   // clang-format on
 }
 void registerDecoder(sol::table &lua) {
 #define BIND(Member) _BIND(Decoder, Member)
   // clang-format off
-  DEFINE_USERTYPE(Decoder,
+  lua.DEFINE_USERTYPE(Decoder,
     sol::no_constructor,
 
     BIND(isOpen),
     BIND(getInfo),
 
     sol::meta_function::to_string, [](const Decoder &self) {
-      return std::format("AudioDecoder()", self.isOpen() ? "open" : "closed");
+      return std::format("AudioDecoder({})", self.isOpen() ? "open" : "closed");
     }
   );
 #undef BIND
@@ -76,7 +77,7 @@ void registerAudioDevice(sol::state &lua) {
 
   // clang-format off
 #define MAKE_PAIR(Key) _MAKE_PAIR(DistanceModel, Key)
-  m.new_enum<DistanceModel>("DistanceModel", {
+  m.DEFINE_ENUM(DistanceModel, {
     MAKE_PAIR(None),
     MAKE_PAIR(Inverse),
     MAKE_PAIR(InverseClamped),
@@ -88,7 +89,7 @@ void registerAudioDevice(sol::state &lua) {
 #undef MAKE_PAIR
 
 #define BIND(Member) _BIND(Device, Member)
-  m.new_usertype<Device>("Device",
+  m.DEFINE_USERTYPE(Device,
     sol::no_constructor,
 
     BIND(setSettings),
@@ -103,11 +104,8 @@ void registerAudioDevice(sol::state &lua) {
   );
 #undef BIND
 
-#define CAPTURE_FIELD(name, defaultValue)                                      \
-  .name = t.get_or(#name, defaultValue)
-
 #define BIND(Member) _BIND(Device::Settings, Member)
-  m["Device"].get<sol::table>().new_usertype<Device::Settings>("Settings",
+  m DEFINE_NESTED_USERTYPE(Device, Settings,
     sol::call_constructor,
     sol::factories(
       [] { return Device::Settings{}; },
@@ -124,7 +122,7 @@ void registerAudioDevice(sol::state &lua) {
     BIND(dopplerFactor),
     BIND(speedOfSound),
 
-    sol::meta_function::to_string, [] { return "AudioDevice.Settings"; }
+    BIND_TOSTRING(Device::Settings)
   );
 #undef BIND
   // clang-format on

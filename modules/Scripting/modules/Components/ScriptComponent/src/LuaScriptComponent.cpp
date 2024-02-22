@@ -8,14 +8,13 @@ namespace {
 
 void registerScriptResource(sol::state &lua) {
   // clang-format off
-  DEFINE_USERTYPE(ScriptResource,
+  lua.DEFINE_USERTYPE(ScriptResource,
     sol::no_constructor,
     sol::base_classes, sol::bases<Resource>(),
 
     BIND_TOSTRING(ScriptResource)
   );
   // clang-format on
-
   lua["loadScript"] = loadResource<ScriptManager>;
 }
 
@@ -25,7 +24,7 @@ void registerScriptComponent(sol::state &lua) {
   registerScriptResource(lua);
 
   // clang-format off
-  DEFINE_USERTYPE(ScriptComponent,
+  lua.DEFINE_USERTYPE(ScriptComponent,
     sol::call_constructor,
     sol::factories(
       [](std::shared_ptr<ScriptResource> resource) {

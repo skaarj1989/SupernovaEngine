@@ -9,7 +9,7 @@ using namespace Rml;
 void registerEvent(sol::table &lua) {
   // clang-format off
 #define MAKE_PAIR(Value) _MAKE_PAIR(EventPhase, Value)
-  DEFINE_ENUM(EventPhase, {
+  lua.DEFINE_ENUM(EventPhase, {
     MAKE_PAIR(None),
     MAKE_PAIR(Capture),
     MAKE_PAIR(Target),
@@ -17,7 +17,7 @@ void registerEvent(sol::table &lua) {
   });
 #undef MAKE_PAIR
 
-  DEFINE_USERTYPE(Event,
+  lua.DEFINE_USERTYPE(Event,
     sol::call_constructor,
     sol::constructors<
       Event(),

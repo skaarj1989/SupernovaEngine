@@ -11,7 +11,7 @@ using namespace gfx;
 void registerCamera(sol::state &lua) {
 #define BIND(Member) _BIND(ClippingPlanes, Member)
   // clang-format off
-  DEFINE_USERTYPE(ClippingPlanes, 
+  lua.DEFINE_USERTYPE(ClippingPlanes, 
     sol::call_constructor,
     sol::constructors<ClippingPlanes(float, float)>(),
 
@@ -27,7 +27,7 @@ void registerCamera(sol::state &lua) {
 #undef BIND
 
 #define BIND(Member) _BIND(PerspectiveCamera, Member)
-  DEFINE_USERTYPE(PerspectiveCamera,
+  lua.DEFINE_USERTYPE(PerspectiveCamera,
     sol::call_constructor,
     sol::constructors<PerspectiveCamera()>(),
     

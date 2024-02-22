@@ -96,7 +96,7 @@ Rml::DataModelHandle ScriptDataModel::getModelHandle() const {
 
 void registerDataModel(sol::table &lua) {
   // clang-format off
-  DEFINE_USERTYPE(DataModelHandle,
+  lua.DEFINE_USERTYPE(DataModelHandle,
     sol::no_constructor,
 
     "isVariableDirty", &DataModelHandle::IsVariableDirty,
@@ -106,7 +106,7 @@ void registerDataModel(sol::table &lua) {
     BIND_TOSTRING(DataModelHandle)
   );
 
-  DEFINE_USERTYPE(ScriptDataModel,
+  lua.DEFINE_USERTYPE(ScriptDataModel,
     "getModelHandle", &ScriptDataModel::getModelHandle,
 
     BIND_TOSTRING(ScriptDataModel)
