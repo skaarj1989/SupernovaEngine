@@ -107,8 +107,8 @@ ImGuiRenderer::ImGuiRenderer(rhi::RenderDevice &rd)
   io.Fonts->SetTexID(&m_font);
 }
 
-std::vector<ImGuiRenderer::FrameResources>
-ImGuiRenderer::createResources(int32_t numFrames) const {
+std::vector<ImGuiRenderer::FrameResources> ImGuiRenderer::createResources(
+  const rhi::FrameIndex::ValueType numFrames) const {
   assert(numFrames > 0);
   std::vector<ImGuiRenderer::FrameResources> resources;
   resources.reserve(numFrames);

@@ -716,9 +716,9 @@ RenderDevice &RenderDevice::pushGarbage(Texture &texture) {
   m_garbageCollector.push(texture);
   return *this;
 }
-RenderDevice &RenderDevice::stepGarbage() {
+RenderDevice &RenderDevice::stepGarbage(const FrameIndex::ValueType threshold) {
   ZoneScoped;
-  m_garbageCollector.step();
+  m_garbageCollector.step(threshold);
   return *this;
 }
 

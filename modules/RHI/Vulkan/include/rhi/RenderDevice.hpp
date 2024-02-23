@@ -147,7 +147,7 @@ public:
 
   RenderDevice &pushGarbage(Buffer &);
   RenderDevice &pushGarbage(Texture &);
-  RenderDevice &stepGarbage();
+  RenderDevice &stepGarbage(const FrameIndex::ValueType threshold);
 
   // ---
 

@@ -5,19 +5,21 @@
 namespace rhi {
 
 struct FrameIndex {
-  explicit FrameIndex(uint32_t framesInFlight = 0);
+  using ValueType = uint8_t;
+
+  explicit FrameIndex(const ValueType numFramesInFlight = 0);
 
   void operator++();
   // Implicit conversion operator for convenience.
-  [[nodiscard]] operator int32_t() const;
+  [[nodiscard]] operator ValueType() const;
 
-  [[nodiscard]] uint32_t getCurrentIndex() const;
-  [[nodiscard]] uint32_t getPreviousIndex() const;
+  [[nodiscard]] ValueType getCurrentIndex() const;
+  [[nodiscard]] ValueType getPreviousIndex() const;
 
 private:
-  uint32_t m_framesInFlight{0};
-  uint32_t m_index{0};
-  uint32_t m_previous{0};
+  ValueType m_numFramesInFlight{0};
+  ValueType m_index{0};
+  ValueType m_previous{0};
 };
 
 } // namespace rhi

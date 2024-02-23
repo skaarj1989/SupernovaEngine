@@ -60,7 +60,7 @@ ImGuiApp::ImGuiApp(std::span<char *> args, const Config &config,
                {FONT_ICON_FILE_NAME_FAR, FONT_ICON_FILE_NAME_FAS});
   }
   m_uiRenderer = std::make_unique<ImGuiRenderer>(getRenderDevice());
-  m_uiResources = m_uiRenderer->createResources(kFramesInFlight);
+  m_uiResources = m_uiRenderer->createResources(config.numFramesInFlight);
 
   setupPlatformInterface(getWindow());
   setupRenderInterface(*m_uiRenderer);

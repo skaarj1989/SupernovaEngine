@@ -2,7 +2,6 @@
 
 #include "rhi/RenderDevice.hpp"
 #include "rhi/RenderTargetView.hpp"
-#include "rhi/FrameIndex.hpp"
 
 namespace rhi {
 
@@ -10,7 +9,8 @@ namespace rhi {
 class FrameController final {
 public:
   FrameController() = default;
-  FrameController(RenderDevice &, Swapchain &, uint32_t framesInFlight);
+  FrameController(RenderDevice &, Swapchain &,
+                  const FrameIndex::ValueType numFramesInFlight);
   FrameController(const FrameController &) = delete;
   FrameController(FrameController &&) noexcept;
   ~FrameController();
@@ -20,6 +20,7 @@ public:
 
   [[nodiscard]] explicit operator bool() const;
 
+  [[nodiscard]] FrameIndex::ValueType size() const;
   [[nodiscard]] RenderTargetView getCurrentTarget() const;
 
   CommandBuffer &beginFrame();
@@ -30,7 +31,7 @@ public:
   void recreate();
 
 private:
-  void _create(uint32_t framesInFlight);
+  void _create(const FrameIndex::ValueType numFramesInFlight);
   void _destroy() noexcept;
 
 private:

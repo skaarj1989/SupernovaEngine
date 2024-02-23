@@ -15,9 +15,9 @@ public:
     uint32_t width{1280};
     uint32_t height{720};
     std::optional<rhi::Vendor> vendor;
+    rhi::FrameIndex::ValueType numFramesInFlight{2};
     bool verticalSync{true};
   };
-  static constexpr auto kFramesInFlight = 2;
 
   BaseApp(std::span<char *> args, const Config &);
   BaseApp(const BaseApp &) = delete;

@@ -15,13 +15,12 @@ void GarbageCollector::push(Texture &texture) {
   m_textures.emplace_back(0, std::move(texture));
 }
 
-void GarbageCollector::step() {
-  constexpr auto step = [](auto &cache) {
-    constexpr auto inc = [](auto &p) { ++p.first; };
-    constexpr auto expired = [](auto &p) {
-      constexpr auto kThreshold = 2;
-      return p.first >= kThreshold;
-    };
+void GarbageCollector::step(const FrameIndex::ValueType threshold) {
+  static const auto inc = [](auto &p) { ++p.first; };
+  const auto expired = [threshold](const auto &p) {
+    return p.first >= threshold;
+  };
+  const auto step = [expired](auto &cache) {
     if (cache.empty()) return;
 
     std::ranges::for_each(cache, inc);

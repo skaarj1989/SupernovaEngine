@@ -21,7 +21,7 @@ public:
     rhi::IndexBuffer indexBuffer;
   };
   [[nodiscard]] std::vector<FrameResources>
-  createResources(int32_t numFrames) const;
+  createResources(const rhi::FrameIndex::ValueType numFrames) const;
   [[nodiscard]] FrameResources createFrameResources() const;
 
   void draw(rhi::CommandBuffer &, rhi::PixelFormat colorFormat,

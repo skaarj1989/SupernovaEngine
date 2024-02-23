@@ -5,17 +5,17 @@
 namespace rhi {
 
 FrameController::FrameController(RenderDevice &rd, Swapchain &swapchain,
-                                 uint32_t framesInFlight)
+                                 const FrameIndex::ValueType numFramesInFlight)
     : m_renderDevice{&rd}, m_swapchain{&swapchain},
-      m_frameIndex{framesInFlight} {
-  _create(framesInFlight);
+      m_frameIndex{numFramesInFlight} {
+  _create(numFramesInFlight);
 }
 FrameController::FrameController(FrameController &&other) noexcept
     : m_renderDevice{other.m_renderDevice}, m_swapchain{other.m_swapchain},
       m_frames{std::move(other.m_frames)}, m_frameIndex{other.m_frameIndex} {
   other.m_renderDevice = nullptr;
   other.m_swapchain = nullptr;
-  other.m_frameIndex = FrameIndex{0};
+  other.m_frameIndex = FrameIndex{};
 }
 FrameController::~FrameController() { _destroy(); }
 
@@ -35,6 +35,9 @@ FrameController::operator bool() const {
   return m_swapchain != nullptr && *m_swapchain && !m_frames.empty();
 }
 
+FrameIndex::ValueType FrameController::size() const {
+  return static_cast<FrameIndex::ValueType>(m_frames.size());
+}
 RenderTargetView FrameController::getCurrentTarget() const {
   assert(m_swapchain);
   return {
@@ -88,9 +91,9 @@ void FrameController::recreate() { m_swapchain->recreate(); }
 // (private):
 //
 
-void FrameController::_create(uint32_t framesInFlight) {
-  m_frames.reserve(framesInFlight);
-  std::generate_n(std::back_inserter(m_frames), framesInFlight,
+void FrameController::_create(const FrameIndex::ValueType numFramesInFlight) {
+  m_frames.reserve(numFramesInFlight);
+  std::generate_n(std::back_inserter(m_frames), numFramesInFlight,
                   [&rd = *m_renderDevice] {
                     return PerFrameData{
                       .commandBuffer = rd.createCommandBuffer(),

@@ -28,11 +28,12 @@ namespace {
 // RmlUiRenderData struct:
 //
 
-RmlUiRenderData::RmlUiRenderData(const RmlUiRenderer &renderer) {
-  constexpr auto kFramesInFlight = 2;
-  frameResources = renderer.createResources(kFramesInFlight);
-  frameIndex = rhi::FrameIndex{kFramesInFlight};
-}
+RmlUiRenderData::RmlUiRenderData(
+  const RmlUiRenderer &renderer,
+  const rhi::FrameIndex::ValueType numFramesInFlight)
+    : frameResources{renderer.createResources(numFramesInFlight)},
+      frameIndex{numFramesInFlight} {}
+RmlUiRenderData::RmlUiRenderData(const RmlUiRenderData &) : RmlUiRenderData{} {}
 
 void RmlUiRenderData::resize(const rhi::Extent2D &extent) {
   projection = buildProjectionMatrix(extent);
@@ -171,6 +172,7 @@ void RmlUiRenderInterface::SetTransform(const Rml::Matrix4f *m) {
 
 RmlUiRenderer &RmlUiRenderInterface::GetRenderer() { return *m_renderer; }
 
-RmlUiRenderData RmlUiRenderInterface::CreateRenderData() const {
-  return RmlUiRenderData{*m_renderer};
+RmlUiRenderData RmlUiRenderInterface::CreateRenderData(
+  const rhi::FrameIndex::ValueType numFrames) const {
+  return RmlUiRenderData{*m_renderer, numFrames};
 }

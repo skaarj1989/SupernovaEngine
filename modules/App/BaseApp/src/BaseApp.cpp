@@ -91,8 +91,8 @@ BaseApp::BaseApp(std::span<char *>, const Config &config) : RenderDoc{} {
 
   m_swapchain = m_renderDevice->createSwapchain(
     m_window, rhi::Swapchain::Format::Linear, vSync);
-  m_frameController =
-    rhi::FrameController{*m_renderDevice, m_swapchain, kFramesInFlight};
+  m_frameController = rhi::FrameController{*m_renderDevice, m_swapchain,
+                                           config.numFramesInFlight};
 
   _setupWindowCallbacks();
 }
@@ -158,7 +158,7 @@ void BaseApp::run() {
         ZoneScopedN("Render");
         RenderDoc::_beginFrame();
         auto &cb = m_frameController.beginFrame();
-        m_renderDevice->stepGarbage();
+        m_renderDevice->stepGarbage(m_frameController.size());
         _onRender(cb, m_frameController.getCurrentTarget(), deltaTime);
         m_frameController.endFrame();
         RenderDoc::_endFrame();

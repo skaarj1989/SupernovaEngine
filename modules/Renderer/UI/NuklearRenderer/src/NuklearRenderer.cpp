@@ -193,8 +193,8 @@ NuklearRenderer::~NuklearRenderer() {
   nk_buffer_free(&m_commands);
 }
 
-std::vector<NuklearRenderer::FrameResources>
-NuklearRenderer::createResources(int32_t numFrames) const {
+std::vector<NuklearRenderer::FrameResources> NuklearRenderer::createResources(
+  const rhi::FrameIndex::ValueType numFrames) const {
   assert(numFrames > 0);
   std::vector<NuklearRenderer::FrameResources> resources;
   resources.reserve(numFrames);

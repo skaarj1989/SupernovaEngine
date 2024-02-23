@@ -17,7 +17,7 @@ auto &getRenderDevice(entt::registry &r) {
 void initUIComponent(entt::registry &r, entt::entity e) {
   const auto *renderInterface = r.ctx().get<RmlUiRenderInterface *>();
   auto &ui = r.get<UIComponent>(e);
-  ui.renderData = renderInterface->CreateRenderData();
+  ui.renderData = renderInterface->CreateRenderData(2);
   const auto name =
     std::format("{}_{}", std::bit_cast<intptr_t>(&r), entt::to_integral(e));
 

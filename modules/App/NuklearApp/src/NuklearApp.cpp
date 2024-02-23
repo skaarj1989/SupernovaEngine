@@ -13,7 +13,7 @@ NuklearApp::NuklearApp(std::span<char *> args, const Config &config)
 
   m_uiRenderer =
     std::make_unique<NuklearRenderer>(getRenderDevice(), *ctx, m_fontAtlas);
-  m_uiResources = m_uiRenderer->createResources(kFramesInFlight);
+  m_uiResources = m_uiRenderer->createResources(config.numFramesInFlight);
 }
 NuklearApp::~NuklearApp() {
   getRenderDevice().waitIdle();

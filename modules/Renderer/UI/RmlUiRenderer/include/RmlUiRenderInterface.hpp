@@ -2,12 +2,12 @@
 
 #include "RmlUiRenderer.hpp"
 #include "RmlUi/Core/RenderInterface.h"
-#include "rhi/FrameIndex.hpp"
 
 struct RmlUiRenderData {
   RmlUiRenderData() = default;
-  explicit RmlUiRenderData(const RmlUiRenderer &);
-  RmlUiRenderData(const RmlUiRenderData &) {}
+  RmlUiRenderData(const RmlUiRenderer &,
+                  const rhi::FrameIndex::ValueType numFramesInFlight);
+  RmlUiRenderData(const RmlUiRenderData &);
   RmlUiRenderData(RmlUiRenderData &&) noexcept = default;
   ~RmlUiRenderData() = default;
 
@@ -55,7 +55,8 @@ public:
   void SetTransform(const Rml::Matrix4f *) override;
 
   RmlUiRenderer &GetRenderer();
-  [[nodiscard]] RmlUiRenderData CreateRenderData() const;
+  [[nodiscard]] RmlUiRenderData
+  CreateRenderData(const rhi::FrameIndex::ValueType numFrames) const;
 
 private:
   std::unique_ptr<RmlUiRenderer> m_renderer;

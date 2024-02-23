@@ -45,7 +45,7 @@ RmlUiRenderer::RmlUiRenderer(rhi::RenderDevice &rd)
     : rhi::RenderPass<RmlUiRenderer>{rd} {}
 
 std::vector<RmlUiRenderer::FrameResources>
-RmlUiRenderer::createResources(int32_t numFrames) const {
+RmlUiRenderer::createResources(const rhi::FrameIndex::ValueType numFrames) const {
   assert(numFrames > 0);
   std::vector<RmlUiRenderer::FrameResources> resources;
   resources.reserve(numFrames);
