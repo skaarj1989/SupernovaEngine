@@ -26,6 +26,7 @@
 #include "imgui_internal.h" // DockBuilder
 
 #include "tracy/Tracy.hpp"
+#include "tracy/TracyLua.hpp"
 
 namespace {
 
@@ -55,6 +56,7 @@ struct GUI {
 
   using enum sol::lib;
   lua.open_libraries(base, package, string, os, math, table);
+  tracy::LuaRegister(lua);
   registerModules(lua);
 
   const auto scriptLibraryPath = std::filesystem::current_path() / "lua/";
