@@ -4,6 +4,8 @@
 #include "glm/gtx/quaternion.hpp"       // toMat4
 #include "glm/gtx/matrix_decompose.hpp" // decompose
 
+#include "tracy/Tracy.hpp"
+
 Transform::Transform(const glm::vec3 &position, const glm::quat &orientation,
                      const glm::vec3 &scale)
     : m_position{position}, m_orientation{orientation}, m_scale{scale},
@@ -76,6 +78,7 @@ const Transform *Transform::getParent() const { return m_parent; }
 
 const glm::mat4 &Transform::getModelMatrix() const {
   if (m_dirty) {
+    ZoneScopedN("Transform::GetModelMatrix");
     m_modelMatrix = glm::translate(m_position) * glm::toMat4(m_orientation) *
                     glm::scale(m_scale);
     m_dirty = false;
@@ -83,6 +86,7 @@ const glm::mat4 &Transform::getModelMatrix() const {
   return m_modelMatrix;
 }
 glm::mat4 Transform::getWorldMatrix() const {
+  ZoneScopedN("Transform::GetWorldMatrix");
   return m_parent ? m_parent->getWorldMatrix() * getModelMatrix()
                   : getModelMatrix();
 }

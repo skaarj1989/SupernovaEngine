@@ -653,7 +653,10 @@ RenderDevice &
 RenderDevice::execute(const std::function<void(CommandBuffer &)> &f) {
   auto cb = createCommandBuffer();
   cb.begin();
-  std::invoke(f, cb);
+  {
+    TRACY_GPU_ZONE(cb, "ExecuteCommandBuffer");
+    std::invoke(f, cb);
+  }
   return execute(cb);
 }
 RenderDevice &RenderDevice::execute(CommandBuffer &cb, const JobInfo &jobInfo) {
@@ -680,7 +683,7 @@ RenderDevice &RenderDevice::execute(CommandBuffer &cb, const JobInfo &jobInfo) {
 }
 
 RenderDevice &RenderDevice::present(Swapchain &swapchain, VkSemaphore wait) {
-  ZoneScoped;
+  ZoneScopedN("RHI::Present");
 
   assert(swapchain);
   assert(m_genericQueue != VK_NULL_HANDLE);
@@ -717,7 +720,7 @@ RenderDevice &RenderDevice::pushGarbage(Texture &texture) {
   return *this;
 }
 RenderDevice &RenderDevice::stepGarbage(const FrameIndex::ValueType threshold) {
-  ZoneScoped;
+  ZoneScopedN("RHI::CollectGarbage");
   m_garbageCollector.step(threshold);
   return *this;
 }

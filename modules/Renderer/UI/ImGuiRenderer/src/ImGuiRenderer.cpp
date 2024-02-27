@@ -79,6 +79,8 @@ namespace {
 
 void uploadGeometry(const ImDrawData *drawData,
                     ImGuiRenderer::FrameResources &resources) {
+  ZoneScopedN("ImGui::UploadGeometry");
+
   auto &[vertexBuffer, indexBuffer] = resources;
 
   auto *vertexDest = static_cast<ImDrawVert *>(vertexBuffer.map());
@@ -130,8 +132,6 @@ void ImGuiRenderer::draw(rhi::CommandBuffer &cb, rhi::PixelFormat colorFormat,
                          FrameResources &resources,
                          const ImDrawData *drawData) {
   assert(drawData != nullptr);
-  NAMED_DEBUG_MARKER(cb, "ImGui");
-  TracyVkZone(cb.getTracyContext(), cb.getHandle(), "ImGui");
 
   // Scale coordinates for retina displays.
   // (screen coordinates != framebuffer coordinates).

@@ -3,6 +3,7 @@
 #include "ImGuiModal.hpp"
 #include "imgui_internal.h" // {Push/Pop}ItemFlag
 #include "imgui_stdlib.h"   // InputText{WithHint}
+#include "tracy/Tracy.hpp"
 #include <algorithm> // all_of
 #include <span>
 
@@ -204,6 +205,8 @@ CustomNodeCreator::CustomNodeCreator(TextEditor &textEditor)
 std::optional<UserFunctionData>
 CustomNodeCreator::show(const char *name, ImVec2 size,
                         const UserFunctions &userFunctions) {
+  ZoneScopedN("CustomNodeCreator");
+
   std::optional<UserFunctionData> result;
 
   constexpr auto kModalFlags =
@@ -296,6 +299,8 @@ CustomNodeEditor::CustomNodeEditor(TextEditor &textEditor)
 std::optional<CustomNodeEditor::Event>
 CustomNodeEditor::show(const char *name, ImVec2 size,
                        UserFunctions &functions) {
+  ZoneScopedN("CustomNodeEditor");
+
   std::optional<CustomNodeEditor::Event> result;
 
   constexpr auto kConfirmDiscardChanges = MAKE_WARNING("Confirm");

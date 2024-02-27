@@ -17,10 +17,20 @@ FetchContent_MakeAvailable(Tracy)
 set_target_properties(TracyClient PROPERTIES FOLDER "Third-party/Profiler")
 
 function(ENABLE_PROFILER TARGET)
+  if(NOT TARGET ${TARGET})
+    message(FATAL_ERROR "Target '${TARGET}' does not exist!")
+  endif()
+
+  if(NOT DEFINED ARGV1)
+    set(SCOPE PUBLIC)
+  else()
+    set(SCOPE ${ARGV1})
+  endif()
+
   get_target_property(TRACY_INCLUDES Tracy::TracyClient INCLUDE_DIRECTORIES)
-  target_include_directories(${TARGET} PUBLIC ${TRACY_INCLUDES})
+  target_include_directories(${TARGET} ${SCOPE} ${TRACY_INCLUDES})
   target_link_libraries(${TARGET}
-    PUBLIC $<$<CONFIG:Release>:Tracy::TracyClient>
+    ${SCOPE} $<$<CONFIG:Release>:Tracy::TracyClient>
   )
 endfunction()
 

@@ -13,7 +13,7 @@ uploadContainer(FrameGraph &fg, const std::string_view passName,
                 TransientBuffer<std::vector<T>> &&info) {
   if (info.data.empty()) return std::nullopt;
 
-  ZoneScoped;
+  ZoneTransientN(__tracy_zone, passName.data(), true);
 
   constexpr auto kStride = sizeof(T);
   const auto capacity = info.data.size();
@@ -26,6 +26,8 @@ uploadContainer(FrameGraph &fg, const std::string_view passName,
   const auto [buffer] = fg.addCallbackPass<Data>(
     passName,
     [&info, capacity](FrameGraph::Builder &builder, Data &data) {
+      PASS_SETUP_ZONE;
+
       data.buffer =
         builder.create<FrameGraphBuffer>(info.name, {
                                                       .type = info.type,
@@ -37,11 +39,10 @@ uploadContainer(FrameGraph &fg, const std::string_view passName,
     },
     [passName, v = std::move(info.data), dataSize](
       const Data &data, FrameGraphPassResources &resources, void *ctx) {
-      auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, passName.data())
-      rc.commandBuffer.update(
-        *resources.get<FrameGraphBuffer>(data.buffer).buffer, 0, dataSize,
-        v.data());
+      auto &cb = static_cast<RenderContext *>(ctx)->commandBuffer;
+      RHI_GPU_ZONE(cb, passName.data());
+      cb.update(*resources.get<FrameGraphBuffer>(data.buffer).buffer, 0,
+                dataSize, v.data());
     });
 
   return buffer;

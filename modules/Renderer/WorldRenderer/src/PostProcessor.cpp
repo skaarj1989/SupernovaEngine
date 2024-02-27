@@ -40,6 +40,7 @@ namespace {
 [[nodiscard]] auto
 getMaterialProperties(FrameGraph &fg, const MaterialInstance &materialInstance,
                       const rhi::RenderDevice &rd) {
+  ZoneScopedN("GetMaterialProperties");
   std::optional<FrameGraphResource> materialProperties;
   if (auto material = materialInstance.getPrototype();
       hasProperties(*material)) {
@@ -76,10 +77,11 @@ PostProcessor::addPass(FrameGraph &fg, const FrameGraphBlackboard &blackboard,
                        FrameGraphResource sceneColor,
                        const MaterialInstance &material) {
   if (!material) return sceneColor;
-  ZoneScoped;
 
   std::string passName{material->getName()};
   if (passName.empty()) passName = "(Unknown) UserPostProcess";
+
+  ZoneTransientN(__tracy_zone, passName.c_str(), true);
 
   const auto materialProperties =
     getMaterialProperties(fg, material, getRenderDevice());
@@ -91,6 +93,8 @@ PostProcessor::addPass(FrameGraph &fg, const FrameGraphBlackboard &blackboard,
     passName,
     [&fg, &blackboard, sceneColor,
      materialProperties](FrameGraph::Builder &builder, Data &data) {
+      PASS_SETUP_ZONE;
+
       read(builder, blackboard.get<FrameData>(), PipelineStage::FragmentShader);
       read(builder, blackboard.get<CameraData>(),
            PipelineStage::FragmentShader);
@@ -130,9 +134,9 @@ PostProcessor::addPass(FrameGraph &fg, const FrameGraphBlackboard &blackboard,
     [this, materialPtr = &material,
      passName](const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, passName.c_str())
-
       auto &[cb, framebufferInfo, sets] = rc;
+      RHI_GPU_ZONE(cb, passName.c_str());
+
       const auto *pipeline = _getPipeline(PassInfo{
         .colorFormat = rhi::getColorFormat(*framebufferInfo, 0),
         .material = materialPtr->getPrototype().get(),

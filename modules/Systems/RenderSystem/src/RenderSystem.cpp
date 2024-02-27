@@ -11,7 +11,7 @@ void initCamera(entt::registry &r, entt::entity e) {
 }
 
 [[nodiscard]] auto getLights(entt::registry &r, DebugDraw *debugDraw) {
-  ZoneScoped;
+  ZoneScopedN("GetLights");
 
   const auto view = r.view<const Transform, gfx::Light>();
 
@@ -43,7 +43,7 @@ void initCamera(entt::registry &r, entt::entity e) {
 }
 template <class T>
 [[nodiscard]] auto getMeshes(entt::registry &r, DebugDraw *debugDraw) {
-  ZoneScoped;
+  ZoneScopedN("GetMeshes");
 
   const auto view = r.view<const Transform, T>();
 
@@ -96,6 +96,8 @@ void RenderSystem::setup(entt::registry &r, gfx::WorldRenderer &wr) {
 void RenderSystem::update(entt::registry &r, rhi::CommandBuffer &cb, float dt,
                           const gfx::SceneView *mainSceneView,
                           gfx::DebugOutput *debugOutput) {
+  ZoneScopedN("RenderSystem::Update");
+
   const auto view = r.view<const Transform, CameraComponent>();
   const auto numSceneViews = mainSceneView ? 1 : 0 + view.size_hint();
   if (numSceneViews == 0) return;

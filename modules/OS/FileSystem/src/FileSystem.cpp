@@ -2,6 +2,8 @@
 #include "File.hpp"
 #include "MemoryFile.hpp"
 
+#include "tracy/Tracy.hpp"
+
 #ifdef _WIN32
 #  define WIN32_LEAN_AND_MEAN
 #  include <Windows.h>
@@ -73,6 +75,7 @@ FileSystem::relativeToRoot(const std::filesystem::path &absolute) {
 
 bool FileSystem::saveText(const std::filesystem::path &p,
                           const std::string &s) {
+  ZoneScopedN("string->File");
   if (auto f = std::ofstream{p, std::ios::binary | std::ios::trunc};
       f.is_open()) {
     f << s;
@@ -83,6 +86,7 @@ bool FileSystem::saveText(const std::filesystem::path &p,
 
 std::unique_ptr<DataStream>
 FileSystem::mapFile(const std::filesystem::path &p) {
+  ZoneScopedN("MapFile");
   auto stream = std::make_unique<PhysicalFile>(p);
   if (!stream->isOpen()) stream.reset();
   return stream;
@@ -106,6 +110,7 @@ FileSystem::readText(const std::filesystem::path &p) {
 }
 
 std::string FileSystem::readText(DataStream &stream) {
+  ZoneScopedN("File->string");
   validate(stream);
   const auto length = stream.getSize();
   std::string text;
@@ -115,6 +120,7 @@ std::string FileSystem::readText(DataStream &stream) {
 }
 
 RawBuffer FileSystem::readBuffer(DataStream &stream) {
+  ZoneScopedN("File->Buffer");
   validate(stream);
   RawBuffer buffer{.size = stream.getSize()};
   buffer.data = std::make_unique<std::byte[]>(buffer.size);

@@ -19,6 +19,7 @@ namespace {
 } // namespace
 
 void FileBrowserWidget::show(const char *name, bool *open) {
+  ZoneScopedN("FileBrowserWidget");
   if (ImGui::Begin(name, open)) {
     if (ImGui::InputTextWithHint(IM_UNIQUE_ID, "Filter", &m_pattern)) {
       m_selected.clear();
@@ -49,6 +50,8 @@ void FileBrowserWidget::show(const char *name, bool *open) {
   } while (false)
 
 void FileBrowserWidget::_viewDirectory(const std::filesystem::path &dir) {
+  ZoneScopedN("FileBrowserWidget::Dir");
+
   std::error_code ec;
   for (auto &&entry : std::filesystem::directory_iterator{dir, ec}) {
     auto name = entry.path().filename().string();

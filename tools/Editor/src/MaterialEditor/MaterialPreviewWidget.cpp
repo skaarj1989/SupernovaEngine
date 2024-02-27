@@ -111,6 +111,7 @@ void MaterialPreviewWidget::updateMaterial(std::shared_ptr<gfx::Material> m) {
 }
 
 void MaterialPreviewWidget::onRender(rhi::CommandBuffer &cb, float dt) {
+  ZoneScopedN("MaterialPreview::OnRender");
   RenderTargetPreview::render(cb, [this, &cb, dt](auto &texture) {
     std::array<const gfx::Light *, 1> lights{&m_light};
     std::array<const gfx::MeshInstance *, 2> meshes{
@@ -143,6 +144,7 @@ void MaterialPreviewWidget::onRender(rhi::CommandBuffer &cb, float dt) {
 }
 
 void MaterialPreviewWidget::showPreview(const char *name) {
+  ZoneScopedN("MaterialPreview");
   constexpr auto kWindowFlags =
     ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoBackground |
     ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar;
@@ -250,6 +252,7 @@ void MaterialPreviewWidget::showPreview(const char *name) {
   ImGui::End();
 }
 void MaterialPreviewWidget::showSceneSettings(const char *name) {
+  ZoneScopedN("MaterialPreview::SceneSettings");
   if (ImGui::Begin(name)) {
     ImGui::Checkbox("Ground plane", &m_showGroundPlane);
 
@@ -325,6 +328,7 @@ void MaterialPreviewWidget::showSceneSettings(const char *name) {
   ImGui::End();
 }
 void MaterialPreviewWidget::showRenderSettings(const char *name) {
+  ZoneScopedN("MaterialPreview::RenderSettings");
   if (ImGui::Begin(name)) {
     ImGui::Frame([this] { ::showRenderSettings(m_renderSettings); });
   }

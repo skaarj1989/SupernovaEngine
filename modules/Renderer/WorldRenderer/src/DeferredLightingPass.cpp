@@ -52,9 +52,8 @@ DeferredLightingPass::addPass(FrameGraph &fg,
                               const FrameGraphBlackboard &blackboard,
                               const LightingSettings &lightingSettings,
                               bool softShadows, bool irradianceOnly) {
-  ZoneScoped;
-
   constexpr auto kPassName = "DeferredLighting Pass";
+  ZoneScopedN(kPassName);
 
   LightingPassFeatures features{
     .softShadows = softShadows,
@@ -68,6 +67,8 @@ DeferredLightingPass::addPass(FrameGraph &fg,
   const auto [sceneColor] = fg.addCallbackPass<Data>(
     kPassName,
     [&fg, &blackboard, &features](FrameGraph::Builder &builder, Data &data) {
+      PASS_SETUP_ZONE;
+
       read(builder, blackboard.get<CameraData>(),
            PipelineStage::FragmentShader);
       if (features.skyLight) {
@@ -109,9 +110,9 @@ DeferredLightingPass::addPass(FrameGraph &fg,
     [this, lightingSettings,
      features](const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
-
       auto &[cb, framebufferInfo, sets] = rc;
+      RHI_GPU_ZONE(cb, kPassName);
+
       const auto *pipeline = _getPipeline(PassInfo{
         .colorFormat = rhi::getColorFormat(*framebufferInfo, 0),
         .features = features,

@@ -121,22 +121,22 @@ void BaseApp::run() {
 
     FrameMark;
     {
-      ZoneScopedN("PreUpdate");
+      ZoneScopedN("[App]PreUpdate");
       _onPreUpdate(deltaTime);
     }
     {
-      ZoneScopedN("PollEvents");
+      ZoneScopedN("[App]PollEvents");
       os::pollEvents();
     }
     if (m_quit) break;
 
     m_inputSystem.update();
     {
-      ZoneScopedN("Update");
+      ZoneScopedN("[App]Update");
       _onUpdate(deltaTime);
     }
     {
-      ZoneScopedN("PhysicsUpdate");
+      ZoneScopedN("[App]PhysicsUpdate");
       accumulator +=
         (deltaTime < targetFrameTime ? deltaTime : targetFrameTime);
       while (accumulator >= targetFrameTime) {
@@ -145,17 +145,17 @@ void BaseApp::run() {
       }
     }
     {
-      ZoneScopedN("PostUpdate");
+      ZoneScopedN("[App]PostUpdate");
       _onPostUpdate(deltaTime);
     }
 
     if (m_swapchain) {
       {
-        ZoneScopedN("PreRender");
+        ZoneScopedN("[App]PreRender");
         _onPreRender();
       }
       {
-        ZoneScopedN("Render");
+        ZoneScopedN("[App]Render");
         RenderDoc::_beginFrame();
         auto &cb = m_frameController.beginFrame();
         m_renderDevice->stepGarbage(m_frameController.size());
@@ -164,11 +164,11 @@ void BaseApp::run() {
         RenderDoc::_endFrame();
       }
       {
-        ZoneScopedN("PostRender");
+        ZoneScopedN("[App]PostRender");
         _onPostRender();
       }
       {
-        ZoneScopedN("Present");
+        ZoneScopedN("[App]Present");
         m_frameController.present();
       }
     } // else -> Window is minimized.

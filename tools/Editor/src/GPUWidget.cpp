@@ -4,6 +4,7 @@
 #include <fstream>
 
 void showGPUWindow(const char *name, bool *open, const rhi::RenderDevice &rd) {
+  ZoneScopedN("GPUWindow");
   if (ImGui::Begin(name, open)) {
     const auto [vendorId, deviceId, deviceName] = rd.getPhysicalDeviceInfo();
     ImGui::Text("VendorID: %u", vendorId);

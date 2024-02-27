@@ -185,7 +185,7 @@ std::stack<VertexDescriptor>
 ShaderGraph::getExecutionOrder(std::optional<VertexDescriptor> root) const {
   assert(isAcyclic(*this));
 
-  ZoneScoped;
+  ZoneScopedN("ShaderGraph::GetExecutionOrder");
   if (!root) root = getRoot()->vd;
 
   std::stack<VertexDescriptor> stack;
@@ -196,7 +196,7 @@ ShaderGraph::getExecutionOrder(std::optional<VertexDescriptor> root) const {
 }
 
 void ShaderGraph::save(std::ostream &os) const {
-  ZoneScoped;
+  ZoneScopedN("ShaderGraph::Save");
 
   const auto descriptorToIndex = buildVertexDescriptorToIndexMap(*this);
   {
@@ -230,7 +230,7 @@ void ShaderGraph::save(std::ostream &os) const {
   }
 }
 void ShaderGraph::load(std::istream &is) {
-  ZoneScoped;
+  ZoneScopedN("ShaderGraph::Load");
 
   clear();
 
@@ -369,7 +369,7 @@ bool isAcyclic(const ShaderGraph &g) { return g.findCycles().empty(); }
 std::set<VertexDescriptor>
 findConnectedVertices(const ShaderGraph &g,
                       std::optional<VertexDescriptor> root) {
-  ZoneScoped;
+  ZoneScopedN("ShaderGraph::FindConnectedVertices");
 
   if (!root) root = g.getRoot()->vd;
 

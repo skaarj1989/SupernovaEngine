@@ -3,6 +3,8 @@
 #include <windowsx.h> // GET_{X|Y}_LPARAM
 #include <dwmapi.h>   // DwmSetWindowAttribute
 
+#include "tracy/Tracy.hpp"
+
 #pragma comment(lib, "dwmapi.lib")
 
 namespace os {
@@ -313,6 +315,7 @@ LRESULT Window::_wndProcRouter(HWND hWnd, UINT uMsg, WPARAM wParam,
 
 LRESULT Window::_wndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
   assert(m_native.hWnd == hWnd);
+  ZoneScopedN("OS::WindowProc");
 
   switch (uMsg) {
   case WM_MOVE:
@@ -509,6 +512,7 @@ void Window::_destroy() {
 //
 
 uint32_t pollEvents() {
+  ZoneScopedN("OS::PollEvents");
   MSG msg{};
   uint32_t count{0};
   while (::PeekMessage(&msg, nullptr, 0u, 0u, PM_REMOVE)) {

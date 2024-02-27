@@ -21,7 +21,7 @@ void FrameGraphBuffer::destroy(const Desc &desc, void *allocator) {
 }
 
 void FrameGraphBuffer::preRead(const Desc &desc, uint32_t bits, void *ctx) {
-  ZoneScoped;
+  ZoneScopedN("B*");
 
   const auto [location, pipelineStage] = decodeBindingInfo(bits);
   assert(!bool(pipelineStage &
@@ -76,7 +76,7 @@ void FrameGraphBuffer::preRead(const Desc &desc, uint32_t bits, void *ctx) {
   cb.getBarrierBuilder().bufferBarrier({.buffer = *buffer}, dst);
 }
 void FrameGraphBuffer::preWrite(const Desc &desc, uint32_t bits, void *ctx) {
-  ZoneScoped;
+  ZoneScopedN("+B");
 
   auto &[cb, _, sets] = *static_cast<RenderContext *>(ctx);
   const auto [location, pipelineStage] = decodeBindingInfo(bits);

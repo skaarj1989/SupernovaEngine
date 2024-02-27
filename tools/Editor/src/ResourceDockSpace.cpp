@@ -35,6 +35,7 @@ ResourcesWidget::ResourcesWidget() {
 }
 
 void ResourcesWidget::show(const char *name, bool *open) {
+  ZoneScopedN("ResourcesWidget");
   ImGui::Begin(name, open, ImGuiWindowFlags_MenuBar);
   if (ImGui::BeginMenuBar()) {
     if (ImGui::BeginMenu("Cache")) {

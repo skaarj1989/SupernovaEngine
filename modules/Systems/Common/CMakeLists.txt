@@ -5,3 +5,5 @@ add_library(SystemCommon INTERFACE "include/SystemSerializationContext.hpp" "inc
 target_include_directories(SystemCommon INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(SystemCommon INTERFACE EnTT::EnTT cereal::cereal)
 set_target_properties(SystemCommon PROPERTIES FOLDER "Framework/Systems")
+
+enable_profiler(SystemCommon INTERFACE)

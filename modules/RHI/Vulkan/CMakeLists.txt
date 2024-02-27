@@ -9,6 +9,7 @@ find_package(spirv_cross_reflect CONFIG REQUIRED)
 add_subdirectory(extern)
 
 find_file(GPU_MEM_DUMP_VIS "GpuMemDumpVis.py" "extern/VulkanMemoryAllocator/tools/GpuMemDumpVis")
+
 if(WIN32)
   configure_file("cmake/GpuMemDumpVis.bat.in" ${CMAKE_BINARY_DIR}/bin/GpuMemDumpVis.bat)
 elseif(LINUX)
@@ -128,7 +129,10 @@ elseif(LINUX)
   target_sources(VulkanRHI PRIVATE "src/XSwapchain.cpp")
 endif()
 
-target_compile_definitions(VulkanRHI PUBLIC VULKAN_RHI GLM_FORCE_DEPTH_ZERO_TO_ONE)
+target_compile_definitions(VulkanRHI PUBLIC
+  $<$<CONFIG:Release>:RHI_USE_DEBUG_MARKER>
+  GLM_FORCE_DEPTH_ZERO_TO_ONE
+)
 target_include_directories(VulkanRHI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(VulkanRHI
   PUBLIC
@@ -149,6 +153,6 @@ target_link_libraries(VulkanRHI
 )
 set_target_properties(VulkanMemoryAllocator VulkanRHI PROPERTIES FOLDER "Framework/RHI/Vulkan")
 
-enable_profiler(VulkanRHI)
+enable_profiler(VulkanRHI PUBLIC)
 
 add_subdirectory(example)

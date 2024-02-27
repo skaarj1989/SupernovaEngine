@@ -15,6 +15,7 @@ namespace {
 [[nodiscard]] auto
 buildSkin(std::span<const gfx::Joints::value_type> inverseBindPose,
           ozz::span<const ozz::math::Float4x4> models) {
+  ZoneScopedN("BuildSkin");
   gfx::Joints skin;
   if (inverseBindPose.size() == models.size()) {
     skin.reserve(inverseBindPose.size());
@@ -47,6 +48,7 @@ void drawSkeleton(DebugDraw &debugDraw,
 } // namespace
 
 void AnimationSystem::update(entt::registry &r, float dt) {
+  ZoneScopedN("AnimationSystem::Update");
   for (auto [_, meshInstance, skeleton, animation, controller] :
        r.view<gfx::MeshInstance, const SkeletonComponent,
               const AnimationComponent, PlaybackController>()
@@ -93,6 +95,7 @@ void AnimationSystem::update(entt::registry &r, float dt) {
 }
 
 void AnimationSystem::debugDraw(entt::registry &r, DebugDraw &dd) {
+  ZoneScopedN("AnimationSystem::DebugDraw");
   for (auto [_, meshInstance, skeleton, animation] :
        r.view<const gfx::MeshInstance, const SkeletonComponent,
               const AnimationComponent>()

@@ -53,7 +53,7 @@ using Splits = std::vector<float>;
   return frustumCorners;
 }
 [[nodiscard]] auto measureFrustum(const Frustum::Corners &frustumCorners) {
-  ZoneScoped;
+  ZoneScopedN("MeasureFrustum");
 
   glm::vec3 center{0.0f};
   for (const auto &p : frustumCorners) {
@@ -73,7 +73,7 @@ using Splits = std::vector<float>;
 
 void eliminateShimmering(const glm::mat4 &view, glm::mat4 &projection,
                          uint32_t shadowMapSize) {
-  ZoneScoped;
+  ZoneScopedN("EliminateShimmering");
 
   const auto shadowMatrix = projection * view;
   auto shadowOrigin =
@@ -90,7 +90,7 @@ void eliminateShimmering(const glm::mat4 &view, glm::mat4 &projection,
                                        const glm::vec3 &lightDirection,
                                        uint32_t shadowMapSize, float splitDist,
                                        float lastSplitDist) {
-  ZoneScoped;
+  ZoneScopedN("BuildDirLightMatrix");
 
   const auto frustumCorners =
     buildFrustumCorners(inversedViewProj, splitDist, lastSplitDist);
@@ -121,7 +121,7 @@ std::vector<Cascade> buildCascades(const PerspectiveCamera &camera,
                                    const glm::vec3 &lightDirection,
                                    uint32_t numCascades, float lambda,
                                    uint32_t shadowMapSize) {
-  ZoneScoped;
+  ZoneScopedN("BuildCascades");
 
   numCascades = glm::clamp(numCascades, 1u, kMaxNumCascades);
 

@@ -5,6 +5,8 @@ namespace {
 
 [[nodiscard]] auto uploadGeometry(const RmlUiRenderer::TriangleList &triangles,
                                   RmlUiRenderer::FrameResources &resources) {
+  ZoneScopedN("RmlUi::UploadGeometry");
+
   auto &[vertexBuffer, vertexOffset, indexBuffer, indexOffset] = resources;
   const auto &[vertices, indices] = triangles;
 
@@ -44,8 +46,8 @@ namespace {
 RmlUiRenderer::RmlUiRenderer(rhi::RenderDevice &rd)
     : rhi::RenderPass<RmlUiRenderer>{rd} {}
 
-std::vector<RmlUiRenderer::FrameResources>
-RmlUiRenderer::createResources(const rhi::FrameIndex::ValueType numFrames) const {
+std::vector<RmlUiRenderer::FrameResources> RmlUiRenderer::createResources(
+  const rhi::FrameIndex::ValueType numFrames) const {
   assert(numFrames > 0);
   std::vector<RmlUiRenderer::FrameResources> resources;
   resources.reserve(numFrames);

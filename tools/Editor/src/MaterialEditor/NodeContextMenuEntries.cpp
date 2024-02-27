@@ -26,7 +26,7 @@ using FunctionsByCategoryMap =
 
 [[nodiscard]] auto
 buildFunctionCategoryMap(const ScriptedFunctions &scriptedFunctions) {
-  ZoneScoped;
+  ZoneScopedN("BuildFunctionCategoryMap");
 
   FunctionsByCategoryMap categories;
   for (const auto &[guid, data] : scriptedFunctions) {
@@ -63,7 +63,7 @@ makeMenuEntry(const std::pair<uint32_t, const ScriptedFunctionData *> &p) {
 
 void insertScriptedFunctionEntries(MenuEntries &entries,
                                    const ScriptedFunctions &scriptedFunctions) {
-  ZoneScoped;
+  ZoneScopedN("InsertScriptedFunctionEntries");
 
   const auto categories = buildFunctionCategoryMap(scriptedFunctions);
   entries.reserve(entries.size() + categories.size());
@@ -87,6 +87,8 @@ void insertScriptedFunctionEntries(MenuEntries &entries,
 
 [[nodiscard]] auto
 buildUserFunctionEntries(const UserFunctions &userFunctions) {
+  ZoneScopedN("BuildUserFunctionEntries");
+
   static constexpr auto matchShaderType =
     [](const rhi::ShaderStages shaderStages) {
       return [shaderStages](const rhi::ShaderType shaderType, auto) {
@@ -137,7 +139,7 @@ buildUserFunctionEntries(const UserFunctions &userFunctions) {
 [[nodiscard]] MenuEntries
 buildNodeMenuEntries(const ScriptedFunctions &scriptedFunctions,
                      const UserFunctions &userFunctions) {
-  ZoneScoped;
+  ZoneScopedN("BuildNodeMenuEntries");
 
 #define SEPARATOR std::nullopt
 
@@ -426,6 +428,8 @@ std::optional<IDPair> processNodeMenu(
   const std::string_view pattern, const rhi::ShaderType shaderType,
   const gfx::Material::Blueprint &blueprint) {
   if (entries.empty()) return std::nullopt;
+
+  ZoneScopedN("ProcessNodeMenu");
 
   std::optional<IDPair> result;
 

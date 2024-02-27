@@ -60,9 +60,8 @@ void WeightedBlendedPass::addGeometryPass(
   FrameGraph &fg, FrameGraphBlackboard &blackboard, const ViewInfo &viewData,
   const PropertyGroupOffsets &propertyGroupOffsets,
   const LightingSettings &lightingSettings, bool softShadows) {
-  ZoneScoped;
-
   constexpr auto kPassName = "WeightedBlended OIT";
+  ZoneScopedN(kPassName);
 
   std::vector<const Renderable *> transparentRenderables;
   transparentRenderables.reserve(viewData.visibleRenderables.size());
@@ -85,6 +84,8 @@ void WeightedBlendedPass::addGeometryPass(
     kPassName,
     [&fg, &blackboard, instances](FrameGraph::Builder &builder,
                                   WeightedBlendedData &data) {
+      PASS_SETUP_ZONE;
+
       read(builder, blackboard, instances);
 
       const auto sceneDepth = blackboard.get<GBufferData>().depth;
@@ -120,9 +121,9 @@ void WeightedBlendedPass::addGeometryPass(
     [this, lightingSettings, features, batches = std::move(batches)](
       const WeightedBlendedData &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
-
       auto &[cb, framebufferInfo, sets] = rc;
+      RHI_GPU_ZONE(cb, kPassName);
+
       auto &samplerBindings = sets[0];
       samplerBindings[4] = rhi::bindings::SeparateSampler{m_samplers.shadow};
       samplerBindings[5] =

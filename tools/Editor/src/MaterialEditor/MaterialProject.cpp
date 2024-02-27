@@ -20,6 +20,8 @@
 #include "MaterialEditor/MaterialGenerationContext.hpp"
 #include "MaterialExporter.hpp"
 
+#include "tracy/Tracy.hpp"
+
 #include <fstream>
 #include <ranges>
 #include <format>
@@ -182,6 +184,8 @@ decltype(auto) printOrder(std::ostream &os, const ShaderGraph &g,
 [[nodiscard]] std::expected<std::string, std::string>
 evaluate(MaterialGenerationContext &context, const ShaderGraph &g,
          const rhi::ShaderType shaderType) {
+  ZoneScopedN("EvaluateMaterial");
+
   MaterialGenerationContext::Shader shader{.type = shaderType};
   context.currentShader = &shader;
 
@@ -507,6 +511,8 @@ void MaterialProject::resetErrorMarkers() {
 
 std::expected<std::chrono::nanoseconds, std::string>
 MaterialProject::composeMaterial() {
+  ZoneScopedN("ComposeMaterial");
+
   const auto begin = std::chrono::steady_clock::now();
 
   MaterialGenerationContext context{
@@ -531,6 +537,8 @@ MaterialProject::composeMaterial() {
 }
 
 gfx::Material MaterialProject::buildMaterial() {
+  ZoneScopedN("BuildMaterial");
+
 #define COPY_CODE(Stage, code)                                                 \
   if (auto it = stages.find(rhi::ShaderType::Stage); it != stages.cend()) {    \
     blueprint.code.source = it->second.codeEditor.GetText();                   \

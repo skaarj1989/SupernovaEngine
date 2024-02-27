@@ -131,13 +131,14 @@ void SSAO::clear(PipelineGroups flags) {
 
 void SSAO::addPass(FrameGraph &fg, FrameGraphBlackboard &blackboard, Blur &blur,
                    const Settings &settings) {
-  ZoneScoped;
-
   constexpr auto kPassName = "SSAO";
+  ZoneScopedN(kPassName);
 
   const auto [ssao] = fg.addCallbackPass<SSAOData>(
     kPassName,
     [&fg, &blackboard](FrameGraph::Builder &builder, SSAOData &data) {
+      PASS_SETUP_ZONE;
+
       read(builder, blackboard.get<CameraData>(),
            PipelineStage::FragmentShader);
 
@@ -162,9 +163,9 @@ void SSAO::addPass(FrameGraph &fg, FrameGraphBlackboard &blackboard, Blur &blur,
     [this, settings](const SSAOData &, const FrameGraphPassResources &,
                      void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
-
       auto &[cb, framebufferInfo, sets] = rc;
+      RHI_GPU_ZONE(cb, kPassName);
+
       const auto *pipeline =
         _getPipeline(rhi::getColorFormat(*framebufferInfo, 0));
       if (pipeline) {

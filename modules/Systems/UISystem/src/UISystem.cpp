@@ -52,17 +52,21 @@ void UISystem::setup(entt::registry &r, RmlUiRenderInterface &renderInterface) {
 }
 
 void UISystem::update(entt::registry &r) {
+  ZoneScopedN("UISystem::Update");
   for (auto [_, ui, cc] : r.view<UIComponent, CameraComponent>().each()) {
     if (ui.context) ui.context->Update();
   }
 }
 void UISystem::render(entt::registry &r, rhi::CommandBuffer &cb) {
+  ZoneScopedN("UISystem::Render");
+
   auto *renderInterface = r.ctx().get<RmlUiRenderInterface *>();
   assert(renderInterface);
 
   for (auto [_, ui, cc] : r.view<UIComponent, CameraComponent>().each()) {
     if (!ui.context && (!cc.target || !(*cc.target))) continue;
 
+    RHI_GPU_ZONE(cb, "RmlUi");
     rhi::prepareForAttachment(cb, *cc.target, false);
     cb.beginRendering({
       .area = {.extent = cc.target->getExtent()},

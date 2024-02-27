@@ -36,8 +36,7 @@ void IBL::clear(PipelineGroups flags) {
 }
 
 rhi::Texture IBL::generateBRDF(rhi::CommandBuffer &cb) {
-  NAMED_DEBUG_MARKER(cb, "GenerateBRDF");
-  TRACY_GPU_ZONE(cb, "GenerateBRDF");
+  RHI_GPU_ZONE(cb, "GenerateBRDF");
 
   constexpr auto kSize = 1024u;
 
@@ -115,7 +114,7 @@ IBL::IrradianceGenerator::IrradianceGenerator(rhi::RenderDevice &rd)
 rhi::Texture IBL::IrradianceGenerator::generate(rhi::CommandBuffer &cb,
                                                 const rhi::Texture &source) {
   assert(source);
-  NAMED_DEBUG_MARKER(cb, "GenerateIrradiance");
+  RHI_GPU_ZONE(cb, "GenerateIrradiance");
 
   auto &rd = getRenderDevice();
 
@@ -214,7 +213,7 @@ IBL::PrefilterGenerator::PrefilterGenerator(rhi::RenderDevice &rd)
 rhi::Texture IBL::PrefilterGenerator::generate(rhi::CommandBuffer &cb,
                                                const rhi::Texture &source) {
   assert(source);
-  NAMED_DEBUG_MARKER(cb, "PrefilterEnvMap");
+  RHI_GPU_ZONE(cb, "PrefilterEnvMap");
 
   auto &rd = getRenderDevice();
 

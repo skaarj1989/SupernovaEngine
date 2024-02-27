@@ -7,3 +7,5 @@ add_library(Camera
 target_include_directories(Camera PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(Camera PUBLIC Common Transform)
 set_target_properties(Camera PROPERTIES FOLDER "Framework")
+
+enable_profiler(Camera PRIVATE)

@@ -9,6 +9,8 @@
 #include "physics/JoltPhysics.hpp"
 #include "physics/Conversion.hpp"
 
+#include "tracy/Tracy.hpp"
+
 #include <cassert>
 
 namespace {
@@ -288,6 +290,8 @@ void PhysicsWorld::setCollisionShape(CharacterVirtual &c,
 
 RayCastBPResults PhysicsWorld::castRayBP(const glm::vec3 &from,
                                          const glm::vec3 &direction) {
+  ZoneScopedN("PhysicsWorld::CastRayBP");
+
   const JPH::RayCast ray{to_Jolt(from), to_Jolt(direction)};
 
   JPH::RayCastResult result;
@@ -308,6 +312,8 @@ RayCastBPResults PhysicsWorld::castRayBP(const glm::vec3 &from,
 
 std::optional<RayCastNPResult>
 PhysicsWorld::castRayNP(const glm::vec3 &from, const glm::vec3 &direction) {
+  ZoneScopedN("PhysicsWorld::CastRayNP");
+
   const JPH::RRayCast ray{to_Jolt(from), to_Jolt(direction)};
 
   JPH::RayCastResult result;
@@ -337,6 +343,8 @@ JPH::BodyManager::BodyStats PhysicsWorld::getBodyStats() const {
 void PhysicsWorld::update(const Character &c, Transform *xf,
                           float collisionTollerance) {
   if (const auto &character = c.m_character; character) {
+    ZoneScopedN("UpdateCharacter");
+
     character->PostSimulation(collisionTollerance);
     if (xf) setTransform(character->GetWorldTransform(), *xf);
   }
@@ -345,6 +353,8 @@ void PhysicsWorld::update(const CharacterVirtual &c, Transform *xf,
                           float timeStep) {
   const auto &character = c.m_character;
   if (!character) return;
+
+  ZoneScopedN("UpdateCharacterVirtual");
 
   JPH::CharacterVirtual::ExtendedUpdateSettings updateSettings;
   if (c.isStickToFloor()) {
@@ -379,6 +389,7 @@ void PhysicsWorld::update(const CharacterVirtual &c, Transform *xf,
 }
 
 void PhysicsWorld::simulate(float timeStep) {
+  ZoneScopedN("PhysicsWorld::Simulate");
   // If you take larger steps than 1 / 60th of a second you need to do multiple
   // collision steps in order to keep the simulation stable. Do 1 collision step
   // per 1 / 60th of a second (round up).
@@ -388,6 +399,8 @@ void PhysicsWorld::simulate(float timeStep) {
 }
 void PhysicsWorld::debugDraw(DebugDraw &dd) {
   if (m_debugDrawFlags == DebugDrawFlags::None) return;
+
+  ZoneScopedN("PhysicsWorld::DebugDraw");
 
   JoltPhysics::debugRenderer->SetTarget(dd);
   const JPH::BodyManager::DrawSettings settings{
@@ -408,6 +421,7 @@ void PhysicsWorld::OnContactAdded(const JPH::Body &body1,
                                   const JPH::Body &body2,
                                   const JPH::ContactManifold &manifold,
                                   JPH::ContactSettings &) {
+  ZoneScoped;
   publish(ContactAddedEvent{
     .bodyUserDataPair =
       {
@@ -419,6 +433,7 @@ void PhysicsWorld::OnContactAdded(const JPH::Body &body1,
   });
 }
 void PhysicsWorld::OnContactRemoved(const JPH::SubShapeIDPair &subShapeIDPair) {
+  ZoneScoped;
   const auto &bi = m_physicsSystem.GetBodyInterfaceNoLock();
   publish(ContactRemovedEvent{
     .bodyUserDataPair =
@@ -435,6 +450,8 @@ void PhysicsWorld::OnContactAdded(const JPH::CharacterVirtual *character,
                                   JPH::Vec3Arg contactNormal,
                                   JPH::CharacterContactSettings &) {
   if (!isNewContact(character->GetActiveContacts(), body2)) return;
+
+  ZoneScoped;
 
   const auto &bi = getBodyInterface();
   publish(ContactAddedEvent{

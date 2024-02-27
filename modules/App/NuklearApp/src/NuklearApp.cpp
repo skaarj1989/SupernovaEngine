@@ -31,6 +31,7 @@ nk_context *NuklearApp::getNuklearContext() const {
 
 void NuklearApp::drawGui(rhi::CommandBuffer &cb, rhi::RenderTargetView rtv,
                          std::optional<glm::vec4> clearColor) {
+  RHI_GPU_ZONE(cb, "Nuklear");
   auto &[frameIndex, target] = rtv;
   const auto extent = target.getExtent();
   rhi::prepareForAttachment(cb, rtv.texture, false);

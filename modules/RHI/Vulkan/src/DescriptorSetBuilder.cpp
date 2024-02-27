@@ -140,8 +140,7 @@ DescriptorSetBuilder::bind(uint32_t index,
 VkDescriptorSet DescriptorSetBuilder::build(VkDescriptorSetLayout layout) {
   assert(layout != VK_NULL_HANDLE);
 
-  ZoneScoped;
-
+  ZoneScopedN("BuildDescriptorSet");
   auto hash = std::bit_cast<std::size_t>(layout);
 
   std::vector<VkWriteDescriptorSet> writeDescriptors;

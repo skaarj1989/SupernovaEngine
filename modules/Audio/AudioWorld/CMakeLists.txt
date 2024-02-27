@@ -22,3 +22,5 @@ target_link_libraries(AudioWorld
   PRIVATE spdlog::spdlog WaveDecoder VorbisDecoder
 )
 set_target_properties(AudioWorld PROPERTIES FOLDER "Framework/Audio")
+
+enable_profiler(AudioWorld PRIVATE)

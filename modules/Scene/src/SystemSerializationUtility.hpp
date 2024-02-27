@@ -24,6 +24,7 @@ static void saveComponents(Archive &archive, entt::type_list<T, Rest...>) {
   auto &[registry, snapshot] = cereal::get_user_data<OutputContext>(archive);
   if (const auto *storage = registry.template storage<T>();
       storage && !storage->empty()) {
+    ZoneTransientN(__tracy_zone, typeid(T).name(), true);
     snapshot.template get<T>(archive);
   }
   if constexpr (const auto typeList = entt::type_list<Rest...>{};
@@ -38,6 +39,8 @@ constexpr auto has_save = requires(Archive &archive) {
 };
 
 template <class Archive, class System> void saveSystem(Archive &archive) {
+  ZoneTransientN(__tracy_zone, typeid(System).name(), true);
+
   if constexpr (has_save<System, Archive>) {
     System::template save<Archive>(archive);
   }
@@ -67,6 +70,7 @@ static void loadComponent(Archive &archive, const entt::id_type type,
                           entt::type_list<T, Rest...>) {
   if (entt::type_hash<T>().value() == type) {
     auto &[_, snapshotLoader] = cereal::get_user_data<InputContext>(archive);
+    ZoneTransientN(__tracy_zone, typeid(T).name(), true);
     snapshotLoader.template get<T>(archive);
   } else {
     if constexpr (const auto typeList = entt::type_list<Rest...>{};
@@ -82,6 +86,8 @@ constexpr auto has_load = requires(Archive &archive) {
 };
 
 template <class Archive, class System> void loadSystem(Archive &archive) {
+  ZoneTransientN(__tracy_zone, typeid(System).name(), true);
+
   if constexpr (has_load<System, Archive>) {
     System::template load<Archive>(archive);
   }

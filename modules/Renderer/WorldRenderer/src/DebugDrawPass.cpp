@@ -29,6 +29,8 @@ struct PrimitiveInfo {
 using PrimitiveInfoList = std::array<PrimitiveInfo, 2>;
 
 [[nodiscard]] auto mergeVertices(const DebugDraw::Primitives &primitives) {
+  ZoneScopedN("MergeDebugVertices");
+
   const auto &[points, lines, meshes] = primitives;
   const auto &triangles = meshes.registry ? meshes.registry->getVertexList()
                                           : DebugDraw::VertexList{};
@@ -62,6 +64,8 @@ struct Buffers {
 };
 [[nodiscard]] auto uploadBuffers(FrameGraph &fg,
                                  const DebugDraw::Primitives &primitives) {
+  ZoneScopedN("UploadDebugBuffers");
+
   auto [vertices, info] = mergeVertices(primitives);
   return std::pair{
     Buffers{
@@ -113,9 +117,9 @@ DebugDrawPass::addGeometryPass(FrameGraph &fg,
                                FrameGraphResource target, DebugDraw &debugDraw,
                                const glm::mat4 &viewProjection) {
   assert(!debugDraw.empty());
-  ZoneScoped;
 
   constexpr auto kPassName = "DebugDraw";
+  ZoneScopedN(kPassName);
 
   const auto &primitives = debugDraw.getPrimitives();
   const auto [buffers, info] = uploadBuffers(fg, primitives);
@@ -123,6 +127,8 @@ DebugDrawPass::addGeometryPass(FrameGraph &fg,
   fg.addCallbackPass(
     kPassName,
     [&blackboard, &target, buffers](FrameGraph::Builder &builder, auto &) {
+      PASS_SETUP_ZONE;
+
       if (buffers.vertices) {
         builder.read(*buffers.vertices,
                      BindingInfo{.pipelineStage = PipelineStage::VertexShader});
@@ -144,7 +150,8 @@ DebugDrawPass::addGeometryPass(FrameGraph &fg,
      drawCalls = primitives.meshes.drawInfo](
       const auto &, FrameGraphPassResources &resources, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName);
+      auto &[cb, framebufferInfo, sets] = rc;
+      RHI_GPU_ZONE(cb, kPassName);
 
       const auto *vertexBuffer =
         buffers.vertices
@@ -157,7 +164,6 @@ DebugDrawPass::addGeometryPass(FrameGraph &fg,
               resources.get<FrameGraphBuffer>(*buffers.indices).buffer)
           : nullptr;
 
-      auto &[cb, framebufferInfo, sets] = rc;
       const auto depthFormat = rhi::getDepthFormat(*framebufferInfo);
       const auto colorFormat = rhi::getColorFormat(*framebufferInfo, 0);
 

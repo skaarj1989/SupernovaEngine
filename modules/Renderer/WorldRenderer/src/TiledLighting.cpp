@@ -48,7 +48,7 @@ void TiledLighting::clear(PipelineGroups flags) {
 
 void TiledLighting::cullLights(FrameGraph &fg, FrameGraphBlackboard &blackboard,
                                TileSize tileSize) {
-  ZoneScoped;
+  ZoneScopedN("TiledLighting");
 
   const auto depthBuffer = blackboard.get<GBufferData>().depth;
   const auto extent = fg.getDescriptor<FrameGraphTexture>(depthBuffer).extent;
@@ -67,7 +67,7 @@ void TiledLighting::cullLights(FrameGraph &fg, FrameGraphBlackboard &blackboard,
 FrameGraphResource
 TiledLighting::addDebugOverlay(FrameGraph &fg, FrameGraphBlackboard &blackboard,
                                Blit &blit, FrameGraphResource target) {
-  ZoneScoped;
+  ZoneScopedN("TiledLighting::Debug");
 
   const auto *d = blackboard.try_get<LightCullingData>();
   return d && d->debugMap ? blit.mix(fg, target, *d->debugMap) : target;
@@ -82,9 +82,8 @@ TiledLighting::FrustumBuilder::FrustumBuilder(rhi::RenderDevice &rd)
 
 FrameGraphResource TiledLighting::FrustumBuilder::buildFrustums(
   FrameGraph &fg, FrameGraphBlackboard &blackboard, const PassInfo &passInfo) {
-  ZoneScoped;
-
   constexpr auto kPassName = "BuildFrustums";
+  ZoneScopedN(kPassName);
 
   struct FrustumsData {
     FrameGraphResource gridFrustums;
@@ -92,6 +91,8 @@ FrameGraphResource TiledLighting::FrustumBuilder::buildFrustums(
   const auto [gridFrustums] = fg.addCallbackPass<FrustumsData>(
     kPassName,
     [&blackboard, &passInfo](FrameGraph::Builder &builder, FrustumsData &data) {
+      PASS_SETUP_ZONE;
+
       read(builder, blackboard.get<CameraData>(), PipelineStage::ComputeShader);
 
       data.gridFrustums = builder.create<FrameGraphBuffer>(
@@ -109,9 +110,9 @@ FrameGraphResource TiledLighting::FrustumBuilder::buildFrustums(
     [this, passInfo](const FrustumsData &, const FrameGraphPassResources &,
                      void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
-
       auto &[cb, _, sets] = rc;
+      RHI_GPU_ZONE(cb, kPassName);
+
       const auto *pipeline = _getPipeline(passInfo.tileSize);
       if (pipeline) {
         cb.bindPipeline(*pipeline);
@@ -145,9 +146,8 @@ void TiledLighting::LightCuller::cullLights(FrameGraph &fg,
                                             FrameGraphBlackboard &blackboard,
                                             FrameGraphResource gridFrustums,
                                             const PassInfo &passInfo) {
-  ZoneScoped;
-
   constexpr auto kPassName = "CullLights";
+  ZoneScopedN(kPassName);
 
   struct Data : LightCullingData {
     // Internal use only, can be sliced away safely.
@@ -157,6 +157,8 @@ void TiledLighting::LightCuller::cullLights(FrameGraph &fg,
     kPassName,
     [&fg, &blackboard, gridFrustums, &passInfo](FrameGraph::Builder &builder,
                                                 Data &data) {
+      PASS_SETUP_ZONE;
+
       data.tileSize = passInfo.tileSize;
 
       read(builder, blackboard.get<CameraData>(), PipelineStage::ComputeShader);
@@ -237,9 +239,9 @@ void TiledLighting::LightCuller::cullLights(FrameGraph &fg,
     },
     [this, passInfo](const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
-
       auto &[cb, _, sets] = rc;
+      RHI_GPU_ZONE(cb, kPassName);
+
       const auto *pipeline = _getPipeline(passInfo.tileSize);
       if (pipeline) {
         cb.bindPipeline(*pipeline);

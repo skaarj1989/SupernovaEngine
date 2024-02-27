@@ -39,13 +39,14 @@ FrameGraphResource
 InfiniteGridPass::addPass(FrameGraph &fg,
                           const FrameGraphBlackboard &blackboard,
                           FrameGraphResource target) {
-  ZoneScoped;
-
   constexpr auto kPassName = "InfiniteGrid";
+  ZoneScopedN(kPassName);
 
   fg.addCallbackPass(
     kPassName,
     [&blackboard, &target](FrameGraph::Builder &builder, auto &) {
+      PASS_SETUP_ZONE;
+
       read(builder, blackboard.get<CameraData>());
       builder.read(blackboard.get<GBufferData>().depth, Attachment{});
 
@@ -53,9 +54,9 @@ InfiniteGridPass::addPass(FrameGraph &fg,
     },
     [this](const auto &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
-
       auto &[cb, framebufferInfo, sets] = rc;
+      RHI_GPU_ZONE(cb, kPassName);
+
       const auto *pipeline = _getPipeline(PassInfo{
         .depthFormat = rhi::getDepthFormat(*framebufferInfo),
         .colorFormat = rhi::getColorFormat(*framebufferInfo, 0),

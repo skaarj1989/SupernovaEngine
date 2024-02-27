@@ -24,6 +24,8 @@ constexpr auto kTileSize = 16u;
 constexpr auto kNumHistogramBins = 256u;
 
 [[nodiscard]] auto createAverageLuminanceTexture(rhi::RenderDevice &rd) {
+  ZoneScopedN("CreateAvgLuminanceTexture");
+
   auto texture =
     rhi::Texture::Builder{}
       .setExtent({1, 1})
@@ -50,9 +52,8 @@ constexpr auto kNumHistogramBins = 256u;
 }
 
 [[nodiscard]] auto createHistogram(FrameGraph &fg) {
-  ZoneScoped;
-
   constexpr auto kPassName = "CreateHistogram";
+  ZoneScopedN(kPassName);
 
   struct Data {
     FrameGraphResource histogram;
@@ -60,6 +61,8 @@ constexpr auto kNumHistogramBins = 256u;
   auto [histogram] = fg.addCallbackPass<Data>(
     kPassName,
     [](FrameGraph::Builder &builder, Data &data) {
+      PASS_SETUP_ZONE;
+
       data.histogram = builder.create<FrameGraphBuffer>(
         "Histogram", {
                        .type = BufferType::StorageBuffer,
@@ -70,11 +73,9 @@ constexpr auto kNumHistogramBins = 256u;
         data.histogram, BindingInfo{.pipelineStage = PipelineStage::Transfer});
     },
     [](const Data &data, FrameGraphPassResources &resources, void *ctx) {
-      auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
-
-      rc.commandBuffer.clear(
-        *resources.get<FrameGraphBuffer>(data.histogram).buffer);
+      auto &cb = static_cast<RenderContext *>(ctx)->commandBuffer;
+      RHI_GPU_ZONE(cb, kPassName);
+      cb.clear(*resources.get<FrameGraphBuffer>(data.histogram).buffer);
     });
 
   return histogram;
@@ -99,7 +100,7 @@ void EyeAdaptation::clear(PipelineGroups) {
 void EyeAdaptation::compute(FrameGraph &fg, FrameGraphBlackboard &blackboard,
                             const AdaptiveExposure &adaptiveExposure,
                             uint64_t uid, float deltaTime) {
-  ZoneScoped;
+  ZoneScopedN("EyeAdaptation");
 
   const auto sceneColor = blackboard.get<SceneColorData>().HDR;
 
@@ -131,9 +132,8 @@ EyeAdaptation::HistogramBuilder::HistogramBuilder(rhi::RenderDevice &rd) {
 FrameGraphResource EyeAdaptation::HistogramBuilder::buildHistogram(
   FrameGraph &fg, FrameGraphResource sceneColor, float minLogLuminance,
   float logLuminanceRange) {
-  ZoneScoped;
-
   constexpr auto kPassName = "BuildHistogram";
+  ZoneScopedN(kPassName);
 
   // TransientResources system does not guarantee that acquired buffer will be
   // cleared, hence the separate clear pass.
@@ -142,6 +142,8 @@ FrameGraphResource EyeAdaptation::HistogramBuilder::buildHistogram(
   fg.addCallbackPass(
     kPassName,
     [sceneColor, &histogram](FrameGraph::Builder &builder, auto &) {
+      PASS_SETUP_ZONE;
+
       builder.read(sceneColor,
                    TextureRead{
                      .binding =
@@ -161,7 +163,8 @@ FrameGraphResource EyeAdaptation::HistogramBuilder::buildHistogram(
     [this, sceneColor, minLogLuminance, logLuminanceRange](
       const auto &, const FrameGraphPassResources &resources, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
+      auto &[cb, _, sets] = rc;
+      RHI_GPU_ZONE(cb, kPassName);
 
       struct Uniforms {
         float minLogLuminance;
@@ -175,8 +178,6 @@ FrameGraphResource EyeAdaptation::HistogramBuilder::buildHistogram(
         .oneOverLuminanceRange = 1.0f / logLuminanceRange,
         .extent = glm::uvec2{extent},
       };
-
-      auto &[cb, _, sets] = rc;
       cb.bindPipeline(m_pipeline);
       bindDescriptorSets(rc, m_pipeline);
       cb.pushConstants(rhi::ShaderStages::Compute, 0, &uniforms)
@@ -204,9 +205,8 @@ FrameGraphResource EyeAdaptation::AverageLuminance::calculateAverageLuminance(
   FrameGraph &fg, FrameGraphResource histogram, float minLogLuminance,
   float logLuminanceRange, rhi::Extent2D dimensions, float tau, uint64_t uid,
   float deltaTime) {
-  ZoneScoped;
-
   constexpr auto kPassName = "AverageLuminance";
+  ZoneScopedN(kPassName);
 
   struct Data {
     FrameGraphResource averageLuminance;
@@ -214,6 +214,8 @@ FrameGraphResource EyeAdaptation::AverageLuminance::calculateAverageLuminance(
   const auto [averageLuminance] = fg.addCallbackPass<Data>(
     kPassName,
     [this, &fg, histogram, uid](FrameGraph::Builder &builder, Data &data) {
+      PASS_SETUP_ZONE;
+
       builder.read(histogram, BindingInfo{
                                 .location = {.set = 0, .binding = 1},
                                 .pipelineStage = PipelineStage::ComputeShader,
@@ -236,7 +238,8 @@ FrameGraphResource EyeAdaptation::AverageLuminance::calculateAverageLuminance(
     [this, minLogLuminance, logLuminanceRange, dimensions, tau,
      deltaTime](const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
+      auto &[cb, _, sets] = rc;
+      RHI_GPU_ZONE(cb, kPassName);
 
       struct Uniforms {
         float minLogLuminance;
@@ -250,8 +253,6 @@ FrameGraphResource EyeAdaptation::AverageLuminance::calculateAverageLuminance(
         .timeCoeff = glm::clamp(1.0f - glm::exp(-deltaTime * tau), 0.0f, 1.0f),
         .numPixels = dimensions.width * dimensions.height,
       };
-
-      auto &[cb, _, sets] = rc;
       cb.bindPipeline(m_pipeline);
       bindDescriptorSets(rc, m_pipeline);
       cb.pushConstants(rhi::ShaderStages::Compute, 0, &uniforms)

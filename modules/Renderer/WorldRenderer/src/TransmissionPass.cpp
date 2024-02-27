@@ -49,9 +49,8 @@ std::optional<FrameGraphResource> TransmissionPass::addGeometryPass(
   FrameGraphResource sceneColor, const ViewInfo &viewData,
   const PropertyGroupOffsets &propertyGroupOffsets,
   const LightingSettings &lightingSettings, bool softShadows) {
-  ZoneScoped;
-
   constexpr auto kPassName = "TransmissionPass";
+  ZoneScopedN(kPassName);
 
   std::vector<const Renderable *> transmissiveRenderables;
   transmissiveRenderables.reserve(viewData.visibleRenderables.size());
@@ -76,6 +75,8 @@ std::optional<FrameGraphResource> TransmissionPass::addGeometryPass(
     kPassName,
     [&fg, &blackboard, sceneColor, instances](FrameGraph::Builder &builder,
                                               Data &data) {
+      PASS_SETUP_ZONE;
+
       read(builder, blackboard, instances);
 
       const auto &sceneColorDesc =
@@ -91,9 +92,9 @@ std::optional<FrameGraphResource> TransmissionPass::addGeometryPass(
     [this, lightingSettings, features, batches = std::move(batches)](
       const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
-
       auto &[cb, framebufferInfo, sets] = rc;
+      RHI_GPU_ZONE(cb, kPassName);
+
       auto &samplerBindings = sets[0];
       samplerBindings[4] = rhi::bindings::SeparateSampler{m_samplers.shadow};
       samplerBindings[5] =

@@ -24,3 +24,5 @@ target_link_libraries(FileSystem
   PUBLIC StringUtility
 )
 set_target_properties(FileSystem PROPERTIES FOLDER "Framework/OS")
+
+enable_profiler(FileSystem PRIVATE)

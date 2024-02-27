@@ -16,7 +16,7 @@ std::vector<std::byte>
 buildPropertyBuffer(const PropertyLayout &layout,
                     const std::vector<Property> &properties,
                     VkDeviceSize minOffsetAlignment) {
-  ZoneScoped;
+  ZoneScopedN("BuildPropertyBuffer");
 
   const auto bufferSize = adjustStride(layout.stride, minOffsetAlignment);
   std::vector<std::byte> buffer(bufferSize);

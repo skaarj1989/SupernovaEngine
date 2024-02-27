@@ -46,6 +46,7 @@ RmlUiApp::~RmlUiApp() {
 
 void RmlUiApp::drawGui(rhi::CommandBuffer &cb, rhi::RenderTargetView rtv,
                        std::optional<glm::vec4> clearColor) {
+  RHI_GPU_ZONE(cb, "RmlUi");
   auto &target = rtv.texture;
   rhi::prepareForAttachment(cb, rtv.texture, false);
   cb.beginRendering({

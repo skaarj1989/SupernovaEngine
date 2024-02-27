@@ -5,6 +5,7 @@
 #include "ImGuiModal.hpp"
 #include "imgui_stdlib.h" // InputText
 
+#include "Tracy/Tracy.hpp"
 #include "spdlog/spdlog.h"
 
 namespace {
@@ -28,6 +29,8 @@ namespace {
 }
 
 [[nodiscard]] auto createNewFolderModal(const char *id) {
+  ZoneScopedN("NewFolderModal");
+
   std::optional<std::string> result;
   if (ImGui::BeginPopupModal(id, nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
     static std::string name;
@@ -112,6 +115,8 @@ selectableEntry(const std::filesystem::directory_entry &entry,
 
 std::optional<std::filesystem::path>
 showFileDialog(const char *name, const FileDialogSettings &settings) {
+  ZoneScopedN("FileDialog");
+
   assert(!settings.forceExtension ||
          !(settings.flags & FileDialogFlags_DirectoryOnly));
 

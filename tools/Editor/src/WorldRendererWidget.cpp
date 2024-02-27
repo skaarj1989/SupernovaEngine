@@ -23,6 +23,7 @@ namespace {
 
 void showWorldRendererWindow(const char *name, bool *open,
                              gfx::WorldRenderer &renderer) {
+  ZoneScopedN("WorldRendererWindow");
   if (ImGui::Begin(name, open)) {
     if (ImGui::CollapsingHeader("Pipelines", ImGuiTreeNodeFlags_DefaultOpen)) {
       constexpr auto kTableFlags =

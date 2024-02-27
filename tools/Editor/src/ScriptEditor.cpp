@@ -65,6 +65,7 @@ bool ScriptEditor::hasScript(const std::shared_ptr<ScriptResource> &r) const {
 }
 
 void ScriptEditor::show(const char *name, bool *popen) {
+  ZoneScopedN("ScriptEditor");
   if (ImGui::Begin(name, popen, ImGuiWindowFlags_MenuBar)) {
     // Feature: Drag'n'Drop a file/ script resource to open it in a new tab.
     const auto cursorPos = ImGui::GetCursorPos();

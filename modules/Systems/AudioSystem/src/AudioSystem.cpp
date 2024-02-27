@@ -1,4 +1,5 @@
 #include "AudioSystem.hpp"
+#include "tracy/Tracy.hpp"
 
 namespace {
 
@@ -24,6 +25,7 @@ void AudioSystem::setup(entt::registry &r, audio::Device &device) {
   connectComponent<AudioPlayerComponent>(r);
 }
 void AudioSystem::update(entt::registry &r, [[maybe_unused]] float dt) {
+  ZoneScopedN("AudioSystem::Update");
   auto &world = r.ctx().get<AudioWorld>();
 
   if (const auto [e] = getMainListener(r); e != entt::null) {

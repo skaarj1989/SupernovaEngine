@@ -49,7 +49,7 @@ void importSkyLight(FrameGraph &fg, FrameGraphBlackboard &blackboard,
 [[nodiscard]] auto
 getVisibleRenderables(std::span<const Renderable> renderables,
                       const Frustum &frustum) {
-  ZoneScoped;
+  ZoneScopedN("GetVisibleRenderables");
 
   std::vector<const Renderable *> result;
   result.reserve(renderables.size());
@@ -249,6 +249,7 @@ void WorldRenderer::clearPipelines(PipelineGroups flags) {
 
 SkyLight WorldRenderer::createSkyLight(TextureResourceHandle source) {
   assert(source && bool(source));
+  ZoneScopedN("CreateSkyLight");
 
   SkyLight skyLight{{}};
   m_renderDevice.execute([&](rhi::CommandBuffer &cb) {
@@ -276,58 +277,62 @@ SkyLight WorldRenderer::createSkyLight(TextureResourceHandle source) {
 void WorldRenderer::drawFrame(rhi::CommandBuffer &commandBuffer,
                               const WorldView &worldView, float deltaTime,
                               DebugOutput *debugOutput) {
-  ZoneScoped;
+  ZoneScopedN("WorldRenderer::DrawFrame");
 
   FrameGraph fg;
   fg.reserve(100, 100);
   FrameGraphBlackboard blackboard;
+  {
+    ZoneScopedN("FrameGraph::Setup");
+    m_dummyResources.embedDummyResources(fg, blackboard);
 
-  m_dummyResources.embedDummyResources(fg, blackboard);
+    uploadFrameBlock(fg, blackboard,
+                     {
+                       .time = m_time,
+                       .deltaTime = deltaTime,
+                     });
 
-  uploadFrameBlock(fg, blackboard,
-                   {
-                     .time = m_time,
-                     .deltaTime = deltaTime,
-                   });
+    RenderableStore renderableStore{{
+      // Reserve size (to reduce reallocations).
+      .numTransforms = worldView.meshes.size() + worldView.decals.size(),
+      .numJoints = 1024,
+    }};
 
-  RenderableStore renderableStore{{
-    // Reserve size (to reduce reallocations).
-    .numTransforms = worldView.meshes.size() + worldView.decals.size(),
-    .numJoints = 1024,
-  }};
+    const auto renderables =
+      buildRenderables(renderableStore, worldView.meshes);
+    const auto decalRenderables =
+      buildRenderables(renderableStore, worldView.decals);
 
-  const auto renderables = buildRenderables(renderableStore, worldView.meshes);
-  const auto decalRenderables =
-    buildRenderables(renderableStore, worldView.decals);
+    const auto minOffsetAlignment =
+      m_renderDevice.getDeviceLimits().minStorageBufferOffsetAlignment;
 
-  const auto minOffsetAlignment =
-    m_renderDevice.getDeviceLimits().minStorageBufferOffsetAlignment;
+    auto &[modelMatrices, joints, propertyGroups] = renderableStore;
+    auto propertyBlock = mergeProperties(propertyGroups, minOffsetAlignment);
 
-  auto &[modelMatrices, joints, propertyGroups] = renderableStore;
-  auto propertyBlock = mergeProperties(propertyGroups, minOffsetAlignment);
+    uploadTransforms(fg, blackboard, std::move(modelMatrices));
+    uploadSkins(fg, blackboard, std::move(joints));
+    uploadMaterialProperties(fg, blackboard, std::move(propertyBlock.buffer));
 
-  uploadTransforms(fg, blackboard, std::move(modelMatrices));
-  uploadSkins(fg, blackboard, std::move(joints));
-  uploadMaterialProperties(fg, blackboard, std::move(propertyBlock.buffer));
+    blackboard.add<BRDF>(importTexture(fg, "BRDF LUT", &m_brdf));
 
-  blackboard.add<BRDF>(importTexture(fg, "BRDF LUT", &m_brdf));
+    const auto sceneGrid = getSceneGrid(worldView.aabb);
+    for (const auto &sceneView : worldView.sceneViews) {
+      if (!sceneView.target) continue;
 
-  const auto sceneGrid = getSceneGrid(worldView.aabb);
-  for (const auto &sceneView : worldView.sceneViews) {
-    if (!sceneView.target) continue;
-
-    if (sceneView.debugDraw &&
-        bool(sceneView.renderSettings.debugFlags & DebugFlags::WorldBounds)) {
-      sceneView.debugDraw->addAABB(sceneGrid.aabb);
+      if (sceneView.debugDraw &&
+          bool(sceneView.renderSettings.debugFlags & DebugFlags::WorldBounds)) {
+        sceneView.debugDraw->addAABB(sceneGrid.aabb);
+      }
+      // The blackboard is passed by value on purpose.
+      // Each sceneView gets it's own blackboard with global nodes
+      // (Dummy resources, BRDF LUT...).
+      _drawScene(fg, blackboard, sceneView, sceneGrid, worldView.lights,
+                 renderables, decalRenderables, propertyBlock.offsets,
+                 deltaTime);
     }
-    // The blackboard is passed by value on purpose.
-    // Each sceneView gets it's own blackboard with global nodes
-    // (Dummy resources, BRDF LUT...).
-    _drawScene(fg, blackboard, sceneView, sceneGrid, worldView.lights,
-               renderables, decalRenderables, propertyBlock.offsets, deltaTime);
   }
   {
-    ZoneScopedN("CompileFrameGraph");
+    ZoneScopedN("FrameGraph::Compile");
     fg.compile();
   }
   if (debugOutput != nullptr) {
@@ -335,7 +340,7 @@ void WorldRenderer::drawFrame(rhi::CommandBuffer &commandBuffer,
   }
   {
     RenderContext rc{commandBuffer};
-    TRACY_GPU_ZONE(rc.commandBuffer, "ExecuteFrameGraph");
+    TRACY_GPU_ZONE(rc.commandBuffer, "FrameGraph::Execute");
     fg.execute(&rc, &m_transientResources);
   }
   m_transientResources.update();

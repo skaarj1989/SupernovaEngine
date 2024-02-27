@@ -38,7 +38,7 @@ rhi::Texture CubemapConverter::equirectangularToCubemap(
   rhi::CommandBuffer &cb, const rhi::Texture &equirectangular) {
   assert(equirectangular &&
          equirectangular.getType() == rhi::TextureType::Texture2D);
-  NAMED_DEBUG_MARKER(cb, "Equirectangular -> Cubemap");
+  RHI_GPU_ZONE(cb, "Equirectangular -> Cubemap");
 
   auto &rd = getRenderDevice();
 

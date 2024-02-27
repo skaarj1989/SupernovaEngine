@@ -1,4 +1,5 @@
 #include "ScriptSystem.hpp"
+#include "tracy/Tracy.hpp"
 #include "spdlog/spdlog.h"
 
 void ScriptSystem::setup(entt::registry &r, sol::state &lua) {
@@ -8,18 +9,23 @@ void ScriptSystem::setup(entt::registry &r, sol::state &lua) {
 }
 
 void ScriptSystem::onInput(entt::registry &r, const os::InputEvent &evt) {
+  ZoneScopedN("ScriptSystem::OnInput");
   for (auto [_, c] : r.view<ScriptComponent>().each()) {
     c.m_scriptNode.input(evt);
   }
 }
 void ScriptSystem::onUpdate(entt::registry &r, float dt) {
+  ZoneScopedN("ScriptSystem::Update");
   for (auto [_, c] : r.view<ScriptComponent>().each()) {
     c.m_scriptNode.update(dt);
   }
-
-  getScriptContext(r).lua->collect_garbage();
+  {
+    ZoneScopedN("Lua::CollectGarbage");
+    getScriptContext(r).lua->collect_garbage();
+  }
 }
 void ScriptSystem::onPhysicsStep(entt::registry &r, float dt) {
+  ZoneScopedN("ScriptSystem::OnPhysicsStep");
   for (auto [_, c] : r.view<ScriptComponent>().each()) {
     c.m_scriptNode.physicsStep(dt);
   }

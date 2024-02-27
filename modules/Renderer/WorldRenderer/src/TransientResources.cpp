@@ -56,8 +56,6 @@ void heartbeat(auto &pool) {
   }
 
   if (!resources.empty()) {
-    ZoneScoped;
-
     auto [ret, last] =
       std::ranges::remove_if(resources, [](auto &r) { return !(*r); });
     resources.erase(ret, last);
@@ -83,7 +81,7 @@ TransientResources::acquireTexture(const FrameGraphTexture::Desc &desc) {
   const auto h = std::hash<FrameGraphTexture::Desc>{}(desc);
 
   if (auto &pool = m_textures.entryGroups[h]; pool.empty()) {
-    ZoneScoped;
+    ZoneScopedN("CreateTexture");
 
     auto texture = rhi::Texture::Builder{}
                      .setExtent(desc.extent, desc.depth)
@@ -122,7 +120,7 @@ TransientResources::acquireBuffer(const FrameGraphBuffer::Desc &desc) {
   const auto h = std::hash<FrameGraphBuffer::Desc>{}(desc);
 
   if (auto &pool = m_buffers.entryGroups[h]; pool.empty()) {
-    ZoneScoped;
+    ZoneScopedN("CreateBuffer");
 
     std::unique_ptr<rhi::Buffer> buffer;
     switch (desc.type) {

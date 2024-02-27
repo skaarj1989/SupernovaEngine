@@ -30,9 +30,8 @@ void DebugNormalPass::clear(PipelineGroups flags) {
 FrameGraphResource DebugNormalPass::addGeometryPass(
   FrameGraph &fg, const FrameGraphBlackboard &blackboard,
   FrameGraphResource target, const ViewInfo &viewData) {
-  ZoneScoped;
-
   constexpr auto kPassName = "DebugNormalPass";
+  ZoneScopedN(kPassName);
 
   std::vector<GPUInstance> gpuInstances;
   auto batches =
@@ -44,6 +43,8 @@ FrameGraphResource DebugNormalPass::addGeometryPass(
   fg.addCallbackPass(
     kPassName,
     [&blackboard, &target, instances](FrameGraph::Builder &builder, auto &) {
+      PASS_SETUP_ZONE;
+
       read(builder, blackboard.get<CameraData>(),
            PipelineStage::VertexShader | PipelineStage::GeometryShader);
 
@@ -59,14 +60,13 @@ FrameGraphResource DebugNormalPass::addGeometryPass(
     [this, batches = std::move(batches)](
       const auto &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
-
       auto &[cb, framebufferInfo, sets] = rc;
+      RHI_GPU_ZONE(cb, kPassName);
+
       BaseGeometryPassInfo passInfo{
         .depthFormat = rhi::getDepthFormat(*framebufferInfo),
         .colorFormats = rhi::getColorFormats(*framebufferInfo),
       };
-
       cb.beginRendering(*framebufferInfo);
       for (const auto &batch : batches) {
         const auto *pipeline = _getPipeline(adjust(passInfo, batch));

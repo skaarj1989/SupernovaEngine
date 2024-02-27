@@ -214,9 +214,6 @@ NuklearRenderer::FrameResources NuklearRenderer::createFrameResources() const {
 
 void NuklearRenderer::draw(rhi::CommandBuffer &cb, FrameResources &resources,
                            rhi::Extent2D extent, glm::vec2 scale) {
-  NAMED_DEBUG_MARKER(cb, "Nuklear");
-  TracyVkZone(cb.getTracyContext(), cb.getHandle(), "Nuklear");
-
   nk_buffer_clear(&m_vertices);
   nk_buffer_clear(&m_indices);
   nk_buffer_clear(&m_commands);
@@ -279,6 +276,8 @@ void NuklearRenderer::draw(rhi::CommandBuffer &cb, FrameResources &resources,
 //
 
 void NuklearRenderer::_uploadGeometry(FrameResources &resources) const {
+  ZoneScopedN("Nuklear::UploadGeometry");
+
   auto &[vertexBuffer, indexBuffer] = resources;
 
   auto *vertexDest = static_cast<Vertex *>(vertexBuffer.map());

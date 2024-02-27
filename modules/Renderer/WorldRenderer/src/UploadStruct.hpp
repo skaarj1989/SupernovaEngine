@@ -11,7 +11,7 @@ template <typename T>
 [[nodiscard]] FrameGraphResource uploadStruct(FrameGraph &fg,
                                               const std::string_view passName,
                                               TransientBuffer<T> &&s) {
-  ZoneScoped;
+  ZoneTransientN(__tracy_zone, passName.data(), true);
 
   constexpr auto kDataSize = uint32_t(sizeof(T));
 
@@ -21,6 +21,8 @@ template <typename T>
   const auto [buffer] = fg.addCallbackPass<Data>(
     passName,
     [&s](FrameGraph::Builder &builder, Data &data) {
+      PASS_SETUP_ZONE;
+
       data.buffer =
         builder.create<FrameGraphBuffer>(s.name, {
                                                    .type = s.type,
@@ -32,10 +34,10 @@ template <typename T>
     },
     [passName, s = std::move(s.data)](
       const Data &data, FrameGraphPassResources &resources, void *ctx) {
-      auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, passName.data())
-      rc.commandBuffer.update(
-        *resources.get<FrameGraphBuffer>(data.buffer).buffer, 0, kDataSize, &s);
+      auto &cb = static_cast<RenderContext *>(ctx)->commandBuffer;
+      RHI_GPU_ZONE(cb, passName.data());
+      cb.update(*resources.get<FrameGraphBuffer>(data.buffer).buffer, 0,
+                kDataSize, &s);
     });
 
   return buffer;

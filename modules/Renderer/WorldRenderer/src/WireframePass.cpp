@@ -42,9 +42,8 @@ void WireframePass::clear(PipelineGroups flags) {
 FrameGraphResource WireframePass::addGeometryPass(
   FrameGraph &fg, const FrameGraphBlackboard &blackboard,
   FrameGraphResource target, const ViewInfo &viewData) {
-  ZoneScoped;
-
   constexpr auto kPassName = "WireframePass";
+  ZoneScopedN(kPassName);
 
   sortByMaterial(viewData.visibleRenderables);
 
@@ -58,6 +57,8 @@ FrameGraphResource WireframePass::addGeometryPass(
   fg.addCallbackPass(
     kPassName,
     [&blackboard, &target, instances](FrameGraph::Builder &builder, auto &) {
+      PASS_SETUP_ZONE;
+
       read(builder, blackboard.get<CameraData>(), PipelineStage::VertexShader);
 
       const auto &dummyResources = blackboard.get<DummyResourcesData>();
@@ -71,9 +72,9 @@ FrameGraphResource WireframePass::addGeometryPass(
     [this, batches = std::move(batches)](
       const auto &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
-
       auto &[cb, framebufferInfo, sets] = rc;
+      RHI_GPU_ZONE(cb, kPassName);
+
       BaseGeometryPassInfo passInfo{
         .depthFormat = rhi::getDepthFormat(*framebufferInfo),
         .colorFormats = rhi::getColorFormats(*framebufferInfo),

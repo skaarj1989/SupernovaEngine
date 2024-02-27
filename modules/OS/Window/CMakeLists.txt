@@ -16,3 +16,5 @@ if(WIN32)
 elseif(LINUX)
   target_sources(Window PRIVATE "src/XWindow.cpp" "src/XMonitor.cpp")
 endif()
+
+enable_profiler(Window PRIVATE)

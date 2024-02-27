@@ -48,16 +48,18 @@ RenderTargetView FrameController::getCurrentTarget() const {
 
 CommandBuffer &FrameController::beginFrame() {
   assert(m_swapchain);
-  auto &[cb, imageAcquired, _] = m_frames[m_frameIndex];
+  ZoneScopedN("RHI::BeginFrame");
 
+  auto &[cb, imageAcquired, _] = m_frames[m_frameIndex];
   cb.reset();
   m_swapchain->acquireNextImage(imageAcquired);
   return cb.begin();
 }
 FrameController &FrameController::endFrame() {
   assert(m_swapchain);
-  auto &[cb, imageAcquired, renderCompleted] = m_frames[m_frameIndex];
+  ZoneScopedN("RHI::EndFrame");
 
+  auto &[cb, imageAcquired, renderCompleted] = m_frames[m_frameIndex];
   cb.getBarrierBuilder().imageBarrier(
     {
       .image = m_swapchain->getCurrentBuffer(),

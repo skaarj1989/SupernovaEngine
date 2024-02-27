@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef _DEBUG
+#ifdef RHI_USE_DEBUG_MARKER
 #  include <string_view>
 
 namespace rhi {
@@ -22,15 +22,18 @@ private:
   CommandBuffer &m_commandBuffer;
 };
 
-#  define DEBUG_MARKER_ID(name, id) _DEBUG_MARKER_ID(name, id)
-#  define _DEBUG_MARKER_ID(name, id) name##id
+#  define RHI_DEBUG_MARKER_ID(Name, ID) _RHI_DEBUG_MARKER_ID(Name, ID)
+#  define _RHI_DEBUG_MARKER_ID(Name, ID) Name##ID
 
-#  define NAMED_DEBUG_MARKER(cb, label)                                        \
-    const rhi::DebugMarker DEBUG_MARKER_ID(dm, __LINE__) { cb, label }
-#  define DEBUG_MARKER(cb) NAMED_DEBUG_MARKER(cb, __FUNCTION__)
+#  define RHI_NAMED_DEBUG_MARKER(CommandBuffer, Label)                         \
+    const rhi::DebugMarker RHI_DEBUG_MARKER_ID(_debug_marker, __LINE__) {      \
+      CommandBuffer, Label                                                     \
+    }
+#  define RHI_DEBUG_MARKER(CommandBuffer)                                      \
+    RHI_NAMED_DEBUG_MARKER(CommandBuffer, __FUNCTION__)
 
 } // namespace rhi
 #else
-#  define NAMED_DEBUG_MARKER(cb, name)
-#  define DEBUG_MARKER(cb)
+#  define RHI_NAMED_DEBUG_MARKER(CommandBuffer, Label)
+#  define RHI_DEBUG_MARKER(CommandBuffer)
 #endif

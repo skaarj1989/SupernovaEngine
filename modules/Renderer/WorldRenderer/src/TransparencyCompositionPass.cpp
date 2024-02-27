@@ -17,13 +17,14 @@ FrameGraphResource
 TransparencyCompositionPass::addPass(FrameGraph &fg,
                                      const WeightedBlendedData &weightedBlended,
                                      FrameGraphResource target) {
-  ZoneScoped;
-
   constexpr auto kPassName = "TransparencyComposition";
+  ZoneScopedN(kPassName);
 
   fg.addCallbackPass(
     kPassName,
     [&weightedBlended, &target](FrameGraph::Builder &builder, auto &) {
+      PASS_SETUP_ZONE;
+
       builder.read(weightedBlended.accum,
                    TextureRead{
                      .binding =
@@ -47,9 +48,9 @@ TransparencyCompositionPass::addPass(FrameGraph &fg,
     },
     [this](const auto &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
-
       auto &[cb, framebufferInfo, sets] = rc;
+      RHI_GPU_ZONE(cb, kPassName);
+
       if (const auto *pipeline =
             _getPipeline(rhi::getColorFormat(*framebufferInfo, 0));
           pipeline) {

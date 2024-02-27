@@ -59,9 +59,8 @@ void DecalPass::addGeometryPass(
   const PropertyGroupOffsets &propertyGroupOffsets) {
   assert(!viewData.visibleRenderables.empty());
 
-  ZoneScoped;
-
   constexpr auto kPassName = "DecalPass";
+  ZoneScopedN(kPassName);
 
   std::vector<GPUInstance> gpuInstances;
   auto batches = buildBatches(gpuInstances, viewData.visibleRenderables,
@@ -73,6 +72,8 @@ void DecalPass::addGeometryPass(
   fg.addCallbackPass(
     kPassName,
     [&blackboard, instances](FrameGraph::Builder &builder, auto &) {
+      PASS_SETUP_ZONE;
+
       read(builder, blackboard.get<FrameData>());
       read(builder, blackboard.get<CameraData>());
 
@@ -97,9 +98,9 @@ void DecalPass::addGeometryPass(
     [this, batches = std::move(batches)](
       const auto &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
-
       auto &[cb, framebufferInfo, sets] = rc;
+      RHI_GPU_ZONE(cb, kPassName);
+
       overrideSampler(sets[1][5], m_samplers.bilinear);
 
       cb.beginRendering(*framebufferInfo);

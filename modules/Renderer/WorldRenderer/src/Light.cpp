@@ -11,7 +11,7 @@ namespace gfx {
 
 std::vector<const Light *> getVisibleLights(std::span<const Light *> lights,
                                             const Frustum &frustum) {
-  ZoneScoped;
+  ZoneScopedN("GetVisibleLights");
 
   std::vector<const Light *> visibleLights;
   visibleLights.reserve(lights.size());
@@ -37,7 +37,7 @@ bool isLightInFrustum(const Light &light, const Frustum &frustum) {
 RawCamera buildSpotLightMatrix(const glm::vec3 &position,
                                const glm::vec3 &direction, float fov,
                                float range) {
-  ZoneScoped;
+  ZoneScopedN("BuildSpotLightMatrix");
 
   auto projection = glm::perspective(glm::radians(fov), 1.0f, 1.0f, range);
   projection[1][1] *= -1.0f;
@@ -59,7 +59,7 @@ RawCamera buildSpotLightMatrix(const gfx::Light &spotLight) {
 
 RawCamera buildPointLightMatrix(rhi::CubeFace face, const glm::vec3 &position,
                                 float far) {
-  ZoneScoped;
+  ZoneScopedN("BuildPointLightMatrix");
 
   constexpr auto kAspectRatio = 1.0f;
   constexpr auto kFov = glm::half_pi<float>(); // == glm::radians(90.0f)

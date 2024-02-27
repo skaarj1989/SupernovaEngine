@@ -26,9 +26,8 @@ void FXAA::clear(PipelineGroups flags) {
 FrameGraphResource FXAA::addPass(FrameGraph &fg,
                                  const FrameGraphBlackboard &blackboard,
                                  FrameGraphResource input) {
-  ZoneScoped;
-
   constexpr auto kPassName = "FXAA";
+  ZoneScopedN(kPassName);
 
   struct Data {
     FrameGraphResource output;
@@ -36,6 +35,8 @@ FrameGraphResource FXAA::addPass(FrameGraph &fg,
   const auto [output] = fg.addCallbackPass<Data>(
     kPassName,
     [&fg, &blackboard, input](FrameGraph::Builder &builder, Data &data) {
+      PASS_SETUP_ZONE;
+
       read(builder, blackboard.get<CameraData>(),
            PipelineStage::FragmentShader);
       builder.read(input, TextureRead{
@@ -53,9 +54,9 @@ FrameGraphResource FXAA::addPass(FrameGraph &fg,
     },
     [this](const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
-
       auto &[cb, framebufferInfo, sets] = rc;
+      RHI_GPU_ZONE(cb, kPassName);
+
       const auto *pipeline =
         _getPipeline(rhi::getColorFormat(*framebufferInfo, 0));
       if (pipeline) {

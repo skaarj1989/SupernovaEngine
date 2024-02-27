@@ -263,7 +263,7 @@ void GlobalIllumination::update(
   const PropertyGroupOffsets &propertyGroupOffsets, uint32_t numPropagations) {
   assert(grid.valid());
 
-  ZoneScoped;
+  ZoneScopedN("GlobalIllumination");
 
   const auto lightView = getLightView(grid, camera, light);
   auto visibleRenderables =
@@ -291,13 +291,14 @@ void GlobalIllumination::update(
 
 FrameGraphResource GlobalIllumination::addDebugPass(
   FrameGraph &fg, FrameGraphBlackboard &blackboard, FrameGraphResource target) {
-  ZoneScoped;
-
   constexpr auto kPassName = "DebugVPL";
+  ZoneScopedN(kPassName);
 
   fg.addCallbackPass(
     kPassName,
     [&blackboard, &target](FrameGraph::Builder &builder, auto &) {
+      PASS_SETUP_ZONE;
+
       read(builder, blackboard.get<CameraData>(), PipelineStage::VertexShader);
       builder.read(blackboard.get<GBufferData>().depth, Attachment{});
 
@@ -329,9 +330,9 @@ FrameGraphResource GlobalIllumination::addDebugPass(
     },
     [this](const auto &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
-
       auto &[cb, framebufferInfo, sets] = rc;
+      RHI_GPU_ZONE(cb, kPassName);
+
       sets[0][3] = rhi::bindings::SeparateSampler{m_samplers.bilinear};
 
       cb.bindPipeline(m_debugPipeline);
@@ -385,9 +386,8 @@ ReflectiveShadowMapData GlobalIllumination::_addReflectiveShadowMapPass(
   FrameGraph &fg, FrameGraphBlackboard &blackboard, const RawCamera &lightView,
   glm::vec3 lightIntensity, std::vector<const Renderable *> &&renderables,
   const PropertyGroupOffsets &propertyGroupOffsets) {
-  ZoneScoped;
-
   constexpr auto kPassName = "ReflectiveShadowMap";
+  ZoneScopedN(kPassName);
 
   const auto cameraBlock = uploadCameraBlock(fg, kRSMExtent, lightView);
 
@@ -400,6 +400,8 @@ ReflectiveShadowMapData GlobalIllumination::_addReflectiveShadowMapPass(
     kPassName,
     [&blackboard, cameraBlock, instances](FrameGraph::Builder &builder,
                                           ReflectiveShadowMapData &data) {
+      PASS_SETUP_ZONE;
+
       read(builder, blackboard.get<FrameData>());
       read(builder, CameraData{cameraBlock});
 
@@ -453,14 +455,13 @@ ReflectiveShadowMapData GlobalIllumination::_addReflectiveShadowMapPass(
      batches = std::move(batches)](const ReflectiveShadowMapData &,
                                    const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
-
       auto &[cb, framebufferInfo, bindings] = rc;
+      RHI_GPU_ZONE(cb, kPassName);
+
       BaseGeometryPassInfo passInfo{
         .depthFormat = rhi::getDepthFormat(*framebufferInfo),
         .colorFormats = rhi::getColorFormats(*framebufferInfo),
       };
-
       cb.beginRendering(*framebufferInfo);
       for (const auto &batch : batches) {
         if (const auto *pipeline = _getPipeline(adjust(passInfo, batch));
@@ -481,14 +482,15 @@ ReflectiveShadowMapData GlobalIllumination::_addReflectiveShadowMapPass(
 LightPropagationVolumesData GlobalIllumination::_addRadianceInjectionPass(
   FrameGraph &fg, FrameGraphResource sceneGridBlock,
   const ReflectiveShadowMapData &RSM, glm::uvec3 gridSize) {
-  ZoneScoped;
-
   constexpr auto kPassName = "RadianceInjection";
+  ZoneScopedN(kPassName);
 
   const auto LPVData = fg.addCallbackPass<LightPropagationVolumesData>(
     kPassName,
     [sceneGridBlock, &RSM, gridSize](FrameGraph::Builder &builder,
                                      LightPropagationVolumesData &data) {
+      PASS_SETUP_ZONE;
+
       readSceneGrid(builder, sceneGridBlock, PipelineStage::VertexShader);
       read(builder, RSM, PipelineStage::VertexShader);
 
@@ -523,9 +525,9 @@ LightPropagationVolumesData GlobalIllumination::_addRadianceInjectionPass(
     },
     [this, gridSize](const auto &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
-
       auto &[cb, framebufferInfo, sets] = rc;
+      RHI_GPU_ZONE(cb, kPassName);
+
       framebufferInfo->layers = gridSize.z;
 
       cb.bindPipeline(m_radianceInjectionPipeline);
@@ -546,14 +548,15 @@ LightPropagationVolumesData GlobalIllumination::_addRadiancePropagationPass(
   FrameGraph &fg, FrameGraphResource sceneGridBlock,
   const LightPropagationVolumesData &LPV, glm::uvec3 gridSize,
   uint32_t iteration) {
-  ZoneScoped;
-
   const auto passName = std::format("RadiancePropagation #{}", iteration);
+  ZoneTransientN(__tracy_zone, passName.c_str(), true);
 
   const auto LPVData = fg.addCallbackPass<LightPropagationVolumesData>(
     passName,
     [sceneGridBlock, &LPV, gridSize](FrameGraph::Builder &builder,
                                      LightPropagationVolumesData &data) {
+      PASS_SETUP_ZONE;
+
       readSceneGrid(builder, sceneGridBlock, PipelineStage::VertexShader);
       read(builder, LPV, PipelineStage::FragmentShader);
 
@@ -589,9 +592,9 @@ LightPropagationVolumesData GlobalIllumination::_addRadiancePropagationPass(
     [this, gridSize, passName](const auto &, const FrameGraphPassResources &,
                                void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, passName.c_str())
-
       auto &[cb, framebufferInfo, sets] = rc;
+      RHI_GPU_ZONE(cb, passName.c_str());
+
       framebufferInfo->layers = gridSize.z;
 
       cb.bindPipeline(m_radiancePropagationPipeline);

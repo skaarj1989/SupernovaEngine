@@ -2,6 +2,8 @@
 #include "math/Math.hpp"
 #include "glm/gtc/quaternion.hpp"
 
+#include "tracy/Tracy.hpp"
+
 namespace gfx {
 
 PerspectiveCamera &PerspectiveCamera::invertY(bool inverted) {
@@ -112,6 +114,8 @@ const Frustum &PerspectiveCamera::getFrustum() const {
 
 void PerspectiveCamera::_update() const {
   if (m_dirty == DirtyFlags::None) return;
+
+  ZoneScopedN("PerspectiveCamera::Update");
 
   auto changed = false;
   if (bool(m_dirty & DirtyFlags::Projection)) {

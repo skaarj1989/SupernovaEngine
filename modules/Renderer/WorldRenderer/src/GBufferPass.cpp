@@ -52,9 +52,8 @@ void GBufferPass::clear(PipelineGroups flags) {
 void GBufferPass::addGeometryPass(
   FrameGraph &fg, FrameGraphBlackboard &blackboard, rhi::Extent2D resolution,
   const ViewInfo &viewData, const PropertyGroupOffsets &propertyGroupOffsets) {
-  ZoneScoped;
-
   constexpr auto kPassName = "GBufferPass";
+  ZoneScopedN(kPassName);
 
   std::vector<const Renderable *> opaqueRenderables;
   opaqueRenderables.reserve(viewData.visibleRenderables.size());
@@ -74,6 +73,8 @@ void GBufferPass::addGeometryPass(
     kPassName,
     [&fg, &blackboard, resolution, instances](FrameGraph::Builder &builder,
                                               GBufferData &data) {
+      PASS_SETUP_ZONE;
+
       read(builder, blackboard.get<FrameData>());
       read(builder, blackboard.get<CameraData>());
 
@@ -164,14 +165,13 @@ void GBufferPass::addGeometryPass(
     [this, batches = std::move(batches)](
       const GBufferData &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
-
       auto &[cb, framebufferInfo, sets] = rc;
+      RHI_GPU_ZONE(cb, kPassName);
+
       BaseGeometryPassInfo passInfo{
         .depthFormat = rhi::getDepthFormat(*framebufferInfo),
         .colorFormats = rhi::getColorFormats(*framebufferInfo),
       };
-
       cb.beginRendering(*framebufferInfo);
       for (const auto &batch : batches) {
         if (const auto *pipeline = _getPipeline(adjust(passInfo, batch));

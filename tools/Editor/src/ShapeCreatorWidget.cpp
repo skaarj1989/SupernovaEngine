@@ -192,6 +192,7 @@ void ShapeCreatorWidget::show(const char *name, bool *open) {
   constexpr auto kImportMeshAsConvexHullActionId =
     MAKE_TITLE_BAR(ICON_FA_UPLOAD, " Mesh->ConvexHull");
 
+  ZoneScopedN("ShapeCreatorWidget");
   if (ImGui::Begin(name, open, ImGuiWindowFlags_MenuBar)) {
     std::optional<const char *> action;
     if (ImGui::BeginMenuBar()) {

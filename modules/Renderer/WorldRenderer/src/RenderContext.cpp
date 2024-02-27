@@ -97,6 +97,7 @@ void drawBatch(RenderContext &rc, const Batch &batch) {
 void renderFullScreenPostProcess(RenderContext &rc,
                                  const rhi::GraphicsPipeline &pipeline) {
   auto &cb = rc.commandBuffer;
+  RHI_GPU_ZONE(cb, "FullScreenPostProcess");
   cb.bindPipeline(pipeline);
   bindDescriptorSets(rc, pipeline);
   cb.beginRendering(*rc.framebufferInfo).drawFullScreenTriangle();

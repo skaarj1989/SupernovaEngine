@@ -25,7 +25,7 @@ void Bloom::clear(PipelineGroups groups) {
 
 void Bloom::resample(FrameGraph &fg, FrameGraphBlackboard &blackboard,
                      float radius) {
-  ZoneScoped;
+  ZoneScopedN("Bloom::Resample");
 
   auto color = blackboard.get<SceneColorData>().HDR;
 

@@ -1,4 +1,4 @@
-#ifdef _DEBUG
+#ifdef RHI_USE_DEBUG_MARKER
 #  include "rhi/DebugMarker.hpp"
 #  include "rhi/CommandBuffer.hpp"
 

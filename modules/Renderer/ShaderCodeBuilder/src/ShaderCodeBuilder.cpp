@@ -1,6 +1,7 @@
 #include "ShaderCodeBuilder.hpp"
 #include "os/FileSystem.hpp"
 #include "spdlog/spdlog.h"
+#include "tracy/Tracy.hpp"
 
 #include <algorithm>
 #include <regex>
@@ -59,6 +60,7 @@ void resolveInclusions(std::string &src,
                        std::unordered_set<std::size_t> &includedPaths,
                        const std::filesystem::path &rootPath, int32_t level,
                        const std::filesystem::path &currentPath) {
+  ZoneScopedN("#include");
   ptrdiff_t offset{0};
 
   // Copy to avoid dereference of invalidated string iterator.
@@ -154,6 +156,7 @@ ShaderCodeBuilder::buildFromFile(const std::filesystem::path &p) const {
 std::string
 ShaderCodeBuilder::buildFromString(std::string sourceCode,
                                    const std::filesystem::path &origin) const {
+  ZoneScopedN("BuildShaderCode");
   removeVersionDirective(sourceCode);
 
   std::ostringstream oss;

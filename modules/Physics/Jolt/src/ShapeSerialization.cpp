@@ -1,9 +1,11 @@
 #include "physics/ShapeSerialization.hpp"
+#include "os/FileSystem.hpp"
 
 #include "Jolt/Physics/Collision/PhysicsMaterial.h"
 #include "Jolt/Core/StreamWrapper.h"
 
-#include "os/FileSystem.hpp"
+#include "tracy/Tracy.hpp"
+
 #include <cassert>
 
 namespace {
@@ -16,6 +18,7 @@ constexpr auto kMagicIdSize = sizeof(kMagicId);
 bool saveShape(const std::filesystem::path &p,
                const JPH::ShapeSettings::ShapeResult &uncooked) {
   assert(uncooked.IsValid());
+  ZoneScopedN("SerializeShape");
 
   std::ostringstream oss;
   JPH::StreamOutWrapper writer(oss);
@@ -29,11 +32,11 @@ bool saveShape(const std::filesystem::path &p,
 }
 std::expected<JPH::Shape::ShapeResult, std::string>
 loadShape(const std::filesystem::path &p) {
+  ZoneScopedN("DeserializeShape");
   const auto text = os::FileSystem::readText(p);
   if (!text) {
     return std::unexpected{text.error()};
   }
-
   std::istringstream iss{*text};
   JPH::StreamInWrapper reader{iss};
   std::remove_const_t<decltype(kMagicId)> magicId{};

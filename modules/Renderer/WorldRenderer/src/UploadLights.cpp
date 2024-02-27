@@ -79,15 +79,16 @@ findShadowMapIndex(const Light &light, const ShadowMapIndices &indices) {
 void uploadLights(FrameGraph &fg, FrameGraphBlackboard &blackboard,
                   std::vector<const Light *> &&visibleLights,
                   ShadowMapIndices &&indices) {
-  ZoneScoped;
-
   constexpr auto kPassName = "UploadLights";
+  ZoneScopedN(kPassName);
 
   const auto numLights = uint32_t(visibleLights.size());
 
   blackboard.add<LightsData>() = fg.addCallbackPass<LightsData>(
     kPassName,
     [numLights](FrameGraph::Builder &builder, LightsData &data) {
+      PASS_SETUP_ZONE;
+
       constexpr auto kMinNumLights = 1024u;
       const auto kBufferSize =
         kLightDataOffset +
@@ -104,12 +105,11 @@ void uploadLights(FrameGraph &fg, FrameGraphBlackboard &blackboard,
     [visibleLights = std::move(visibleLights), indices = std::move(indices),
      numLights](const LightsData &data, FrameGraphPassResources &resources,
                 void *ctx) {
-      auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
+      auto &cb = static_cast<RenderContext *>(ctx)->commandBuffer;
+      RHI_GPU_ZONE(cb, kPassName);
 
       auto &buffer = *resources.get<FrameGraphBuffer>(data.lights).buffer;
 
-      auto &cb = rc.commandBuffer;
       cb.update(buffer, 0, sizeof(uint32_t), &numLights);
       if (numLights > 0) {
         const auto gpuLights = convert(visibleLights, indices);

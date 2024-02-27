@@ -109,8 +109,9 @@ handleRequest(ShaderGraph &g, std::optional<Request> &request,
 
 [[nodiscard]] auto nodeWidget(ShaderGraph &g, VertexProp &vertexProp,
                               const gfx::Material::Blueprint &blueprint) {
-  const auto id = vertexProp.id;
+  ZoneTransientN(__tracy_zone, toString(vertexProp.variant).c_str(), true);
 
+  const auto id = vertexProp.id;
   ImNodes::BeginNode(id);
   const auto changed = std::visit(
     [&g, &blueprint, id, userLabel = getUserLabel(vertexProp)](auto &&arg) {
@@ -159,6 +160,8 @@ auto nodeContextMenu(const char *name, ShaderGraph &g, VertexDescriptor vd,
 
   ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {8, 8});
   if (ImGui::BeginPopup(name, ImGuiWindowFlags_NoMove)) {
+    ZoneScopedN("MaterialEditor::NodeContextMenu");
+
     auto &vertexProp = g.getVertexProp(vd);
     const auto id = vertexProp.id;
     const auto isMasterNode = id == ShaderGraph::kRootNodeId;
@@ -347,6 +350,7 @@ MaterialEditor::~MaterialEditor() {
 void MaterialEditor::clear() { m_project.clear(); }
 
 void MaterialEditor::show(const char *name, bool *open) {
+  ZoneScopedN("MaterialEditor");
   ImGui::Begin(name, open, ImGuiWindowFlags_MenuBar);
   auto changed = _menuBar();
   const auto dockspaceId = ImGui::GetID("DockSpace");
@@ -360,22 +364,29 @@ void MaterialEditor::show(const char *name, bool *open) {
   ImNodes::EditorContextSet(stage.nodeEditorContext.get());
   auto &graph = stage.graph;
 
-  if (ImGui::Begin(GUI::Windows::kNodeList, nullptr,
-                   ImGuiWindowFlags_NoFocusOnAppearing)) {
-    _nodeListWidget(graph);
+  {
+    ZoneScopedN("MaterialEditor::NodeList");
+    if (ImGui::Begin(GUI::Windows::kNodeList, nullptr,
+                     ImGuiWindowFlags_NoFocusOnAppearing)) {
+      _nodeListWidget(graph);
+    }
+    ImGui::End();
   }
-  ImGui::End();
-
-  if (ImGui::Begin(GUI::Windows::kSettings)) {
-    changed |= _settingsWidget();
+  {
+    ZoneScopedN("MaterialEditor::Settings");
+    if (ImGui::Begin(GUI::Windows::kSettings)) {
+      changed |= _settingsWidget();
+    }
+    ImGui::End();
   }
-  ImGui::End();
-
-  if (ImGui::Begin(GUI::Windows::kCodeEditor, nullptr,
-                   ImGuiWindowFlags_NoFocusOnAppearing)) {
-    stage.codeEditor.Render(IM_UNIQUE_ID);
+  {
+    ZoneScopedN("MaterialEditor::CodeEditor");
+    if (ImGui::Begin(GUI::Windows::kCodeEditor, nullptr,
+                     ImGuiWindowFlags_NoFocusOnAppearing)) {
+      stage.codeEditor.Render(IM_UNIQUE_ID);
+    }
+    ImGui::End();
   }
-  ImGui::End();
 
   constexpr auto kLoadStyleActionId = MAKE_TITLE_BAR(ICON_FA_UPLOAD, "Load");
   constexpr auto kSaveStyleActionId =
@@ -497,6 +508,7 @@ void MaterialEditor::show(const char *name, bool *open) {
 }
 
 void MaterialEditor::onRender(rhi::CommandBuffer &cb, float dt) {
+  ZoneScopedN("MaterialEditor::OnRender");
   m_previewWidget.onRender(cb, dt);
 }
 
@@ -532,6 +544,7 @@ void MaterialEditor::_initMaterial(gfx::MaterialDomain domain) {
 bool MaterialEditor::_loadProject(const std::filesystem::path &p) {
   if (m_project.path && m_project.path == p) return false;
 
+  ZoneScopedN("MaterialEditor::LoadProject");
   const auto relativePath = os::FileSystem::relativeToRoot(p)->generic_string();
 
   MaterialProject project;
@@ -565,6 +578,7 @@ bool MaterialEditor::_composeMaterialAndUpdatePreview() {
   return _composeMaterial() && _forceUpdatePreview();
 }
 bool MaterialEditor::_forceUpdatePreview() {
+  ZoneScopedN("MaterialEditor::ForceUpdatePreview");
   const auto begin = std::chrono::steady_clock::now();
 
   auto material = m_project.buildMaterial();
@@ -601,6 +615,7 @@ bool MaterialEditor::_menuBar() {
   const auto &rootDir = os::FileSystem::getRoot();
   static auto currentDir = rootDir;
 
+  ZoneScopedN("MaterialEditor::MenuBar");
   std::optional<const char *> action;
   if (ImGui::BeginMenuBar()) {
     if (ImGui::BeginMenu("Material")) {
@@ -813,6 +828,7 @@ bool MaterialEditor::_canvasWidget(
   ShaderGraph &g, const std::set<VertexDescriptor> &connectedVertices) {
   assert(hasRoot(g));
 
+  ZoneScopedN("MaterialEditor::Canvas");
   ImNodes::BeginNodeEditor();
 
   constexpr auto kAddNodePopupId = IM_UNIQUE_ID;
@@ -838,6 +854,8 @@ bool MaterialEditor::_canvasWidget(
 void MaterialEditor::_nodePopup(const char *name, ShaderGraph &g) {
   ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {8, 8});
   if (ImGui::BeginPopup(name, ImGuiWindowFlags_NoMove)) {
+    ZoneScopedN("MaterialEditor::NodePopup");
+
     const auto clickPos = ImGui::GetMousePosOnOpeningCurrentPopup();
 
     static std::string pattern;
@@ -896,6 +914,7 @@ bool MaterialEditor::_inspectNodes(
   return changed;
 }
 void MaterialEditor::_renderLinks(const ShaderGraph &g) {
+  ZoneScopedN("MaterialEditor::RenderLinks");
   for (const auto &&ed : g.edges()) {
     if (const auto &prop = g.getEdgeProp(ed); prop.type == EdgeType::Explicit) {
       const auto [from, to] = g.getConnection(ed);

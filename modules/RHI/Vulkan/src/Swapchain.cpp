@@ -1,5 +1,6 @@
 #include "rhi/Swapchain.hpp"
 #include "VkCheck.hpp"
+#include "tracy/Tracy.hpp"
 
 // https://www.intel.com/content/www/us/en/developer/articles/training/api-without-secrets-introduction-to-vulkan-part-2.html?language=en#inpage-nav-4-5
 
@@ -129,6 +130,7 @@ void Swapchain::recreate(std::optional<VerticalSync> vsync) {
 
 bool Swapchain::acquireNextImage(VkSemaphore imageAcquired) {
   assert(m_handle != VK_NULL_HANDLE);
+  ZoneScopedN("RHI::AcquireNextImage");
 
   const auto result =
     vkAcquireNextImageKHR(m_device, m_handle, UINT64_MAX, imageAcquired,

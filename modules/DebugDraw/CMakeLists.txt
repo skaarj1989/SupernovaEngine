@@ -5,3 +5,5 @@ target_link_libraries(DebugDraw
     PUBLIC Math
 )
 set_target_properties(DebugDraw PROPERTIES FOLDER "Framework")
+
+enable_profiler(DebugDraw PRIVATE)

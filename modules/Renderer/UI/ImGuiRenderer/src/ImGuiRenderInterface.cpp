@@ -75,23 +75,25 @@ void setupRenderInterface(ImGuiRenderer &renderer) {
     auto &[resources, _, frameController] = getViewportData(viewport);
 
     auto &cb = frameController.beginFrame();
-    auto &&[frameIndex, backbuffer] = frameController.getCurrentTarget();
+    {
+      RHI_GPU_ZONE(cb, "ImGui::External");
+      auto &&[frameIndex, backbuffer] = frameController.getCurrentTarget();
 
-    rhi::prepareForAttachment(cb, backbuffer, false);
-    constexpr auto kClearColor = glm::vec3{0.0f};
-    cb.beginRendering({
-      .area = {.extent = backbuffer.getExtent()},
-      .colorAttachments = {{
-        .target = &backbuffer,
-        .clearValue = viewport->Flags & ImGuiViewportFlags_NoRendererClear
-                        ? std::nullopt
-                        : std::make_optional(glm::vec4{kClearColor, 1.0f}),
-      }},
-    });
-    getRenderer().draw(cb, backbuffer.getPixelFormat(), resources[frameIndex],
-                       viewport->DrawData);
-    cb.endRendering();
-
+      rhi::prepareForAttachment(cb, backbuffer, false);
+      constexpr auto kClearColor = glm::vec3{0.0f};
+      cb.beginRendering({
+        .area = {.extent = backbuffer.getExtent()},
+        .colorAttachments = {{
+          .target = &backbuffer,
+          .clearValue = viewport->Flags & ImGuiViewportFlags_NoRendererClear
+                          ? std::nullopt
+                          : std::make_optional(glm::vec4{kClearColor, 1.0f}),
+        }},
+      });
+      getRenderer().draw(cb, backbuffer.getPixelFormat(), resources[frameIndex],
+                         viewport->DrawData);
+      cb.endRendering();
+    }
     frameController.endFrame();
   };
   platformIo.Renderer_SwapBuffers = [](ImGuiViewport *viewport, void *) {

@@ -134,15 +134,16 @@ FrameGraphResource FinalPass::compose(FrameGraph &fg,
                                       const FrameGraphBlackboard &blackboard,
                                       OutputMode outputMode,
                                       FrameGraphResource target) {
-  ZoneScoped;
-
   constexpr auto kPassName = "FinalComposition";
+  ZoneScopedN(kPassName);
 
   auto [source, mode] = pickOutput(blackboard, outputMode);
 
   fg.addCallbackPass(
     kPassName,
     [&blackboard, &target, source](FrameGraph::Builder &builder, auto &) {
+      PASS_SETUP_ZONE;
+
       read(builder, blackboard.get<CameraData>(),
            PipelineStage::FragmentShader);
       if (source) {
@@ -165,9 +166,9 @@ FrameGraphResource FinalPass::compose(FrameGraph &fg,
     [this, target, source,
      mode](const auto &, FrameGraphPassResources &resources, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
-
       auto &[cb, framebufferInfo, sets] = rc;
+      RHI_GPU_ZONE(cb, kPassName);
+
       const auto *pipeline =
         _getPipeline(rhi::getColorFormat(*framebufferInfo, 0),
                      source ? Mode::Final : Mode::Pattern);

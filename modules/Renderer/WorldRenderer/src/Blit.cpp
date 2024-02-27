@@ -43,9 +43,8 @@ void Blit::clear(PipelineGroups flags) {
 
 FrameGraphResource Blit::mix(FrameGraph &fg, FrameGraphResource a,
                              FrameGraphResource b) {
-  ZoneScoped;
-
   constexpr auto kPassName = "Mix";
+  ZoneScopedN(kPassName);
 
   struct Data {
     FrameGraphResource output;
@@ -53,6 +52,8 @@ FrameGraphResource Blit::mix(FrameGraph &fg, FrameGraphResource a,
   const auto [output] = fg.addCallbackPass<Data>(
     kPassName,
     [&fg, a, b](FrameGraph::Builder &builder, Data &data) {
+      PASS_SETUP_ZONE;
+
       for (auto index = 1u; auto input : {a, b}) {
         builder.read(
           input, TextureRead{.binding =
@@ -79,9 +80,9 @@ FrameGraphResource Blit::mix(FrameGraph &fg, FrameGraphResource a,
     },
     [this](const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
-
       auto &[cb, framebufferInfo, sets] = rc;
+      RHI_GPU_ZONE(cb, kPassName);
+
       const auto *pipeline = _getPipeline(MixPassInfo{
         .colorFormat = rhi::getColorFormat(*framebufferInfo, 0),
       });
@@ -101,16 +102,17 @@ FrameGraphResource Blit::addColor(FrameGraph &fg, FrameGraphResource target,
 
 FrameGraphResource Blit::merge(FrameGraph &fg, FrameGraphResource target,
                                const std::vector<FrameGraphResource> &sources) {
+  constexpr auto kPassName = "Merge";
+  ZoneScopedN(kPassName);
+
   const auto numTextures = sources.size();
   assert(numTextures > 0);
-
-  ZoneScoped;
-
-  constexpr auto kPassName = "Merge";
 
   fg.addCallbackPass(
     kPassName,
     [&target, &sources](FrameGraph::Builder &builder, auto &) {
+      PASS_SETUP_ZONE;
+
       for (auto index = 1u; const auto input : sources) {
         builder.read(input,
                      TextureRead{
@@ -127,9 +129,9 @@ FrameGraphResource Blit::merge(FrameGraph &fg, FrameGraphResource target,
     [this, numTextures](const auto &, const FrameGraphPassResources &,
                         void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
-
       auto &[cb, framebufferInfo, sets] = rc;
+      RHI_GPU_ZONE(cb, kPassName);
+
       const auto *pipeline = _getPipeline(MergePassInfo{
         .colorFormat = rhi::getColorFormat(*framebufferInfo, 0),
         .numTextures = numTextures,

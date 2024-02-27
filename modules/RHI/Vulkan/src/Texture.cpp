@@ -466,6 +466,8 @@ Texture Builder::build(RenderDevice &rd) {
     return {};
   }
 
+  ZoneScopedN("RHI::BuildTexture");
+
   Texture texture{};
   if (m_isCubemap) {
     texture = rd.createCubemap(m_extent.width, m_pixelFormat,

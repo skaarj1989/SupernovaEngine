@@ -30,8 +30,7 @@ void Blur::clear(PipelineGroups flags) {
 FrameGraphResource Blur::addGaussianBlur(FrameGraph &fg,
                                          FrameGraphResource input,
                                          int32_t iterations, float scale) {
-  ZoneScoped;
-
+  ZoneScopedN("GaussianBlur");
   for (auto i = 0; i < iterations; ++i) {
     const auto radius = float(iterations - i - 1) * scale;
     input = addTwoPassGaussianBlur(fg, input, radius);
@@ -41,8 +40,6 @@ FrameGraphResource Blur::addGaussianBlur(FrameGraph &fg,
 FrameGraphResource Blur::addTwoPassGaussianBlur(FrameGraph &fg,
                                                 FrameGraphResource input,
                                                 float radius) {
-  ZoneScoped;
-
   input = _addPass(fg, input, {radius, 0.0f});
   return _addPass(fg, input, {0.0f, radius});
 }
@@ -59,10 +56,9 @@ Blur::_createPipeline(rhi::PixelFormat colorFormat) const {
 
 FrameGraphResource Blur::_addPass(FrameGraph &fg, FrameGraphResource input,
                                   glm::vec2 direction) {
-  ZoneScoped;
-
   const auto passName =
     std::format("Blur [x={}, y={}]", direction.x, direction.y);
+  ZoneTransientN(__tracy_zone, passName.c_str(), true);
 
   struct Data {
     FrameGraphResource output;
@@ -70,6 +66,8 @@ FrameGraphResource Blur::_addPass(FrameGraph &fg, FrameGraphResource input,
   const auto [blurred] = fg.addCallbackPass<Data>(
     passName,
     [&fg, input](FrameGraph::Builder &builder, Data &data) {
+      PASS_SETUP_ZONE;
+
       builder.read(input, TextureRead{
                             .binding =
                               {
@@ -92,9 +90,9 @@ FrameGraphResource Blur::_addPass(FrameGraph &fg, FrameGraphResource input,
     [this, passName, direction](const Data &, const FrameGraphPassResources &,
                                 void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, passName.c_str())
-
       auto &[cb, framebufferInfo, sets] = rc;
+      RHI_GPU_ZONE(cb, passName.c_str());
+
       const auto *pipeline =
         _getPipeline(rhi::getColorFormat(*framebufferInfo, 0));
       if (pipeline) {

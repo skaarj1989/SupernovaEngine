@@ -86,7 +86,7 @@ struct SortByDistance {
 [[nodiscard]] auto
 getShadowCastingLights(std::span<const Light *> visibleLights,
                        LightType lightType) {
-  ZoneScoped;
+  ZoneScopedN("GetShadowCastingLights");
 
   std::vector<const Light *> result;
   result.reserve(visibleLights.size());
@@ -110,7 +110,7 @@ template <typename Func>
 [[nodiscard]] auto
 getVisibleShadowCasters(std::span<const Renderable> renderables,
                         Func isVisible) {
-  ZoneScoped;
+  ZoneScopedN("GetVisibleShadowCasters");
 
   std::vector<const Renderable *> result;
   result.reserve(renderables.size());
@@ -187,7 +187,7 @@ ShadowMapIndices ShadowRenderer::update(
   const PerspectiveCamera &camera, std::span<const Light *> visibleLights,
   std::span<const Renderable> renderables,
   const PropertyGroupOffsets &propertyGroupOffsets, const Settings &settings) {
-  ZoneScoped;
+  ZoneScopedN("UpdateShadows");
 
   auto &shadowMapData = blackboard.add<ShadowMapData>();
 
@@ -241,9 +241,8 @@ FrameGraphResource
 ShadowRenderer::visualizeCascades(FrameGraph &fg,
                                   const FrameGraphBlackboard &blackboard,
                                   FrameGraphResource target) const {
-  ZoneScoped;
-
   constexpr auto kPassName = "VisualizeCascades";
+  ZoneScopedN(kPassName);
 
   const auto shadowBlock = blackboard.get<ShadowMapData>().shadowBlock;
   if (!shadowBlock) return target;
@@ -251,6 +250,8 @@ ShadowRenderer::visualizeCascades(FrameGraph &fg,
   fg.addCallbackPass(
     kPassName,
     [&blackboard, &target, &shadowBlock](FrameGraph::Builder &builder, auto &) {
+      PASS_SETUP_ZONE;
+
       read(builder, blackboard.get<CameraData>(),
            PipelineStage::FragmentShader);
       readShadowBlock(builder, *shadowBlock);
@@ -268,7 +269,7 @@ ShadowRenderer::visualizeCascades(FrameGraph &fg,
     },
     [this](const auto &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
+      RHI_GPU_ZONE(rc.commandBuffer, kPassName);
       renderFullScreenPostProcess(rc, m_debugPipeline);
     });
 
@@ -286,7 +287,7 @@ std::vector<Cascade> ShadowRenderer::_buildCascadedShadowMaps(
   const PropertyGroupOffsets &propertyGroupOffsets,
   const Settings::CascadedShadowMaps &settings) {
   assert(light.type == LightType::Directional);
-  ZoneScoped;
+  ZoneScopedN("BuildCSM");
 
   const auto cascades =
     buildCascades(camera, light.direction, settings.numCascades,
@@ -317,7 +318,8 @@ FrameGraphResource ShadowRenderer::_addCascadePass(
   const PropertyGroupOffsets &propertyGroupOffsets,
   const Settings::CascadedShadowMaps &settings) {
   assert(cascadeIndex < settings.numCascades);
-  ZoneScoped;
+  const auto passName = std::format("CSM #{}", cascadeIndex);
+  ZoneTransientN(__tracy_zone, passName.c_str(), true);
 
   const auto cameraBlock = uploadCameraBlock(
     fg, {settings.shadowMapSize, settings.shadowMapSize}, lightView);
@@ -327,14 +329,14 @@ FrameGraphResource ShadowRenderer::_addCascadePass(
                               batchCompatible);
   const auto instances = uploadInstances(fg, std::move(gpuInstances));
 
-  const auto passName = std::format("CSM #{}", cascadeIndex);
-
   struct Data {
     FrameGraphResource shadowMaps;
   };
   const auto [shadowMaps] = fg.addCallbackPass<Data>(
     passName,
     [&](FrameGraph::Builder &builder, Data &data) {
+      PASS_SETUP_ZONE;
+
       read(builder, blackboard, CameraData{cameraBlock}, instances);
 
       if (cascadeIndex == 0) {
@@ -358,7 +360,7 @@ FrameGraphResource ShadowRenderer::_addCascadePass(
     [this, passName, batches = std::move(batches)](
       const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, passName.c_str())
+      RHI_GPU_ZONE(rc.commandBuffer, passName.c_str());
       RENDER(rc, batches)
     });
 
@@ -372,7 +374,7 @@ std::vector<glm::mat4> ShadowRenderer::_buildSpotLightShadowMaps(
   const PropertyGroupOffsets &propertyGroupOffsets,
   const Settings::SpotLightShadowMaps &settings) {
   assert(!lights.empty());
-  ZoneScoped;
+  ZoneScopedN("BuildSpotLightShadowMaps");
 
   auto &shadowMaps = blackboard.get<ShadowMapData>().spotLightShadowMaps;
   std::vector<glm::mat4> shadowMatrices;
@@ -406,7 +408,8 @@ FrameGraphResource ShadowRenderer::_addSpotLightPass(
   std::vector<const Renderable *> &&renderables,
   const PropertyGroupOffsets &propertyGroupOffsets,
   const Settings::SpotLightShadowMaps &settings) {
-  ZoneScoped;
+  const auto passName = std::format("SpotLightShadowPass #{}", index);
+  ZoneTransientN(__tracy_zone, passName.c_str(), true);
 
   const auto cameraBlock = uploadCameraBlock(
     fg, {settings.shadowMapSize, settings.shadowMapSize}, lightView);
@@ -416,14 +419,14 @@ FrameGraphResource ShadowRenderer::_addSpotLightPass(
                               batchCompatible);
   const auto instances = uploadInstances(fg, std::move(gpuInstances));
 
-  const auto passName = std::format("SpotLightShadowPass #{}", index);
-
   struct Data {
     FrameGraphResource shadowMaps;
   };
   const auto [output] = fg.addCallbackPass<Data>(
     passName,
     [&](FrameGraph::Builder &builder, Data &data) {
+      PASS_SETUP_ZONE;
+
       read(builder, blackboard, CameraData{cameraBlock}, instances);
 
       if (index == 0) {
@@ -447,7 +450,7 @@ FrameGraphResource ShadowRenderer::_addSpotLightPass(
     [this, passName, batches = std::move(batches)](
       const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, passName.c_str())
+      RHI_GPU_ZONE(rc.commandBuffer, passName.c_str());
       RENDER(rc, batches)
     });
 
@@ -460,7 +463,7 @@ void ShadowRenderer::_buildOmniLightShadowMaps(
   std::span<const Renderable> allRenderables,
   const PropertyGroupOffsets &propertyGroupOffsets,
   const Settings::OmniShadowMaps &settings) {
-  ZoneScoped;
+  ZoneScopedN("BuildOmniShadowMaps");
 
   auto &shadowMaps = blackboard.get<ShadowMapData>().omniShadowMaps;
   for (auto [i, pointLight] : std::views::enumerate(visibleLights)) {
@@ -491,7 +494,9 @@ FrameGraphResource ShadowRenderer::_addOmniLightPass(
   const PropertyGroupOffsets &propertyGroupOffsets,
   const Settings::OmniShadowMaps &settings) {
   assert(light.type == LightType::Point);
-  ZoneScoped;
+  const auto passName =
+    std::format("OmniShadowPass[#{}, {}]", index, toString(face));
+  ZoneTransientN(__tracy_zone, passName.c_str(), true);
 
   const auto lightView =
     buildPointLightMatrix(face, light.position, light.range);
@@ -514,15 +519,14 @@ FrameGraphResource ShadowRenderer::_addOmniLightPass(
                               propertyGroupOffsets, batchCompatible);
   const auto instances = uploadInstances(fg, std::move(gpuInstances));
 
-  const auto passName =
-    std::format("OmniShadowPass[#{}, {}]", index, toString(face));
-
   struct Data {
     FrameGraphResource shadowMaps;
   };
   const auto [output] = fg.addCallbackPass<Data>(
     passName,
     [&](FrameGraph::Builder &builder, Data &data) {
+      PASS_SETUP_ZONE;
+
       read(builder, blackboard, CameraData{cameraBlock}, instances);
 
       if (index == 0 && face == rhi::CubeFace::PositiveX) {
@@ -549,7 +553,7 @@ FrameGraphResource ShadowRenderer::_addOmniLightPass(
     [this, passName, batches = std::move(batches)](
       const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, passName.c_str())
+      RHI_GPU_ZONE(rc.commandBuffer, passName.c_str());
       RENDER(rc, batches)
     });
 

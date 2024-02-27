@@ -32,9 +32,8 @@ FrameGraphResource TonemapPass::addPass(FrameGraph &fg,
                                         FrameGraphBlackboard &blackboard,
                                         Tonemap tonemap, float exposure,
                                         float bloomStrength) {
-  ZoneScoped;
-
   constexpr auto kPassName = "Tonemapping";
+  ZoneScopedN(kPassName);
 
   std::optional<FrameGraphResource> averageLuminance;
   if (auto d = blackboard.try_get<AverageLuminanceData>(); d) {
@@ -50,6 +49,8 @@ FrameGraphResource TonemapPass::addPass(FrameGraph &fg,
     kPassName,
     [&fg, &blackboard, averageLuminance, bloom](FrameGraph::Builder &builder,
                                                 Data &data) {
+      PASS_SETUP_ZONE;
+
       const auto sceneColorHDR = blackboard.get<SceneColorData>().HDR;
       builder.read(sceneColorHDR,
                    TextureRead{
@@ -97,9 +98,9 @@ FrameGraphResource TonemapPass::addPass(FrameGraph &fg,
     [this, averageLuminance, bloom, tonemap, exposure,
      bloomStrength](const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
-
       auto &[cb, framebufferInfo, sets] = rc;
+      RHI_GPU_ZONE(cb, kPassName);
+
       const auto *pipeline =
         _getPipeline(rhi::getColorFormat(*framebufferInfo, 0),
                      averageLuminance.has_value(), bloom.has_value());

@@ -223,3 +223,7 @@ template <class T, class... Args>
 } // namespace rhi
 
 template <> struct has_flags<rhi::AllocationHints> : std::true_type {};
+
+#define RHI_GPU_ZONE(CommandBuffer, Label)                                     \
+  RHI_NAMED_DEBUG_MARKER(CommandBuffer, Label);                                \
+  TRACY_GPU_TRANSIENT_ZONE(CommandBuffer, Label)

@@ -28,14 +28,15 @@ void SSR::clear(PipelineGroups flags) {
 
 FrameGraphResource SSR::addPass(FrameGraph &fg,
                                 FrameGraphBlackboard &blackboard) {
-  ZoneScoped;
-
   constexpr auto kPassName = "SSR";
+  ZoneScopedN(kPassName);
 
   const auto [reflections] = blackboard.add<ReflectionsData>() =
     fg.addCallbackPass<ReflectionsData>(
       kPassName,
       [&fg, &blackboard](FrameGraph::Builder &builder, ReflectionsData &data) {
+        PASS_SETUP_ZONE;
+
         read(builder, blackboard.get<CameraData>(),
              PipelineStage::FragmentShader);
         read(builder, blackboard.get<GBufferData>(),
@@ -66,9 +67,9 @@ FrameGraphResource SSR::addPass(FrameGraph &fg,
       [this](const ReflectionsData &, const FrameGraphPassResources &,
              void *ctx) {
         auto &rc = *static_cast<RenderContext *>(ctx);
-        ZONE(rc, kPassName)
-
         auto &[cb, framebufferInfo, sets] = rc;
+        RHI_GPU_ZONE(cb, kPassName);
+
         const auto *pipeline =
           _getPipeline(rhi::getColorFormat(*framebufferInfo, 0));
         if (pipeline) {

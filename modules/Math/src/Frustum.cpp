@@ -1,4 +1,5 @@
 #include "math/Frustum.hpp"
+#include "tracy/Tracy.hpp"
 
 // https://www.lighthouse3d.com/tutorials/view-frustum-culling/
 
@@ -29,6 +30,8 @@ enum class IntersectionResult { Outside, Intersect, Inside };
 Frustum::Frustum(const glm::mat4 &m) { update(m); }
 
 void Frustum::update(const glm::mat4 &m) {
+  ZoneScopedN("Frustum::Update");
+
   // NOTE: All planes face inwards.
 
   m_planes[Left] = Plane{
@@ -111,6 +114,7 @@ bool Frustum::testAABB(const AABB &aabb) const {
 
 Frustum::Corners
 Frustum::buildWorldSpaceCorners(const glm::mat4 &inversedViewProjection) {
+  ZoneScopedN("Frustum::BuildWorldSpaceCorners");
   constexpr auto kMinDepth = 0.0f;
   // clang-format off
   Frustum::Corners frustumCorners{

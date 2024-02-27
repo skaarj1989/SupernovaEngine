@@ -28,6 +28,8 @@ target_link_libraries(AudioDevice
 )
 set_target_properties(AudioDevice PROPERTIES FOLDER "Framework/Audio")
 
+enable_profiler(AudioDevice PUBLIC)
+
 add_subdirectory(modules)
 
 add_subdirectory(test)

@@ -512,6 +512,7 @@ void SceneEditor::closeAllScenes() {
 }
 
 void SceneEditor::show(const char *name, bool *open) {
+  ZoneScopedN("SceneEditor");
   ImGui::Begin(name, open);
   const auto dockspaceId = ImGui::GetID("DockSpace");
   _setupDockSpace(dockspaceId);
@@ -599,6 +600,7 @@ auto adjustMousePosition(os::InputEvent evt, const glm::ivec2 windowPos) {
 }
 
 void SceneEditor::onInput(const os::InputEvent &evt) {
+  ZoneScopedN("SceneEditor::OnInput");
   if (m_passthroughInput) {
     assert(m_playTest);
 
@@ -608,6 +610,7 @@ void SceneEditor::onInput(const os::InputEvent &evt) {
   }
 }
 void SceneEditor::onUpdate(float dt) {
+  ZoneScopedN("SceneEditor::OnUpdate");
   m_dispatcher.update();
   if (m_playTest) {
     auto &r = m_playTest->getRegistry();
@@ -618,6 +621,7 @@ void SceneEditor::onUpdate(float dt) {
   }
 }
 void SceneEditor::onPhysicsUpdate(float dt) {
+  ZoneScopedN("SceneEditor::OnPhysicsUpdate");
   if (m_playTest) {
     auto &r = m_playTest->getRegistry();
     ScriptSystem::onPhysicsStep(r, dt);
@@ -625,6 +629,7 @@ void SceneEditor::onPhysicsUpdate(float dt) {
   }
 }
 void SceneEditor::onRender(rhi::CommandBuffer &cb, float dt) {
+  ZoneScopedN("SceneEditor::OnRender");
   m_renderTargetPreview.render(
     cb, [this, &cb, dt](auto &texture) { _drawWorld(cb, texture, dt); });
 }
@@ -716,6 +721,7 @@ void SceneEditor::_setupDockSpace(const ImGuiID dockspaceId) {
 }
 
 void SceneEditor::_menuBar() {
+  ZoneScopedN("SceneEditor::MenuBar");
   std::optional<const char *> action;
   if (ImGui::BeginMenuBar()) {
     auto *activeEntry = getActiveSceneEntry();
@@ -782,6 +788,7 @@ void SceneEditor::_menuBar() {
 void SceneEditor::_scenesWidget() {
   static std::optional<std::size_t> junk{};
 
+  ZoneScopedN("SceneEditor::ScenesWidget");
   ImGui::BeginTabBar(IM_UNIQUE_ID, ImGuiTabBarFlags_AutoSelectNewTabs);
 
   for (auto [i, entry] : std::views::enumerate(m_scenes)) {
@@ -848,6 +855,7 @@ void SceneEditor::_scenesWidget() {
 }
 
 void SceneEditor::_showConfigWidget(Entry &e) {
+  ZoneScopedN("SceneEditor::ConfigWidget");
   if (ImGui::Begin(GUI::Windows::kConfig)) {
     auto &r = e.scene.getRegistry();
 
@@ -874,6 +882,7 @@ void SceneEditor::_showEntitiesWidget(Entry &entry) {
   auto &scene = entry.scene;
   auto &selectedEntity = entry.selectedEntity;
 
+  ZoneScopedN("SceneEditor::EntitiesWidget");
   if (ImGui::Begin(GUI::Windows::kEntities)) {
     if (ImGui::Button(ICON_FA_PLUS " Create")) {
       scene.createEntity();
@@ -923,6 +932,8 @@ void SceneEditor::_showEntitiesWidget(Entry &entry) {
 
 void SceneEditor::_viewEntity(entt::handle h, entt::handle &selected,
                               int32_t level) {
+  ZoneScopedN("SceneEditor::ViewEntity");
+
   const auto parent = getParent(h);
   if (level == 0 && parent) return;
 
@@ -983,6 +994,7 @@ void SceneEditor::_viewEntity(entt::handle h, entt::handle &selected,
 void SceneEditor::_inspectorWidget(entt::handle &h) {
   assert(h);
 
+  ZoneScopedN("SceneEditor::InspectorWidget");
   ImGui::PushID(entt::to_integral(h.entity()));
 
   ImGui::Frame([h] {
@@ -1092,6 +1104,7 @@ void SceneEditor::_drawWorld(rhi::CommandBuffer &cb, rhi::Texture &texture,
 void SceneEditor::_drawWorld(Entry &entry, rhi::CommandBuffer &cb,
                              rhi::Texture &texture, float dt,
                              gfx::DebugOutput *debugOutput) {
+  ZoneScopedN("SceneEditor::DrawWorld");
   auto &r = entry.scene.getRegistry();
   const auto mainSceneView = [&entry, &texture, &r] {
     auto *c = getMainCameraComponent(r);
@@ -1110,6 +1123,7 @@ void SceneEditor::_drawWorld(Scene &scene, rhi::CommandBuffer &cb,
                              gfx::DebugOutput *debugOutput) {
   auto &r = scene.getRegistry();
   if (auto *mainCamera = getMainCameraComponent(r); mainCamera) {
+    ZoneScopedN("SceneEditor::DrawWorld(Play)");
     PhysicsSystem::debugDraw(r, mainCamera->debugDraw);
     // AnimationSystem::debugDraw(r, mainCamera->debugDraw);
     RenderSystem::update(r, cb, dt, nullptr, debugOutput);

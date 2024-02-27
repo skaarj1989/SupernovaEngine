@@ -1,5 +1,6 @@
 #include "PhysicsSystem.hpp"
 #include "physics/Conversion.hpp"
+#include "tracy/Tracy.hpp"
 
 namespace {
 
@@ -157,6 +158,8 @@ void PhysicsSystem::setup(entt::registry &r) {
 }
 
 void PhysicsSystem::simulate(entt::registry &r, float timeStep) {
+  ZoneScopedN("PhysicsSystem::Simulate");
+
   auto &world = getPhysicsWorld(r);
   world.simulate(timeStep);
 

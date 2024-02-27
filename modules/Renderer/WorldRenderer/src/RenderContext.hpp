@@ -38,12 +38,4 @@ void endRendering(RenderContext &);
 
 } // namespace gfx
 
-#define TRACY_GPU_ZONE(cb, label)                                              \
-  TracyVkZone(cb.getTracyContext(), cb.getHandle(), label)
-
-#define TRACY_GPU_TRANSIENT_ZONE(cb, label)                                    \
-  TracyVkZoneTransient(cb.getTracyContext(), _ttz, cb.getHandle(), label, true)
-
-#define ZONE(rc, label)                                                        \
-  NAMED_DEBUG_MARKER(rc.commandBuffer, label);                                 \
-  TRACY_GPU_TRANSIENT_ZONE(rc.commandBuffer, label);
+#define PASS_SETUP_ZONE ZoneScopedN("SetupPass")

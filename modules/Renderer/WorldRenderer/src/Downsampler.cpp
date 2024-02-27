@@ -30,9 +30,8 @@ Downsampler::Downsampler(rhi::RenderDevice &rd,
 
 FrameGraphResource
 Downsampler::addPass(FrameGraph &fg, FrameGraphResource input, uint32_t level) {
-  ZoneScoped;
-
   constexpr auto kPassName = "DownsamplePass";
+  ZoneScopedN(kPassName);
 
   struct Data {
     FrameGraphResource downsampled;
@@ -40,6 +39,8 @@ Downsampler::addPass(FrameGraph &fg, FrameGraphResource input, uint32_t level) {
   const auto [downsampled] = fg.addCallbackPass<Data>(
     kPassName,
     [&fg, input](FrameGraph::Builder &builder, Data &data) {
+      PASS_SETUP_ZONE;
+
       builder.read(input, TextureRead{
                             .binding =
                               {
@@ -65,9 +66,9 @@ Downsampler::addPass(FrameGraph &fg, FrameGraphResource input, uint32_t level) {
     },
     [this, level](const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      ZONE(rc, kPassName)
-
       auto &[cb, framebufferInfo, sets] = rc;
+      RHI_GPU_ZONE(cb, kPassName);
+
       const auto *pipeline =
         _getPipeline(rhi::getColorFormat(*framebufferInfo, 0));
       if (pipeline) {

@@ -7,7 +7,7 @@ Batches buildBatches(std::vector<GPUInstance> &gpuInstances,
                      std::span<const Renderable *> renderables,
                      const PropertyGroupOffsets &propertyGroupOffsets,
                      Batch::Predicate predicate) {
-  ZoneScoped;
+  ZoneScopedN("BuildBatches");
 
   Batches batches;
   auto lastInstanceId = gpuInstances.size();

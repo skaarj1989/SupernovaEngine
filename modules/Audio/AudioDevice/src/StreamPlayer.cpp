@@ -3,6 +3,8 @@
 #include "ALCheck.hpp"
 #include <algorithm> // clamp
 
+#include "tracy/Tracy.hpp"
+
 namespace audio {
 
 StreamPlayer::StreamPlayer(const int32_t numBuffers) {
@@ -58,6 +60,8 @@ void StreamPlayer::stop() {
 void StreamPlayer::update() {
   using enum SourceBase::State;
   if (const auto state = getState(); state != Playing) return;
+
+  ZoneScopedN("StreamPlayer::Update");
 
   ALint processed;
   AL_CHECK(alGetSourcei(m_id, AL_BUFFERS_PROCESSED, &processed));

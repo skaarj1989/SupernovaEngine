@@ -11,11 +11,14 @@
 #include "cereal/types/vector.hpp"
 #include "cereal/types/unordered_set.hpp"
 
+#include "tracy/Tracy.hpp"
 #include "SystemSerializationUtility.hpp" // {save/load}Systems
 
 namespace {
 
 void registerScene(entt::registry &r) {
+  ZoneScopedN("Lua::RegisterScene");
+
   auto &env = r.ctx().get<ScriptContext>().defaultEnv;
   env["createEntity"] = sol::overload(
     [&r] {
@@ -44,6 +47,8 @@ void registerScene(entt::registry &r) {
 void setupSystems(entt::registry &r, gfx::WorldRenderer &worldRenderer,
                   RmlUiRenderInterface &uiRenderInterface,
                   audio::Device &audioDevice, sol::state &lua) {
+  ZoneScopedN("Scene::SetupSystems");
+
   HierarchySystem::setup(r);
   PhysicsSystem::setup(r);
   RenderSystem::setup(r, worldRenderer);
@@ -63,20 +68,23 @@ constexpr entt::type_list<PhysicsSystem, RenderSystem, AnimationSystem,
 
 template <class UnderlyingArchive>
 void serialize(const entt::registry &r, std::ostream &os) {
+  ZoneScopedN("SerializeScene");
   try {
     entt::snapshot snapshot{r};
     OutputContext outputContext{r, snapshot};
     cereal::UserDataAdapter<OutputContext, UnderlyingArchive> archive{
       outputContext, os};
+    {
+      ZoneScopedN("CoreTypes");
+      snapshot.get<entt::entity>(archive);
 
-    snapshot.get<entt::entity>(archive);
+      std::vector<entt::id_type> types;
+      types.reserve(kCoreTypes.size);
+      collectTypes(r, types, kCoreTypes);
+      archive(types);
 
-    std::vector<entt::id_type> types;
-    types.reserve(kCoreTypes.size);
-    collectTypes(r, types, kCoreTypes);
-    archive(types);
-
-    saveComponents<UnderlyingArchive>(archive, kCoreTypes);
+      saveComponents<UnderlyingArchive>(archive, kCoreTypes);
+    }
     saveSystems<UnderlyingArchive>(archive, kSystemTypes);
   } catch (const std::exception &e) {
     os.setstate(std::ios_base::badbit);
@@ -84,6 +92,7 @@ void serialize(const entt::registry &r, std::ostream &os) {
 }
 template <class UnderlyingArchive>
 void deserialize(std::istream &is, entt::registry &r) {
+  ZoneScopedN("DeserializeScene");
   r.clear();
   try {
     entt::snapshot_loader snapshotLoader{r};
@@ -91,15 +100,18 @@ void deserialize(std::istream &is, entt::registry &r) {
     cereal::UserDataAdapter<InputContext, UnderlyingArchive> archive{
       inputContext, is};
     is.clear();
+    {
+      ZoneScopedN("CoreTypes");
 
-    snapshotLoader.get<entt::entity>(archive);
+      snapshotLoader.get<entt::entity>(archive);
 
-    std::vector<entt::id_type> types;
-    types.reserve(kCoreTypes.size);
-    archive(types);
+      std::vector<entt::id_type> types;
+      types.reserve(kCoreTypes.size);
+      archive(types);
 
-    for (const auto id : types) {
-      loadComponent<UnderlyingArchive>(archive, id, kCoreTypes);
+      for (const auto id : types) {
+        loadComponent<UnderlyingArchive>(archive, id, kCoreTypes);
+      }
     }
     loadSystems<UnderlyingArchive>(archive, kSystemTypes);
 
