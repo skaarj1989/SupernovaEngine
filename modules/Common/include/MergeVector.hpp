@@ -4,7 +4,7 @@
 
 template <typename T, typename... Args>
 void insert(std::vector<T> &v, const Args &...args) {
-  (v.insert(v.cend(), args.cbegin(), args.cend()), ...);
+  (v.insert(v.cend(), std::begin(args), std::end(args)), ...);
 }
 template <typename T, typename... Args>
 [[nodiscard]] auto merge(const std::vector<T> &v, const Args &...args) {

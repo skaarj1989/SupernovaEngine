@@ -1,5 +1,7 @@
 #include "ShaderCodeBuilder.hpp"
+#include "MergeVector.hpp"
 #include "os/FileSystem.hpp"
+
 #include "spdlog/spdlog.h"
 #include "tracy/Tracy.hpp"
 
@@ -97,10 +99,6 @@ void resolveInclusions(std::string &src,
     src.insert(lineStartPos, codeChunk);
     offset += codeChunk.length() - lineLength;
   }
-}
-
-void insert(auto &dst, const auto &src) {
-  dst.insert(dst.end(), std::cbegin(src), std::cend(src));
 }
 
 } // namespace
