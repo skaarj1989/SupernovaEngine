@@ -33,7 +33,7 @@ void initCamera(entt::registry &r, entt::entity e) {
         break;
       case gfx::LightType::Spot:
         debugDraw->addFrustum(
-          glm::inverse(buildSpotLightMatrix(light).viewProjection),
+          glm::inverse(buildSpotLightMatrix(light).viewProjection()),
           light.color);
         break;
       }

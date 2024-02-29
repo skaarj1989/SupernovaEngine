@@ -39,17 +39,13 @@ RawCamera buildSpotLightMatrix(const glm::vec3 &position,
                                float range) {
   ZoneScopedN("BuildSpotLightMatrix");
 
-  auto projection = glm::perspective(glm::radians(fov), 1.0f, 1.0f, range);
-  projection[1][1] *= -1.0f;
-
-  const auto view =
-    glm::lookAt(position, position + direction, calculateUpVector(direction));
-
-  return {
-    .view = view,
-    .projection = projection,
-    .viewProjection = projection * view,
+  RawCamera out{
+    .view =
+      glm::lookAt(position, position + direction, calculateUpVector(direction)),
+    .projection = glm::perspective(glm::radians(fov), 1.0f, 1.0f, range),
   };
+  out.projection[1][1] *= -1.0f;
+  return out;
 }
 RawCamera buildSpotLightMatrix(const gfx::Light &spotLight) {
   assert(spotLight.type == gfx::LightType::Spot);
@@ -61,10 +57,7 @@ RawCamera buildPointLightMatrix(rhi::CubeFace face, const glm::vec3 &position,
                                 float far) {
   ZoneScopedN("BuildPointLightMatrix");
 
-  constexpr auto kAspectRatio = 1.0f;
-  constexpr auto kFov = glm::half_pi<float>(); // == glm::radians(90.0f)
-  const auto projection = glm::perspective(kFov, kAspectRatio, 0.1f, far);
-
+  const auto faceIndex = std::to_underlying(face);
   // clang-format off
   static constexpr glm::vec3 kTargetVectors[]{
     { 1.0f, 0.0f, 0.0f}, // +X
@@ -82,16 +75,15 @@ RawCamera buildPointLightMatrix(rhi::CubeFace face, const glm::vec3 &position,
     { 0.0f,-1.0f, 0.0f }, // +Z
     { 0.0f,-1.0f, 0.0f }  // -Z
   };
-  //  clang-format on
+  // clang-format on
 
-  const auto faceIndex = std::to_underlying(face);
-  const auto view =
-    glm::lookAt(position, position + kTargetVectors[faceIndex], kUpVectors[faceIndex]);
+  constexpr auto kAspectRatio = 1.0f;
+  constexpr auto kFov = glm::half_pi<float>(); // == glm::radians(90.0f)
 
   return RawCamera{
-    .view = view,
-    .projection = projection,
-    .viewProjection = projection * view,
+    .view = glm::lookAt(position, position + kTargetVectors[faceIndex],
+                        kUpVectors[faceIndex]),
+    .projection = glm::perspective(kFov, kAspectRatio, 0.1f, far),
   };
 }
 
@@ -119,8 +111,8 @@ float calculateLightRadius(const glm::vec3 &lightColor) {
 
   return (-kLinear +
           glm::sqrt(kLinear * kLinear -
-                     4.0f * kQuadratic *
-                       (kConstant - (256.0f / 5.0f) * max3(lightColor)))) /
+                    4.0f * kQuadratic *
+                      (kConstant - (256.0f / 5.0f) * max3(lightColor)))) /
          (2.0f * kQuadratic);
 }
 

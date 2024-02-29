@@ -11,7 +11,8 @@ struct alignas(16) GPUCameraBlock {
                  const ClippingPlanes &clippingPlanes)
       : projection{camera.projection},
         inversedProjection{glm::inverse(projection)}, view{camera.view},
-        inversedView{glm::inverse(view)}, viewProjection{camera.viewProjection},
+        inversedView{glm::inverse(view)},
+        viewProjection{camera.viewProjection()},
         inversedViewProjection{glm::inverse(viewProjection)},
         resolution{extent}, zNear{clippingPlanes.zNear},
         zFar{clippingPlanes.zFar} {}
@@ -44,12 +45,14 @@ static_assert(sizeof(GPUCameraBlock) == 400);
 
 FrameGraphResource uploadCameraBlock(FrameGraph &fg, rhi::Extent2D resolution,
                                      const PerspectiveCamera &camera) {
+  auto projection = camera.getProjection();
+  projection[1][1] *= -1.0f;
+
   return uploadCameraBlock(fg, GPUCameraBlock{
                                  resolution,
                                  RawCamera{
                                    .view = camera.getView(),
-                                   .projection = camera.getProjection(),
-                                   .viewProjection = camera.getViewProjection(),
+                                   .projection = projection,
                                  },
                                  camera.getClippingPlanes(),
                                });

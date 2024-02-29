@@ -110,7 +110,6 @@ void eliminateShimmering(const glm::mat4 &view, glm::mat4 &projection,
     RawCamera{
       .view = view,
       .projection = projection,
-      .viewProjection = projection * view,
     },
   };
 }

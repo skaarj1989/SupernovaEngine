@@ -6,11 +6,6 @@
 
 namespace gfx {
 
-PerspectiveCamera &PerspectiveCamera::invertY(bool inverted) {
-  m_invertedY = inverted;
-  return *this;
-}
-
 PerspectiveCamera &PerspectiveCamera::freezeFrustum(bool freezed) {
   m_freezeFrustum = freezed;
   if (freezed == false) m_dirty |= DirtyFlags::FrustumUnfreezed;
@@ -122,7 +117,6 @@ void PerspectiveCamera::_update() const {
     m_projection =
       glm::perspective(glm::radians(m_fov), m_aspectRatio,
                        m_clippingPlanes.zNear, m_clippingPlanes.zFar);
-    if (m_invertedY) m_projection[1][1] *= -1.0f;
 
     m_dirty &= ~DirtyFlags::Projection;
     changed = true;

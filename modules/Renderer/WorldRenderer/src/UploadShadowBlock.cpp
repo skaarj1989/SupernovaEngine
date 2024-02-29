@@ -22,7 +22,8 @@ struct GPUShadowBlock {
   explicit GPUShadowBlock(const ShadowBlock &shadowBlock) {
     for (auto [i, src] : std::views::enumerate(shadowBlock.cascades)) {
       cascades.splitDepth[i] = src.splitDepth;
-      cascades.viewProjMatrices[i] = kBiasMatrix * src.lightView.viewProjection;
+      cascades.viewProjMatrices[i] =
+        kBiasMatrix * src.lightView.viewProjection();
     }
     std::ranges::transform(shadowBlock.spotLightViewProjections,
                            spotLightViewProjections.begin(),

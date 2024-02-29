@@ -296,7 +296,7 @@ std::vector<Cascade> ShadowRenderer::_buildCascadedShadowMaps(
 
   for (auto [i, cascade] : std::views::enumerate(cascades)) {
     auto visibleShadowCasters = getVisibleShadowCasters(
-      renderables, [frustum = Frustum{cascade.lightView.viewProjection}](
+      renderables, [frustum = Frustum{cascade.lightView.viewProjection()}](
                      const AABB &aabb) { return frustum.testAABB(aabb); });
     sortByMaterial(visibleShadowCasters);
 
@@ -383,10 +383,12 @@ std::vector<glm::mat4> ShadowRenderer::_buildSpotLightShadowMaps(
     assert(spotLight && spotLight->type == LightType::Spot);
     if (i >= settings.maxNumShadows) break;
 
-    auto lightView = buildSpotLightMatrix(*spotLight);
+    const auto lightView = buildSpotLightMatrix(*spotLight);
+    auto lightViewProjection = lightView.viewProjection();
     auto visibleShadowCasters = getVisibleShadowCasters(
-      renderables, [frustum = Frustum{lightView.viewProjection}](
-                     const AABB &aabb) { return frustum.testAABB(aabb); });
+      renderables, [frustum = Frustum{lightViewProjection}](const AABB &aabb) {
+        return frustum.testAABB(aabb);
+      });
     if (visibleShadowCasters.empty()) continue;
 
     sortByMaterial(visibleShadowCasters);
@@ -394,7 +396,7 @@ std::vector<glm::mat4> ShadowRenderer::_buildSpotLightShadowMaps(
     shadowMaps = _addSpotLightPass(fg, blackboard, i, shadowMaps, lightView,
                                    std::move(visibleShadowCasters),
                                    propertyGroupOffsets, settings);
-    shadowMatrices.emplace_back(std::move(lightView.viewProjection));
+    shadowMatrices.emplace_back(std::move(lightViewProjection));
     shadowIndices.emplace_back(spotLight, i);
 
     ++i;
@@ -500,7 +502,7 @@ FrameGraphResource ShadowRenderer::_addOmniLightPass(
 
   const auto lightView =
     buildPointLightMatrix(face, light.position, light.range);
-  const Frustum frustum{lightView.viewProjection};
+  const Frustum frustum{lightView.viewProjection()};
 
   const auto cameraBlock = uploadCameraBlock(
     fg, {settings.shadowMapSize, settings.shadowMapSize}, lightView);

@@ -62,8 +62,7 @@ MaterialPreviewWidget::MaterialPreviewWidget(os::InputSystem &inputSystem,
   m_renderSettings.debugFlags |= gfx::DebugFlags::InfiniteGrid;
   m_renderSettings.features |= gfx::RenderFeatures::EyeAdaptation;
 
-  m_camera.invertY(true)
-    .setFov(60.0f)
+  m_camera.setFov(60.0f)
     .setClippingPlanes({.zNear = 0.1f, .zFar = 100.0f})
     .fromTransform(
       Transform{}.setPosition({-2.0f, 1.0f, 2.0f}).lookAt(m_meshTransform));

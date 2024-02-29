@@ -17,8 +17,6 @@ public:
   PerspectiveCamera &operator=(const PerspectiveCamera &) = default;
   PerspectiveCamera &operator=(PerspectiveCamera &&) noexcept = default;
 
-  PerspectiveCamera &invertY(bool);
-
   PerspectiveCamera &freezeFrustum(bool);
 
   PerspectiveCamera &setPerspective(float fov, float aspectRatio,
@@ -58,12 +56,10 @@ public:
   // ---
 
   template <class Archive> void save(Archive &archive) const {
-    archive(m_invertedY, m_fov, m_aspectRatio, m_clippingPlanes, m_position,
-            m_orientation);
+    archive(m_fov, m_aspectRatio, m_clippingPlanes, m_position, m_orientation);
   }
   template <class Archive> void load(Archive &archive) {
-    archive(m_invertedY, m_fov, m_aspectRatio, m_clippingPlanes, m_position,
-            m_orientation);
+    archive(m_fov, m_aspectRatio, m_clippingPlanes, m_position, m_orientation);
     m_dirty = DirtyFlags::All;
   }
 
@@ -93,7 +89,6 @@ private:
   };
   mutable DirtyFlags m_dirty{DirtyFlags::All};
 
-  bool m_invertedY{true};
   bool m_freezeFrustum{false};
 };
 

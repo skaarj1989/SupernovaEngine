@@ -440,8 +440,7 @@ createEditorSceneView(SceneEditor::Viewport &viewport, rhi::Texture &target) {
 //
 
 SceneEditor::Viewport::Viewport() {
-  camera.invertY(true)
-    .setFov(60.0f)
+  camera.setFov(60.0f)
     .setClippingPlanes({.zNear = 0.1f, .zFar = 1000.0f})
     .setPosition({0.0f, 3.0f, -10.0f});
   renderSettings.debugFlags |= gfx::DebugFlags::InfiniteGrid;

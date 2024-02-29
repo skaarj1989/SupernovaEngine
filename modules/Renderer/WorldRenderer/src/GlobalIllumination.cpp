@@ -131,7 +131,6 @@ constexpr auto kMaxNumPropagations = 12u;
     return RawCamera{
       .view = view,
       .projection = projection,
-      .viewProjection = projection * view,
     };
   } else {
     constexpr auto kNumCascades = 4;
@@ -267,7 +266,7 @@ void GlobalIllumination::update(
 
   const auto lightView = getLightView(grid, camera, light);
   auto visibleRenderables =
-    getVisibleRenderables(Frustum{lightView.viewProjection}, renderables);
+    getVisibleRenderables(Frustum{lightView.viewProjection()}, renderables);
   sortByMaterial(visibleRenderables);
 
   const auto RSM = _addReflectiveShadowMapPass(
