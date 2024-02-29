@@ -5,6 +5,7 @@
 #include "Resources/FrameBlock.glsl"
 #include "Resources/CameraBlock.glsl"
 
+#include "Lib/DefaultInstance.glsl"
 #include "Resources/InstanceBuffer.glsl"
 #include "Resources/TransformBuffer.glsl"
 

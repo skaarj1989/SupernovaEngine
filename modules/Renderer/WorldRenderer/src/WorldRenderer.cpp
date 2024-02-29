@@ -564,8 +564,8 @@ void WorldRenderer::_drawScene(FrameGraph &fg, FrameGraphBlackboard blackboard,
   }
 
   if (auto dd = sceneView.debugDraw; dd && !dd->empty()) {
-    sceneColor.LDR = m_debugDrawPass.addGeometryPass(
-      fg, blackboard, sceneColor.LDR, *dd, camera.getViewProjection());
+    sceneColor.LDR =
+      m_debugDrawPass.addGeometryPass(fg, blackboard, sceneColor.LDR, *dd);
   }
 
   if (bool(settings.features & RenderFeatures::FXAA))

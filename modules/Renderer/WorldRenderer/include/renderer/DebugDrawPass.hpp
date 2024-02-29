@@ -17,10 +17,10 @@ public:
   uint32_t count(PipelineGroups) const override;
   void clear(PipelineGroups) override;
 
-  [[nodiscard]] FrameGraphResource
-  addGeometryPass(FrameGraph &, const FrameGraphBlackboard &,
-                  FrameGraphResource target, DebugDraw &,
-                  const glm::mat4 &viewProjection);
+  [[nodiscard]] FrameGraphResource addGeometryPass(FrameGraph &,
+                                                   const FrameGraphBlackboard &,
+                                                   FrameGraphResource target,
+                                                   DebugDraw &);
 
   struct PassInfo {
     rhi::PixelFormat depthFormat;

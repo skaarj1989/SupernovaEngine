@@ -1,8 +1,13 @@
 #include "renderer/DebugDrawPass.hpp"
 #include "MergeVector.hpp"
-#include "UploadContainer.hpp"
-#include "fg/Blackboard.hpp"
+
+#include "FrameGraphCommon.hpp"
+#include "FrameGraphData/DummyResources.hpp"
+#include "FrameGraphData/Camera.hpp"
 #include "FrameGraphData/GBuffer.hpp"
+
+#include "UploadContainer.hpp"
+
 #include "ShaderCodeBuilder.hpp"
 
 namespace std {
@@ -111,11 +116,9 @@ void DebugDrawPass::clear(PipelineGroups flags) {
   if (bool(flags & PipelineGroups::BuiltIn)) BasePass::clear();
 }
 
-FrameGraphResource
-DebugDrawPass::addGeometryPass(FrameGraph &fg,
-                               const FrameGraphBlackboard &blackboard,
-                               FrameGraphResource target, DebugDraw &debugDraw,
-                               const glm::mat4 &viewProjection) {
+FrameGraphResource DebugDrawPass::addGeometryPass(
+  FrameGraph &fg, const FrameGraphBlackboard &blackboard,
+  FrameGraphResource target, DebugDraw &debugDraw) {
   assert(!debugDraw.empty());
 
   constexpr auto kPassName = "DebugDraw";
@@ -137,17 +140,14 @@ DebugDrawPass::addGeometryPass(FrameGraph &fg,
         builder.read(*buffers.indices,
                      BindingInfo{.pipelineStage = PipelineStage::VertexShader});
       }
-      if (buffers.instances) {
-        builder.read(*buffers.instances,
-                     BindingInfo{.pipelineStage = PipelineStage::VertexShader});
-      }
+      read(builder, blackboard.get<CameraData>(), PipelineStage::VertexShader);
+      readInstances(builder, buffers.instances,
+                    blackboard.get<DummyResourcesData>());
 
       builder.read(blackboard.get<GBufferData>().depth, Attachment{});
-
       target = builder.write(target, Attachment{.index = 0});
     },
-    [this, viewProjection, buffers, info,
-     drawCalls = primitives.meshes.drawInfo](
+    [this, buffers, info, drawCalls = primitives.meshes.drawInfo](
       const auto &, FrameGraphPassResources &resources, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
       auto &[cb, framebufferInfo, sets] = rc;
@@ -175,11 +175,10 @@ DebugDrawPass::addGeometryPass(FrameGraph &fg,
           .primitiveTopology = rhi::PrimitiveTopology::TriangleList,
         });
         if (pipeline) {
-          cb.bindPipeline(*pipeline).pushConstants(rhi::ShaderStages::Vertex, 0,
-                                                   &viewProjection);
+          cb.bindPipeline(*pipeline);
           bindDescriptorSets(rc, *pipeline);
           for (const auto &[mesh, instanceRange] : drawCalls) {
-            cb.pushConstants(rhi::ShaderStages::Vertex, sizeof(glm::mat4),
+            cb.pushConstants(rhi::ShaderStages::Vertex, 0,
                              &instanceRange.offset)
               .draw(
                 {
@@ -204,14 +203,14 @@ DebugDrawPass::addGeometryPass(FrameGraph &fg,
             .primitiveTopology = topology,
           });
           if (pipeline) {
-            cb.bindPipeline(*pipeline)
-              .pushConstants(rhi::ShaderStages::Vertex, 0, &viewProjection)
-              .draw({
-                .topology = topology,
-                .vertexBuffer = vertexBuffer,
-                .vertexOffset = offset,
-                .numVertices = count,
-              });
+            cb.bindPipeline(*pipeline);
+            bindDescriptorSets(rc, *pipeline);
+            cb.draw({
+              .topology = topology,
+              .vertexBuffer = vertexBuffer,
+              .vertexOffset = offset,
+              .numVertices = count,
+            });
           }
         }
       }

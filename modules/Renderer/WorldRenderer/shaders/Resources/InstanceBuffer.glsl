@@ -5,15 +5,6 @@
 #  error "VertexShader only!"
 #endif
 
-// UploadInstances.cpp
-
-struct Instance {   // ArrayStride = 16
-  uint transformId; // offset = 0 | size = 4
-  uint skinOffset;  //          4 |        4
-  uint materialId;  //          8 |        4
-  uint flags;       //         12 |        4
-};
-
 layout(set = 1, binding = 2, std430) buffer readonly _InstanceBuffer {
   Instance g_Instances[];
 };
