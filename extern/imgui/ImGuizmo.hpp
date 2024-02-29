@@ -1,6 +1,7 @@
 #pragma once
 
 #include "imgui.h"
+#include "glm/fwd.hpp"
 
 enum ImGuizmoCol_ {
   ImGuizmoCol_Text,
@@ -104,30 +105,31 @@ IMGUI_API void SetDrawlist(ImDrawList * = nullptr);
  * @param [in] view_matrix Camera view matrix (column-major).
  * @param [in] projection_matrix Camera projection matrix (column-major).
  */
-IMGUI_API void SetCamera(const float *view_matrix,
-                         const float *projection_matrix, bool invert_y = false,
+IMGUI_API void SetCamera(const glm::mat4 &view_matrix,
+                         const glm::mat4 &projection_matrix,
                          bool is_ortho = false);
 
 /**
  * @note Convenience method.
- * @param [in] snap shared between all operations.
+ * @param [in] snaps[3] shared between all operations.
  * @return same as End().
  */
-IMGUI_API bool Manipulate(ImGuizmoMode, ImGuizmoOperation, float *model_matrix,
-                          const float *snap = nullptr);
+IMGUI_API bool Manipulate(ImGuizmoMode, ImGuizmoOperation,
+                          glm::mat4 &model_matrix,
+                          const float *snaps = nullptr);
 
 /**
  * @param [inout] model_matrix Model matrix (column-major).
  * @return true if gizmo is visible.
  */
-IMGUI_API bool Begin(ImGuizmoMode, float *model_matrix,
+IMGUI_API bool Begin(ImGuizmoMode, glm::mat4 &model_matrix,
                      ImGuizmoAxisFlags locked_axes = ImGuizmoAxisFlags_None);
 /**
  * Saves result to locked model matrix if manipulation has been made between
  * Begin/End.
  * @return true if matrix has been updated.
  */
-IMGUI_API bool End(float *delta_matrix = nullptr);
+IMGUI_API bool End(glm::mat4 *delta_matrix = nullptr);
 
 /** @param [in] snap */
 IMGUI_API void Translate(const float *snap = nullptr);

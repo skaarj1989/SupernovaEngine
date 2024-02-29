@@ -1,5 +1,4 @@
 #include "SceneEditor/GizmoController.hpp"
-#include "glm/gtc/type_ptr.hpp" // value_ptr
 #include "IconsFontAwesome6.h"
 #include <optional>
 
@@ -8,7 +7,7 @@ namespace {
 [[nodiscard]] bool showGizmo(const GizmoController::Settings &settings,
                              Transform &xf) {
   auto worldMatrix = xf.getWorldMatrix();
-  if (ImGuizmo::Begin(settings.mode, glm::value_ptr(worldMatrix))) {
+  if (ImGuizmo::Begin(settings.mode, worldMatrix)) {
 #define GET_SNAP(Key)                                                          \
   settings.snap.Key.second ? &settings.snap.Key.first : nullptr
 
@@ -30,7 +29,7 @@ namespace {
 #undef GET_SNAP
   }
   static glm::mat4 deltaMatrix{1.0f};
-  if (ImGuizmo::End(glm::value_ptr(deltaMatrix))) {
+  if (ImGuizmo::End(&deltaMatrix)) {
     switch (settings.operation) {
     case ImGuizmoOperation_Translate:
     case ImGuizmoOperation_BoundsScale: {
@@ -65,10 +64,7 @@ bool GizmoController::update(const gfx::PerspectiveCamera &camera,
 bool GizmoController::update(const gfx::PerspectiveCamera &camera,
                              const Settings &settings, Transform &xf) {
   if (settings.operation == ImGuizmoOperation_None) return false;
-
-  constexpr auto kImGuizmoInvertY = true;
-  ImGuizmo::SetCamera(glm::value_ptr(camera.getView()),
-                      glm::value_ptr(camera.getProjection()), kImGuizmoInvertY);
+  ImGuizmo::SetCamera(camera.getView(), camera.getProjection());
   return showGizmo(settings, xf);
 }
 

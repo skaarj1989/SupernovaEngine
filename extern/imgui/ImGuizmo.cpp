@@ -4,13 +4,12 @@
 #  define IMGUI_DEFINE_MATH_OPERATORS
 #endif
 #include "ImGuizmo.hpp"
-#include "imgui_internal.h"
+#include "imgui_internal.h" // ImRect, ImQsort
 
-#include "glm/gtc/type_ptr.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
-#include "glm/gtx/common.hpp" // fmod
-#include "glm/gtx/compatibility.hpp"
-#include "glm/gtx/transform.hpp"
+#include "glm/gtx/common.hpp"        // fmod
+#include "glm/gtx/compatibility.hpp" // lerp
+#include "glm/gtx/transform.hpp"     // translate, rotate, scale
 
 #pragma warning(disable : 26812) // Silence unscoped enum
 
@@ -67,12 +66,13 @@ using ImGuizmoPlane = int32_t;
 
 struct ImGuizmoRay {
   glm::vec3 Origin{0.0f};
+#ifdef _DEBUG
   glm::vec3 End{0.0f};
+#endif
   glm::vec3 Direction{0.0f};
 };
 struct ImGuizmoCamera {
   bool IsOrtho{false};
-  bool InvertY{false};
 
   glm::mat4 ViewMatrix{1.0f};
   glm::mat4 ProjectionMatrix{1.0f};
@@ -86,8 +86,9 @@ struct ImGuizmoCamera {
 
 struct ImGuizmoWidget {
   ImGuiID ID{0};
-  bool Visible{false};
 
+  bool Dirty{false}; // It's set to true on manipulate.
+  bool Visible{false};
   bool Hovered{false};
 
   // Used as a reference model matrix, doesn't change while manipulating.
@@ -103,8 +104,6 @@ struct ImGuizmoWidget {
   ImGuizmoOperation ActiveOperation{ImGuizmoOperation_None};
   ImGuizmoAxisFlags ActiveManipulationFlags{ImGuizmoAxisFlags_None};
   ImGuizmoAxisFlags LockedAxesFlags{ImGuizmoAxisFlags_None};
-
-  bool Dirty{false}; // It's set to true on manipulate.
 
   // Screen space values:
 
@@ -139,7 +138,7 @@ struct ImGuizmoWidget {
   // ---
 
   explicit ImGuizmoWidget(ImGuiID id) : ID{id} {}
-  void Load(const float *model);
+  void Load(const glm::mat4 &model);
   float CalculateAngleOnPlane() const;
 };
 
@@ -184,7 +183,7 @@ struct ImGuizmoContext {
   float PlanesVisibility[3]{0.0f};
   ImGuizmoPlane MostVisiblePlanes[3]{0, 1, 2}; // Local planes.
 
-  float *LockedModelMatrix{nullptr};
+  glm::mat4 *LockedModelMatrix{nullptr};
   glm::mat4 BackupModelMatrix{1.0f}; // For undoing operation.
 
   // ---
@@ -386,43 +385,50 @@ static const ImVec4 &GetStyleColorVec4(ImGuizmoCol idx) {
 
 static glm::vec2 WorldToScreen(const glm::vec3 &world_pos,
                                const glm::mat4 &view_proj_matrix,
-                               const ImRect &bb) {
+                               const ImRect &viewport) {
   auto temp = view_proj_matrix * glm::vec4{world_pos, 1.0f};
   temp *= 0.5f / temp.w;
 
   auto clip_pos = glm::vec2{temp} + 0.5f;
   clip_pos.y = 1.0f - clip_pos.y;
-  return clip_pos * bb.GetSize() + bb.GetTL();
+  return clip_pos * viewport.GetSize() + viewport.GetTL();
 }
 static glm::vec2 WorldToScreen(const glm::vec3 &world_pos,
                                const glm::mat4 &view_proj_matrix) {
   return WorldToScreen(world_pos, view_proj_matrix, GImGuizmo.Viewport);
 }
 
+static glm::vec2 ScreenToNDC(const ImVec2 &p, const ImRect &viewport) {
+  return {
+    (2.0f * p.x) / viewport.GetWidth() - 1.0f,
+    1.0f - (2.0f * p.y) / viewport.GetHeight(),
+  };
+}
+static glm::vec3 Unproject(const glm::vec3 &p,
+                           const glm::mat4 &inversed_view_proj) {
+  auto temp = inversed_view_proj * glm::vec4{p, 1.0f};
+  return glm::vec3{temp} / temp.w;
+}
 static ImGuizmoRay RayCast(const glm::mat4 &view_proj_matrix,
-                           const ImRect &bb) {
+                           const ImRect &viewport) {
   // https://antongerdelan.net/opengl/raycasting.html
   // https://github.com/opengl-tutorials/ogl/blob/master/misc05_picking/misc05_picking_custom.cpp
 
-  glm::vec2 mouse_pos{ImGui::GetIO().MousePos};
-  // Convert to NDC.
-  mouse_pos = glm::vec2{(mouse_pos - bb.GetTL()) / bb.GetSize()} * 2.0f - 1.0f;
-  mouse_pos.y *= -1.0f;
-
   const auto inversed_view_proj = glm::inverse(view_proj_matrix);
-  auto ray_origin_world_space =
-    inversed_view_proj * glm::vec4{mouse_pos, -1.0f, 1.0f};
-  ray_origin_world_space *= 1.0f / ray_origin_world_space.w;
-  auto ray_end_world_space =
-    inversed_view_proj * glm::vec4{mouse_pos, 1.0f, 1.0f};
-  ray_end_world_space *= 1.0f / ray_end_world_space.w;
+  const auto p =
+    ScreenToNDC(ImGui::GetIO().MousePos - viewport.GetTL(), viewport);
+
+  const auto ray_origin_world_space =
+    Unproject(glm::vec3{p, 0.0f}, inversed_view_proj);
+  const auto ray_end_world_space =
+    Unproject(glm::vec3{p, 1.0f}, inversed_view_proj);
 
   return ImGuizmoRay{
-    ray_origin_world_space, ray_end_world_space,
+    ray_origin_world_space,
+#ifdef _DEBUG
+    ray_end_world_space,
+#endif
     glm::normalize(ray_end_world_space - ray_origin_world_space)};
-}
-static ImGuizmoRay RayCast(const glm::mat4 &view_proj_matrix) {
-  return RayCast(view_proj_matrix, GImGuizmo.Viewport);
 }
 
 static glm::vec4 BuildPlane(const glm::vec3 &point, const glm::vec3 &normal) {
@@ -653,14 +659,6 @@ static ImGuizmoAxisFlags PlaneToFlags(ImGuizmoPlane plane_idx) {
 //-----------------------------------------------------------------------------
 // [SECTION]
 //-----------------------------------------------------------------------------
-
-static ImRect CalculateViewport() {
-  const auto region_min = ImGui::GetWindowContentRegionMin();
-  const auto region_max = ImGui::GetWindowContentRegionMax();
-  const auto position = ImGui::GetWindowPos() + region_min;
-  const auto size = region_max - region_min;
-  return ImRect{position, position + size};
-}
 
 static bool GizmoBehavior(ImGuizmoOperation operation,
                           ImGuizmoAxisFlags &hover_flags, bool *out_held) {
@@ -1809,7 +1807,9 @@ void PrintContext() {
     const auto &mousePos = ImGui::GetIO().MousePos;
     ImGui::Text("x: %.f, y: %.f", mousePos.x, mousePos.y);
     Print("Start", g.Ray.Origin);
+#ifdef _DEBUG
     Print("End", g.Ray.End);
+#endif
     Print("Direction", g.Ray.Direction);
     ImGui::TreePop();
   }
@@ -1883,13 +1883,11 @@ void SetDrawlist(ImDrawList *drawList) {
   GImGuizmo.DrawList = drawList ? drawList : ImGui::GetWindowDrawList();
 }
 
-void SetCamera(const float *view_matrix, const float *projection_matrix,
-               bool invert_y, bool is_ortho) {
-  IM_ASSERT(view_matrix && projection_matrix);
-
+void SetCamera(const glm::mat4 &view_matrix, const glm::mat4 &projection_matrix,
+               bool is_ortho) {
   auto &camera = GImGuizmo.Camera;
 
-  camera.ViewMatrix = glm::make_mat4(view_matrix);
+  camera.ViewMatrix = view_matrix;
   const auto inversed_view_matrix = glm::inverse(camera.ViewMatrix);
   camera.Right = inversed_view_matrix[0];
   camera.Up = inversed_view_matrix[1];
@@ -1897,14 +1895,13 @@ void SetCamera(const float *view_matrix, const float *projection_matrix,
   camera.Eye = inversed_view_matrix[3];
 
   camera.IsOrtho = is_ortho;
-  camera.ProjectionMatrix = glm::make_mat4(projection_matrix);
-  if (invert_y) camera.ProjectionMatrix[1][1] *= -1.0f;
+  camera.ProjectionMatrix = projection_matrix;
 
   camera.ViewProjectionMatrix = camera.ProjectionMatrix * camera.ViewMatrix;
 }
 
 bool Manipulate(ImGuizmoMode mode, ImGuizmoOperation operation,
-                float *model_matrix, const float *snap) {
+                glm::mat4 &model_matrix, const float *snap) {
   if (Begin(mode, model_matrix)) {
     switch (operation) {
     case ImGuizmoOperation_Translate:
@@ -1921,19 +1918,17 @@ bool Manipulate(ImGuizmoMode mode, ImGuizmoOperation operation,
   return End();
 }
 
-bool Begin(ImGuizmoMode mode, float *model_matrix,
+bool Begin(ImGuizmoMode mode, glm::mat4 &model_matrix,
            ImGuizmoAxisFlags locked_axes) {
   ImGuizmoContext &g{GImGuizmo};
 
-  IM_ASSERT(model_matrix && "Model matrix required");
   IM_ASSERT(!g.LockedModelMatrix && "Nesting forbidden");
+  g.LockedModelMatrix = &model_matrix;
 
-  g.LockedModelMatrix = model_matrix;
   g.DrawList = ImGui::GetWindowDrawList();
-  g.Viewport = CalculateViewport();
+  g.Viewport = ImGui::GetCurrentWindowRead()->InnerClipRect;
 
-  const auto id =
-    static_cast<ImGuiID>(reinterpret_cast<long long>(model_matrix));
+  const auto id = ImGui::GetID(&model_matrix);
   auto *gizmo = FindGizmoById(id);
   if (!gizmo) gizmo = CreateNewGizmo(id);
   g.CurrentGizmo = gizmo;
@@ -1952,7 +1947,7 @@ bool Begin(ImGuizmoMode mode, float *model_matrix,
   gizmo->Mode = mode;
   gizmo->Load(model_matrix);
   gizmo->LockedAxesFlags = locked_axes;
-  g.Ray = RayCast(g.Camera.ViewProjectionMatrix);
+  g.Ray = RayCast(g.Camera.ViewProjectionMatrix, g.Viewport);
 
   for (auto plane_idx = 0; plane_idx < 3; ++plane_idx)
     g.PlanesVisibility[plane_idx] = CalculatePlaneVisibility(plane_idx, true);
@@ -1966,7 +1961,7 @@ bool Begin(ImGuizmoMode mode, float *model_matrix,
           });
   return gizmo->Visible;
 }
-bool End(float *delta_matrix) {
+bool End(glm::mat4 *delta_matrix) {
   ImGuizmoContext &g{GImGuizmo};
   IM_ASSERT(g.LockedModelMatrix && "It seems that you didn't call Begin()");
 
@@ -1980,9 +1975,9 @@ bool End(float *delta_matrix) {
 
   auto updated = false;
   if (gizmo->Dirty) {
-    *reinterpret_cast<glm::mat4 *>(g.LockedModelMatrix) = gizmo->ModelMatrix;
+    *g.LockedModelMatrix = gizmo->ModelMatrix;
     if (delta_matrix) {
-      *reinterpret_cast<glm::mat4 *>(delta_matrix) = gizmo->DeltaMatrix;
+      *delta_matrix = gizmo->DeltaMatrix;
     }
     gizmo->Dirty = false;
     updated = true;
@@ -2126,8 +2121,9 @@ void BoundsScale(const float *bounds, const float *snap) {
 //-----------------------------------------------------------------------------
 
 ImGuizmoContext::~ImGuizmoContext() {
-  for (auto i = 0; i < Gizmos.Size; ++i)
-    delete Gizmos[i];
+  for (auto *gizmo : Gizmos) {
+    delete gizmo;
+  }
 
   Gizmos.clear();
   GizmosById.Clear();
@@ -2143,10 +2139,10 @@ float ImGuizmoContext::GetAspectRatio() const {
 
 using namespace ImGuizmo;
 
-void ImGuizmoWidget::Load(const float *model) {
+void ImGuizmoWidget::Load(const glm::mat4 &model) {
   const ImGuizmoContext &g{GImGuizmo};
 
-  SourceModelMatrix = glm::make_mat4(model);
+  SourceModelMatrix = model;
   if (Mode == ImGuizmoMode_Local) {
     ModelMatrix = SourceModelMatrix;
     for (auto axis_idx = 0; axis_idx < 3; ++axis_idx)
