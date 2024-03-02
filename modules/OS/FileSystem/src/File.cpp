@@ -31,7 +31,6 @@ std::size_t PhysicalFile::seek(std::size_t offset, const Origin origin) {
   return fseek(m_file, offset, static_cast<int32_t>(origin));
 }
 std::size_t PhysicalFile::read(void *buffer, std::size_t length) {
-  assert(length > 0);
   return fread(buffer, 1, length, m_file);
 }
 

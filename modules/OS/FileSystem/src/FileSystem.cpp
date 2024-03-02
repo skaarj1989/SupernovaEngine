@@ -16,11 +16,7 @@ namespace os {
 namespace {
 
 void validate(const DataStream &stream) {
-  if (!stream.isOpen()) {
-    throw std::runtime_error{"Stream is not opened."};
-  } else if (stream.getSize() == 0) {
-    throw std::runtime_error{"Empty file."};
-  }
+  if (!stream.isOpen()) throw std::runtime_error{"Stream is not opened."};
 }
 
 } // namespace
