@@ -46,7 +46,6 @@ struct GUI {
     static constexpr auto kSceneSettings = ICON_FA_IMAGE " Scene";
     static constexpr auto kSettings = ICON_FA_SLIDERS " Settings" TOOL_ID;
     static constexpr auto kNodeList = ICON_FA_LIST " Nodes" TOOL_ID;
-    static constexpr auto kLogger = ICON_FA_MESSAGE " Logger" TOOL_ID;
   };
 
   struct Modals {
@@ -323,10 +322,8 @@ bool inspect(gfx::Material::Blueprint &blueprint) {
 
 MaterialEditor::MaterialEditor(os::InputSystem &inputSystem,
                                gfx::WorldRenderer &renderer)
-    : m_logger{std::make_shared<spdlog::logger>("MaterialEditor")},
-      m_loggerWidget{*m_logger}, m_previewWidget{inputSystem, renderer} {
-  spdlog::register_logger(m_logger);
-
+    : m_logger{spdlog::default_logger()},
+      m_previewWidget{inputSystem, renderer} {
   m_luaState.open_libraries(sol::lib::base, sol::lib::table, sol::lib::math);
   registerMaterialNodes(m_luaState);
   _loadFunctions();
@@ -365,29 +362,21 @@ void MaterialEditor::show(const char *name, bool *open) {
   ImNodes::EditorContextSet(stage.nodeEditorContext.get());
   auto &graph = stage.graph;
 
-  {
+  if (ImGui::Begin(GUI::Windows::kNodeList)) {
     ZoneScopedN("MaterialEditor::NodeList");
-    if (ImGui::Begin(GUI::Windows::kNodeList, nullptr,
-                     ImGuiWindowFlags_NoFocusOnAppearing)) {
-      _nodeListWidget(graph);
-    }
-    ImGui::End();
+    _nodeListWidget(graph);
   }
-  {
+  ImGui::End();
+  if (ImGui::Begin(GUI::Windows::kSettings)) {
     ZoneScopedN("MaterialEditor::Settings");
-    if (ImGui::Begin(GUI::Windows::kSettings)) {
-      changed |= _settingsWidget();
-    }
-    ImGui::End();
+    changed |= _settingsWidget();
   }
-  {
+  ImGui::End();
+  if (ImGui::Begin(GUI::Windows::kCodeEditor)) {
     ZoneScopedN("MaterialEditor::CodeEditor");
-    if (ImGui::Begin(GUI::Windows::kCodeEditor, nullptr,
-                     ImGuiWindowFlags_NoFocusOnAppearing)) {
-      basicTextEditorWidget(stage.codeEditor, IM_UNIQUE_ID);
-    }
-    ImGui::End();
+    basicTextEditorWidget(stage.codeEditor, IM_UNIQUE_ID);
   }
+  ImGui::End();
 
   constexpr auto kLoadStyleActionId = MAKE_TITLE_BAR(ICON_FA_UPLOAD, "Load");
   constexpr auto kSaveStyleActionId =
@@ -502,8 +491,6 @@ void MaterialEditor::show(const char *name, bool *open) {
   m_previewWidget.showPreview(GUI::Windows::kPreview);
   m_previewWidget.showSceneSettings(GUI::Windows::kSceneSettings);
   m_previewWidget.showRenderSettings(GUI::Windows::kRenderSettings);
-
-  m_loggerWidget.show(GUI::Windows::kLogger, nullptr);
 
   if (changed && m_livePreview) _composeMaterialAndUpdatePreview();
 }
@@ -766,38 +753,33 @@ void MaterialEditor::_setupDockSpace(const ImGuiID dockspaceId) const {
       auto centerNodeId = dockspaceId;
 
       auto leftNodeId = ImGui::DockBuilderSplitNode(
-        centerNodeId, ImGuiDir_Left, 0.25f, nullptr, &centerNodeId);
-
+        centerNodeId, ImGuiDir_Left, 0.21f, nullptr, &centerNodeId);
       auto leftMidNodeId = ImGui::DockBuilderSplitNode(
         leftNodeId, ImGuiDir_Down, 0.65f, nullptr, &leftNodeId);
       auto leftBottomNodeId = ImGui::DockBuilderSplitNode(
-        leftMidNodeId, ImGuiDir_Down, 0.65f, nullptr, &leftMidNodeId);
+        leftMidNodeId, ImGuiDir_Down, 0.67f, nullptr, &leftMidNodeId);
 
-      const auto bottomNodeId = ImGui::DockBuilderSplitNode(
-        centerNodeId, ImGuiDir_Down, 0.25f, nullptr, &centerNodeId);
+      auto rightNodeId = ImGui::DockBuilderSplitNode(
+        centerNodeId, ImGuiDir_Right, 0.26f, nullptr, &centerNodeId);
+      auto rightBottomNodeId = ImGui::DockBuilderSplitNode(
+        rightNodeId, ImGuiDir_Down, 0.6f, nullptr, &rightNodeId);
 
       ImGui::DockBuilderDockWindow(GUI::Windows::kPreview, leftNodeId);
+      ImGui::DockBuilderDockWindow(GUI::Windows::kCodeEditor,
+                                   rightBottomNodeId);
       ImGui::DockBuilderDockWindows(
         {
-          GUI::Windows::kNodeList,
           GUI::Windows::kSettings,
         },
         leftMidNodeId);
-
+      ImGui::DockBuilderDockWindow(GUI::Windows::kNodeList, rightNodeId);
       ImGui::DockBuilderDockWindows(
         {
           GUI::Windows::kRenderSettings,
           GUI::Windows::kSceneSettings,
         },
         leftBottomNodeId);
-
-      ImGui::DockBuilderDockWindow(GUI::Windows::kLogger, bottomNodeId);
-      ImGui::DockBuilderDockWindows(
-        {
-          GUI::Windows::kCanvas,
-          GUI::Windows::kCodeEditor,
-        },
-        centerNodeId);
+      ImGui::DockBuilderDockWindow(GUI::Windows::kCanvas, centerNodeId);
 
       ImGui::DockBuilderFinish(dockspaceId);
     }

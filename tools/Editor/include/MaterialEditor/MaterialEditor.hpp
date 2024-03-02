@@ -2,7 +2,6 @@
 
 #include "WidgetWindow.hpp"
 #include "MaterialProject.hpp"
-#include "LoggerWidget.hpp"
 #include "MaterialEditor/CustomNodeEditor.hpp"
 #include "MaterialPreviewWidget.hpp"
 
@@ -77,8 +76,6 @@ private:
     ImNodesMiniMapLocation location{ImNodesMiniMapLocation_BottomRight};
   };
   MiniMap m_miniMap;
-
-  LoggerWidget m_loggerWidget;
 
   CustomNodeWidget m_customNodeWidget;
 
