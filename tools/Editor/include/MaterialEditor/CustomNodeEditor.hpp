@@ -3,7 +3,21 @@
 #include "UserFunctionData.hpp"
 #include "TextEditor.h"
 
-class CustomNodeCreator {
+class TextEditorController {
+protected:
+  explicit TextEditorController(TextEditor &);
+
+  [[nodiscard]] bool _isChanged() const;
+
+  void _load(const std::string &);
+  virtual void _reset();
+
+protected:
+  TextEditor &m_textEditor;
+  int32_t m_undoIndex{0};
+};
+
+class CustomNodeCreator : TextEditorController {
 public:
   explicit CustomNodeCreator(TextEditor &);
 
@@ -11,16 +25,14 @@ public:
   show(const char *name, ImVec2 size, const UserFunctions &);
 
 private:
-  void _reset();
+  void _reset() override;
 
 private:
-  TextEditor &m_textEditor;
-
-  UserFunctionData m_data;
   bool m_valid{false};
+  UserFunctionData m_data;
 };
 
-class CustomNodeEditor {
+class CustomNodeEditor : TextEditorController {
 public:
   explicit CustomNodeEditor(TextEditor &);
 
@@ -32,20 +44,15 @@ public:
 
 private:
   void _setData(UserFunctionData *data);
-  void _reset();
+  void _reset() override;
 
 private:
-  TextEditor &m_textEditor;
-
   UserFunctionData *m_data{nullptr};
-  bool m_dirty{false};
 };
 
 class CustomNodeWidget {
 public:
-  CustomNodeWidget() {
-    m_textEditor.SetLanguageDefinition(TextEditor::LanguageDefinition::GLSL());
-  }
+  CustomNodeWidget();
 
   [[nodiscard]] auto showCreator(const char *name, ImVec2 size,
                                  const UserFunctions &userFunctions) {

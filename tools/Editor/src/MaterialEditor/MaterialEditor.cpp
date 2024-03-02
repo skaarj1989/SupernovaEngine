@@ -19,6 +19,7 @@
 #include "FileDialog.hpp"
 #include "ImGuiPopups.hpp"
 #include "ImGuiModal.hpp"
+#include "TextEditorCommon.hpp"
 #include "imgui_internal.h"
 #include "imgui_stdlib.h" // InputText(WithHint)
 
@@ -383,7 +384,7 @@ void MaterialEditor::show(const char *name, bool *open) {
     ZoneScopedN("MaterialEditor::CodeEditor");
     if (ImGui::Begin(GUI::Windows::kCodeEditor, nullptr,
                      ImGuiWindowFlags_NoFocusOnAppearing)) {
-      stage.codeEditor.Render(IM_UNIQUE_ID);
+      basicTextEditorWidget(stage.codeEditor, IM_UNIQUE_ID);
     }
     ImGui::End();
   }

@@ -1,10 +1,10 @@
 #include "MaterialEditor/UserFunctionData.hpp"
+#include "StringUtility.hpp" // join
 #include "math/Hash.hpp"
 
-#include "StringUtility.hpp"
-
-#include <span>
 #include <format>
+#include <regex>
+#include <span>
 
 namespace {
 
@@ -17,7 +17,59 @@ buildParameters(std::span<const UserFunctionData::Parameter> params) {
   return join(v, ", ");
 }
 
+[[nodiscard]] bool isValid(const rhi::ShaderStages shaderStages) {
+  return std::to_underlying(shaderStages) != 0;
+}
+[[nodiscard]] bool
+isValid(std::span<const UserFunctionData::Parameter> inputs) {
+  return std::ranges::all_of(inputs, [](const auto &p) { return p.isValid(); });
+}
+
+[[nodiscard]] bool isValidGLSLIdentifier(const std::string_view identifier) {
+  static const std::regex regexPattern("^[a-zA-Z_][a-zA-Z0-9_]*$");
+  return std::regex_match(identifier.data(), regexPattern);
+}
+
 } // namespace
+
+//
+// UserFunctionData struct:
+//
+
+bool UserFunctionData::Parameter::isValid() const {
+  return dataType != DataType::Undefined && isValidGLSLIdentifier(name);
+}
+
+bool UserFunctionData::isValid() const {
+  // clang-format off
+  return
+    output != DataType::Undefined &&
+    ::isValid(shaderStages) &&
+    !code.empty() &&
+    isValidGLSLIdentifier(name) &&
+    ::isValid(inputs);
+  // clang-format on
+}
+
+bool operator==(const UserFunctionData &lhs, const UserFunctionData &rhs) {
+  // clang-format off
+  return 
+    lhs.output == rhs.output &&
+    lhs.shaderStages == rhs.shaderStages &&
+    lhs.name == rhs.name &&
+    lhs.code == rhs.code &&
+    lhs.dependencies == rhs.dependencies &&
+    lhs.inputs == rhs.inputs;
+  // clang-format on
+}
+bool operator==(const UserFunctionData::Parameter &lhs,
+                const UserFunctionData::Parameter &rhs) {
+  return lhs.dataType == rhs.dataType && lhs.name == rhs.name;
+}
+
+//
+// Helper:
+//
 
 std::string buildDeclaration(const UserFunctionData &data) {
   return std::format("{} {}({})", toString(data.output), data.name,

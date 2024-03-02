@@ -14,6 +14,8 @@ struct UserFunctionData {
     DataType dataType{DataType::Undefined};
     std::string name;
 
+    [[nodiscard]] bool isValid() const;
+
     template <class Archive> void serialize(Archive &archive) {
       archive(dataType, name);
     }
@@ -27,10 +29,16 @@ struct UserFunctionData {
   std::vector<std::size_t> dependencies;
   std::string code;
 
+  [[nodiscard]] bool isValid() const;
+
   template <class Archive> void serialize(Archive &archive) {
     archive(name, inputs, output, shaderStages, dependencies, code);
   }
 };
+
+bool operator==(const UserFunctionData &, const UserFunctionData &);
+bool operator==(const UserFunctionData::Parameter &,
+                const UserFunctionData::Parameter &);
 
 // Key = Hashed UserFunctionData.
 using UserFunctions =

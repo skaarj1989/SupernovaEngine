@@ -1,11 +1,10 @@
 #include "MaterialEditor/CustomNodeEditor.hpp"
 #include "ImGuiTitleBarMacro.hpp"
 #include "ImGuiModal.hpp"
+#include "TextEditorCommon.hpp"
 #include "imgui_internal.h" // {Push/Pop}ItemFlag
 #include "imgui_stdlib.h"   // InputText{WithHint}
 #include "tracy/Tracy.hpp"
-#include <algorithm> // all_of
-#include <span>
 
 namespace {
 
@@ -151,22 +150,6 @@ showParameterConfig(std::vector<UserFunctionData::Parameter> &inputs,
   return dirty;
 }
 
-[[nodiscard]] bool isValid(const rhi::ShaderStages shaderStages) {
-  return std::to_underlying(shaderStages) != 0;
-}
-
-[[nodiscard]] bool
-isValid(std::span<const UserFunctionData::Parameter> inputs) {
-  static const auto validParameter = [](const auto &p) {
-    return p.dataType != DataType::Undefined && !p.name.empty();
-  };
-  return std::ranges::all_of(inputs, validParameter);
-}
-[[nodiscard]] bool isValid(const UserFunctionData &data) {
-  return data.output != DataType::Undefined && isValid(data.shaderStages) &&
-         !data.name.empty() && !data.code.empty() && isValid(data.inputs);
-}
-
 [[nodiscard]] auto toString(const rhi::ShaderStages stages) {
   switch (stages) {
     using enum rhi::ShaderStages;
@@ -196,24 +179,40 @@ void sanitize(std::vector<std::size_t> &dependencies,
 } // namespace
 
 //
+// TextEditorController class:
+//
+
+TextEditorController::TextEditorController(TextEditor &textEditor)
+    : m_textEditor{textEditor} {}
+
+bool TextEditorController::_isChanged() const {
+  return m_textEditor.GetUndoIndex() != m_undoIndex;
+}
+
+void TextEditorController::_load(const std::string &str) {
+  m_textEditor.SetText(str);
+  m_undoIndex = 0;
+}
+void TextEditorController::_reset() { _load(""); }
+
+//
 // CustomNodeCreator class:
 //
 
 CustomNodeCreator::CustomNodeCreator(TextEditor &textEditor)
-    : m_textEditor{textEditor} {}
+    : TextEditorController{textEditor} {}
 
 std::optional<UserFunctionData>
 CustomNodeCreator::show(const char *name, ImVec2 size,
                         const UserFunctions &userFunctions) {
-  ZoneScopedN("CustomNodeCreator");
-
   std::optional<UserFunctionData> result;
 
   constexpr auto kModalFlags =
     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
   if (ImGui::BeginPopupModal(name, nullptr, kModalFlags)) {
-    auto dirty = false;
+    ZoneScopedN("CustomNodeCreator");
 
+    auto dirty = false;
     if (ImGui::BeginChild(IM_UNIQUE_ID, size)) {
       ImGui::SeparatorText("Shader stages:");
       dirty |= ImGui::CheckboxFlags("Vertex", m_data.shaderStages,
@@ -238,23 +237,22 @@ CustomNodeCreator::show(const char *name, ImVec2 size,
       ImGui::SeparatorText("Parameters");
       dirty |= showParameterConfig(m_data.inputs, {0, 80});
 
-      ImGui::SeparatorText("Code");
       if (!userFunctions.empty()) {
         dirty |= showDependencyConfig(m_data.dependencies, m_data.shaderStages,
                                       userFunctions);
       }
 
-      m_textEditor.SetReadOnly(false);
-      m_textEditor.Render(IM_UNIQUE_ID);
+      m_textEditor.SetReadOnlyEnabled(false);
+      basicTextEditorWidget(m_textEditor, IM_UNIQUE_ID, true);
+
       ImGui::EndChild();
     }
-
-    if (m_textEditor.IsTextChanged()) {
+    if (_isChanged()) {
       m_data.code = m_textEditor.GetText();
+      m_undoIndex = m_textEditor.GetUndoIndex();
       dirty |= true;
     }
-
-    if (dirty) m_valid = isValid(m_data);
+    if (dirty) m_valid = m_data.isValid();
 
     ImGui::BeginDisabled(!m_valid);
     if (ImGui::Button(ICON_FA_CHECK " Add")) {
@@ -268,7 +266,11 @@ CustomNodeCreator::show(const char *name, ImVec2 size,
 
     ImGui::SameLine();
     if (ImGui::Button(ICON_FA_BAN " Close")) {
-      ImGui::OpenPopup(kConfirmDiscardChanges);
+      if (m_data != UserFunctionData{}) {
+        ImGui::OpenPopup(kConfirmDiscardChanges);
+      } else {
+        ImGui::CloseCurrentPopup();
+      }
     }
 
     if (auto button = showMessageBox<ModalButtons::Yes | ModalButtons::Cancel>(
@@ -284,9 +286,9 @@ CustomNodeCreator::show(const char *name, ImVec2 size,
 }
 
 void CustomNodeCreator::_reset() {
-  m_textEditor.SetText("");
-  m_data = {};
+  TextEditorController::_reset();
   m_valid = false;
+  m_data = {};
 }
 
 //
@@ -294,13 +296,11 @@ void CustomNodeCreator::_reset() {
 //
 
 CustomNodeEditor::CustomNodeEditor(TextEditor &textEditor)
-    : m_textEditor{textEditor} {}
+    : TextEditorController{textEditor} {}
 
 std::optional<CustomNodeEditor::Event>
 CustomNodeEditor::show(const char *name, ImVec2 size,
                        UserFunctions &functions) {
-  ZoneScopedN("CustomNodeEditor");
-
   std::optional<CustomNodeEditor::Event> result;
 
   constexpr auto kConfirmDiscardChanges = MAKE_WARNING("Confirm");
@@ -309,6 +309,8 @@ CustomNodeEditor::show(const char *name, ImVec2 size,
   constexpr auto kModalFlags =
     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
   if (ImGui::BeginPopupModal(name, nullptr, kModalFlags)) {
+    ZoneScopedN("CustomNodeEditor");
+
     if (ImGui::BeginChild(IM_UNIQUE_ID, size)) {
       if (ImGui::CollapsingHeader("Functions",
                                   ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -343,7 +345,7 @@ CustomNodeEditor::show(const char *name, ImVec2 size,
                                   ImGuiSelectableFlags_SpanAllColumns |
                                     ImGuiSelectableFlags_AllowOverlap |
                                     ImGuiSelectableFlags_DontClosePopups)) {
-              if (m_dirty) {
+              if (_isChanged()) {
                 ImGui::OpenPopup(kConfirmDiscardChanges);
               } else {
                 _setData(isSelected ? data.get() : nullptr);
@@ -383,30 +385,25 @@ CustomNodeEditor::show(const char *name, ImVec2 size,
         }
       }
 
-      ImGui::SeparatorText("Code");
-      m_textEditor.SetReadOnly(m_data == nullptr);
-      m_textEditor.Render(IM_UNIQUE_ID);
+      m_textEditor.SetReadOnlyEnabled(m_data == nullptr);
+      basicTextEditorWidget(m_textEditor, IM_UNIQUE_ID, true);
 
       ImGui::EndChild();
     }
 
-    if (m_data && m_textEditor.IsTextChanged()) {
-      m_dirty = m_textEditor.GetText() != m_data->code;
-    }
-
-    ImGui::BeginDisabled(m_dirty == false);
+    ImGui::BeginDisabled(!_isChanged());
     if (ImGui::Button(ICON_FA_CHECK " Save")) {
       if (m_data) {
         m_data->code = m_textEditor.GetText();
+        m_undoIndex = m_textEditor.GetUndoIndex();
         result = Event{Action::CodeChanged, m_data};
-        m_dirty = false;
       }
     }
     ImGui::EndDisabled();
 
     ImGui::SameLine();
     if (ImGui::Button(ICON_FA_BAN " Close")) {
-      if (m_dirty) {
+      if (_isChanged()) {
         ImGui::OpenPopup(kConfirmDiscardChanges);
       } else {
         _reset();
@@ -428,7 +425,18 @@ CustomNodeEditor::show(const char *name, ImVec2 size,
 
 void CustomNodeEditor::_setData(UserFunctionData *data) {
   m_data = data;
-  m_dirty = false;
-  m_textEditor.SetText(m_data ? m_data->code : "");
+  _load(m_data ? m_data->code : "");
 }
 void CustomNodeEditor::_reset() { _setData(nullptr); }
+
+//
+// CustomNodeWidget class:
+//
+
+CustomNodeWidget::CustomNodeWidget() {
+  m_textEditor.SetLanguageDefinition(TextEditor::LanguageDefinitionId::Glsl);
+  m_textEditor.SetPalette(TextEditor::PaletteId::Dark);
+  m_textEditor.SetShortTabsEnabled(true);
+  m_textEditor.SetShowWhitespacesEnabled(false);
+  m_textEditor.SetTabSize(2);
+}

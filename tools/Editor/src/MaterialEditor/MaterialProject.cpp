@@ -319,7 +319,12 @@ using Stage = MaterialProject::Stage;
 Stage::Stage() {
   nodeEditorContext.reset(ImNodes::EditorContextCreate());
   nodeEditorContext->Panning = {600, 100};
-  codeEditor.SetLanguageDefinition(TextEditor::LanguageDefinition::GLSL());
+
+  codeEditor.SetLanguageDefinition(TextEditor::LanguageDefinitionId::Glsl);
+  codeEditor.SetPalette(TextEditor::PaletteId::Dark);
+  codeEditor.SetShortTabsEnabled(true);
+  codeEditor.SetShowWhitespacesEnabled(false);
+  codeEditor.SetTabSize(2);
 }
 
 //
@@ -499,14 +504,11 @@ void MaterialProject::setErrorMarkers(
     for (const auto &[line, _] : errorMarkers) {
       lastLine = std::max(lastLine, line);
     }
-    // "unexpected RIGHT_BRACE, expecting RIGHT_PAREN" is in line n+1.
-    if (lastLine > editor.GetTotalLines()) editor.InsertText("\n");
-    editor.SetErrorMarkers(errorMarkers);
+    // TODO: SetErrorMarkers
   }
 }
 void MaterialProject::resetErrorMarkers() {
-  for (auto &[_, stage] : stages)
-    stage.codeEditor.SetErrorMarkers({});
+  // TODO
 }
 
 std::expected<std::chrono::nanoseconds, std::string>
@@ -525,7 +527,7 @@ MaterialProject::composeMaterial() {
         buildUserModules(userFunctions, shaderType);
 
       stage.codeEditor.SetText(*result);
-      stage.codeEditor.SetErrorMarkers({});
+      // TODO: SetErrorMarkers
     } else {
       return std::unexpected{result.error()};
     }
