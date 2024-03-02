@@ -113,15 +113,14 @@ App::App(std::span<char *> args)
   sceneEditor.on<SceneEditor::EditScriptRequest>(
     [this](SceneEditor::EditScriptRequest &evt, auto &) {
       m_widgets.getConfig<ScriptEditor>().open = true;
-      m_widgets.get<ScriptEditor>().openScript(evt.resource);
+      m_widgets.get<ScriptEditor>().open(evt.resource->getPath());
     });
 
   m_widgets.get<ScriptEditor>().on<ScriptEditor::RunScriptRequest>(
     [this](ScriptEditor::RunScriptRequest &req, auto &) {
       const sol::environment *env{nullptr};
       if (auto *scene = m_widgets.get<SceneEditor>().getCurrentScene(); scene) {
-        auto &r = scene->getRegistry();
-        env = std::addressof(getScriptContext(r).defaultEnv);
+        env = std::addressof(getScriptContext(scene->getRegistry()).defaultEnv);
       }
       std::thread{[this, env, code = std::move(req.code)]() {
         auto result =

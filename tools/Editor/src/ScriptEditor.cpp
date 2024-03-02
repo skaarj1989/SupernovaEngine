@@ -1,142 +1,292 @@
 #include "ScriptEditor.hpp"
-#include "Services.hpp"
 
 #include "ImGuiTitleBarMacro.hpp"
 #include "ImGuiModal.hpp"
 #include "ImGuiDragAndDrop.hpp"
 #include "FileDialog.hpp"
-#include "imgui_internal.h"
 
-#include <fstream>
+#include <ranges>
 
 namespace {
 
+constexpr auto kScriptExtension = ".lua";
+const auto scriptFileFilter = makeExtensionFilter(kScriptExtension);
+
+struct Action {
+  Action() = delete;
+
+  static constexpr auto kOpenScript = MAKE_TITLE_BAR(ICON_FA_FILE, "Open");
+  static constexpr auto kSaveScriptAs =
+    MAKE_TITLE_BAR(ICON_FA_FILE, "Save As...");
+  static constexpr auto kDiscardScript = MAKE_WARNING("Discard?");
+  static constexpr auto kShowKeyboardShortcuts =
+    MAKE_TITLE_BAR(ICON_FA_QUESTION, "Help");
+};
+
 [[nodiscard]] auto makeLabel(const std::filesystem::path &p) {
-  assert(!p.empty());
-  return p.filename().string();
+  return p.empty() ? "(empty)" : p.filename().string();
 }
 [[nodiscard]] auto makeTooltip(const std::filesystem::path &p) {
-  assert(!p.empty());
-  return os::FileSystem::relativeToRoot(p)->generic_string();
+  return p.empty() ? "(empty)"
+                   : os::FileSystem::relativeToRoot(p)->generic_string();
+}
+
+void showKeyboardShortcuts() {
+  if (ImGui::BeginTable(IM_UNIQUE_ID, 2,
+                        ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders)) {
+    struct Entry {
+      const char *description;
+      std::vector<const char *> shortcuts;
+    };
+    static const std::vector<Entry> kEntries{
+      {"New Script", {"Ctrl+N"}},
+      {"Open Script", {"Ctrl+O"}},
+      {"Save", {"Ctrl+S"}},
+      {"Save As", {"Ctrl+Shift+S"}},
+      {"Close Script", {"Ctrl+W"}},
+
+      {"Select all", {"Ctrl+A"}},
+
+      {"Go to beginning/end of line", {"Home/End"}},
+      {"Go to beginning of file", {"Ctrl+Home"}},
+      {"Go to end of file", {"Ctrl+End"}},
+
+      {"Go to next script (tab)", {"Ctrl+PgUp"}},
+      {"Go to previous script (tab)", {"Ctrl+PgDn"}},
+
+      {
+        "Move line up/down",
+        {"Ctrl+Shift+" ICON_FA_ARROW_UP "/" ICON_FA_ARROW_DOWN},
+      },
+      {"Delete line", {"Ctrl+Shift+K"}},
+
+      {"Copy line/selection", {"Ctrl+C", "Ctrl+Insert"}},
+      {"Paste", {"Ctrl+V", "Shift+Insert"}},
+      {"Cut line/selection", {"Ctrl+X", "Shift+Del"}},
+
+      {"Undo", {"Ctrl+Z", "Alt+Backspace"}},
+      {"Redo", {"Ctrl+Y", "Ctrl+Shift+Z"}},
+    };
+    for (const auto &[description, shortcuts] : kEntries) {
+      ImGui::TableNextRow();
+
+      ImGui::TableSetColumnIndex(0);
+      for (const auto *chord : shortcuts) {
+        ImGui::Text(chord);
+      }
+      ImGui::TableSetColumnIndex(1);
+      ImGui::Text(description);
+    }
+    ImGui::EndTable();
+  }
 }
 
 } // namespace
 
 //
-// ScriptEditor::Entry struct:
-//
-
-ScriptEditor::Entry::Entry(std::shared_ptr<ScriptResource> r)
-    : resource{std::move(r)} {
-  textEditor.SetLanguageDefinition(TextEditor::LanguageDefinition::Lua());
-  if (resource) textEditor.SetText(resource->code);
-}
-
-void ScriptEditor::Entry::save() {
-  assert(hasResource());
-  saveAs(resource->getPath());
-}
-void ScriptEditor::Entry::saveAs(const std::filesystem::path &p) {
-  if (auto code = textEditor.GetText(); hasResource()) {
-    resource->code = std::move(code);
-  } else {
-    resource = std::make_shared<ScriptResource>(std::move(code), p);
-  }
-  if (std::ofstream f{p, std::ios::binary}; f.is_open()) {
-    f << resource->code;
-    dirty = false;
-  }
-}
-
-bool ScriptEditor::Entry::hasResource() const { return resource && *resource; }
-
-//
 // ScriptEditor class:
 //
 
-void ScriptEditor::openScript(std::shared_ptr<ScriptResource> r) {
-  if (!hasScript(r)) m_scripts.emplace_back(std::move(r));
-}
+void ScriptEditor::newScript() { m_scripts.emplace_back(); }
 
-bool ScriptEditor::hasScript(const std::shared_ptr<ScriptResource> &r) const {
-  return std::ranges::find_if(m_scripts, [&r](const Entry &e) {
-           return e.resource == r;
+bool ScriptEditor::open(const std::filesystem::path &p) {
+  if (os::FileSystem::getExtension(p) == kScriptExtension && !contains(p)) {
+    m_scripts.emplace_back(p);
+    return true;
+  }
+  return false;
+}
+bool ScriptEditor::contains(const std::filesystem::path &p) const {
+  return std::ranges::find_if(m_scripts, [&p](const Entry &e) {
+           return e.path == p;
          }) != m_scripts.cend();
 }
 
 void ScriptEditor::show(const char *name, bool *popen) {
-  ZoneScopedN("ScriptEditor");
   if (ImGui::Begin(name, popen, ImGuiWindowFlags_MenuBar)) {
-    // Feature: Drag'n'Drop a file/ script resource to open it in a new tab.
+    ZoneScopedN("ScriptEditor");
+    auto isFocused = ImGui::IsWindowFocused();
+
+    // Feature: Drag'n'Drop a file to open it in a new tab.
     const auto cursorPos = ImGui::GetCursorPos();
     ImGui::Dummy(ImGui::GetContentRegionAvail());
     if (ImGui::BeginDragDropTarget()) {
-      if (auto incomingResource = extractResourceFromPayload<ScriptManager>(
-            kImGuiPayloadTypeScript, Services::Resources::Scripts::value());
-          incomingResource) {
-        openScript(incomingResource->handle());
+      if (auto *payload = ImGui::AcceptDragDropPayload(kImGuiPayloadTypeFile);
+          payload) {
+        if (open(ImGui::ExtractPath(*payload))) ImGui::SetWindowFocus();
       }
       ImGui::EndDragDropTarget();
     }
     ImGui::SetCursorPos(cursorPos);
 
-    constexpr auto kSaveScriptAs_ActionId =
-      MAKE_TITLE_BAR(ICON_FA_FILE, "Save As...");
-    constexpr auto kOpenScript_ActionId = MAKE_TITLE_BAR(ICON_FA_FILE, "Open");
-
-    static std::optional<std::size_t> junk;
-
     std::optional<const char *> action;
+    const auto save = [&action](Entry *entry) {
+      assert(entry != nullptr);
+      if (entry->isOnDisk()) {
+        entry->save();
+      } else {
+        action = Action::kSaveScriptAs;
+      }
+    };
+
+    if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_N)) {
+      newScript();
+    } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_O)) {
+      action = Action::kOpenScript;
+    } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_H)) {
+      action = Action::kShowKeyboardShortcuts;
+    }
+
     if (ImGui::BeginMenuBar()) {
+      auto *entry = _getActiveEntry();
       if (ImGui::BeginMenu("File")) {
-        if (ImGui::MenuItemEx("New ...", ICON_FA_FILE)) {
-          m_scripts.emplace_back();
+        if (ImGui::MenuItem("New", "Ctrl+N")) {
+          newScript();
         }
-        auto *entry = _getActiveEntry();
-        const auto canSave = entry && entry->dirty;
-        if (ImGui::MenuItemEx("Save", ICON_FA_DOWNLOAD, nullptr, false,
-                              canSave)) {
-          if (entry->hasResource()) {
-            entry->save();
-          } else {
-            action = kSaveScriptAs_ActionId;
-          }
+        if (ImGui::MenuItem("Open Script...", "Ctrl+O")) {
+          action = Action::kOpenScript;
         }
-        if (ImGui::MenuItemEx("Open", ICON_FA_UPLOAD)) {
-          action = kOpenScript_ActionId;
+        const auto canSave = entry && entry->isChanged();
+        if (ImGui::MenuItem("Save", "Ctrl+S", nullptr, canSave)) {
+          save(entry);
         }
-
+        if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S", nullptr, canSave)) {
+          action = Action::kSaveScriptAs;
+        }
         ImGui::Separator();
-
-        if (ImGui::MenuItemEx("Close", ICON_FA_XMARK, nullptr, false,
-                              m_activeScriptId.has_value())) {
-          junk = *m_activeScriptId;
+        if (ImGui::MenuItem("Close", "Ctrl+W", nullptr, entry)) {
+          m_junk = *m_activeScriptId;
         }
-
+        ImGui::Separator();
+        if (ImGui::MenuItem("Exit")) {
+          if (popen) *popen = false;
+        }
         ImGui::EndMenu();
       }
-
-      if (ImGui::MenuItem(ICON_FA_PLAY " Execute", nullptr, nullptr,
-                          m_activeScriptId.has_value())) {
-        publish(RunScriptRequest{_getActiveEntry()->textEditor.GetText()});
+      if (ImGui::BeginMenu("Edit")) {
+        auto *textEditor = entry ? &entry->textEditor : nullptr;
+        if (ImGui::MenuItem("Undo", "Ctrl+Z", nullptr,
+                            textEditor && textEditor->CanUndo())) {
+          textEditor->Undo();
+        }
+        if (ImGui::MenuItem("Redo", "Ctrl+Y", nullptr,
+                            textEditor && textEditor->CanRedo())) {
+          textEditor->Redo();
+        }
+        ImGui::Separator();
+        if (ImGui::MenuItem("Cut", "Ctrl+X", nullptr, textEditor)) {
+          textEditor->Cut();
+        }
+        if (ImGui::MenuItem("Copy", "Ctrl+C", nullptr, textEditor)) {
+          textEditor->Copy();
+        }
+        if (ImGui::MenuItem("Paste", "Ctrl+V", nullptr, textEditor)) {
+          textEditor->Paste();
+        }
+        ImGui::EndMenu();
+      }
+      if (ImGui::BeginMenu("Run")) {
+        if (ImGui::MenuItem("Execute", "F5", nullptr, entry)) {
+          _runScript(*entry);
+        }
+        ImGui::EndMenu();
+      }
+      if (ImGui::BeginMenu("Help")) {
+        if (ImGui::MenuItem("Keyboard shortcuts", "Ctrl+H")) {
+          action = Action::kShowKeyboardShortcuts;
+        }
+        ImGui::EndMenu();
       }
 
       ImGui::EndMenuBar();
     }
 
+    ImGui::BeginTabBar(IM_UNIQUE_ID, ImGuiTabBarFlags_AutoSelectNewTabs |
+                                       ImGuiTabBarFlags_Reorderable);
+    std::optional<std::size_t> forceActiveTab;
+    if (size() > 1) {
+      if (ImGui::GetIO().KeyCtrl) {
+        if (ImGui::IsKeyPressed(ImGuiKey_PageUp)) {
+          forceActiveTab = *m_activeScriptId + 1;
+        }
+        if (ImGui::IsKeyPressed(ImGuiKey_PageDown)) {
+          forceActiveTab = *m_activeScriptId - 1;
+        }
+      }
+    }
+    for (auto [i, entry] : std::views::enumerate(m_scripts)) {
+      const auto label = std::format("{}##{}", makeLabel(entry.path), i);
+      auto open = true;
+      ImGuiTabItemFlags flags = entry.isChanged()
+                                  ? ImGuiTabItemFlags_UnsavedDocument
+                                  : ImGuiTabItemFlags_None;
+      if (forceActiveTab == i) flags |= ImGuiTabItemFlags_SetSelected;
+      const auto visible = ImGui::BeginTabItem(label.c_str(), &open, flags);
+      if (ImGui::IsKeyDown(ImGuiMod_Alt) && ImGui::IsItemHovered()) {
+        ImGui::ShowTooltip(makeTooltip(entry.path));
+      }
+      if (visible) {
+        m_activeScriptId = i;
+        isFocused |= entry.textEditor.Render(IM_UNIQUE_ID, isFocused);
+        if (isFocused) {
+          if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiMod_Shift |
+                                       ImGuiKey_S)) {
+            action = Action::kSaveScriptAs;
+          } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_S)) {
+            save(&entry);
+          } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_R)) {
+            entry.load();
+          } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_W)) {
+            m_junk = i;
+          } else if (ImGui::IsKeyPressed(ImGuiKey_F5)) {
+            _runScript(entry);
+          }
+        }
+        ImGui::EndTabItem();
+      }
+
+      if (!open) m_junk = i;
+    }
+    ImGui::EndTabBar();
+
+    if (m_junk) {
+      if (m_scripts[*m_junk].isChanged()) {
+        action = Action::kDiscardScript;
+      } else {
+        _removeScriptAt(*m_junk);
+        m_junk = std::nullopt;
+      }
+    }
+
+    // ---
+
     if (action) ImGui::OpenPopup(*action);
 
-    constexpr auto kScriptExtension = ".lua";
-    constexpr auto entryFilter = makeExtensionFilter(kScriptExtension);
+    if (const auto button =
+          showMessageBox<ModalButtons::Yes | ModalButtons::Cancel>(
+            Action::kDiscardScript, "Do you really want to discard changes?");
+        button) {
+      if (*button == ModalButton::Yes) _removeScriptAt(*m_junk);
+      m_junk = std::nullopt;
+    }
 
     const auto &rootDir = os::FileSystem::getRoot();
     static auto currentDir = rootDir;
+    if (const auto p = showFileDialog(Action::kOpenScript,
+                                      {
+                                        .dir = currentDir,
+                                        .barrier = rootDir,
+                                        .entryFilter = scriptFileFilter,
+                                      });
+        p) {
+      open(*p);
+    }
     if (const auto p =
-          showFileDialog(kSaveScriptAs_ActionId,
+          showFileDialog(Action::kSaveScriptAs,
                          {
                            .dir = currentDir,
                            .barrier = rootDir,
-                           .entryFilter = entryFilter,
+                           .entryFilter = scriptFileFilter,
                            .forceExtension = kScriptExtension,
                            .flags = FileDialogFlags_AskOverwrite |
                                     FileDialogFlags_CreateDirectoryButton,
@@ -144,65 +294,9 @@ void ScriptEditor::show(const char *name, bool *popen) {
         p) {
       _getActiveEntry()->saveAs(*p);
     }
-    if (const auto p = showFileDialog(kOpenScript_ActionId,
-                                      {
-                                        .dir = currentDir,
-                                        .barrier = rootDir,
-                                        .entryFilter = entryFilter,
-                                      });
-        p) {
-      openScript(loadResource<ScriptManager>(p->string()));
-    }
 
-    // ---
-
-    ImGui::BeginTabBar(IM_UNIQUE_ID, ImGuiTabBarFlags_AutoSelectNewTabs |
-                                       ImGuiTabBarFlags_Reorderable);
-    for (auto i = 0u; i < m_scripts.size(); ++i) {
-      auto &[r, textEditor, dirty] = m_scripts[i];
-      if (textEditor.IsTextChanged()) {
-        dirty = !r || r->code.compare(textEditor.GetText()) != 0;
-      }
-
-      auto open = true;
-      const auto label =
-        std::format("{}##{}", r ? makeLabel(r->getPath()) : "(empty)", i);
-      const auto visible = ImGui::BeginTabItem(
-        label.c_str(), &open,
-        dirty ? ImGuiTabItemFlags_UnsavedDocument : ImGuiTabItemFlags_None);
-
-      if (ImGui::IsKeyDown(ImGuiMod_Alt) && ImGui::IsItemHovered()) {
-        ImGui::ShowTooltip(r ? makeTooltip(r->getPath()) : "(unsaved)");
-      }
-
-      if (visible) {
-        m_activeScriptId = i;
-        textEditor.Render(IM_UNIQUE_ID);
-        ImGui::EndTabItem();
-      }
-
-      if (!open) junk = i;
-    }
-    ImGui::EndTabBar();
-
-    constexpr auto kDiscardScriptActionId = MAKE_WARNING("Discard?");
-
-    if (junk) {
-      if (m_scripts[*junk].dirty)
-        ImGui::OpenPopup(kDiscardScriptActionId);
-      else {
-        _removeScriptAt(*junk);
-        junk = std::nullopt;
-      }
-    }
-
-    if (const auto button =
-          showMessageBox<ModalButtons::Yes | ModalButtons::Cancel>(
-            kDiscardScriptActionId, "Do you really want to discard changes?");
-        button) {
-      if (*button == ModalButton::Yes) _removeScriptAt(*junk);
-      junk = std::nullopt;
-    }
+    showModal<ModalButtons::Ok>(Action::kShowKeyboardShortcuts,
+                                showKeyboardShortcuts);
   }
   ImGui::End();
 }
@@ -214,11 +308,46 @@ void ScriptEditor::show(const char *name, bool *popen) {
 ScriptEditor::Entry *ScriptEditor::_getActiveEntry() {
   return m_activeScriptId ? &m_scripts[*m_activeScriptId] : nullptr;
 }
-
+void ScriptEditor::_runScript(const Entry &e) {
+  publish(RunScriptRequest{e.textEditor.GetText()});
+}
 void ScriptEditor::_removeScriptAt(std::size_t index) {
   assert(index >= 0 && index < m_scripts.size());
   m_scripts.erase(m_scripts.begin() + index);
 
   if (m_activeScriptId && *m_activeScriptId == index)
     m_activeScriptId = std::nullopt;
+}
+
+//
+// ScriptEditor::Entry struct:
+//
+
+ScriptEditor::Entry::Entry(const std::filesystem::path &p) : path{p} {
+  textEditor.SetLanguageDefinition(TextEditor::LanguageDefinitionId::Lua);
+  textEditor.SetPalette(TextEditor::PaletteId::Dark);
+  textEditor.SetShortTabsEnabled(true);
+  textEditor.SetTabSize(2);
+
+  load();
+}
+
+void ScriptEditor::Entry::load() {
+  if (!path.empty()) {
+    if (auto text = os::FileSystem::readText(path); text) {
+      textEditor.SetText(*text);
+    }
+  }
+}
+
+void ScriptEditor::Entry::save() {
+  assert(os::FileSystem::getExtension(path) == kScriptExtension);
+  os::FileSystem::saveText(path, textEditor.GetText());
+  undoIndex = textEditor.GetUndoIndex();
+}
+void ScriptEditor::Entry::saveAs(const std::filesystem::path &p) {
+  if (p != path) {
+    path = p;
+    save();
+  }
 }
