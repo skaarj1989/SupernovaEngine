@@ -274,6 +274,9 @@ set(SOURCES
   "include/CameraController.hpp"
   "src/CameraController.cpp"
 
+  "include/TextEditorCommon.hpp"
+  "src/TextEditorCommon.cpp"
+
   "include/ScriptEditor.hpp"
   "src/ScriptEditor.cpp"
 

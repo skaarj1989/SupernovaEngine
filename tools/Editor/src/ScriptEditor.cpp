@@ -4,6 +4,7 @@
 #include "ImGuiModal.hpp"
 #include "ImGuiDragAndDrop.hpp"
 #include "FileDialog.hpp"
+#include "TextEditorCommon.hpp"
 
 #include <ranges>
 
@@ -32,53 +33,18 @@ struct Action {
 }
 
 void showKeyboardShortcuts() {
-  if (ImGui::BeginTable(IM_UNIQUE_ID, 2,
-                        ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders)) {
-    struct Entry {
-      const char *description;
-      std::vector<const char *> shortcuts;
-    };
-    static const std::vector<Entry> kEntries{
+  static const std::vector<TextEditorAction> kScriptEditorActions{
       {"New Script", {"Ctrl+N"}},
       {"Open Script", {"Ctrl+O"}},
       {"Save", {"Ctrl+S"}},
       {"Save As", {"Ctrl+Shift+S"}},
       {"Close Script", {"Ctrl+W"}},
 
-      {"Select all", {"Ctrl+A"}},
-
-      {"Go to beginning/end of line", {"Home/End"}},
-      {"Go to beginning of file", {"Ctrl+Home"}},
-      {"Go to end of file", {"Ctrl+End"}},
-
       {"Go to next script (tab)", {"Ctrl+PgUp"}},
       {"Go to previous script (tab)", {"Ctrl+PgDn"}},
-
-      {
-        "Move line up/down",
-        {"Ctrl+Shift+" ICON_FA_ARROW_UP "/" ICON_FA_ARROW_DOWN},
-      },
-      {"Delete line", {"Ctrl+Shift+K"}},
-
-      {"Copy line/selection", {"Ctrl+C", "Ctrl+Insert"}},
-      {"Paste", {"Ctrl+V", "Shift+Insert"}},
-      {"Cut line/selection", {"Ctrl+X", "Shift+Del"}},
-
-      {"Undo", {"Ctrl+Z", "Alt+Backspace"}},
-      {"Redo", {"Ctrl+Y", "Ctrl+Shift+Z"}},
     };
-    for (const auto &[description, shortcuts] : kEntries) {
-      ImGui::TableNextRow();
-
-      ImGui::TableSetColumnIndex(0);
-      for (const auto *chord : shortcuts) {
-        ImGui::Text(chord);
-      }
-      ImGui::TableSetColumnIndex(1);
-      ImGui::Text(description);
-    }
-    ImGui::EndTable();
-  }
+  keyboardShortcutsTable("Scripts", kScriptEditorActions);
+  keyboardShortcutsTable("Basic editing", getDefaultActions());
 }
 
 } // namespace
@@ -163,28 +129,8 @@ void ScriptEditor::show(const char *name, bool *popen) {
         }
         ImGui::EndMenu();
       }
-      if (ImGui::BeginMenu("Edit")) {
-        auto *textEditor = entry ? &entry->textEditor : nullptr;
-        if (ImGui::MenuItem("Undo", "Ctrl+Z", nullptr,
-                            textEditor && textEditor->CanUndo())) {
-          textEditor->Undo();
-        }
-        if (ImGui::MenuItem("Redo", "Ctrl+Y", nullptr,
-                            textEditor && textEditor->CanRedo())) {
-          textEditor->Redo();
-        }
-        ImGui::Separator();
-        if (ImGui::MenuItem("Cut", "Ctrl+X", nullptr, textEditor)) {
-          textEditor->Cut();
-        }
-        if (ImGui::MenuItem("Copy", "Ctrl+C", nullptr, textEditor)) {
-          textEditor->Copy();
-        }
-        if (ImGui::MenuItem("Paste", "Ctrl+V", nullptr, textEditor)) {
-          textEditor->Paste();
-        }
-        ImGui::EndMenu();
-      }
+      addBasicEditMenu(entry ? &entry->textEditor : nullptr);
+
       if (ImGui::BeginMenu("Run")) {
         if (ImGui::MenuItem("Execute", "F5", nullptr, entry)) {
           _runScript(*entry);
