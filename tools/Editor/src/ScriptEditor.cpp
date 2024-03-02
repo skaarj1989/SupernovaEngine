@@ -34,15 +34,15 @@ struct Action {
 
 void showKeyboardShortcuts() {
   static const std::vector<TextEditorAction> kScriptEditorActions{
-      {"New Script", {"Ctrl+N"}},
-      {"Open Script", {"Ctrl+O"}},
-      {"Save", {"Ctrl+S"}},
-      {"Save As", {"Ctrl+Shift+S"}},
-      {"Close Script", {"Ctrl+W"}},
+    {"New Script", {"Ctrl+N"}},
+    {"Open Script", {"Ctrl+O"}},
+    {"Save", {"Ctrl+S"}},
+    {"Save As", {"Ctrl+Shift+S"}},
+    {"Close Script", {"Ctrl+W"}},
 
-      {"Go to next script (tab)", {"Ctrl+PgUp"}},
-      {"Go to previous script (tab)", {"Ctrl+PgDn"}},
-    };
+    {"Go to next script (tab)", {"Ctrl+PgUp"}},
+    {"Go to previous script (tab)", {"Ctrl+PgDn"}},
+  };
   keyboardShortcutsTable("Scripts", kScriptEditorActions);
   keyboardShortcutsTable("Basic editing", getDefaultActions());
 }
@@ -71,7 +71,7 @@ bool ScriptEditor::contains(const std::filesystem::path &p) const {
 void ScriptEditor::show(const char *name, bool *popen) {
   if (ImGui::Begin(name, popen, ImGuiWindowFlags_MenuBar)) {
     ZoneScopedN("ScriptEditor");
-    auto isFocused = ImGui::IsWindowFocused();
+    auto hasFocus = ImGui::IsWindowFocused();
 
     // Feature: Drag'n'Drop a file to open it in a new tab.
     const auto cursorPos = ImGui::GetCursorPos();
@@ -94,14 +94,6 @@ void ScriptEditor::show(const char *name, bool *popen) {
         action = Action::kSaveScriptAs;
       }
     };
-
-    if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_N)) {
-      newScript();
-    } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_O)) {
-      action = Action::kOpenScript;
-    } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_H)) {
-      action = Action::kShowKeyboardShortcuts;
-    }
 
     if (ImGui::BeginMenuBar()) {
       auto *entry = _getActiveEntry();
@@ -173,8 +165,8 @@ void ScriptEditor::show(const char *name, bool *popen) {
       }
       if (visible) {
         m_activeScriptId = i;
-        isFocused |= entry.textEditor.Render(IM_UNIQUE_ID, isFocused);
-        if (isFocused) {
+        hasFocus |= entry.textEditor.Render(IM_UNIQUE_ID, hasFocus);
+        if (hasFocus) {
           if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiMod_Shift |
                                        ImGuiKey_S)) {
             action = Action::kSaveScriptAs;
@@ -194,6 +186,16 @@ void ScriptEditor::show(const char *name, bool *popen) {
       if (!open) m_junk = i;
     }
     ImGui::EndTabBar();
+
+    if (hasFocus) {
+      if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_N)) {
+        newScript();
+      } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_O)) {
+        action = Action::kOpenScript;
+      } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_H)) {
+        action = Action::kShowKeyboardShortcuts;
+      }
+    }
 
     if (m_junk) {
       if (m_scripts[*m_junk].isChanged()) {
