@@ -17,6 +17,7 @@ add_library(imgui
 
   "TextEditor.h"
   "TextEditor.cpp"
+  "LanguageDefinitions.cpp"
 
   "ImGuizmo.hpp"
   "ImGuizmo.cpp"
