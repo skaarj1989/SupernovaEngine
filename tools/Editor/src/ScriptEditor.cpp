@@ -33,7 +33,7 @@ struct Action {
 }
 
 void showKeyboardShortcuts() {
-  static const std::vector<TextEditorAction> kScriptEditorActions{
+  static const std::vector<EditorActionInfo> kScriptEditorActions{
     {"New Script", {"Ctrl+N"}},
     {"Open Script", {"Ctrl+O"}},
     {"Save", {"Ctrl+S"}},
@@ -44,7 +44,7 @@ void showKeyboardShortcuts() {
     {"Go to previous script (tab)", {"Ctrl+PgDn"}},
   };
   keyboardShortcutsTable("Scripts", kScriptEditorActions);
-  keyboardShortcutsTable("Basic editing", getDefaultActions());
+  keyboardShortcutsTable("Basic editing", getBasicTextEditorActions());
 }
 
 } // namespace

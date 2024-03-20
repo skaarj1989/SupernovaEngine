@@ -7,7 +7,7 @@
 
 namespace {
 
-const std::vector<TextEditorAction> kDefaults{
+const std::vector<EditorActionInfo> kBasicActions{
   {"Select all", {"Ctrl+A"}},
 
   {"Go to beginning/end of line", {"Home/End"}},
@@ -65,7 +65,7 @@ void basicTextEditorWidget(TextEditor &textEditor, const char *name,
       ImGui::OpenPopup(kShowKeyboardShortcuts_ActionId);
 
     showModal<ModalButtons::Ok>(kShowKeyboardShortcuts_ActionId, [] {
-      keyboardShortcutsTable("Basic editing", getDefaultActions());
+      keyboardShortcutsTable("Basic editing", getBasicTextEditorActions());
     });
   }
 }
@@ -98,26 +98,6 @@ void addBasicEditMenu(TextEditor *textEditor) {
   }
 }
 
-[[nodiscard]] std::span<const TextEditorAction> getDefaultActions() {
-  return kDefaults;
-}
-
-void keyboardShortcutsTable(const char *label,
-                            std::span<const TextEditorAction> entries) {
-  ImGui::SeparatorText(label);
-  if (ImGui::BeginTable(IM_UNIQUE_ID, 2,
-                        ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders |
-                          ImGuiTableFlags_SizingFixedFit)) {
-    for (const auto &[description, shortcuts] : entries) {
-      ImGui::TableNextRow();
-
-      ImGui::TableSetColumnIndex(0);
-      for (const auto *chord : shortcuts) {
-        ImGui::Text(chord);
-      }
-      ImGui::TableSetColumnIndex(1);
-      ImGui::Text(description);
-    }
-    ImGui::EndTable();
-  }
+[[nodiscard]] std::span<const EditorActionInfo> getBasicTextEditorActions() {
+  return kBasicActions;
 }
