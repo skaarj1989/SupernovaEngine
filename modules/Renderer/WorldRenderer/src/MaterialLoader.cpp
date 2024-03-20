@@ -67,8 +67,7 @@ struct Material {
     // Relative to material root file.
     std::optional<std::filesystem::path> path;
   };
-  Code vertexShader;
-  Code fragmentShader;
+  std::map<rhi::ShaderType, Code> code;
 
   std::optional<MaterialFlags> flags;
 };
@@ -127,8 +126,9 @@ void from_json(const json &j, Material &out) {
   */
   out.textures = j.value("samplers", Material::TextureMap{});
 
-  out.vertexShader = j.value("vertexShader", Material::Code{});
-  out.fragmentShader = j.value("fragmentShader", Material::Code{});
+  out.code[rhi::ShaderType::Vertex] = j.value("vertexShader", Material::Code{});
+  out.code[rhi::ShaderType::Fragment] =
+    j.value("fragmentShader", Material::Code{});
 
   if (j.contains("flags")) {
     const auto values = j["flags"].get<std::vector<std::string>>();
@@ -186,9 +186,12 @@ MaterialLoader::operator()(const std::filesystem::path &p,
         return code;
       };
 
-    builder.setUserVertCode(assembleCustomShader(materialMeta.vertexShader))
-      .setUserFragCode(assembleCustomShader(materialMeta.fragmentShader,
-                                            getDefaultFragCode()));
+    using enum rhi::ShaderType;
+    builder
+      .setUserCode(Vertex, assembleCustomShader(materialMeta.code.at(Vertex)))
+      .setUserCode(Fragment,
+                   assembleCustomShader(materialMeta.code.at(Fragment),
+                                        getDefaultFragCode()));
     if (materialMeta.flags) {
       builder.setFlags(*materialMeta.flags);
     }

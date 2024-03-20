@@ -42,7 +42,10 @@ template <> struct hash<gfx::Material::Blueprint> {
     for (const auto &[_, t] : v.defaultTextures) {
       hashCombine(h, t.type);
     }
-    hashCombine(h, v.userVertCode, v.userFragCode, v.flags);
+    for (const auto &[stage, code] : v.userCode) {
+      hashCombine(h, code);
+    }
+    hashCombine(h, v.flags);
     return h;
   }
 };
@@ -168,12 +171,8 @@ Builder &Builder::addSampler(rhi::TextureType type, const std::string &alias,
   return *this;
 }
 
-Builder &Builder::setUserVertCode(Blueprint::Code code) {
-  m_blueprint.userVertCode = std::move(code);
-  return *this;
-}
-Builder &Builder::setUserFragCode(Blueprint::Code code) {
-  m_blueprint.userFragCode = std::move(code);
+Builder &Builder::setUserCode(rhi::ShaderType stage, Blueprint::Code code) {
+  m_blueprint.userCode[stage] = std::move(code);
   return *this;
 }
 

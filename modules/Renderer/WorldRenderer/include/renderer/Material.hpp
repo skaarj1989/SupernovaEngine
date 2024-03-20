@@ -1,5 +1,6 @@
 #pragma once
 
+#include "rhi/ShaderType.hpp"
 #include "rhi/CullMode.hpp"
 #include "MaterialProperty.hpp"
 #include "TextureManager.hpp"
@@ -104,8 +105,7 @@ public:
       std::string includes;
       std::string source;
     };
-    Code userVertCode;
-    Code userFragCode;
+    std::map<rhi::ShaderType, Code> userCode;
 
     MaterialFlags flags{MaterialFlags::None};
   };
@@ -146,8 +146,7 @@ public:
     Builder &addSampler(rhi::TextureType, const std::string &alias,
                         std::shared_ptr<rhi::Texture>);
 
-    Builder &setUserVertCode(Blueprint::Code);
-    Builder &setUserFragCode(Blueprint::Code);
+    Builder &setUserCode(rhi::ShaderType, Blueprint::Code);
 
     Builder &setFlags(MaterialFlags);
 

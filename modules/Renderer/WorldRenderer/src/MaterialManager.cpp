@@ -38,7 +38,7 @@ material.roughness = 0.6;
     .addProperty({"metallic", 0.04f})
     .addProperty({"roughness", 0.6f})
 #endif
-    .setUserFragCode({.source = kFragCode})
+    .setUserCode(rhi::ShaderType::Fragment, {.source = kFragCode})
     .build();
 }
 

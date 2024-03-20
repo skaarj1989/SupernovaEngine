@@ -86,9 +86,15 @@ void addProperties(ShaderCodeBuilder &builder, const Material &material,
   }
 }
 
-[[nodiscard]] auto makeCodePatch([[maybe_unused]] int fileIndex,
+enum class FileIndex {
+  Main,
+  UserModule = 1,
+};
+[[nodiscard]] auto makeCodePatch(const FileIndex fileIndex,
                                  const std::string_view code) {
-  return !code.empty() ? std::format("#line 1 {}\n{}", fileIndex, code) : "";
+  return !code.empty()
+           ? std::format("#line 1 {}\n{}", std::to_underlying(fileIndex), code)
+           : "";
 }
 
 void addCode(ShaderCodeBuilder &builder,
@@ -96,8 +102,10 @@ void addCode(ShaderCodeBuilder &builder,
   for (const auto &[key, value] : code.defines) {
     builder.addDefine(key, value);
   }
-  builder.replace(kUserModulesRegion, makeCodePatch(1, code.includes))
-    .replace(kUserCodeRegion, makeCodePatch(0, code.source));
+  builder
+    .replace(kUserModulesRegion,
+             makeCodePatch(FileIndex::UserModule, code.includes))
+    .replace(kUserCodeRegion, makeCodePatch(FileIndex::Main, code.source));
 }
 
 } // namespace
@@ -149,23 +157,17 @@ void addMaterial(ShaderCodeBuilder &builder, const Material &material,
   addProperties(builder, material, minOffsetAlignment);
   addSamplers(builder, blueprint.defaultTextures);
 
-  switch (shaderType) {
-    using enum rhi::ShaderType;
-
-  case Vertex: {
+  if (shaderType == rhi::ShaderType::Vertex) {
     setReferenceFrames(builder, {
                                   .position = ReferenceFrame::Clip,
                                   .normal = ReferenceFrame::World,
                                 });
-    addCode(builder, blueprint.userVertCode);
-  } break;
-  case Fragment:
-    addCode(builder, blueprint.userFragCode);
-    break;
-
-  default:
-    assert(false);
   }
+
+  const auto it = blueprint.userCode.find(shaderType);
+  addCode(builder, it != blueprint.userCode.cend()
+                     ? it->second
+                     : Material::Blueprint::Code{});
 }
 
 } // namespace gfx
