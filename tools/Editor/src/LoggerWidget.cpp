@@ -62,17 +62,20 @@ statLevel(spdlog::level::level_enum level) {
   switch (level) {
     using enum spdlog::level::level_enum;
 
+  case trace:
+    return {"trace", ImVec4{0.7f, 0.7f, 1.0f, 1.0f}};
   case info:
-    return {"info", ImVec4{0, 1, 0, 1}};
+    return {"info", ImVec4{0.0f, 0.8f, 0.0f, 1.0f}};
   case warn:
-    return {"warn", ImVec4{1, 1, 0, 1}};
+    return {"warn", ImVec4{0.8f, 0.8f, 0.0f, 1.0f}};
   case err:
-    return {"error", ImVec4{1, 0, 0, 1}};
+    return {"error", ImVec4{1.0f, 0.2f, 0.2f, 1.0f}};
   case critical:
-    return {"critical", ImVec4{1, 0, 0, 1}};
-  }
+    return {"critical", ImVec4{1.0f, 0.0f, 0.0f, 1.0f}};
 
-  return {"unknown", ImVec4{1, 1, 1, 1}};
+  default:
+    return {"undefined", ImVec4{0.65f, 0.65f, 0.65f, 1.0f}};
+  }
 }
 
 #if USE_CLIPPER
