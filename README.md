@@ -5,11 +5,15 @@
 
 An experimental game engine.
 
-<img src="media/se01.png" alt="Scene Editor"/>
+<p align="center">
+    <img width="49%" src="media/se01.png" alt="Scene Editor"/>
+&nbsp;
+    <img width="49%" src="media/se02.png" alt="Scene Editor"/>
+</p>
 
 <details><summary><b>Screenshots</b></summary>
 <p align="center">
-    <img width="49%" src="media/se02.png" alt="Scene Editor"/>
+    <img width="49%" src="media/se03.png" alt="Scene Editor w/ Script Editor"/>
 &nbsp;
     <img width="49%" src="media/me01.png" alt="Material Editor (surface)"/>
 </p>
