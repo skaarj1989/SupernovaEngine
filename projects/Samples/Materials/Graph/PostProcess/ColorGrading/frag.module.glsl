@@ -1,3 +1,5 @@
+vec4 colorGrade(vec3 color, sampler2D lut);
+
 vec4 colorGrade(vec3 color, sampler2D lut) {
 const float kNumColors = 16.0;
 const float kMaxCellIdx = kNumColors - 1.0;

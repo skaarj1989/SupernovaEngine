@@ -18,22 +18,18 @@
     }
   },
   "samplers": {
-    "t_Albedo": {
+    "t_fs_15": {
       "type": "sampler2D",
       "path": "bricks2.jpg"
     },
-    "t_Displacement": {
+    "t_fs_19": {
       "type": "sampler2D",
       "path": "bricks2_disp.jpg"
     },
-    "t_Normal": {
+    "t_fs_25": {
       "type": "sampler2D",
       "path": "bricks2_normal.jpg"
     }
-  },
-  "vertexShader": {
-    "defines": [],
-    "path": "code.vert"
   },
   "fragmentShader": {
     "defines": [],

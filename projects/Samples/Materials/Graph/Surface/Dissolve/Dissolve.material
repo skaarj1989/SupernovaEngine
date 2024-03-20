@@ -15,17 +15,17 @@
     "fs_edgeColor": {
       "type": "vec4",
       "value": [
-        0.24176955223083496,
-        0.679965078830719,
-        0.8333333134651184,
-        10.0
+        0.0,
+        0.4000000059604645,
+        0.800000011920929,
+        100.0
       ]
     },
     "fs_edgeWidth": {
       "type": "float",
       "value": 0.009999999776482582
     },
-    "fs_id_30": {
+    "fs_id_23": {
       "type": "vec2",
       "value": [
         1.2999999523162842,
@@ -34,10 +34,6 @@
     }
   },
   "samplers": {},
-  "vertexShader": {
-    "defines": [],
-    "path": "code.vert"
-  },
   "fragmentShader": {
     "defines": [],
     "includes": [

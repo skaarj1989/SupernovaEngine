@@ -12,26 +12,20 @@
   "lightingMode": "Default",
   "cullMode": "Back",
   "properties": {
-    "fs_emissiveFactor": {
+    "fs_id_14": {
       "type": "vec4",
       "value": [
-        0.28951382637023926,
-        0.6548263430595398,
+        0.28999999165534973,
+        0.6549999713897705,
         0.800000011920929,
-        100.0
+        10.0
       ]
     }
   },
   "samplers": {},
-  "vertexShader": {
-    "defines": [],
-    "path": "code.vert"
-  },
   "fragmentShader": {
     "defines": [],
     "path": "code.frag"
   },
-  "flags": [
-    "CastShadow"
-  ]
+  "flags": []
 }

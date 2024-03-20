@@ -3,7 +3,7 @@
   "domain": "PostProcess",
   "properties": {},
   "samplers": {
-    "t_LUT": {
+    "t_fs_LUT": {
       "type": "sampler2D",
       "path": "LUT_Greenish.png"
     }

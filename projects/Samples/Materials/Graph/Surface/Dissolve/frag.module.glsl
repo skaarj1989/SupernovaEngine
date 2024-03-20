@@ -1,3 +1,5 @@
+float simpleNoise(vec2 P, vec2 step);
+
 float simpleNoise(vec2 P, vec2 step) {
 #define color(xy) cnoise(vec3(xy, 0))
 float n = color(P);

@@ -18,18 +18,14 @@
     }
   },
   "samplers": {
-    "t_Normal0": {
+    "t_fs_15": {
       "type": "sampler2D",
       "path": "T_Water_Normal.tga"
     },
-    "t_Normal1": {
+    "t_fs_18": {
       "type": "sampler2D",
       "path": "T_Water_Normal_Subtle.tga"
     }
-  },
-  "vertexShader": {
-    "defines": [],
-    "path": "code.vert"
   },
   "fragmentShader": {
     "defines": [],

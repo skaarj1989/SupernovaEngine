@@ -1,12 +1,8 @@
-vec2 mytrunc(vec2 x, float numLevels) {
-return floor(x * numLevels) / numLevels;
-}
-float mytrunc(float x, float numLevels) {
-return floor(x * numLevels) / numLevels;
-}
-vec3 spectrumOffset(float t) {
-float t0 = 3.0 * t - 1.5;return clamp01(vec3(-t0, 1.0 - abs(t0), t0));
-}
+vec4 glitch(sampler2D channel, vec2 uv, float strength);
+float mytrunc(float x, float numLevels);
+vec2 mytrunc(vec2 x, float numLevels);
+vec3 spectrumOffset(float t);
+
 vec4 glitch(sampler2D channel, vec2 uv, float strength) {
 //uv.y = 1.0 - uv.y;
 
@@ -48,4 +44,14 @@ for (int i = 0; i < kNumSamples; ++i) {
 sum.rgb /= wsum;
 sum.a *= kRcpNumSamples;
 return sum;
+}
+float mytrunc(float x, float numLevels) {
+return floor(x * numLevels) / numLevels;
+}
+vec2 mytrunc(vec2 x, float numLevels) {
+return floor(x * numLevels) / numLevels;
+}
+vec3 spectrumOffset(float t) {
+float t0 = 3.0 * t - 1.5;
+return clamp01(vec3(-t0, 1.0 - abs(t0), t0));
 }
