@@ -1,8 +1,11 @@
 #include "TextEditorCommon.hpp"
+#include "os/FileSystem.hpp"
+
 #include "ImGuiTitleBarMacro.hpp"
 #include "IconsFontAwesome6.h"
 #include "TextEditor.h"
 #include "ImGuiModal.hpp"
+#include "ImGuiDragAndDrop.hpp"
 #include "imgui_internal.h" // ClosePopupsExceptModals
 
 namespace {
@@ -39,6 +42,22 @@ void basicTextEditorWidget(TextEditor &textEditor, const char *name,
                         border ? ImGuiChildFlags_Border : ImGuiChildFlags_None,
                         ImGuiWindowFlags_MenuBar)) {
     auto hasFocus = ImGui::IsWindowFocused();
+
+    const auto cursorPos = ImGui::GetCursorPos();
+    ImGui::Dummy(ImGui::GetContentRegionAvail());
+    if (ImGui::BeginDragDropTarget()) {
+      if (auto *payload = ImGui::AcceptDragDropPayload(kImGuiPayloadTypeFile);
+          payload) {
+        if (const auto text =
+              os::FileSystem::readText(ImGui::ExtractPath(*payload));
+            text) {
+          textEditor.SetText(text.value());
+          ImGui::SetWindowFocus();
+        }
+      }
+      ImGui::EndDragDropTarget();
+    }
+    ImGui::SetCursorPos(cursorPos);
 
     auto showKeyboardShortcuts = false;
     if (ImGui::BeginMenuBar()) {
