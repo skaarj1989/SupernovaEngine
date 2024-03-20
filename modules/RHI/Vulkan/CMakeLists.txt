@@ -145,8 +145,8 @@ target_link_libraries(VulkanRHI
   PRIVATE
   StringUtility
   glslang::glslang
-  glslang::OGLCompiler
   glslang::SPIRV
+  glslang::SPVRemapper
   spirv-cross-glsl
   spirv-cross-reflect
   spdlog::spdlog

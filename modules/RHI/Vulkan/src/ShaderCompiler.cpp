@@ -1,5 +1,8 @@
 #include "rhi/ShaderCompiler.hpp"
 #include "glslang/SPIRV/GlslangToSpv.h"
+#include "glslang/Public/ShaderLang.h"
+#include <array>
+#include <cassert>
 
 // https://github.com/KhronosGroup/GLSL/blob/master/extensions/khr/GL_KHR_vulkan_glsl.txt
 
