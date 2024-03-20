@@ -1,19 +1,31 @@
 #pragma once
 
-#include "NodeCommon.hpp"
+#include "Compound.hpp"
+#include "MaterialEditor/TransientVariant.hpp"
 
-struct PostProcessMasterNode final : NodeBase {
-  VertexDescriptor fragColor;
+class PostProcessMasterNode : public CompoundNode {
+public:
+  PostProcessMasterNode() = default;
+  PostProcessMasterNode(ShaderGraph &, const IDPair);
+
+  std::unique_ptr<NodeBase> clone(const IDPair) const override;
+
+  void accept(NodeVisitor &visitor) override { visitor.visit(*this); }
+  void accept(NodeVisitor &visitor) const override { visitor.visit(*this); }
+
+  std::string toString() const override;
 
   // ---
 
-  static PostProcessMasterNode create(ShaderGraph &, VertexDescriptor parent);
+  struct FieldInfo {
+    const char *name;
+    TransientVariant defaultValue;
+  };
+  static const std::vector<FieldInfo> kFields;
 
-  bool inspect(ShaderGraph &, int32_t id);
-  [[nodiscard]] MasterNodeResult evaluate(MaterialGenerationContext &,
-                                          int32_t id) const;
+  // ---
 
   template <class Archive> void serialize(Archive &archive) {
-    archive(Serializer{fragColor});
+    archive(cereal::base_class<CompoundNode>(this));
   }
 };

@@ -2,7 +2,6 @@
 
 #include <optional>
 #include <string>
-#include <utility>
 #include <cstdint>
 
 // clang-format off
@@ -21,11 +20,11 @@ enum class DataType {
 };
 // clang-format on
 
-[[nodiscard]] constexpr auto makeHash(DataType lhs, DataType rhs) {
+[[nodiscard]] constexpr auto makeHash(const DataType lhs, const DataType rhs) {
   return std::to_underlying(lhs) << 16 | std::to_underlying(rhs);
 }
 
-[[nodiscard]] constexpr auto isScalar(DataType type) {
+[[nodiscard]] constexpr auto isScalar(const DataType type) {
   switch (type) {
     using enum DataType;
 
@@ -38,7 +37,7 @@ enum class DataType {
   }
   return false;
 }
-[[nodiscard]] constexpr auto isVector(DataType type) {
+[[nodiscard]] constexpr auto isVector(const DataType type) {
   switch (type) {
     using enum DataType;
 
@@ -65,7 +64,7 @@ enum class DataType {
   }
   return false;
 }
-[[nodiscard]] constexpr auto isMatrix(DataType type) {
+[[nodiscard]] constexpr auto isMatrix(const DataType type) {
   switch (type) {
     using enum DataType;
 
@@ -76,7 +75,7 @@ enum class DataType {
   }
   return false;
 }
-[[nodiscard]] constexpr auto isSampler(DataType type) {
+[[nodiscard]] constexpr auto isSampler(const DataType type) {
   switch (type) {
     using enum DataType;
 
@@ -87,7 +86,7 @@ enum class DataType {
   return false;
 }
 
-[[nodiscard]] constexpr auto getBaseDataType(DataType type) {
+[[nodiscard]] constexpr auto getBaseDataType(const DataType type) {
   using enum DataType;
   switch (type) {
   case Bool:
@@ -126,7 +125,7 @@ enum class DataType {
   return Undefined;
 }
 
-[[nodiscard]] constexpr auto countChannels(DataType type) {
+[[nodiscard]] constexpr auto countChannels(const DataType type) {
   switch (type) {
     using enum DataType;
 
@@ -160,7 +159,7 @@ enum class DataType {
   }
   return 0;
 }
-[[nodiscard]] constexpr auto countColumns(DataType type) {
+[[nodiscard]] constexpr auto countColumns(const DataType type) {
   switch (type) {
     using enum DataType;
 
@@ -174,14 +173,14 @@ enum class DataType {
   return 0;
 }
 
-[[nodiscard]] float calcOptimalInspectorWidth(DataType);
+[[nodiscard]] float calcOptimalInspectorWidth(const DataType);
 
-[[nodiscard]] const char *toString(DataType);
+[[nodiscard]] const char *toString(const DataType);
 
 // ---
 
-[[nodiscard]] DataType constructVectorType(DataType baseType,
-                                           uint32_t numChannels);
+[[nodiscard]] DataType constructVectorType(const DataType baseType,
+                                           const uint32_t numChannels);
 
-[[nodiscard]] std::optional<std::string_view> getConversionFormat(DataType from,
-                                                                  DataType to);
+[[nodiscard]] std::optional<std::string_view>
+getConversionFormat(const DataType from, const DataType to);

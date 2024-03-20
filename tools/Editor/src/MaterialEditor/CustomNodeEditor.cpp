@@ -1,9 +1,15 @@
 #include "MaterialEditor/CustomNodeEditor.hpp"
+#include "MaterialEditor/MaterialProject.hpp"
+
 #include "ImGuiTitleBarMacro.hpp"
 #include "ImGuiModal.hpp"
 #include "TextEditorCommon.hpp"
 #include "imgui_internal.h" // {Push/Pop}ItemFlag
 #include "imgui_stdlib.h"   // InputText{WithHint}
+
+#include "entt/signal/dispatcher.hpp"
+#include "spdlog/logger.h"
+
 #include "tracy/Tracy.hpp"
 
 namespace {
@@ -58,10 +64,10 @@ namespace {
 }
 
 [[nodiscard]] auto
-showParameterConfig(std::vector<UserFunctionData::Parameter> &inputs,
-                    ImVec2 size) {
+showParameterConfig(std::vector<UserFunction::Data::Parameter> &inputs,
+                    const ImVec2 size) {
   auto dirty = false;
-  std::optional<std::size_t> junk;
+  std::optional<UserFunction::ID> junk;
 
   constexpr auto kTableFlags =
     ImGuiTableFlags_BordersInner | ImGuiTableFlags_BordersOuter |
@@ -79,7 +85,7 @@ showParameterConfig(std::vector<UserFunctionData::Parameter> &inputs,
     ImGui::TableHeadersRow();
 
     auto i = 0;
-    for (auto &[dataType, name] : inputs) {
+    for (auto &[name, dataType] : inputs) {
       ImGui::TableNextRow();
 
       ImGui::TableSetColumnIndex(0);
@@ -119,16 +125,17 @@ showParameterConfig(std::vector<UserFunctionData::Parameter> &inputs,
   return dirty;
 }
 
-[[nodiscard]] auto showDependencyConfig(std::vector<std::size_t> &dependencies,
-                                        const rhi::ShaderStages shaderStages,
-                                        const UserFunctions &functions) {
+[[nodiscard]] auto
+showDependencyConfig(std::vector<UserFunction::ID> &dependencies,
+                     const rhi::ShaderStages shaderStages,
+                     const UserFunctions &functions) {
   auto dirty = false;
 
   ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
   ImGui::SetNextItemWidth(150);
   if (ImGui::BeginCombo("Dependencies", nullptr, ImGuiComboFlags_NoPreview)) {
-    for (const auto &[hash, data] : functions) {
-      const auto it = std::ranges::find(dependencies, hash);
+    for (const auto &[id, data] : functions) {
+      const auto it = std::ranges::find(dependencies, id);
       const auto selected = it != dependencies.cend();
       const auto available =
         (data->shaderStages & shaderStages) == shaderStages;
@@ -136,9 +143,9 @@ showParameterConfig(std::vector<UserFunctionData::Parameter> &inputs,
       if (ImGui::MenuItem(buildDeclaration(*data).c_str(), nullptr, selected,
                           available)) {
         if (selected) {
-          std::erase(dependencies, hash);
+          std::erase(dependencies, id);
         } else {
-          dependencies.push_back(hash);
+          dependencies.push_back(id);
         }
         dirty = true;
       }
@@ -165,16 +172,101 @@ showParameterConfig(std::vector<UserFunctionData::Parameter> &inputs,
   return "-";
 }
 
-void sanitize(std::vector<std::size_t> &dependencies,
+void sanitize(std::vector<UserFunction::ID> &dependencies,
               const rhi::ShaderStages shaderStages,
               const UserFunctions &functions) {
-  std::erase_if(dependencies, [shaderStages, &functions](std::size_t hash) {
-    const auto it = functions.find(hash);
-    return it != functions.cend()
-             ? (it->second->shaderStages & shaderStages) != shaderStages
-             : true;
-  });
+  std::erase_if(
+    dependencies, [shaderStages, &functions](const UserFunction::ID id) {
+      const auto it = functions.find(id);
+      return it != functions.cend()
+               ? (it->second->shaderStages & shaderStages) != shaderStages
+               : true;
+    });
 }
+
+class AddUserFunctionCommand : public UndoableCommand {
+public:
+  AddUserFunctionCommand(MaterialProject &project, UserFunction::Data &&data)
+      : m_project{&project}, m_data{std::move(data)} {}
+
+  bool execute(const Context &ctx) override {
+    ctx.logger.trace("AddUserFunctionCommand::execute");
+    m_id = m_project->addUserFunction(std::move(m_data));
+    return m_id.has_value();
+  }
+  bool undo(const Context &ctx) override {
+    ctx.logger.trace("AddUserFunctionCommand::undo");
+    return m_project->removeUserFunction(*m_id);
+  }
+
+private:
+  MaterialProject *m_project;
+
+  UserFunction::Data m_data;
+  std::optional<UserFunction::ID> m_id;
+};
+class UpdateUserFunctionCommand : public UndoableCommand {
+public:
+  UpdateUserFunctionCommand(MaterialProject &project, const UserFunction::ID id,
+                            std::string &&code)
+      : m_project{&project}, m_functionId{id}, m_code{std::move(code)} {}
+
+  bool execute(const Context &ctx) override {
+    ctx.logger.trace("UpdateUserFunctionCommand::execute");
+    return _updateUserFunctionCode();
+  }
+  bool undo(const Context &ctx) {
+    ctx.logger.trace("UpdateUserFunctionCommand::undo");
+    return _updateUserFunctionCode();
+  }
+
+private:
+  bool _updateUserFunctionCode() {
+    if (auto previousCode =
+          m_project->updateUserFunction(m_functionId, std::move(m_code));
+        previousCode) {
+      m_code = std::move(*previousCode);
+      return true;
+    }
+    return false;
+  }
+
+private:
+  MaterialProject *m_project;
+  UserFunction::ID m_functionId;
+  std::string m_code;
+};
+class RemoveUserFunctionCommand : public Command {
+public:
+  RemoveUserFunctionCommand(MaterialProject &project, const UserFunction::ID id)
+      : m_project{&project}, m_functionId{id} {}
+
+  bool execute(const Context &ctx) override {
+    ctx.logger.trace("[RemoveUserFunctionCommand::execute]");
+
+    const auto scope = m_project->getUserFunctionScope(m_functionId);
+    for (const auto &[g, subGraph] : scope.stages) {
+      for (const auto &ed : subGraph.edges) {
+        g->remove(ed);
+      }
+      for (const auto vd : subGraph.vertices) {
+        g->remove(vd);
+      }
+      ctx.logger.info("[stage={}] Removed: {} Links, {} Nodes",
+                      rhi::toString(g->getShaderType()), subGraph.edges.size(),
+                      subGraph.vertices.size());
+    }
+    for (auto id : scope.functionList) {
+      m_project->removeUserFunction(id);
+    }
+    ctx.logger.info("Removed: {} User function(s)", scope.functionList.size());
+    return true;
+  }
+
+private:
+  MaterialProject *m_project;
+  UserFunction::ID m_functionId;
+};
 
 } // namespace
 
@@ -202,15 +294,14 @@ void TextEditorController::_reset() { _load(""); }
 CustomNodeCreator::CustomNodeCreator(TextEditor &textEditor)
     : TextEditorController{textEditor} {}
 
-std::optional<UserFunctionData>
-CustomNodeCreator::show(const char *name, ImVec2 size,
-                        const UserFunctions &userFunctions) {
-  std::optional<UserFunctionData> result;
-
+void CustomNodeCreator::show(const char *name, ImVec2 size,
+                             MaterialProject &project) {
   constexpr auto kModalFlags =
     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
   if (ImGui::BeginPopupModal(name, nullptr, kModalFlags)) {
     ZoneScopedN("CustomNodeCreator");
+
+    const auto &userFunctions = project.getUserFunctions();
 
     auto dirty = false;
     if (ImGui::BeginChild(IM_UNIQUE_ID, size)) {
@@ -256,7 +347,7 @@ CustomNodeCreator::show(const char *name, ImVec2 size,
 
     ImGui::BeginDisabled(!m_valid);
     if (ImGui::Button(ICON_FA_CHECK " Add")) {
-      result = std::move(m_data);
+      project.addCommand<AddUserFunctionCommand>(project, std::move(m_data));
       _reset();
       ImGui::CloseCurrentPopup();
     }
@@ -266,23 +357,22 @@ CustomNodeCreator::show(const char *name, ImVec2 size,
 
     ImGui::SameLine();
     if (ImGui::Button(ICON_FA_BAN " Close")) {
-      if (m_data != UserFunctionData{}) {
+      if (m_data != UserFunction::Data{}) {
         ImGui::OpenPopup(kConfirmDiscardChanges);
       } else {
         ImGui::CloseCurrentPopup();
       }
     }
 
-    if (auto button = showMessageBox<ModalButtons::Yes | ModalButtons::Cancel>(
-          kConfirmDiscardChanges, "Discard changes?");
-        button && *button == ModalButton::Yes) {
+    if (const auto button =
+          showMessageBox<ModalButtons::Yes | ModalButtons::Cancel>(
+            kConfirmDiscardChanges, "Discard changes?");
+        button == ModalButton::Yes) {
       _reset();
       ImGui::CloseCurrentPopup();
     }
     ImGui::EndPopup();
   }
-
-  return result;
 }
 
 void CustomNodeCreator::_reset() {
@@ -298,11 +388,8 @@ void CustomNodeCreator::_reset() {
 CustomNodeEditor::CustomNodeEditor(TextEditor &textEditor)
     : TextEditorController{textEditor} {}
 
-std::optional<CustomNodeEditor::Event>
-CustomNodeEditor::show(const char *name, ImVec2 size,
-                       UserFunctions &functions) {
-  std::optional<CustomNodeEditor::Event> result;
-
+void CustomNodeEditor::show(const char *name, ImVec2 size,
+                            MaterialProject &project) {
   constexpr auto kConfirmDiscardChanges = MAKE_WARNING("Confirm");
   constexpr auto kConfirmDestruction = MAKE_WARNING("Confirm");
 
@@ -330,7 +417,7 @@ CustomNodeEditor::show(const char *name, ImVec2 size,
           ImGui::TableHeadersRow();
 
           auto i = 0;
-          for (auto &[_, data] : functions) {
+          for (const auto &[id, data] : project.getUserFunctions()) {
             ImGui::TableNextRow();
 
             ImGui::TableSetColumnIndex(0);
@@ -340,7 +427,7 @@ CustomNodeEditor::show(const char *name, ImVec2 size,
             ImGui::PushID(i);
 
             const auto label = buildDeclaration(*data.get());
-            auto isSelected = data.get() == m_data;
+            auto isSelected = id == m_functionId;
             if (ImGui::Selectable(label.c_str(), &isSelected,
                                   ImGuiSelectableFlags_SpanAllColumns |
                                     ImGuiSelectableFlags_AllowOverlap |
@@ -348,14 +435,14 @@ CustomNodeEditor::show(const char *name, ImVec2 size,
               if (_isChanged()) {
                 ImGui::OpenPopup(kConfirmDiscardChanges);
               } else {
-                _setData(isSelected ? data.get() : nullptr);
+                _setData(id, isSelected ? data.get() : nullptr);
               }
             }
             if (const auto button =
                   showMessageBox<ModalButtons::Yes | ModalButtons::Cancel>(
                     kConfirmDiscardChanges, "Discard changes?");
-                button && *button == ModalButton::Yes) {
-              _setData(isSelected ? nullptr : data.get());
+                button == ModalButton::Yes) {
+              _setData(id, isSelected ? nullptr : data.get());
             }
 
             ImGui::PopID();
@@ -373,9 +460,9 @@ CustomNodeEditor::show(const char *name, ImVec2 size,
                     "removed.\n"
                     "- All nodes that use this function (or depend on it) will "
                     "be destroyed.");
-                button && *button == ModalButton::Yes) {
-              result = Event{Action::Remove, data.get()};
-              if (isSelected) m_data = nullptr;
+                button == ModalButton::Yes) {
+              project.addCommand<RemoveUserFunctionCommand>(project, id);
+              if (isSelected) m_functionId = std::nullopt;
             }
             ImGui::PopID();
 
@@ -385,7 +472,7 @@ CustomNodeEditor::show(const char *name, ImVec2 size,
         }
       }
 
-      m_textEditor.SetReadOnlyEnabled(m_data == nullptr);
+      m_textEditor.SetReadOnlyEnabled(!m_functionId);
       basicTextEditorWidget(m_textEditor, IM_UNIQUE_ID, true);
 
       ImGui::EndChild();
@@ -393,11 +480,10 @@ CustomNodeEditor::show(const char *name, ImVec2 size,
 
     ImGui::BeginDisabled(!_isChanged());
     if (ImGui::Button(ICON_FA_CHECK " Save")) {
-      if (m_data) {
-        m_data->code = m_textEditor.GetText();
-        m_undoIndex = m_textEditor.GetUndoIndex();
-        result = Event{Action::CodeChanged, m_data};
-      }
+      assert(m_functionId);
+      m_undoIndex = m_textEditor.GetUndoIndex();
+      project.addCommand<UpdateUserFunctionCommand>(project, *m_functionId,
+                                                    m_textEditor.GetText());
     }
     ImGui::EndDisabled();
 
@@ -413,21 +499,20 @@ CustomNodeEditor::show(const char *name, ImVec2 size,
     if (const auto button =
           showMessageBox<ModalButtons::Yes | ModalButtons::Cancel>(
             kConfirmDiscardChanges, "Discard changes?");
-        button && *button == ModalButton::Yes) {
+        button == ModalButton::Yes) {
       _reset();
       ImGui::CloseCurrentPopup();
     }
 
     ImGui::EndPopup();
   }
-  return result;
 }
 
-void CustomNodeEditor::_setData(UserFunctionData *data) {
-  m_data = data;
-  _load(m_data ? m_data->code : "");
+void CustomNodeEditor::_setData(UserFunction::ID id, UserFunction::Data *data) {
+  _load(data ? data->code : "");
+  m_functionId = data ? std::make_optional(id) : std::nullopt;
 }
-void CustomNodeEditor::_reset() { _setData(nullptr); }
+void CustomNodeEditor::_reset() { _setData(-1, nullptr); }
 
 //
 // CustomNodeWidget class:

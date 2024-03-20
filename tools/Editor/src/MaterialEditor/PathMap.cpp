@@ -1,28 +1,50 @@
 #include "MaterialEditor/PathMap.hpp"
 #include <cassert>
 
-PathMap::PathMap(const std::filesystem::path &root) : m_root{root} {}
-
-void PathMap::addPath(const rhi::ShaderType shaderType, int32_t nodeId,
-                      const std::filesystem::path &p) {
-  auto relativePath = p.lexically_relative(m_root).generic_string();
-  const auto it = std::ranges::find(m_relativePaths, relativePath);
-  const auto idx = it == m_relativePaths.cend()
-                     ? _emplace(std::move(relativePath))
-                     : std::distance(m_relativePaths.begin(), it);
+void PathMap::add(const rhi::ShaderType shaderType, const VertexID vertexId,
+                  const std::filesystem::path &p) {
+  const auto it = std::ranges::find(m_storage.paths, p);
+  std::size_t idx;
+  if (it != m_storage.paths.cend()) {
+    idx = std::distance(m_storage.paths.begin(), it);
+  } else {
+    idx = m_storage.paths.size();
+    m_storage.paths.emplace_back(p);
+  }
   assert(idx >= 0);
-  m_ids[{shaderType, nodeId}] = idx;
+  m_storage.ids[{shaderType, vertexId}] = idx;
 }
+bool PathMap::remove(const rhi::ShaderType shaderType,
+                     const VertexID vertexId) {
+  return m_storage.ids.erase({shaderType, vertexId}) > 0;
+}
+
 std::optional<std::filesystem::path>
-PathMap::getPath(const rhi::ShaderType shaderType, int32_t nodeId) const {
-  if (const auto it = m_ids.find({shaderType, nodeId}); it != m_ids.cend()) {
-    return m_root / m_relativePaths[it->second];
+PathMap::get(const rhi::ShaderType shaderType, const VertexID vertexId) const {
+  if (const auto it = m_storage.ids.find({shaderType, vertexId});
+      it != m_storage.ids.cend()) {
+    return m_storage.paths[it->second];
   }
   return std::nullopt;
 }
 
-std::size_t PathMap::_emplace(std::string &&str) {
-  const auto id = m_relativePaths.size();
-  m_relativePaths.emplace_back(std::move(str));
-  return id;
+void PathMap::reset(Storage storage) { m_storage = std::move(storage); }
+
+//
+// Helper:
+//
+
+PathMap::Storage makeRelative(PathMap::Storage storage,
+                              const std::filesystem::path &dir) {
+  std::ranges::transform(
+    storage.paths, storage.paths.begin(),
+    [&dir](const auto &p) { return p.lexically_relative(dir); });
+  return storage;
+}
+PathMap::Storage makeAbsolute(PathMap::Storage storage,
+                              const std::filesystem::path &dir) {
+  std::ranges::transform(
+    storage.paths, storage.paths.begin(),
+    [&dir](const auto &p) { return std::filesystem::absolute(dir / p); });
+  return storage;
 }

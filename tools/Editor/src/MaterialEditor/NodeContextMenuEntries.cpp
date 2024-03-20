@@ -1,15 +1,28 @@
-#include "NodeContextMenuEntries.hpp"
+#include "MaterialEditor/NodeContextMenuEntries.hpp"
 #include "VisitorHelper.hpp"
-#include "StringUtility.hpp"
-#include "MaterialEditor/FunctionAvailability.hpp"
+#include "StringUtility.hpp" // contains
 
-#include "CreateNodeHelper.hpp"
-#include "MaterialEditor/Nodes/FrameBlock.hpp"
-#include "MaterialEditor/Nodes/CameraBlock.hpp"
+#include "MaterialEditor/Attribute.hpp"
+#include "MaterialEditor/BuiltInConstants.hpp"
+#include "MaterialEditor/FrameBlockMember.hpp"
+#include "MaterialEditor/CameraBlockMember.hpp"
+
+#include "MaterialEditor/Nodes/Append.hpp"
+#include "MaterialEditor/Nodes/VectorSplitter.hpp"
+#include "MaterialEditor/Nodes/MatrixSplitter.hpp"
+#include "MaterialEditor/Nodes/Swizzle.hpp"
+#include "MaterialEditor/Nodes/Arithmetic.hpp"
+#include "MaterialEditor/Nodes/MatrixTransform.hpp"
+#include "MaterialEditor/Nodes/TextureSampling.hpp"
+#include "MaterialEditor/Nodes/Scripted.hpp"
+#include "MaterialEditor/Nodes/Custom.hpp"
+
+#include "MaterialEditor/NodeFactoryRegistry.hpp"
+#include "MaterialEditor/FunctionAvailability.hpp"
 
 #include "IconsFontAwesome6.h"
 #include "ImGuiHelper.hpp"
-#include "imgui_internal.h"
+#include "imgui_internal.h" // (Begin)MenuItemEx
 
 #include "tracy/Tracy.hpp"
 
@@ -20,112 +33,27 @@ namespace {
 // Key = Category
 // Value = {{ guid, FunctionData *}}
 using FunctionsByCategoryMap =
-  std::map<std::string,
-           std::vector<std::pair<uint32_t, const ScriptedFunctionData *>>,
-           std::less<>>;
+  std::map<std::string, std::vector<ScriptedFunction::Handle>, std::less<>>;
 
 [[nodiscard]] auto
 buildFunctionCategoryMap(const ScriptedFunctions &scriptedFunctions) {
-  ZoneScopedN("BuildFunctionCategoryMap");
-
   FunctionsByCategoryMap categories;
-  for (const auto &[guid, data] : scriptedFunctions) {
-    auto &v = categories[data->category];
-    v.emplace_back(guid, data.get());
+  for (const auto &[id, data] : scriptedFunctions) {
+    categories[data->category].emplace_back(id, data.get());
   }
   return categories;
 }
 
-// @param pair {.first = guid/hash, .second = FunctionData *}
-template <typename Node>
-[[nodiscard]] NodeFactory addFunction(const auto pair) {
-  assert(pair.second);
-  return [pair](ShaderGraph &g, VertexDescriptor parent) {
-    return Node::create(g, parent, pair);
-  };
-};
-
-[[nodiscard]] auto
-makeMenuEntry(const std::pair<uint32_t, const ScriptedFunctionData *> &p) {
-  const auto data = p.second;
-  assert(data);
-  return MenuEntry{
-    .label = data->name,
-    .isEnabled = data->isEnabledCb,
-    .payload =
-      NodeFactoryEx{
-        !data->signature.empty() ? std::optional{data->signature}
-                                 : std::nullopt,
-        addFunction<ScriptedNode>(p),
-      },
+[[nodiscard]] auto shaderTypeMatch(const rhi::ShaderStages shaderStages) {
+  return [shaderStages](const auto, const rhi::ShaderType shaderType) {
+    return bool(shaderStages & rhi::getStage(shaderType));
   };
 }
 
-void insertScriptedFunctionEntries(MenuEntries &entries,
-                                   const ScriptedFunctions &scriptedFunctions) {
-  ZoneScopedN("InsertScriptedFunctionEntries");
-
-  const auto categories = buildFunctionCategoryMap(scriptedFunctions);
-  entries.reserve(entries.size() + categories.size());
-
-  std::ranges::transform(categories, std::back_inserter(entries),
-                         [](const FunctionsByCategoryMap::value_type &p) {
-                           const auto &[category, functions] = p;
-
-                           MenuEntries localEntries;
-                           localEntries.reserve(functions.size());
-
-                           std::ranges::transform(
-                             functions, std::back_inserter(localEntries),
-                             makeMenuEntry);
-                           return MenuEntry{
-                             .label = category,
-                             .payload = std::move(localEntries),
-                           };
-                         });
-}
-
-[[nodiscard]] auto
-buildUserFunctionEntries(const UserFunctions &userFunctions) {
-  ZoneScopedN("BuildUserFunctionEntries");
-
-  static constexpr auto matchShaderType =
-    [](const rhi::ShaderStages shaderStages) {
-      return [shaderStages](const rhi::ShaderType shaderType, auto) {
-        switch (shaderType) {
-        case rhi::ShaderType::Vertex:
-          return bool(shaderStages & rhi::ShaderStages::Vertex);
-        case rhi::ShaderType::Fragment:
-          return bool(shaderStages & rhi::ShaderStages::Fragment);
-        }
-        return false;
-      };
-    };
-
-  MenuEntries entries;
-  entries.reserve(userFunctions.size());
-  std::ranges::transform(
-    userFunctions, std::back_inserter(entries),
-    [](const UserFunctions::value_type &p) {
-      const auto &[hash, data] = p;
-      return MenuEntry{
-        .label = data->name,
-        .isEnabled = matchShaderType(data->shaderStages),
-        .payload =
-          NodeFactoryEx{
-            buildDeclaration(*data),
-            addFunction<CustomNode>(std::pair{hash, data.get()}),
-          },
-      };
-    });
-  return entries;
-}
-
-[[nodiscard]] auto hasSceneSamplers(const rhi::ShaderType shaderType,
-                                    const gfx::Material::Blueprint &blueprint) {
+[[nodiscard]] auto hasSceneSamplers(const gfx::Material::Surface *surface,
+                                    const rhi::ShaderType shaderType) {
   if (shaderType != rhi::ShaderType::Fragment) return false;
-
-  if (const auto &surface = blueprint.surface; surface) {
+  if (surface) {
     return surface->shadingModel == gfx::ShadingModel::Lit &&
            surface->blendMode == gfx::BlendMode::Opaque &&
            surface->lightingMode == gfx::LightingMode::Transmission;
@@ -134,140 +62,120 @@ buildUserFunctionEntries(const UserFunctions &userFunctions) {
   }
 }
 
+template <typename E>
+  requires std::is_scoped_enum_v<E>
+[[nodiscard]] auto makeFactoryInfo(E value) {
+  return MenuEntry::FactoryInfo{
+    hashEnum(value),
+    std::format("type: {}", toString(getDataType(value))),
+  };
+}
+
 } // namespace
 
-[[nodiscard]] MenuEntries
-buildNodeMenuEntries(const ScriptedFunctions &scriptedFunctions,
-                     const UserFunctions &userFunctions) {
-  ZoneScopedN("BuildNodeMenuEntries");
-
-#define SEPARATOR std::nullopt
-
+MenuEntries buildCoreMenuEntries() {
   MenuEntries entries;
-  entries.reserve(30);
+  entries.reserve(20);
 
-  const auto forwardArg = [](auto v) {
-    return NodeFactoryEx{
-      toString(getDataType(v)),
-      [v](auto &, auto) { return v; },
-    };
-  };
-
-  static const auto attributes = MenuEntries{
+  auto attributes = MenuEntries{
     MenuEntry{
       .label = "Position",
       .isEnabled = surfaceOnly,
-      .payload = forwardArg(Attribute::Position),
+      .payload = makeFactoryInfo(Attribute::Position),
     },
     MenuEntry{
       .label = "TexCoord0",
-      .payload = forwardArg(Attribute::TexCoord0),
+      .payload = makeFactoryInfo(Attribute::TexCoord0),
     },
     MenuEntry{
       .label = "TexCoord1",
       .isEnabled = surfaceOnly,
-      .payload = forwardArg(Attribute::TexCoord1),
+      .payload = makeFactoryInfo(Attribute::TexCoord1),
     },
     MenuEntry{
       .label = "Normal",
       .isEnabled = surfaceOnly,
-      .payload = forwardArg(Attribute::Normal),
+      .payload = makeFactoryInfo(Attribute::Normal),
     },
     MenuEntry{
       .label = "Color",
       .isEnabled = surfaceOnly,
-      .payload = forwardArg(Attribute::Color),
+      .payload = makeFactoryInfo(Attribute::Color),
     },
   };
-  entries.emplace_back(
-    MenuEntry{.icon = ICON_FA_A, .label = "Attributes", .payload = attributes});
+  entries.emplace_back(MenuEntry{
+    .icon = ICON_FA_A,
+    .label = "Attributes",
+    .payload = std::move(attributes),
+  });
 
-  const auto addValueVariant = [](const ValueVariant &v) {
-    return NodeFactoryEx{std::nullopt, [v](auto &, auto) { return v; }};
+  auto constants = MenuEntries{
+    MenuEntry{.label = "bool", .payload = hashConstant<bool>()},
+    MenuEntry{.label = "bvec2", .payload = hashConstant<glm::bvec2>()},
+    MenuEntry{.label = "bvec3", .payload = hashConstant<glm::bvec3>()},
+    MenuEntry{.label = "bvec4", .payload = hashConstant<glm::bvec4>()},
+
+    UISeparator{},
+
+    MenuEntry{.label = "int32", .payload = hashConstant<int32_t>()},
+    MenuEntry{.label = "ivec2", .payload = hashConstant<glm::ivec2>()},
+    MenuEntry{.label = "ivec3", .payload = hashConstant<glm::ivec3>()},
+    MenuEntry{.label = "ivec4", .payload = hashConstant<glm::ivec4>()},
+
+    UISeparator{},
+
+    MenuEntry{.label = "uint32", .payload = hashConstant<uint32_t>()},
+    MenuEntry{.label = "uvec2", .payload = hashConstant<glm::uvec2>()},
+    MenuEntry{.label = "uvec3", .payload = hashConstant<glm::uvec3>()},
+    MenuEntry{.label = "uvec4", .payload = hashConstant<glm::uvec4>()},
+
+    UISeparator{},
+
+    MenuEntry{.label = "float", .payload = hashConstant<float>()},
+    MenuEntry{.label = "vec2", .payload = hashConstant<glm::vec2>()},
+    MenuEntry{.label = "vec3", .payload = hashConstant<glm::vec3>()},
+    MenuEntry{.label = "vec4", .payload = hashConstant<glm::vec4>()},
+
+    UISeparator{},
+
+    MenuEntry{.label = "double", .payload = hashConstant<double>()},
+    MenuEntry{.label = "dvec2", .payload = hashConstant<glm::dvec2>()},
+    MenuEntry{.label = "dvec3", .payload = hashConstant<glm::dvec3>()},
+    MenuEntry{.label = "dvec4", .payload = hashConstant<glm::dvec4>()},
+
+    UISeparator{},
+
+    MenuEntry{.label = "mat2", .payload = hashConstant<glm::mat2>()},
+    MenuEntry{.label = "mat3", .payload = hashConstant<glm::mat3>()},
+    MenuEntry{.label = "mat4", .payload = hashConstant<glm::mat4>()},
   };
+  entries.emplace_back(MenuEntry{
+    .icon = ICON_FA_C,
+    .label = "Constants",
+    .payload = std::move(constants),
+  });
 
-  static const auto constants = MenuEntries{
-    MenuEntry{.label = "bool", .payload = addValueVariant(false)},
-    MenuEntry{.label = "bvec2", .payload = addValueVariant(glm::bvec2{false})},
-    MenuEntry{.label = "bvec3", .payload = addValueVariant(glm::bvec3{false})},
-    MenuEntry{.label = "bvec4", .payload = addValueVariant(glm::bvec4{false})},
+  auto properties = MenuEntries{
+    MenuEntry{.label = "int32", .payload = hashProperty<int32_t>()},
+    MenuEntry{.label = "uint32", .payload = hashProperty<uint32_t>()},
 
-    SEPARATOR,
+    UISeparator{},
 
-    MenuEntry{.label = "int32", .payload = addValueVariant(0)},
-    MenuEntry{.label = "ivec2", .payload = addValueVariant(glm::ivec2{0})},
-    MenuEntry{.label = "ivec3", .payload = addValueVariant(glm::ivec3{0})},
-    MenuEntry{.label = "ivec4", .payload = addValueVariant(glm::ivec4{0})},
-
-    SEPARATOR,
-
-    MenuEntry{.label = "uint32", .payload = addValueVariant(0u)},
-    MenuEntry{.label = "uvec2", .payload = addValueVariant(glm::uvec2{0u})},
-    MenuEntry{.label = "uvec3", .payload = addValueVariant(glm::uvec3{0u})},
-    MenuEntry{.label = "uvec4", .payload = addValueVariant(glm::uvec4{0u})},
-
-    SEPARATOR,
-
-    MenuEntry{.label = "float", .payload = addValueVariant(0.0f)},
-    MenuEntry{.label = "vec2", .payload = addValueVariant(glm::vec2{0.0f})},
-    MenuEntry{.label = "vec3", .payload = addValueVariant(glm::vec3{0.0f})},
-    MenuEntry{.label = "vec4", .payload = addValueVariant(glm::vec4{0.0f})},
-
-    SEPARATOR,
-
-    MenuEntry{.label = "double", .payload = addValueVariant(0.0)},
-    MenuEntry{.label = "dvec2", .payload = addValueVariant(glm::dvec2{0.0})},
-    MenuEntry{.label = "dvec3", .payload = addValueVariant(glm::dvec3{0.0})},
-    MenuEntry{.label = "dvec4", .payload = addValueVariant(glm::dvec4{0.0})},
-
-    SEPARATOR,
-
-    MenuEntry{.label = "mat2", .payload = addValueVariant(glm::mat2{1.0f})},
-    MenuEntry{.label = "mat3", .payload = addValueVariant(glm::mat3{1.0f})},
-    MenuEntry{.label = "mat4", .payload = addValueVariant(glm::mat4{1.0f})},
-  };
-  entries.emplace_back(
-    MenuEntry{.icon = ICON_FA_C, .label = "Constants", .payload = constants});
-
-  const auto addPropertyVariant = [](const PropertyValue &v) {
-    return NodeFactoryEx{std::nullopt, [v](auto &, auto) { return v; }};
-  };
-
-  static const auto properties = MenuEntries{
-    MenuEntry{.label = "int32", .payload = addPropertyVariant(0)},
-    MenuEntry{.label = "uint32", .payload = addPropertyVariant(0u)},
-
-    SEPARATOR,
-
-    MenuEntry{.label = "float", .payload = addPropertyVariant(0.0f)},
-    MenuEntry{.label = "vec2", .payload = addPropertyVariant(glm::vec2{0.0f})},
-    MenuEntry{.label = "vec4", .payload = addPropertyVariant(glm::vec4{0.0f})},
+    MenuEntry{.label = "float", .payload = hashProperty<float>()},
+    MenuEntry{.label = "vec2", .payload = hashProperty<glm::vec2>()},
+    MenuEntry{.label = "vec4", .payload = hashProperty<glm::vec4>()},
   };
   entries.emplace_back(
     MenuEntry{.icon = ICON_FA_P, .label = "Properties", .payload = properties});
 
 #define ADD_ENUM_VALUE(Enum, Value)                                            \
-  MenuEntry { .label = #Value, .payload = forwardArg(Enum::Value) }
+  MenuEntry { .label = #Value, .payload = makeFactoryInfo(Enum::Value) }
 
-  static const auto frameBlock = MenuEntries{
-    MenuEntry{
-      .label = "struct {}",
-      .payload = NodeFactoryEx{std::nullopt, createFrameBlock},
-    },
-
-    SEPARATOR,
-
+  auto frameBlock = MenuEntries{
     ADD_ENUM_VALUE(FrameBlockMember, Time),
     ADD_ENUM_VALUE(FrameBlockMember, DeltaTime),
   };
-  static const auto cameraBlock = MenuEntries{
-    MenuEntry{
-      .label = "struct {}",
-      .payload = NodeFactoryEx{std::nullopt, createCameraBlock},
-    },
-
-    SEPARATOR,
-
+  auto cameraBlock = MenuEntries{
     ADD_ENUM_VALUE(CameraBlockMember, Projection),
     ADD_ENUM_VALUE(CameraBlockMember, InversedProjection),
     ADD_ENUM_VALUE(CameraBlockMember, View),
@@ -278,208 +186,260 @@ buildNodeMenuEntries(const ScriptedFunctions &scriptedFunctions,
     ADD_ENUM_VALUE(CameraBlockMember, Near),
     ADD_ENUM_VALUE(CameraBlockMember, Far),
 
-    SEPARATOR,
+    UISeparator{},
 
     ADD_ENUM_VALUE(BuiltInConstant, CameraPosition),
     ADD_ENUM_VALUE(BuiltInConstant, ScreenTexelSize),
     ADD_ENUM_VALUE(BuiltInConstant, AspectRatio),
   };
 
-  static const auto builtInConstants = MenuEntries{
+  auto builtInConstants = MenuEntries{
     MenuEntry{
       .label = "ModelMatrix",
       .isEnabled = surfaceOnly,
-      .payload = forwardArg(BuiltInConstant::ModelMatrix),
+      .payload = makeFactoryInfo(BuiltInConstant::ModelMatrix),
     },
     MenuEntry{
       .label = "FragPos (WorldSpace)",
       .isEnabled = fragmentShaderOnly,
-      .payload = forwardArg(BuiltInConstant::FragPosWorldSpace),
+      .payload = makeFactoryInfo(BuiltInConstant::FragPosWorldSpace),
     },
     MenuEntry{
       .label = "FragPos (ViewSpace)",
       .isEnabled = fragmentShaderOnly,
-      .payload = forwardArg(BuiltInConstant::FragPosViewSpace),
+      .payload = makeFactoryInfo(BuiltInConstant::FragPosViewSpace),
     },
 
-    SEPARATOR,
+    UISeparator{},
 
     MenuEntry{
       .label = "ViewDir",
       .isEnabled = fragmentShaderOnly,
-      .payload = forwardArg(BuiltInConstant::ViewDir),
+      .payload = makeFactoryInfo(BuiltInConstant::ViewDir),
     },
   };
-  static const auto builtInSamplers = MenuEntries{
+  auto builtInSamplers = MenuEntries{
     MenuEntry{
       .label = "SceneDepth",
       .isEnabled = hasSceneSamplers,
-      .payload = forwardArg(BuiltInSampler::SceneDepth),
+      .payload = makeFactoryInfo(BuiltInSampler::SceneDepth),
     },
     MenuEntry{
       .label = "SceneColor",
       .isEnabled = hasSceneSamplers,
-      .payload = forwardArg(BuiltInSampler::SceneColor),
+      .payload = makeFactoryInfo(BuiltInSampler::SceneColor),
     },
   };
 
-  static const auto builtIns = MenuEntries{
-    MenuEntry{.label = "FrameBlock", .payload = frameBlock},
-    MenuEntry{.label = "CameraBlock", .payload = cameraBlock},
+  auto builtIns = MenuEntries{
+    MenuEntry{.label = "FrameBlock", .payload = std::move(frameBlock)},
+    MenuEntry{.label = "CameraBlock", .payload = std::move(cameraBlock)},
 
-    SEPARATOR,
+    UISeparator{},
 
-    MenuEntry{.label = "Constants", .payload = builtInConstants},
+    MenuEntry{.label = "Constants", .payload = std::move(builtInConstants)},
     MenuEntry{
       .label = "Samplers",
       .isEnabled = fragmentShaderOnly,
-      .payload = builtInSamplers,
+      .payload = std::move(builtInSamplers),
     },
   };
   entries.emplace_back(MenuEntry{
-    .icon = ICON_FA_WAREHOUSE, .label = "Built-ins", .payload = builtIns});
+    .icon = ICON_FA_WAREHOUSE,
+    .label = "Built-ins",
+    .payload = std::move(builtIns),
+  });
 
-  // ---
+  entries.emplace_back(UISeparator{});
 
-  entries.emplace_back(SEPARATOR);
-
-  const auto addArithmeticOperation = [](ArithmeticNode::Operation op) {
-    return NodeFactoryEx{
-      std::nullopt,
-      [op](ShaderGraph &g, VertexDescriptor parent) {
-        return ArithmeticNode::create(g, parent, op);
-      },
-    };
-  };
-
-  static const auto arithmetic = MenuEntries{
+  auto arithmetic = MenuEntries{
     MenuEntry{
       .icon = ICON_FA_PLUS,
       .label = "Add",
-      .payload = addArithmeticOperation(ArithmeticNode::Operation::Add),
+      .payload = hashEnum(ArithmeticNode::Operation::Add),
     },
     MenuEntry{
       .icon = ICON_FA_MINUS,
       .label = "Subtract",
-      .payload = addArithmeticOperation(ArithmeticNode::Operation::Subtract),
+      .payload = hashEnum(ArithmeticNode::Operation::Subtract),
     },
     MenuEntry{
       .icon = ICON_FA_XMARK,
       .label = "Multiply",
-      .payload = addArithmeticOperation(ArithmeticNode::Operation::Multiply),
+      .payload = hashEnum(ArithmeticNode::Operation::Multiply),
     },
     MenuEntry{
       .icon = ICON_FA_DIVIDE,
       .label = "Divide",
-      .payload = addArithmeticOperation(ArithmeticNode::Operation::Divide),
+      .payload = hashEnum(ArithmeticNode::Operation::Divide),
     },
   };
   entries.emplace_back(MenuEntry{
-    .icon = ICON_FA_CALCULATOR, .label = "Arithmetic", .payload = arithmetic});
+    .icon = ICON_FA_CALCULATOR,
+    .label = "Arithmetic",
+    .payload = std::move(arithmetic),
+  });
 
-#define ADD_COMPOUND_NODE(Icon, T)                                             \
-  MenuEntry {                                                                  \
-    .icon = Icon, .label = #T, .payload = NodeFactoryEx {                      \
-      std::nullopt, T##Node::create                                            \
-    }                                                                          \
-  }
+  entries.emplace_back(MenuEntry{
+    .icon = ICON_FA_LINK,
+    .label = "Append",
+    .payload = typeid(AppendNode).hash_code(),
+  });
+  entries.emplace_back(MenuEntry{
+    .icon = ICON_FA_LINK_SLASH,
+    .label = "Split[vecN]",
+    .payload = typeid(VectorSplitterNode).hash_code(),
+  });
+  entries.emplace_back(MenuEntry{
+    .icon = ICON_FA_LINK_SLASH,
+    .label = "Split[matNxN]",
+    .payload = typeid(MatrixSplitterNode).hash_code(),
+  });
+  entries.emplace_back(MenuEntry{
+    .icon = ICON_FA_CODE_BRANCH,
+    .label = "Swizzle",
+    .payload = typeid(SwizzleNode).hash_code(),
+  });
+  entries.emplace_back(MenuEntry{
+    .icon = ICON_FA_ROTATE,
+    .label = "MatrixTransform",
+    .payload = typeid(MatrixTransformNode).hash_code(),
+  });
 
-  entries.emplace_back(ADD_COMPOUND_NODE(ICON_FA_LINK, Append));
-  entries.emplace_back(ADD_COMPOUND_NODE(ICON_FA_CODE_BRANCH, Swizzle));
-  entries.emplace_back(ADD_COMPOUND_NODE(ICON_FA_LINK_SLASH, VectorSplitter));
-  entries.emplace_back(ADD_COMPOUND_NODE(ICON_FA_LINK_SLASH, MatrixSplitter));
-  entries.emplace_back(ADD_COMPOUND_NODE(ICON_FA_ROTATE, MatrixTransform));
+  entries.emplace_back(UISeparator{});
 
-  if (!scriptedFunctions.empty()) {
-    entries.emplace_back(SEPARATOR);
-    insertScriptedFunctionEntries(entries, scriptedFunctions);
-  }
-  if (!userFunctions.empty()) {
-    entries.emplace_back(SEPARATOR);
-    entries.emplace_back(MenuEntry{
-      .icon = ICON_FA_USER,
-      .label = "User functions",
-      .payload = buildUserFunctionEntries(userFunctions),
-    });
-  }
+  entries.push_back(MenuEntry{
+    .icon = ICON_FA_SCROLL,
+    .label = "Scripted",
+    .payload = MenuEntries{},
+  });
+  entries.emplace_back(MenuEntry{
+    .icon = ICON_FA_USER,
+    .label = "User",
+    .payload = MenuEntries{},
+  });
 
-  entries.emplace_back(SEPARATOR);
+  entries.emplace_back(UISeparator{});
 
   entries.emplace_back(MenuEntry{
     .icon = ICON_FA_IMAGE,
     .label = "Texture",
-    .payload =
-      NodeFactoryEx{
-        std::nullopt,
-        [](auto &, auto) { return TextureParam{}; },
-      },
+    .payload = typeid(TextureParam).hash_code(),
   });
-  entries.emplace_back(ADD_COMPOUND_NODE(ICON_FA_EYE_DROPPER, TextureSampling));
+  entries.emplace_back(MenuEntry{
+    .icon = ICON_FA_EYE_DROPPER,
+    .label = "TextureSampling",
+    .payload = typeid(TextureSamplingNode).hash_code(),
+  });
 
   return entries;
-
-#undef ADD_COMPOUND_NODE
-#undef ADD_ENUM_VALUE
-#undef SEPARATOR
 }
 
-std::optional<IDPair> processNodeMenu(
-  ShaderGraph &g, std::span<const std::optional<MenuEntry>> entries,
-  const std::string_view pattern, const rhi::ShaderType shaderType,
-  const gfx::Material::Blueprint &blueprint) {
+MenuEntries buildNodeMenuEntries(const ScriptedFunctions &scriptedFunctions) {
+  const auto categories = buildFunctionCategoryMap(scriptedFunctions);
+  MenuEntries entries;
+  entries.reserve(categories.size());
+  for (const auto &[category, functions] : categories) {
+    MenuEntries localEntries;
+    localEntries.reserve(functions.size());
+    for (const auto &[hash, data] : functions) {
+      localEntries.emplace_back(MenuEntry{
+        .label = data->name,
+        .isEnabled = data->isEnabledCb,
+        .payload = MenuEntry::FactoryInfo{hash, data->signature},
+      });
+    }
+    entries.emplace_back(MenuEntry{
+      .label = category,
+      .payload = std::move(localEntries),
+    });
+  }
+  return entries;
+}
+MenuEntries buildNodeMenuEntries(const UserFunctions &userFunctions) {
+  MenuEntries entries;
+  entries.reserve(userFunctions.size());
+  for (const auto &[id, data] : userFunctions) {
+    entries.emplace_back(MenuEntry{
+      .label = data->name,
+      .isEnabled = shaderTypeMatch(data->shaderStages),
+      .payload = MenuEntry::FactoryInfo{id, buildDeclaration(*data)},
+    });
+  }
+  return entries;
+}
+
+std::optional<MenuEntry::FactoryHash>
+processNodeMenu(std::span<const MenuEntryVariant> entries,
+                const gfx::Material::Surface *surface,
+                const rhi::ShaderType stage, const std::string_view pattern) {
   if (entries.empty()) return std::nullopt;
 
   ZoneScopedN("ProcessNodeMenu");
 
-  std::optional<IDPair> result;
+  std::optional<MenuEntry::FactoryHash> result;
 
-  const auto matches = [pattern](const auto &entry) {
-    if (!pattern.empty() && entry &&
-        std::holds_alternative<NodeFactoryEx>(entry->payload) &&
-        !entry->label.empty()) {
-      return contains(entry->label.data(), pattern.data());
-    }
-    return true;
+  const auto matches = [pattern](const MenuEntryVariant &variant) {
+    return std::visit(
+      Overload{
+        // Exclude separators when filtering (avoids ugly, empty menu).
+        [pattern](const UISeparator) { return pattern.empty(); },
+        [pattern](const MenuEntry &entry) {
+          return std::visit(
+            Overload{
+              [pattern, &entry](const MenuEntry::FactoryInfo &) {
+                return pattern.empty() || contains(entry.label, pattern);
+              },
+              [](const MenuEntries &entries_) { return !entries_.empty(); },
+            },
+            entry.payload);
+        },
+      },
+      variant);
   };
 
-  auto filteredEntries = entries | std::ranges::views::filter(matches);
+  auto filteredEntries = entries | std::views::filter(matches);
   if (filteredEntries.empty()) {
     ImGui::MenuItem("(empty)", nullptr, nullptr, false);
   } else {
     for (const auto &menuEntry : filteredEntries) {
-      if (!menuEntry) {
-        if (pattern.empty()) {
-          ImGui::Spacing();
-          ImGui::Separator();
-          ImGui::Spacing();
-        }
-        continue;
-      }
+      std::visit(
+        Overload{
+          [pattern](const UISeparator) {
+            assert(pattern.empty());
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
+          },
+          [&](const MenuEntry &entry) {
+            const auto enabled =
+              entry.isEnabled ? (*entry.isEnabled)(surface, stage) : true;
 
-      auto &[icon, label, callback, payload] = *menuEntry;
-      const auto enabled = callback ? (*callback)(shaderType, blueprint) : true;
-
-      std::visit(Overload{
-                   [&](const NodeFactoryEx &p) {
-                     const auto &[tooltip, factory] = p;
-                     if (ImGui::MenuItemEx(label.data(), icon, nullptr, false,
-                                           enabled)) {
-                       result = createNode(g, factory);
-                     }
-                     if (tooltip && ImGui::IsKeyDown(ImGuiMod_Alt) &&
-                         ImGui::IsItemHovered()) {
-                       ImGui::ShowTooltip(tooltip->c_str());
-                     }
-                   },
-                   [&](const MenuEntries &v) {
-                     if (ImGui::BeginMenuEx(label.data(), icon, enabled)) {
-                       result =
-                         processNodeMenu(g, v, pattern, shaderType, blueprint);
-                       ImGui::EndMenu();
-                     }
-                   },
-                 },
-                 payload);
+            std::visit(
+              Overload{
+                [&](const MenuEntry::FactoryInfo &info) {
+                  const auto &[factoryId, tooltip] = info;
+                  if (ImGui::MenuItemEx(entry.label.data(), entry.icon, nullptr,
+                                        false, enabled)) {
+                    result = factoryId;
+                  }
+                  if (!tooltip.empty() && ImGui::IsKeyDown(ImGuiMod_Alt) &&
+                      ImGui::IsItemHovered()) {
+                    ImGui::ShowTooltip(tooltip.c_str());
+                  }
+                },
+                [&](const MenuEntries &entries_) {
+                  if (ImGui::BeginMenuEx(entry.label.data(), entry.icon,
+                                         enabled)) {
+                    result = processNodeMenu(entries_, surface, stage, pattern);
+                    ImGui::EndMenu();
+                  }
+                },
+              },
+              entry.payload);
+          },
+        },
+        menuEntry);
     }
   }
   return result;

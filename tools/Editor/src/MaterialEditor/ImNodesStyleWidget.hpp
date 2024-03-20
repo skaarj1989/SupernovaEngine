@@ -1,6 +1,6 @@
 #pragma once
 
-#include "imnodes.h"
+struct ImNodesStyle;
 
 namespace ImNodes {
 

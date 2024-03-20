@@ -2,7 +2,8 @@
 
 #include "MaterialEditor/ShaderGraphCommon.hpp"
 
-void traverse(auto &graph, const VertexDescriptor root, auto &&visitor) {
+template <typename Func>
+void traverse(auto &graph, const VertexDescriptor root, Func visitor) {
   assert(root != nullptr);
 
   std::stack<VertexDescriptor> stack;

@@ -1,12 +1,8 @@
 #pragma once
 
-#include "MaterialEditor/Nodes/NodeCommon.hpp"
+#include "DataType.hpp"
 
-enum class FrameBlockMember { Time, DeltaTime };
+enum class FrameBlockMember { Time, DeltaTime, COUNT };
 
-[[nodiscard]] DataType getDataType(FrameBlockMember);
-
-[[nodiscard]] const char *toString(FrameBlockMember);
-
-[[nodiscard]] NodeResult evaluate(MaterialGenerationContext &, int32_t id,
-                                  FrameBlockMember);
+[[nodiscard]] DataType getDataType(const FrameBlockMember);
+[[nodiscard]] const char *toString(const FrameBlockMember);

@@ -1,6 +1,9 @@
 #include "MaterialEditor/MaterialPreviewWidget.hpp"
 #include "Services.hpp"
 
+#include "os/InputSystem.hpp"
+#include "renderer/WorldRenderer.hpp"
+
 #include "IconsFontAwesome6.h"
 #include "ImGuiHelper.hpp"
 #include "ImGuiDragAndDrop.hpp"
@@ -9,10 +12,7 @@
 #include "Inspectors/TransformInspector.hpp"
 #include "Inspectors/LightInspector.hpp"
 #include "Inspectors/MaterialInstanceInspector.hpp"
-
 #include "RenderSettings.hpp"
-#include "CameraController.hpp"
-#include "SceneEditor/GizmoController.hpp"
 
 namespace {
 
@@ -61,6 +61,8 @@ MaterialPreviewWidget::MaterialPreviewWidget(os::InputSystem &inputSystem,
   m_renderSettings.shadow.cascadedShadowMaps.lambda = 0.95f;
   m_renderSettings.debugFlags |= gfx::DebugFlags::InfiniteGrid;
   m_renderSettings.features |= gfx::RenderFeatures::EyeAdaptation;
+
+  m_meshTransform.setPosition({0.0f, 0.1f, 0.0f});
 
   m_camera.setFov(60.0f)
     .setClippingPlanes({.zNear = 0.1f, .zFar = 100.0f})
@@ -142,12 +144,13 @@ void MaterialPreviewWidget::onRender(rhi::CommandBuffer &cb, float dt) {
   });
 }
 
-void MaterialPreviewWidget::showPreview(const char *name) {
-  ZoneScopedN("MaterialPreview");
+void MaterialPreviewWidget::showPreview(const char *name, bool *open) {
   constexpr auto kWindowFlags =
     ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoBackground |
     ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar;
-  if (ImGui::Begin(name, nullptr, kWindowFlags)) {
+  if (ImGui::Begin(name, open, kWindowFlags)) {
+    ZoneScopedN("MaterialPreview");
+
     if (ImGui::BeginMenuBar()) {
       if (ImGui::BeginMenu("Camera")) {
         if (ImGui::BeginMenu("Sensitivity")) {
@@ -250,9 +253,10 @@ void MaterialPreviewWidget::showPreview(const char *name) {
   }
   ImGui::End();
 }
-void MaterialPreviewWidget::showSceneSettings(const char *name) {
-  ZoneScopedN("MaterialPreview::SceneSettings");
-  if (ImGui::Begin(name)) {
+void MaterialPreviewWidget::showSceneSettings(const char *name, bool *open) {
+  if (ImGui::Begin(name, open)) {
+    ZoneScopedN("MaterialPreview::SceneSettings");
+
     ImGui::Checkbox("Ground plane", &m_showGroundPlane);
 
     ImGui::Spacing();
@@ -326,9 +330,9 @@ void MaterialPreviewWidget::showSceneSettings(const char *name) {
   }
   ImGui::End();
 }
-void MaterialPreviewWidget::showRenderSettings(const char *name) {
-  ZoneScopedN("MaterialPreview::RenderSettings");
-  if (ImGui::Begin(name)) {
+void MaterialPreviewWidget::showRenderSettings(const char *name, bool *open) {
+  if (ImGui::Begin(name, open)) {
+    ZoneScopedN("MaterialPreview::RenderSettings");
     ImGui::Frame([this] { ::showRenderSettings(m_renderSettings); });
   }
   ImGui::End();

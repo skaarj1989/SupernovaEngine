@@ -1,13 +1,8 @@
 #include "MaterialEditor/LuaMaterialEditor.hpp"
-#include "sol/state.hpp"
-
-#include "MaterialEditor/ScriptedFunctionData.hpp"
 #include "MaterialEditor/FunctionAvailability.hpp"
-
+#include "sol/state.hpp"
 #include "LuaMath.hpp"
-
 #include "entt/core/hashed_string.hpp"
-
 #include <format>
 
 #define MAKE_PAIR(EnumClass, Value)                                            \
@@ -18,40 +13,40 @@ namespace {
 void registerDataType(sol::state &lua) {
   // clang-format off
   lua.new_enum<DataType>("DataType", {
-                                       MAKE_PAIR(DataType, Undefined),
+    MAKE_PAIR(DataType, Undefined),
 
-                                       MAKE_PAIR(DataType, Bool),
-                                       MAKE_PAIR(DataType, BVec2),
-                                       MAKE_PAIR(DataType, BVec3),
-                                       MAKE_PAIR(DataType, BVec4),
+    MAKE_PAIR(DataType, Bool),
+    MAKE_PAIR(DataType, BVec2),
+    MAKE_PAIR(DataType, BVec3),
+    MAKE_PAIR(DataType, BVec4),
 
-                                       MAKE_PAIR(DataType, UInt32),
-                                       MAKE_PAIR(DataType, UVec2),
-                                       MAKE_PAIR(DataType, UVec3),
-                                       MAKE_PAIR(DataType, UVec4),
+    MAKE_PAIR(DataType, UInt32),
+    MAKE_PAIR(DataType, UVec2),
+    MAKE_PAIR(DataType, UVec3),
+    MAKE_PAIR(DataType, UVec4),
 
-                                       MAKE_PAIR(DataType, Int32),
-                                       MAKE_PAIR(DataType, IVec2),
-                                       MAKE_PAIR(DataType, IVec3),
-                                       MAKE_PAIR(DataType, IVec4),
+    MAKE_PAIR(DataType, Int32),
+    MAKE_PAIR(DataType, IVec2),
+    MAKE_PAIR(DataType, IVec3),
+    MAKE_PAIR(DataType, IVec4),
 
-                                       MAKE_PAIR(DataType, Float),
-                                       MAKE_PAIR(DataType, Vec2),
-                                       MAKE_PAIR(DataType, Vec3),
-                                       MAKE_PAIR(DataType, Vec4),
+    MAKE_PAIR(DataType, Float),
+    MAKE_PAIR(DataType, Vec2),
+    MAKE_PAIR(DataType, Vec3),
+    MAKE_PAIR(DataType, Vec4),
 
-                                       MAKE_PAIR(DataType, Double),
-                                       MAKE_PAIR(DataType, DVec2),
-                                       MAKE_PAIR(DataType, DVec3),
-                                       MAKE_PAIR(DataType, DVec4),
+    MAKE_PAIR(DataType, Double),
+    MAKE_PAIR(DataType, DVec2),
+    MAKE_PAIR(DataType, DVec3),
+    MAKE_PAIR(DataType, DVec4),
 
-                                       MAKE_PAIR(DataType, Mat2),
-                                       MAKE_PAIR(DataType, Mat3),
-                                       MAKE_PAIR(DataType, Mat4),
+    MAKE_PAIR(DataType, Mat2),
+    MAKE_PAIR(DataType, Mat3),
+    MAKE_PAIR(DataType, Mat4),
 
-                                       MAKE_PAIR(DataType, Sampler2D),
-                                       MAKE_PAIR(DataType, SamplerCube),
-                                     });
+    MAKE_PAIR(DataType, Sampler2D),
+    MAKE_PAIR(DataType, SamplerCube),
+  });
   // clang-format on
 
   lua["isScalar"] = isScalar;
@@ -61,7 +56,7 @@ void registerDataType(sol::state &lua) {
 
   lua["getBaseDataType"] = getBaseDataType;
 
-  lua["countChannels"] = sol::resolve<int32_t(DataType)>(countChannels);
+  lua["countChannels"] = countChannels;
   lua["countColumns"] = countColumns;
 
   lua["constructVectorType"] = constructVectorType;
@@ -88,80 +83,92 @@ void registerDataType(sol::state &lua) {
   const auto genDType = std::array{Double, DVec2, DVec3, DVec4};
   lua["genDType"] = genDType;
 
-  // std::pair<DataType, std::array<DataType>> does not work.
-  // sol2 sees the mentioned pair as std::array (.second).
-  struct CustomPair {
+  struct GenTypeBundle {
     DataType base{DataType::Undefined};
     using Group = std::array<DataType, 4>;
     Group group;
   };
   // clang-format off
-  lua.new_usertype<CustomPair>("CustomPair",
-    "base", &CustomPair::base,
-    "group", &CustomPair::group
+  lua.new_usertype<GenTypeBundle>("GenTypeBundle",
+    "base", &GenTypeBundle::base,
+    "group", &GenTypeBundle::group
   );
   // clang-format on
 
-  lua["genBTypeBundle"] = CustomPair{DataType::Bool, genBType};
-  lua["genUTypeBundle"] = CustomPair{DataType::UInt32, genUType};
-  lua["genITypeBundle"] = CustomPair{DataType::Int32, genIType};
-  lua["genTypeBundle"] = CustomPair{DataType::Float, genType};
-  lua["genDTypeBundle"] = CustomPair{DataType::Double, genDType};
+  lua["genBTypeBundle"] = GenTypeBundle{DataType::Bool, genBType};
+  lua["genUTypeBundle"] = GenTypeBundle{DataType::UInt32, genUType};
+  lua["genITypeBundle"] = GenTypeBundle{DataType::Int32, genIType};
+  lua["genTypeBundle"] = GenTypeBundle{DataType::Float, genType};
+  lua["genDTypeBundle"] = GenTypeBundle{DataType::Double, genDType};
 }
 
 void registerShaderType(sol::state &lua) {
   using rhi::ShaderType;
+  // clang-format off
   lua.new_enum<ShaderType>("ShaderType", {
-                                           MAKE_PAIR(ShaderType, Vertex),
-                                           MAKE_PAIR(ShaderType, Fragment),
-                                         });
+    MAKE_PAIR(ShaderType, Vertex),
+    MAKE_PAIR(ShaderType, Fragment),
+  });
+  // clang-format on
 }
 void registerMaterialDomain(sol::state &lua) {
   using gfx::MaterialDomain;
-  lua.new_enum<MaterialDomain>("MaterialDomain",
-                               {
-                                 MAKE_PAIR(MaterialDomain, Surface),
-                                 MAKE_PAIR(MaterialDomain, PostProcess),
-                               });
-}
-
-void registerBlueprint(sol::state &lua) {
-  lua.new_usertype<gfx::Material::Blueprint>("Blueprint", sol::no_constructor);
-
-  lua["getDomain"] =
-    sol::resolve<gfx::MaterialDomain(const gfx::Material::Blueprint &)>(
-      gfx::getDomain);
+  // clang-format off
+  lua.new_enum<MaterialDomain>("MaterialDomain", {
+    MAKE_PAIR(MaterialDomain, Surface),
+    MAKE_PAIR(MaterialDomain, PostProcess),
+  });
+  // clang-format on
 }
 
 void registerAttribute(sol::state &lua) {
+  // clang-format off
   lua.new_enum<Attribute>("Attribute", {
-                                         MAKE_PAIR(Attribute, Position),
-                                         MAKE_PAIR(Attribute, TexCoord0),
-                                         MAKE_PAIR(Attribute, TexCoord1),
-                                         MAKE_PAIR(Attribute, Normal),
-                                         MAKE_PAIR(Attribute, Color),
-                                       });
+    MAKE_PAIR(Attribute, Position),
+    MAKE_PAIR(Attribute, TexCoord0),
+    MAKE_PAIR(Attribute, TexCoord1),
+    MAKE_PAIR(Attribute, Normal),
+    MAKE_PAIR(Attribute, Color),
+  });
+  // clang-format on
 }
 void registerBuiltInConstant(sol::state &lua) {
-  lua.new_enum<BuiltInConstant>("BuiltInConstant",
-                                {
-                                  MAKE_PAIR(BuiltInConstant, CameraPosition),
-                                  MAKE_PAIR(BuiltInConstant, ScreenTexelSize),
-                                  MAKE_PAIR(BuiltInConstant, AspectRatio),
+  // clang-format off
+  lua.new_enum<BuiltInConstant>("BuiltInConstant", {
+    MAKE_PAIR(BuiltInConstant, CameraPosition),
+    MAKE_PAIR(BuiltInConstant, ScreenTexelSize),
+    MAKE_PAIR(BuiltInConstant, AspectRatio),
 
-                                  MAKE_PAIR(BuiltInConstant, ModelMatrix),
-                                  MAKE_PAIR(BuiltInConstant, FragPosWorldSpace),
-                                  MAKE_PAIR(BuiltInConstant, FragPosViewSpace),
+    MAKE_PAIR(BuiltInConstant, ModelMatrix),
+    MAKE_PAIR(BuiltInConstant, FragPosWorldSpace),
+    MAKE_PAIR(BuiltInConstant, FragPosViewSpace),
 
-                                  MAKE_PAIR(BuiltInConstant, ViewDir),
-                                });
+    MAKE_PAIR(BuiltInConstant, ViewDir),
+  });
+  // clang-format on
 }
 void registerBuiltInSampler(sol::state &lua) {
-  lua.new_enum<BuiltInSampler>("BuiltInSampler",
-                               {
-                                 MAKE_PAIR(BuiltInSampler, SceneDepth),
-                                 MAKE_PAIR(BuiltInSampler, SceneColor),
-                               });
+  // clang-format off
+  lua.new_enum<BuiltInSampler>("BuiltInSampler", {
+    MAKE_PAIR(BuiltInSampler, SceneDepth),
+    MAKE_PAIR(BuiltInSampler, SceneColor),
+  });
+  // clang-format on
+}
+
+void registerSurface(sol::state &lua) {
+  // clang-format off
+  using Surface = gfx::Material::Surface;
+  lua.new_usertype<Surface>("Surface",
+    sol::no_constructor,
+
+    "shadingModel", &Surface::shadingModel,
+    "blendMode", &Surface::blendMode,
+    "decalBlendMode", &Surface::decalBlendMode,
+    "lightingMode", &Surface::lightingMode,
+    "cullMode", &Surface::cullMode
+  );
+  // clang-format on
 }
 
 void registerFunctionAvailabilityHelpers(sol::state &lua) {
@@ -175,12 +182,14 @@ void registerFunctionAvailabilityHelpers(sol::state &lua) {
 #undef REGISTER_FUNCTION
 }
 
-template <typename T> bool isOutOfRange(T v) {
+template <typename T>
+  requires std::is_scoped_enum_v<T>
+bool isOutOfRange(const T v) {
   return std::to_underlying(v) >= std::to_underlying(T::COUNT);
 }
 
-using Parameter = ScriptedFunctionData::Parameter;
-using ParameterVariant = Parameter::Variant;
+using Parameter = ScriptedFunction::Data::Parameter;
+using ParameterVariant = TransientVariant;
 
 template <typename T>
 [[nodiscard]] std::expected<ParameterVariant, std::string> tryGet(auto &t) {
@@ -253,10 +262,6 @@ template <typename T>
   return out.value();
 };
 
-struct ScriptedFunctionDataEx : ScriptedFunctionData {
-  uint32_t guid;
-};
-
 void registerFunctionInfo(sol::state &lua) {
   // clang-format off
   lua.new_usertype<Parameter>("Parameter",
@@ -274,55 +279,58 @@ void registerFunctionInfo(sol::state &lua) {
 
     sol::meta_function::to_string, []{ return "Parameter"; }
   );
+  // clang-format on
 
   static constexpr auto makeGuid = [](const std::string &name) {
     return entt::hashed_string{name.c_str()}.value();
   };
 
-  lua.new_usertype<ScriptedFunctionDataEx>("FunctionInfo", 
+  // clang-format off
+  lua.new_usertype<ScriptedFunction>("FunctionInfo", 
     sol::call_constructor,
     sol::factories(
       [](const sol::table &t) {
         auto name = t["name"].get<std::string>();
 
-        ScriptedFunctionDataEx data{.guid = t["guid"].get_or(makeGuid(name))};
-        data.category = t.get_or<std::string>("category", "(Undefined)");
-        data.name = std::move(name);
-        data.description = t.get_or<std::string>("description", "");
-        data.signature = extractSignatures(t);
-
-        data.args = t.get_or<ScriptedFunctionData::Parameters>("args", {});
-        data.isEnabledCb = [f = getFunction(t, "isEnabled")](
-                             const rhi::ShaderType shaderType,
-                             const gfx::Material::Blueprint &blueprint) {
-          try {
-            if (f) {
-              auto result = std::invoke(*f, shaderType, blueprint);
-              return result.valid() ? result.get<bool>() : false;
-            }
-          } catch (const std::exception &e) {
-            // ...
-          }
-          return true;
+        return ScriptedFunction{
+          .id = t["guid"].get_or(makeGuid(name)),
+          .data = {
+            .category = t.get_or<std::string>("category", "(Undefined)"),
+            .name = std::move(name),
+            .description = t.get_or<std::string>("description", ""),
+            .signature = extractSignatures(t),
+            .args = t.get_or<ScriptedFunction::Data::Parameters>("args", {}),
+            .isEnabledCb =
+              [f = getFunction(t, "isEnabled")](
+                const gfx::Material::Surface *surface,
+                const rhi::ShaderType shaderType) {
+                try {
+                  if (f) {
+                    auto result = std::invoke(*f, surface, shaderType);
+                    return result.valid() ? result.get<bool>() : false;
+                  }
+                } catch (const std::exception &e) {
+                  // ...
+                }
+                return true;
+              },
+            .getReturnTypeCb =
+              [f = getFunction(t, "getReturnType")](
+                std::span<const DataType> args) {
+                try {
+                  if (f) {
+                    auto result = std::invoke(*f, args);
+                    return result.valid() ? result.get<DataType>()
+                                          : DataType::Undefined;
+                  }
+                } catch (const std::exception &e) {
+                  // ...
+                }
+                return DataType::Undefined;
+              },
+          },
         };
-        data.getReturnTypeCb = [f = getFunction(t, "getReturnType")]
-                                 (std::span<const DataType> args) {
-          try {
-            if (f) {
-              auto result = std::invoke(*f, args);
-              return result.valid() ? result.get<DataType>()
-                                    : DataType::Undefined;
-            }
-          }
-          catch (const std::exception &e) {
-            // ...
-          }
-          return DataType::Undefined;
-        };
-       
-        return data;
-      }
-    )
+    })
   );
   // clang-format on
 }
@@ -339,7 +347,7 @@ void registerMaterialNodes(sol::state &lua) {
 
   registerShaderType(lua);
   registerMaterialDomain(lua);
-  registerBlueprint(lua);
+  registerSurface(lua);
 
   registerFunctionAvailabilityHelpers(lua);
 
@@ -353,7 +361,7 @@ void registerMaterialNodes(sol::state &lua) {
   registerFunctionInfo(lua);
 }
 
-std::expected<std::pair<uint32_t, ScriptedFunctionData>, std::string>
+std::expected<ScriptedFunction, std::string>
 loadFunction(const std::filesystem::path &p, sol::state &lua) {
   auto result = lua.safe_script_file(p.string(), &sol::script_pass_on_error);
   if (!result.valid()) {
@@ -361,8 +369,8 @@ loadFunction(const std::filesystem::path &p, sol::state &lua) {
     return std::unexpected{err.what()};
   }
 
-  if (auto data = result.get<std::optional<ScriptedFunctionDataEx>>(); data) {
-    return std::pair{data->guid, std::move(*data)};
+  if (auto data = result.get<std::optional<ScriptedFunction>>(); data) {
+    return std::move(*data);
   } else {
     return std::unexpected{
       std::format("{}: Invalid data structure.", p.generic_string()),

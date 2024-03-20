@@ -1,37 +1,10 @@
 #include "MaterialEditor/Attribute.hpp"
-#include "MaterialEditor/MaterialGenerationContext.hpp"
+#include <cassert>
 
-namespace {
-
-[[nodiscard]] auto getGetterFunctionName(gfx::MaterialDomain materialDomain,
-                                         Attribute attribute) {
-  switch (attribute) {
-    using enum gfx::MaterialDomain;
-    using enum Attribute;
-
-  case Position:
-    return "getPosition()";
-  case Normal:
-    return "getNormal()";
-  case TexCoord0:
-    return materialDomain == Surface ? "getTexCoord0()" : "v_TexCoord";
-  case TexCoord1:
-    if (materialDomain == Surface) return "getTexCoord1()";
-    break;
-  case Color:
-    return "getColor()";
-  }
-
-  assert(false);
-  return "";
-}
-
-} // namespace
-
-DataType getDataType(Attribute attribute) {
+DataType getDataType(const Attribute e) {
   using enum DataType;
 
-  switch (attribute) {
+  switch (e) {
     using enum Attribute;
 
   case Position:
@@ -48,13 +21,12 @@ DataType getDataType(Attribute attribute) {
   assert(false);
   return Undefined;
 }
-
-const char *toString(Attribute attribute) {
+const char *toString(const Attribute e) {
 #define CASE(Value)                                                            \
   case Value:                                                                  \
     return #Value
 
-  switch (attribute) {
+  switch (e) {
     using enum Attribute;
 
     CASE(Position);
@@ -66,12 +38,4 @@ const char *toString(Attribute attribute) {
 
   assert(false);
   return "Undefined";
-}
-
-NodeResult evaluate(MaterialGenerationContext &context, int32_t id,
-                    Attribute attribute) {
-  return ShaderToken{
-    .name = getGetterFunctionName(context.materialDomain, attribute),
-    .dataType = getDataType(attribute),
-  };
 }

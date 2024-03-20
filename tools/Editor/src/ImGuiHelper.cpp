@@ -105,6 +105,15 @@ void PrintPath(const std::filesystem::path &p) {
 
 } // namespace ImGui
 
+// https://github.com/ocornut/imgui/issues/7139#issuecomment-1861085213
+ImGuiForceItemWidth ::ImGuiForceItemWidth(float width)
+    : m_value{GImGui->CurrentWindow->WorkRect.Max.x} {
+  ImGui::SetNextItemWidth(width);
+  m_backup = m_value;
+  m_value = GImGui->CurrentWindow->DC.CursorPos.x + ImGui::CalcItemWidth();
+}
+ImGuiForceItemWidth ::~ImGuiForceItemWidth() { m_value = m_backup; }
+
 int32_t blockFileSystemForbiddenCharacters(ImGuiInputTextCallbackData *data) {
   if (data->EventFlag == ImGuiInputTextFlags_CallbackCharFilter) {
     if (os::FileSystem::getForbiddenCharacters().contains(data->EventChar)) {

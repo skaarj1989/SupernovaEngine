@@ -1,24 +1,27 @@
 #pragma once
 
-#include "NodeCommon.hpp"
+#include "Compound.hpp"
 
-struct SwizzleNode final : NodeBase {
-  VertexDescriptor input;
+class SwizzleNode : public CompoundNode {
+public:
+  SwizzleNode() = default;
+  SwizzleNode(ShaderGraph &, const IDPair);
 
-  std::string mask;
+  std::unique_ptr<NodeBase> clone(const IDPair) const override;
+
+  void accept(NodeVisitor &visitor) override { visitor.visit(*this); }
+  void accept(NodeVisitor &visitor) const override { visitor.visit(*this); }
+
+  std::string toString() const override;
+
+  static bool isMaskValid(const std::string &, const int32_t numChannels);
 
   // ---
 
-  static SwizzleNode create(ShaderGraph &, VertexDescriptor parent);
-  SwizzleNode clone(ShaderGraph &, VertexDescriptor parent) const;
-
-  void remove(ShaderGraph &);
-
-  bool inspect(ShaderGraph &, int32_t id);
-  [[nodiscard]] NodeResult evaluate(MaterialGenerationContext &,
-                                    int32_t id) const;
+  std::string mask;
 
   template <class Archive> void serialize(Archive &archive) {
-    archive(Serializer{input}, mask);
+    archive(cereal::base_class<CompoundNode>(this));
+    archive(mask);
   }
 };

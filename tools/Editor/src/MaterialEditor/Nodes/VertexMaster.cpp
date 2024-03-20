@@ -1,52 +1,28 @@
 #include "MaterialEditor/Nodes/VertexMaster.hpp"
-#include "NodesInternal.hpp"
-#include "MaterialEditor/MaterialGenerationContext.hpp"
-#include <format>
+#include "Utility.hpp"
 
-namespace {
+const std::vector<VertexMasterNode::FieldInfo> VertexMasterNode::kFields{
+  {"localPos", Attribute::Position},
+};
 
-constexpr std::pair kField{"localPos", DataType::Vec4};
+//
+// VertexMasterNode class:
+//
 
-} // namespace
-
-VertexMasterNode VertexMasterNode::create(ShaderGraph &g,
-                                          VertexDescriptor parent) {
-  return VertexMasterNode{
-    .localPos =
-      createInternalInput(g, parent, kField.first, Attribute::Position),
-  };
-}
-
-bool VertexMasterNode::inspect(ShaderGraph &g, [[maybe_unused]] int32_t id) {
-  ImNodes::BeginNodeTitleBar();
-  ImGui::TextUnformatted("VertexMaster");
-  ImNodes::EndNodeTitleBar();
-
-  auto changed = false;
-
-#define ADD_INPUT_PIN(name)                                                    \
-  changed |= addInputPin(g, name, {#name}, InspectorMode::Popup, false)
-
-  ADD_INPUT_PIN(localPos);
-
-#undef ADD_INPUT_PIN
-
-  return changed;
-}
-MasterNodeResult VertexMasterNode::evaluate(MaterialGenerationContext &context,
-                                            int32_t id) const {
-  auto &[_, tokens, composer] = *context.currentShader;
-  const auto [name, requiredType] = kField;
-
-  const auto arg = extractTop(tokens);
-  if (auto argStr = assure(arg, requiredType); argStr) {
-    composer.addExpression(std::format("{} = {};", name, *argStr));
-  } else {
-    return std::unexpected{
-      std::format("'{}': Can't convert {} -> {}.", name, toString(arg.dataType),
-                  toString(requiredType)),
-    };
+VertexMasterNode::VertexMasterNode(ShaderGraph &g, const IDPair vertex)
+    : CompoundNode{g, vertex, Flags::None} {
+  auto hint = vertex.id + 1;
+  inputs.reserve(kFields.size());
+  for (const auto &[name, value] : kFields) {
+    auto *node = createNode(g, hint++, value);
+    node->label = name;
+    node->flags = Flags::Internal | Flags::Input;
+    inputs.emplace_back(node->vertex);
   }
-
-  return std::monostate{};
 }
+
+std::unique_ptr<NodeBase> VertexMasterNode::clone(const IDPair) const {
+  throw std::logic_error("Forbidden operation.");
+}
+
+std::string VertexMasterNode::toString() const { return "VertexMaster"; }

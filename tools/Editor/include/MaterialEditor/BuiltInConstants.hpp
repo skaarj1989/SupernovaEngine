@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MaterialEditor/Nodes/NodeCommon.hpp"
+#include "DataType.hpp"
 
 enum class BuiltInConstant {
   // Camera:
@@ -22,12 +22,8 @@ enum class BuiltInConstant {
   COUNT,
 };
 
-[[nodiscard]] DataType getDataType(BuiltInConstant);
-
-[[nodiscard]] const char *toString(BuiltInConstant);
-
-[[nodiscard]] NodeResult evaluate(MaterialGenerationContext &, int32_t id,
-                                  BuiltInConstant);
+[[nodiscard]] DataType getDataType(const BuiltInConstant);
+[[nodiscard]] const char *toString(const BuiltInConstant);
 
 enum class BuiltInSampler {
   SceneDepth,
@@ -36,9 +32,5 @@ enum class BuiltInSampler {
   COUNT,
 };
 
-[[nodiscard]] DataType getDataType(BuiltInSampler);
-
-[[nodiscard]] const char *toString(BuiltInSampler);
-
-[[nodiscard]] NodeResult evaluate(MaterialGenerationContext &, int32_t id,
-                                  BuiltInSampler);
+[[nodiscard]] DataType getDataType(const BuiltInSampler);
+[[nodiscard]] const char *toString(const BuiltInSampler);

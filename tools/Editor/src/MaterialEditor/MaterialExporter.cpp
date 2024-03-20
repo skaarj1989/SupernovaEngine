@@ -49,14 +49,14 @@ struct ShaderCodeChunk {
   ShaderCodeChunk result{.defines = code.defines};
   if (!code.source.empty()) {
     const auto p = dir / std::format("code.{}", type);
-    if (std::ofstream f{p, std::ios::binary}; f.is_open()) {
+    if (std::ofstream f{p, std::ios::binary | std::ios::trunc}; f.is_open()) {
       f << code.source;
       result.code = p.filename();
     }
   }
   if (!code.includes.empty()) {
     const auto p = dir / std::format("{}.module.glsl", type);
-    if (std::ofstream f{p, std::ios::binary}; f.is_open()) {
+    if (std::ofstream f{p, std::ios::binary | std::ios::trunc}; f.is_open()) {
       f << code.includes;
       result.include = p.filename();
     }
@@ -69,6 +69,19 @@ struct ShaderCodeChunk {
   if (in.include) j["includes"] = {*in.include};
   if (in.code) j["path"] = *in.code;
   return j;
+}
+
+const char *makeKey(const rhi::ShaderType type) {
+  switch (type) {
+    using enum rhi::ShaderType;
+
+  case Vertex:
+    return "vertexShader";
+  case Fragment:
+    return "fragmentShader";
+  }
+  assert(false);
+  return "unknown";
 }
 
 } // namespace
@@ -94,14 +107,17 @@ bool exportMaterial(const std::filesystem::path &p, const std::string_view name,
   const auto rootDirectory = p.parent_path();
   j["samplers"] = jsonify(blueprint.defaultTextures, rootDirectory);
 
-  const auto vert = saveUserCode(rootDirectory, blueprint.userVertCode, "vert");
-  if (vert.code) j["vertexShader"] = jsonify(vert);
-  const auto frag = saveUserCode(rootDirectory, blueprint.userFragCode, "frag");
-  if (frag.code) j["fragmentShader"] = jsonify(frag);
-
+  for (const auto &[type, code] : blueprint.userCode) {
+    const auto key = makeKey(type);
+    if (auto chunk =
+          saveUserCode(rootDirectory, code, std::string_view{key, 4});
+        chunk.code) {
+      j[key] = jsonify(chunk);
+    }
+  }
   j["flags"] = getValues(blueprint.flags);
 
-  if (std::ofstream f{p}; f.is_open()) {
+  if (std::ofstream f{p, std::ios::trunc}; f.is_open()) {
     f << std::setw(2) << j << std::endl;
     return true;
   }

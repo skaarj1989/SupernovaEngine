@@ -79,4 +79,13 @@ void PrintPath(const std::filesystem::path &);
 
 } // namespace ImGui
 
+struct ImGuiForceItemWidth {
+  explicit ImGuiForceItemWidth(float width);
+  ~ImGuiForceItemWidth();
+
+private:
+  float &m_value;
+  float m_backup{0.0f};
+};
+
 int32_t blockFileSystemForbiddenCharacters(ImGuiInputTextCallbackData *);

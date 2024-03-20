@@ -1,6 +1,6 @@
 #include "MaterialEditor/ShaderCodeComposer.hpp"
 #include "VisitorHelper.hpp"
-#include "StringUtility.hpp"
+#include "StringUtility.hpp" // trim
 #include <format>
 
 namespace {
@@ -101,6 +101,12 @@ namespace {
 // ShaderCodeComposer class:
 //
 
+ShaderCodeComposer &ShaderCodeComposer::clear() {
+  m_variables.clear();
+  m_code = {};
+  return *this;
+}
+
 ShaderCodeComposer &ShaderCodeComposer::addVariable(const std::string_view name,
                                                     const ValueVariant &v) {
   return addVariable(getDataType(v), name, toGLSL(v));
@@ -118,13 +124,6 @@ ShaderCodeComposer::addVariable(DataType dataType, const std::string_view name,
 ShaderCodeComposer &
 ShaderCodeComposer::addExpression(const std::string_view expr) {
   m_code << expr << "\n";
-  return *this;
-}
-
-ShaderCodeComposer &
-ShaderCodeComposer::addFunction(const UserFunctionData *data) {
-  assert(data);
-  m_userFunctions.push_back(data);
   return *this;
 }
 

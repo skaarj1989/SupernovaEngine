@@ -92,137 +92,137 @@ set(WIDGET_SOURCES
   "src/TexturePreview.cpp"
 )
 set(MATERIAL_EDITOR_SOURCES
+  "include/MaterialEditor/MaterialEditor.hpp"
+  "src/MaterialEditor/MaterialEditor.cpp"
+  "include/MaterialEditor/MaterialProject.hpp"
+  "src/MaterialEditor/MaterialProject.cpp"
 
-  # -- Public header files:
-  "include/MaterialEditor/ChangeEnumCombo.hpp"
-  "include/MaterialEditor/ChangeVariantCombo.hpp"
-  "include/MaterialEditor/FunctionAvailability.hpp"
+  "include/MaterialEditor/NodeEditor.hpp"
+  "src/MaterialEditor/NodeEditor.cpp"
+
+  "include/MaterialEditor/Command.hpp"
+  "include/MaterialEditor/CommandInvoker.hpp"
+  "include/MaterialEditor/NodeFactoryRegistry.hpp"
+  "src/MaterialEditor/NodeFactoryRegistry.cpp"
+  "include/MaterialEditor/PathMap.hpp"
+  "src/MaterialEditor/PathMap.cpp"
+  "include/MaterialEditor/NodePatcherVisitor.hpp"
+  "src/MaterialEditor/NodePatcherVisitor.cpp"
+
+  "include/MaterialEditor/ShaderCodeEvaluator.hpp"
+  "src/MaterialEditor/ShaderCodeEvaluator.cpp"
+  "src/MaterialEditor/Evaluator/Arithmetic.cpp"
+  "src/MaterialEditor/Evaluator/BuiltIns.cpp"
+  "src/MaterialEditor/Evaluator/Master.cpp"
+  "include/MaterialEditor/ShaderCodeComposer.hpp"
+  "src/MaterialEditor/ShaderCodeComposer.cpp"
+
+  "include/MaterialEditor/NodeUIVisitor.hpp"
+  "src/MaterialEditor/NodeUIVisitor.cpp"
+
+  "include/MaterialEditor/CustomNodeEditor.hpp"
+  "src/MaterialEditor/CustomNodeEditor.cpp"
+  "include/MaterialEditor/NodeContextMenuEntries.hpp"
+  "src/MaterialEditor/NodeContextMenuEntries.cpp"
+  "include/MaterialEditor/MaterialPreviewWidget.hpp"
+  "src/MaterialEditor/MaterialPreviewWidget.cpp"
+
+  # ---
+  "include/MaterialEditor/ValueVariant.hpp"
+  "src/MaterialEditor/ValueVariant.cpp"
+  "include/MaterialEditor/PropertyVariant.hpp"
+  "src/MaterialEditor/PropertyVariant.cpp"
+  "include/MaterialEditor/TextureParam.hpp"
+  "src/MaterialEditor/TextureParam.cpp"
+  "include/MaterialEditor/TransientVariant.hpp"
+  "src/MaterialEditor/TransientVariant.cpp"
 
   "include/MaterialEditor/Attribute.hpp"
-  "include/MaterialEditor/FrameBlockMember.hpp"
-  "include/MaterialEditor/CameraBlockMember.hpp"
+  "src/MaterialEditor/Attribute.cpp"
   "include/MaterialEditor/BuiltInConstants.hpp"
-  "include/MaterialEditor/ShaderToken.hpp"
-  "include/MaterialEditor/MaterialGenerationContext.hpp"
-  "include/MaterialEditor/DataType.hpp"
-  "include/MaterialEditor/ScriptedFunctionData.hpp"
-  "include/MaterialEditor/ImNodesHelper.hpp"
-  "include/MaterialEditor/LuaMaterialEditor.hpp"
-  "include/MaterialEditor/MaterialEditor.hpp"
-  "include/MaterialEditor/IDPair.hpp"
-  "include/MaterialEditor/Connection.hpp"
-  "include/MaterialEditor/ShaderGraph.hpp"
-  "include/MaterialEditor/VertexDescriptorSerializer.hpp"
-  "include/MaterialEditor/ShaderGraphCommon.hpp"
-  "include/MaterialEditor/MaterialPreviewWidget.hpp"
-  "include/MaterialEditor/Property.hpp"
-  "include/MaterialEditor/ShaderCodeComposer.hpp"
-  "include/MaterialEditor/SplitVector.hpp"
+  "src/MaterialEditor/BuiltInConstants.cpp"
+  "include/MaterialEditor/CameraBlockMember.hpp"
+  "src/MaterialEditor/CameraBlockMember.cpp"
+  "include/MaterialEditor/FrameBlockMember.hpp"
+  "src/MaterialEditor/FrameBlockMember.cpp"
   "include/MaterialEditor/SplitMatrix.hpp"
-  "include/MaterialEditor/TextureParam.hpp"
-  "include/MaterialEditor/ValueVariant.hpp"
+  "include/MaterialEditor/SplitVector.hpp"
 
-  "include/MaterialEditor/CompoundNodeVariant.hpp"
-  "include/MaterialEditor/MasterVariant.hpp"
-  "include/MaterialEditor/VertexProp.hpp"
-  "include/MaterialEditor/EdgeProp.hpp"
-
-  "include/MaterialEditor/Nodes/FrameBlock.hpp"
-  "include/MaterialEditor/Nodes/CameraBlock.hpp"
-  "include/MaterialEditor/Nodes/Container.hpp"
-
-  "include/MaterialEditor/UserFunctionData.hpp"
-  "include/MaterialEditor/CustomNodeEditor.hpp"
-
+  "include/MaterialEditor/Nodes/fwd.hpp"
+  "include/MaterialEditor/Nodes/NodeVisitor.hpp"
+  "include/MaterialEditor/Nodes/NodeBase.hpp"
+  "src/MaterialEditor/Nodes/NodeBase.cpp"
+  "include/MaterialEditor/Nodes/Empty.hpp"
+  "include/MaterialEditor/Nodes/Embedded.hpp"
+  "include/MaterialEditor/Nodes/Compound.hpp"
+  "src/MaterialEditor/Nodes/Compound.cpp"
   "include/MaterialEditor/Nodes/Append.hpp"
-  "include/MaterialEditor/Nodes/NodeCommon.hpp"
-  "include/MaterialEditor/Nodes/Arithmetic.hpp"
-  "include/MaterialEditor/Nodes/Scripted.hpp"
-  "include/MaterialEditor/Nodes/Custom.hpp"
-  "include/MaterialEditor/Nodes/MatrixTransform.hpp"
+  "src/MaterialEditor/Nodes/Append.cpp"
   "include/MaterialEditor/Nodes/VectorSplitter.hpp"
+  "src/MaterialEditor/Nodes/VectorSplitter.cpp"
   "include/MaterialEditor/Nodes/MatrixSplitter.hpp"
+  "src/MaterialEditor/Nodes/MatrixSplitter.cpp"
   "include/MaterialEditor/Nodes/Swizzle.hpp"
+  "src/MaterialEditor/Nodes/Swizzle.cpp"
+  "include/MaterialEditor/Nodes/Arithmetic.hpp"
+  "src/MaterialEditor/Nodes/Arithmetic.cpp"
+  "include/MaterialEditor/Nodes/MatrixTransform.hpp"
+  "src/MaterialEditor/Nodes/MatrixTransform.cpp"
   "include/MaterialEditor/Nodes/TextureSampling.hpp"
-  "include/MaterialEditor/Nodes/VertexMaster.hpp"
-  "include/MaterialEditor/Nodes/SurfaceMaster.hpp"
-  "include/MaterialEditor/Nodes/PostProcessMaster.hpp"
+  "src/MaterialEditor/Nodes/TextureSampling.cpp"
+  "include/MaterialEditor/Nodes/Scripted.hpp"
+  "src/MaterialEditor/Nodes/Scripted.cpp"
+  "include/MaterialEditor/Nodes/Custom.hpp"
+  "src/MaterialEditor/Nodes/Custom.cpp"
 
-  # -- Source (and private headers) files:
+  "include/MaterialEditor/Nodes/VertexMaster.hpp"
+  "src/MaterialEditor/Nodes/VertexMaster.cpp"
+  "include/MaterialEditor/Nodes/SurfaceMaster.hpp"
+  "src/MaterialEditor/Nodes/SurfaceMaster.cpp"
+  "include/MaterialEditor/Nodes/PostProcessMaster.hpp"
+  "src/MaterialEditor/Nodes/PostProcessMaster.cpp"
+
+  # ---
+  "include/MaterialEditor/ScriptedFunction.hpp"
+  "include/MaterialEditor/UserFunction.hpp"
+  "src/MaterialEditor/UserFunction.cpp"
+
+  "include/MaterialEditor/ShaderGraph.hpp"
+  "src/MaterialEditor/ShaderGraph.cpp"
+  "include/MaterialEditor/EdgeProperty.hpp"
+  "include/MaterialEditor/ShaderGraphCommon.hpp"
+  "include/MaterialEditor/ShaderGraphStageView.hpp"
+
+  "include/MaterialEditor/DataType.hpp"
+  "src/MaterialEditor/DataType.cpp"
+
+  "include/MaterialEditor/ShaderToken.hpp"
+
+  # ---
+  "src/MaterialEditor/Nodes/Nodes.cpp"
+  "src/MaterialEditor/Nodes/Utility.hpp"
+  "src/MaterialEditor/Nodes/Utility.cpp"
+  "src/MaterialEditor/TraverseGraph.hpp"
+  "src/MaterialEditor/FunctionAvailability.hpp"
+  "src/MaterialEditor/FunctionAvailability.cpp"
+  "src/MaterialEditor/GraphCommands.hpp"
+  "src/MaterialEditor/GraphCommands.cpp"
+  "src/MaterialEditor/ProjectCommands.hpp"
+  "src/MaterialEditor/ProjectCommands.cpp"
+  "src/MaterialEditor/MaterialExporter.hpp"
+  "src/MaterialEditor/MaterialExporter.cpp"
+  "src/MaterialEditor/LuaMaterialEditor.hpp"
+  "src/MaterialEditor/LuaMaterialEditor.cpp"
+
+  "src/MaterialEditor/ImNodesHelper.hpp"
+  "src/MaterialEditor/ImNodesHelper.cpp"
   "src/MaterialEditor/ImNodesStyleWidget.hpp"
   "src/MaterialEditor/ImNodesStyleWidget.cpp"
   "src/MaterialEditor/ImNodesStyleJSON.hpp"
   "src/MaterialEditor/ImNodesStyleJSON.cpp"
 
-  "src/MaterialEditor/FunctionAvailability.cpp"
-
-  "src/MaterialEditor/ShaderInfoLogParser.hpp"
-  "src/MaterialEditor/ShaderInfoLogParser.cpp"
-
-  "src/MaterialEditor/InspectEnum.hpp"
-
-  "src/MaterialEditor/UserFunctionData.cpp"
-  "src/MaterialEditor/CustomNodeEditor.cpp"
-
-  "src/MaterialEditor/CreateNodeHelper.hpp"
-
-  "src/MaterialEditor/NodeContextMenuEntries.hpp"
-  "src/MaterialEditor/NodeContextMenuEntries.cpp"
-
-  "src/MaterialEditor/Attribute.cpp"
-  "src/MaterialEditor/FrameBlockMember.cpp"
-  "src/MaterialEditor/CameraBlockMember.cpp"
-  "src/MaterialEditor/BuiltInConstants.cpp"
-  "src/MaterialEditor/MaterialGenerationContext.cpp"
-  "src/MaterialEditor/DataType.cpp"
-  "src/MaterialEditor/ImNodesHelper.cpp"
-  "src/MaterialEditor/LuaMaterialEditor.cpp"
-  "src/MaterialEditor/MaterialEditor.cpp"
-  "src/MaterialEditor/CycleDetector.hpp"
-  "src/MaterialEditor/TraverseGraph.hpp"
-  "src/MaterialEditor/ShaderGraph.cpp"
-  "src/MaterialEditor/MaterialPreviewWidget.cpp"
-  "src/MaterialEditor/Property.cpp"
-  "src/MaterialEditor/ShaderCodeComposer.cpp"
-  "src/MaterialEditor/SplitVector.cpp"
-  "src/MaterialEditor/SplitMatrix.cpp"
-  "src/MaterialEditor/TextureParam.cpp"
-  "src/MaterialEditor/ValueVariant.cpp"
-
-  "src/MaterialEditor/CompoundNodeVariant.cpp"
-  "src/MaterialEditor/MasterVariant.cpp"
-  "src/MaterialEditor/VertexProp.cpp"
-
-  "include/MaterialEditor/PathMap.hpp"
-  "src/MaterialEditor/PathMap.cpp"
-
-  "include/MaterialEditor/MaterialProject.hpp"
-  "src/MaterialEditor/MaterialProject.cpp"
-
-  "src/MaterialEditor/MaterialExporter.hpp"
-  "src/MaterialEditor/MaterialExporter.cpp"
-
-  "src/MaterialEditor/Nodes/NodesInternal.hpp"
-  "src/MaterialEditor/Nodes/NodesInternal.cpp"
-
-  "src/MaterialEditor/Nodes/NodeCommon.cpp"
-
-  "src/MaterialEditor/Nodes/FrameBlock.cpp"
-  "src/MaterialEditor/Nodes/CameraBlock.cpp"
-  "src/MaterialEditor/Nodes/Container.cpp"
-
-  "src/MaterialEditor/Nodes/Append.cpp"
-  "src/MaterialEditor/Nodes/Arithmetic.cpp"
-  "src/MaterialEditor/Nodes/Scripted.cpp"
-  "src/MaterialEditor/Nodes/Custom.cpp"
-  "src/MaterialEditor/Nodes/MatrixTransform.cpp"
-  "src/MaterialEditor/Nodes/PostProcessMaster.cpp"
-  "src/MaterialEditor/Nodes/VectorSplitter.cpp"
-  "src/MaterialEditor/Nodes/MatrixSplitter.cpp"
-  "src/MaterialEditor/Nodes/SurfaceMaster.cpp"
-  "src/MaterialEditor/Nodes/Swizzle.cpp"
-  "src/MaterialEditor/Nodes/TextureSampling.cpp"
-  "src/MaterialEditor/Nodes/VertexMaster.cpp"
+  "src/MaterialEditor/ChangeEnumCombo.hpp"
+  "src/MaterialEditor/ChangeVariantCombo.hpp"
 )
 set(SCENE_EDITOR_SOURCES
   "include/Inspector.hpp"
@@ -288,7 +288,10 @@ set(SOURCES
 )
 
 add_executable(Editor ${SOURCES})
-target_include_directories(Editor PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(Editor
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
 target_link_libraries(Editor
   PRIVATE
   ImGuiApp

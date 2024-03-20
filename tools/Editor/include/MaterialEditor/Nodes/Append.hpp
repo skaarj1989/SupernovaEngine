@@ -1,28 +1,22 @@
 #pragma once
 
-#include "NodeCommon.hpp"
+#include "Compound.hpp"
 
-struct AppendNode final : NodeBase {
-  struct Input {
-    VertexDescriptor a;
-    VertexDescriptor b;
+class AppendNode : public CompoundNode {
+public:
+  AppendNode() = default;
+  AppendNode(ShaderGraph &, const IDPair);
 
-    template <class Archive> void serialize(Archive &archive) {
-      archive(Serializer{a}, Serializer{b});
-    }
-  };
-  Input input;
+  std::unique_ptr<NodeBase> clone(const IDPair) const override;
+
+  void accept(NodeVisitor &visitor) override { visitor.visit(*this); }
+  void accept(NodeVisitor &visitor) const override { visitor.visit(*this); }
+
+  std::string toString() const override;
 
   // ---
 
-  static AppendNode create(ShaderGraph &, VertexDescriptor parent);
-  AppendNode clone(ShaderGraph &, VertexDescriptor parent) const;
-
-  void remove(ShaderGraph &);
-
-  bool inspect(ShaderGraph &, int32_t id);
-  [[nodiscard]] NodeResult evaluate(MaterialGenerationContext &,
-                                    int32_t id) const;
-
-  template <class Archive> void serialize(Archive &archive) { archive(input); }
+  template <class Archive> void serialize(Archive &archive) {
+    archive(cereal::base_class<CompoundNode>(this));
+  }
 };

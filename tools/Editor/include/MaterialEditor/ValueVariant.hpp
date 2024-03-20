@@ -1,14 +1,9 @@
 #pragma once
 
-#include "MaterialEditor/Nodes/NodeCommon.hpp"
-
-#include "glm/vec2.hpp"
-#include "glm/vec3.hpp"
-#include "glm/vec4.hpp"
+#include "DataType.hpp"
 #include "glm/mat2x2.hpp"
 #include "glm/mat3x3.hpp"
 #include "glm/mat4x4.hpp"
-
 #include <variant>
 
 // clang-format off
@@ -25,13 +20,4 @@ using ValueVariant = std::variant<
 // clang-format on
 
 [[nodiscard]] DataType getDataType(const ValueVariant &);
-
 [[nodiscard]] const char *toString(const ValueVariant &);
-
-bool inspectNode(int32_t id, std::optional<const char *> userLabel,
-                 ValueVariant &);
-bool inspect(ValueVariant &);
-bool changeValueCombo(const char *label, ValueVariant &);
-
-[[nodiscard]] NodeResult evaluate(MaterialGenerationContext &, int32_t id,
-                                  const ValueVariant &);

@@ -1,32 +1,37 @@
 #pragma once
 
 #include "rhi/ShaderType.hpp"
-#include <filesystem>
-#include <optional>
+#include "ShaderGraphCommon.hpp"
 #include <map>
 #include <vector>
+#include <optional>
+#include <filesystem>
 
 class PathMap {
 public:
-  explicit PathMap(const std::filesystem::path &);
+  struct Storage {
+    std::vector<std::filesystem::path> paths;
+    std::map<std::pair<rhi::ShaderType, VertexID>, std::size_t> ids;
 
-  void addPath(const rhi::ShaderType, int32_t nodeId,
-               const std::filesystem::path &);
-  [[nodiscard]] std::optional<std::filesystem::path>
-  getPath(const rhi::ShaderType, int32_t nodeId) const;
+    template <class Archive> void serialize(Archive &archive) {
+      archive(paths, ids);
+    }
+  };
 
-  template <class Archive> void serialize(Archive &archive) {
-    archive(m_relativePaths, m_ids);
-  }
+  void add(const rhi::ShaderType, const VertexID,
+           const std::filesystem::path &);
+  bool remove(const rhi::ShaderType, const VertexID);
+
+  [[nodiscard]] std::optional<std::filesystem::path> get(const rhi::ShaderType,
+                                                         const VertexID) const;
+
+  void reset(Storage = {});
+
+  const Storage &getStorage() const { return m_storage; }
 
 private:
-  [[nodiscard]] std::size_t _emplace(std::string &&);
-
-private:
-  std::filesystem::path m_root;
-  std::vector<std::string> m_relativePaths;
-
-  // .second = nodeId
-  using Key = std::pair<rhi::ShaderType, int32_t>;
-  std::map<Key, std::size_t> m_ids;
+  Storage m_storage;
 };
+
+PathMap::Storage makeRelative(PathMap::Storage, const std::filesystem::path &);
+PathMap::Storage makeAbsolute(PathMap::Storage, const std::filesystem::path &);

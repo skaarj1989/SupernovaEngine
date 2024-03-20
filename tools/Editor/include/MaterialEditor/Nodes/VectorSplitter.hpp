@@ -1,44 +1,22 @@
 #pragma once
 
-#include "NodeCommon.hpp"
+#include "Compound.hpp"
 
-struct VectorSplitterNode final : NodeBase {
-  std::optional<VertexDescriptor> input;
+class VectorSplitterNode : public CompoundNode {
+public:
+  VectorSplitterNode() = default;
+  VectorSplitterNode(ShaderGraph &, const IDPair);
 
-  struct Output {
-    VertexDescriptor xyz;
+  std::unique_ptr<NodeBase> clone(const IDPair) const override;
 
-    VertexDescriptor x;
-    VertexDescriptor y;
-    VertexDescriptor z;
-    VertexDescriptor w;
+  void accept(NodeVisitor &visitor) override { visitor.visit(*this); }
+  void accept(NodeVisitor &visitor) const override { visitor.visit(*this); }
 
-    template <class Archive> void serialize(Archive &archive) {
-      // clang-format off
-      archive(
-        Serializer{xyz},
-        Serializer{x},
-        Serializer{y},
-        Serializer{z},
-        Serializer{w}
-      );
-      // clang-format on
-    }
-  };
-  Output output;
+  std::string toString() const override;
 
   // ---
 
-  static VectorSplitterNode create(ShaderGraph &, VertexDescriptor parent);
-  VectorSplitterNode clone(ShaderGraph &, VertexDescriptor parent) const;
-
-  void remove(ShaderGraph &);
-
-  bool inspect(ShaderGraph &, int32_t id);
-  [[nodiscard]] NodeResult evaluate(MaterialGenerationContext &,
-                                    int32_t id) const;
-
   template <class Archive> void serialize(Archive &archive) {
-    archive(input, output);
+    archive(cereal::base_class<CompoundNode>(this));
   }
 };

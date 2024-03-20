@@ -1,31 +1,26 @@
 #pragma once
 
-#include "NodeCommon.hpp"
-#include "MaterialEditor/UserFunctionData.hpp"
+#include "Compound.hpp"
+#include "MaterialEditor/UserFunction.hpp"
 
-struct CustomNode final : CustomizableNode {
-  std::optional<std::size_t> hash;
-  const UserFunctionData *data{nullptr};
+class CustomNode : public CompoundNode {
+public:
+  CustomNode() = default;
+  CustomNode(ShaderGraph &, const IDPair, const UserFunction::Handle);
+
+  std::unique_ptr<NodeBase> clone(const IDPair) const override;
+
+  void accept(NodeVisitor &visitor) override { visitor.visit(*this); }
+  void accept(NodeVisitor &visitor) const override { visitor.visit(*this); }
+
+  std::string toString() const override;
 
   // ---
 
-  static CustomNode create(ShaderGraph &, VertexDescriptor parent,
-                           std::pair<std::size_t, const UserFunctionData *>);
-  CustomNode clone(ShaderGraph &, VertexDescriptor parent) const;
+  UserFunction::Handle userFunction;
 
-  bool inspect(ShaderGraph &, int32_t id);
-  [[nodiscard]] NodeResult evaluate(MaterialGenerationContext &,
-                                    int32_t id) const;
-
-  bool setFunction(const UserFunctions &);
-
-  template <class Archive> void save(Archive &archive) const {
-    assert(hash);
-    archive(hash);
-    CustomizableNode::save(archive);
-  }
-  template <class Archive> void load(Archive &archive) {
-    archive(hash);
-    CustomizableNode::load(archive);
+  template <class Archive> void serialize(Archive &archive) {
+    archive(cereal::base_class<CompoundNode>(this));
+    archive(userFunction.id);
   }
 };

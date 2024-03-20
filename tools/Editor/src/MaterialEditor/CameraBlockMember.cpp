@@ -1,40 +1,7 @@
 #include "MaterialEditor/CameraBlockMember.hpp"
-#include "MaterialEditor/MaterialGenerationContext.hpp"
-#include <format>
+#include <cassert>
 
-namespace {
-
-[[nodiscard]] auto getMemberName(CameraBlockMember e) {
-  switch (e) {
-    using enum CameraBlockMember;
-
-  case Projection:
-    return "projection";
-  case InversedProjection:
-    return "inversedProjection";
-  case View:
-    return "view";
-  case InversedView:
-    return "inversedView";
-  case ViewProjection:
-    return "viewProjection";
-  case InversedViewProjection:
-    return "inversedViewProjection";
-  case Resolution:
-    return "resolution";
-  case Near:
-    return "near";
-  case Far:
-    return "far";
-  }
-
-  assert(false);
-  return "";
-}
-
-} // namespace
-
-DataType getDataType(CameraBlockMember e) {
+DataType getDataType(const CameraBlockMember e) {
   using enum DataType;
   switch (e) {
     using enum CameraBlockMember;
@@ -56,8 +23,7 @@ DataType getDataType(CameraBlockMember e) {
   assert(false);
   return Undefined;
 }
-
-const char *toString(CameraBlockMember e) {
+const char *toString(const CameraBlockMember e) {
 #define CASE(Value)                                                            \
   case Value:                                                                  \
     return #Value
@@ -78,12 +44,4 @@ const char *toString(CameraBlockMember e) {
 
   assert(false);
   return "Undefined";
-}
-
-NodeResult evaluate(MaterialGenerationContext &context, int32_t id,
-                    CameraBlockMember e) {
-  return ShaderToken{
-    .name = std::format("u_Camera.{}", getMemberName(e)),
-    .dataType = getDataType(e),
-  };
 }

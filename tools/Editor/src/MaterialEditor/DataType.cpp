@@ -3,7 +3,7 @@
 
 namespace {
 
-[[nodiscard]] auto countWidgets(DataType dataType) {
+[[nodiscard]] auto countWidgets(const DataType dataType) {
   switch (dataType) {
     using enum DataType;
 
@@ -40,7 +40,7 @@ namespace {
   }
   return 0;
 }
-[[nodiscard]] auto calcWidthPerWidget(DataType dataType) {
+[[nodiscard]] auto calcWidthPerWidget(const DataType dataType) {
   switch (dataType) {
     using enum DataType;
 
@@ -59,11 +59,11 @@ namespace {
 
 } // namespace
 
-float calcOptimalInspectorWidth(DataType dataType) {
+float calcOptimalInspectorWidth(const DataType dataType) {
   const auto baseType = getBaseDataType(dataType);
   return countWidgets(dataType) * calcWidthPerWidget(baseType);
 }
-const char *toString(DataType type) {
+const char *toString(const DataType type) {
   // clang-format off
   switch (type) {
     using enum DataType;
@@ -108,7 +108,8 @@ const char *toString(DataType type) {
   return "Undefined";
 }
 
-DataType constructVectorType(DataType baseType, uint32_t numChannels) {
+DataType constructVectorType(const DataType baseType,
+                             const uint32_t numChannels) {
   assert(isScalar(baseType) && numChannels > 0 && numChannels <= 4);
 
   auto v = std::to_underlying(baseType);
@@ -116,8 +117,8 @@ DataType constructVectorType(DataType baseType, uint32_t numChannels) {
   return static_cast<DataType>(v);
 }
 
-std::optional<std::string_view> getConversionFormat(DataType from,
-                                                    DataType to) {
+std::optional<std::string_view> getConversionFormat(const DataType from,
+                                                    const DataType to) {
   assert(from != to);
 
   switch (makeHash(from, to)) {

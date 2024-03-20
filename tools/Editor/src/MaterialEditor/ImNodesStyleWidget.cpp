@@ -1,4 +1,5 @@
 #include "ImNodesStyleWidget.hpp"
+#include "imnodes.h"
 
 namespace ImNodes {
 

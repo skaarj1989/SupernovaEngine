@@ -21,10 +21,8 @@ return FunctionInfo({
         }),
     },
     --- @param shaderType ShaderType
-    --- @param blueprint MaterialBlueprint
-    isEnabled = function(shaderType, blueprint)
-        return shaderType == ShaderType.Vertex
-            and getDomain(blueprint) == MaterialDomain.Surface
+    isEnabled = function(surface, shaderType)
+        return surface ~= nil and shaderType == ShaderType.Vertex
     end,
     --- @param args DataType[]
     getReturnType = function(args)

@@ -12,6 +12,7 @@
 #include "FileDialog.hpp"
 #include "FileBrowser.hpp"
 #include "ResourceDockSpace.hpp"
+#include "LoggerWidget.hpp"
 
 #include "SceneEditor/SceneEditor.hpp"
 #include "ScriptEditor.hpp"

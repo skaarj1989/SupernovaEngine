@@ -1,379 +1,37 @@
 #include "MaterialEditor/ShaderGraph.hpp"
-
-#include "TypeTraits.hpp"
-#include "AlwaysFalse.hpp"
-
-#include "CycleDetector.hpp"
 #include "TraverseGraph.hpp"
+#include "boost/graph/depth_first_search.hpp"
+#include "boost/range/adaptor/transformed.hpp"
+#include "boost/range/adaptor/reversed.hpp"
 #include "boost/graph/graphviz.hpp"
 
+#include "cereal/types/polymorphic.hpp"
 #include "cereal/archives/binary.hpp"
-#include "math/Serialization.hpp"
-#include "cereal/types/string.hpp"
-#include "cereal/types/optional.hpp"
-#include "cereal/types/variant.hpp"
 
 #include "tracy/Tracy.hpp"
+
+#include <ranges>
+#include <format>
 
 namespace {
 
 constexpr char kMagicId[] = "sneSG";
 constexpr auto kMagicIdSize = sizeof(kMagicId);
 
-[[nodiscard]] auto getRoot(auto &g) {
-  assert(boost::num_vertices(g) > 0);
-  return IDPair{*boost::vertices(g).first, ShaderGraph::kRootNodeId};
-}
-
-void deepCopy(const ShaderGraph &from, ShaderGraph &to) {
-  std::stringstream ss;
-  from.save(ss);
-  to.load(ss);
-}
-
 [[nodiscard]] auto buildVertexDescriptorToIndexMap(const ShaderGraph &g) {
   VertexDescriptorToIndexMap map;
-  for (const auto vd : g.vertices()) {
-    map[vd] = g.getVertexProp(vd).id;
+  for (const auto *node : g.nodes()) {
+    map[node->vertex.vd] = node->vertex.id;
   }
   return map;
 }
 
-void _removeVertices(ShaderGraph &g, auto &container) {
-  for (const auto vd : container) {
-    g.removeVertex(vd);
-  }
-}
-
-} // namespace
-
-//
-// ShaderGraph class:
-//
-
-ShaderGraph::ShaderGraph(const ShaderGraph &other) {
-  // Don't use copy assignment constructor/operator for the m_graph!
-  // a variant in VertexProp may contain a child vertex.
-  // VertexDescriptor is a pointer, unique for a graph (can't be copied).
-  deepCopy(other, *this);
-}
-ShaderGraph &ShaderGraph::operator=(const ShaderGraph &rhs) {
-  if (this != &rhs) {
-    deepCopy(rhs, *this);
-  }
-  return *this;
-}
-
-void ShaderGraph::clear() {
-  m_graph = {};
-  m_root = std::nullopt;
-
-  m_nextVertexId = 0;
-  m_nextEdgeId = 0;
-}
-
-std::optional<IDPair> ShaderGraph::getRoot() const { return m_root; }
-
-VertexDescriptor ShaderGraph::addVertex(std::optional<std::string_view> label,
-                                        NodeFlags flags) {
-  const auto id = m_nextVertexId++;
-  const auto vd = boost::add_vertex(
-    VertexProp{
-      .id = id,
-      .flags = flags,
-      .label = label.value_or("").data(),
-    },
-    m_graph);
-  if (!hasRoot(*this)) [[unlikely]] {
-    m_root = {vd, id};
-  }
-  return vd;
-}
-void ShaderGraph::removeVertex(VertexDescriptor vd) {
-  assert(vd);
-  boost::clear_vertex(vd, m_graph);
-  boost::remove_vertex(vd, m_graph);
-}
-
-VertexProp &ShaderGraph::getVertexProp(VertexDescriptor vd) {
-  assert(vd != nullptr);
-  return m_graph[vd];
-}
-const VertexProp &ShaderGraph::getVertexProp(VertexDescriptor vd) const {
-  assert(vd != nullptr);
-  return m_graph[vd];
-}
-
-std::optional<VertexDescriptor> ShaderGraph::findVertex(int32_t id) const {
-  for (const auto vd : vertices()) {
-    if (m_graph[vd].id == id) return vd;
-  }
-  return std::nullopt;
-}
-
-std::size_t ShaderGraph::countVertices() const {
-  return boost::num_vertices(m_graph);
-}
-
-EdgeDescriptor ShaderGraph::addEdge(EdgeType type,
-                                    const Connection &connection) {
-  assert(connection.isValid());
-
-  const auto [ed, _] =
-    boost::add_edge(connection.from, connection.to,
-                    EdgeProp{.id = m_nextEdgeId++, .type = type}, m_graph);
-
-  return ed;
-}
-void ShaderGraph::removeEdge(EdgeDescriptor ed) {
-  assert(ed != EdgeDescriptor{});
-  boost::remove_edge(ed, m_graph);
-}
-
-EdgeProp &ShaderGraph::getEdgeProp(EdgeDescriptor ed) { return m_graph[ed]; }
-const EdgeProp &ShaderGraph::getEdgeProp(EdgeDescriptor ed) const {
-  return m_graph[ed];
-}
-
-std::optional<EdgeDescriptor> ShaderGraph::findEdge(int32_t id) {
-  for (const auto &&ed : edges()) {
-    if (m_graph[ed].id == id) return ed;
-  }
-  return std::nullopt;
-}
-std::size_t ShaderGraph::countEdges() const {
-  return boost::num_edges(m_graph);
-}
-
-std::size_t ShaderGraph::countOutEdges(VertexDescriptor vd) const {
-  assert(vd != nullptr);
-  return boost::out_degree(vd, m_graph);
-}
-void ShaderGraph::removeOutEdges(VertexDescriptor vd) {
-  assert(vd != nullptr);
-  boost::clear_out_edges(vd, m_graph);
-}
-
-Connection ShaderGraph::getConnection(EdgeDescriptor ed) const {
-  assert(ed != EdgeDescriptor{});
-  return {
-    .from = boost::source(ed, m_graph),
-    .to = boost::target(ed, m_graph),
-  };
-}
-
-std::vector<Connection> ShaderGraph::findCycles() const {
-  // Do not use 'countVertices' for colorMap size.
-  // Otherwise it will trigger: 'out of range vector iterator' in
-  // boost::depth_first_search
-  std::vector<boost::default_color_type> colorMap(m_nextVertexId);
-  auto descriptorToIndex = buildVertexDescriptorToIndexMap(*this);
-  auto ipmap = boost::make_assoc_property_map(descriptorToIndex);
-  auto cpmap = boost::make_iterator_property_map(colorMap.begin(), ipmap);
-
-  std::vector<Connection> cycles;
-  boost::depth_first_search(m_graph,
-                            CycleDetector{[this, &cycles](const auto &ed) {
-                              cycles.emplace_back(getConnection(ed));
-                            }},
-                            cpmap);
-
-  return cycles;
-}
-
-std::stack<VertexDescriptor>
-ShaderGraph::getExecutionOrder(std::optional<VertexDescriptor> root) const {
-  assert(isAcyclic(*this));
-
-  ZoneScopedN("ShaderGraph::GetExecutionOrder");
-  if (!root) root = getRoot()->vd;
-
-  std::stack<VertexDescriptor> stack;
-  if (root) {
-    traverse(m_graph, *root, [&stack](const auto vd) { stack.push(vd); });
-  }
-  return stack;
-}
-
-void ShaderGraph::save(std::ostream &os) const {
-  ZoneScopedN("ShaderGraph::Save");
-
-  const auto descriptorToIndex = buildVertexDescriptorToIndexMap(*this);
-  {
-    UserDataAdapter<const VertexDescriptorToIndexMap,
-                    cereal::BinaryOutputArchive>
-      archive{descriptorToIndex, os};
-
-    archive.saveBinary(kMagicId, kMagicIdSize);
-    archive(m_nextVertexId, m_nextEdgeId);
-
-    // -- Vertices:
-
-    const auto numVertices = countVertices();
-    archive(numVertices);
-
-    for (const auto vd : vertices()) {
-      archive(m_graph[vd]);
-    }
-    for (const auto vd : vertices()) {
-      archive(m_graph[vd].variant);
-    }
-
-    // -- Edges:
-
-    const auto numEdges = countEdges();
-    archive(numEdges);
-
-    for (const auto &&ed : edges()) {
-      archive(m_graph[ed], getConnection(ed));
-    }
-  }
-}
-void ShaderGraph::load(std::istream &is) {
-  ZoneScopedN("ShaderGraph::Load");
-
-  clear();
-
-  VertexIndexToDescriptorMap indexToDescriptor;
-  UserDataAdapter<const VertexIndexToDescriptorMap, cereal::BinaryInputArchive>
-    archive{indexToDescriptor, is};
-
-  std::remove_const_t<decltype(kMagicId)> magicId{};
-  archive.loadBinary(magicId, kMagicIdSize);
-  if (strncmp(magicId, kMagicId, kMagicIdSize) != 0)
-    throw std::runtime_error{"Invalid ShaderGraph signature."};
-
-  archive(m_nextVertexId, m_nextEdgeId);
-
-  // -- Vertices:
-
-  std::size_t numVertices;
-  archive(numVertices);
-  if (numVertices <= 0) {
-    throw std::runtime_error{"Can't load a graph without vertices."};
-  }
-
-  for (decltype(numVertices) i{0}; i < numVertices; ++i) {
-    const auto vd = boost::add_vertex(m_graph);
-    auto &prop = m_graph[vd];
-    archive(prop);
-
-    indexToDescriptor[prop.id] = vd;
-  }
-  for (const auto vd : vertices()) {
-    archive(m_graph[vd].variant);
-  }
-
-  if (numVertices > 0) m_root = ::getRoot(m_graph);
-
-  // -- Edges:
-
-  std::size_t numEdges;
-  archive(numEdges);
-
-  for (decltype(numEdges) i{0}; i < numEdges; ++i) {
-    EdgeProp ep{};
-    Connection connection{};
-    archive(ep, connection);
-    auto [_, inserted] =
-      boost::add_edge(connection.from, connection.to, ep, m_graph);
-    assert(inserted);
-  }
-}
-
-void ShaderGraph::exportGraphviz(std::ostream &os) {
-  struct GraphWriter {
-    void operator()(std::ostream &os) const {
-      os << "rankdir=RL\n"
-            "node[shape=record]\n";
-    }
-  };
-
-#define USE_CUSTOM_VERTEX_WRITER 1
-
-#if USE_CUSTOM_VERTEX_WRITER
-  struct VertexWriter {
-    AdjacencyList<VertexProp, EdgeProp> &graph;
-
-    void operator()(std::ostream &os, VertexDescriptor vd) const {
-      os << "[label=" << boost::escape_dot_string(graph[vd].toString()) << "]";
-    }
-  };
-#endif
-
-  boost::write_graphviz(
-    os, m_graph,
-#if USE_CUSTOM_VERTEX_WRITER
-    VertexWriter{m_graph},
-#else
-    boost::make_label_writer(boost::get(&VertexProp::label, m_graph)),
-#endif
-    boost::default_writer{}, GraphWriter{},
-    boost::make_assoc_property_map(buildVertexDescriptorToIndexMap(*this)));
-}
-
-//
-//
-//
-
-bool hasRoot(const ShaderGraph &g) { return g.getRoot().has_value(); }
-bool hasOutEdges(const ShaderGraph &g, VertexDescriptor vd) {
-  return g.countOutEdges(vd) > 0;
-}
-
-int32_t getVertexId(const ShaderGraph &g, VertexDescriptor vd) {
-  return g.getVertexProp(vd).id;
-}
-
-void removeVertices(ShaderGraph &g, std::span<VertexDescriptor> v) {
-  _removeVertices(g, v);
-}
-void removeVertices(ShaderGraph &g, std::initializer_list<VertexDescriptor> v) {
-  _removeVertices(g, v);
-}
-
-void removeNode(ShaderGraph &g, VertexDescriptor vd) {
-  assert(vd);
-
-  auto &vertexProp = g.getVertexProp(vd);
-  std::visit(
-    [&g](auto &arg) {
-      using T = std::decay_t<decltype(arg)>;
-
-      if constexpr (std::is_enum_v<T> ||
-                    is_any_v<T, std::monostate, ValueVariant, PropertyValue,
-                             TextureParam>) {
-        // No children nodes ...
-      } else if constexpr (std::is_same_v<T, ContainerNode>) {
-        arg.remove(g);
-      } else if constexpr (std::is_same_v<T, CompoundNodeVariant>) {
-        remove(g, arg);
-      } else if constexpr (std::is_same_v<T, MasterNodeVariant>) {
-        // Do not remove a MasterNode!
-        assert(false);
-      } else {
-        static_assert(always_false_v<T>, "non-exhaustive visitor!");
-      }
-    },
-    vertexProp.variant);
-
-  g.removeVertex(vd);
-}
-void removeNodes(ShaderGraph &g, std::span<VertexDescriptor> v) {
-  for (const auto vd : v)
-    removeNode(g, vd);
-}
-
-bool isAcyclic(const ShaderGraph &g) { return g.findCycles().empty(); }
-
-std::set<VertexDescriptor>
+[[nodiscard]] std::unordered_set<VertexDescriptor>
 findConnectedVertices(const ShaderGraph &g,
-                      std::optional<VertexDescriptor> root) {
-  ZoneScopedN("ShaderGraph::FindConnectedVertices");
+                      const VertexDescriptor root = nullptr) {
+  ZoneScopedN("ShaderGraph::findConnectedVertices");
 
-  if (!root) root = g.getRoot()->vd;
-
-  std::set<VertexDescriptor> result;
+  std::unordered_set<VertexDescriptor> result;
   auto s = g.getExecutionOrder(root);
   while (!s.empty()) {
     const auto c = s.top();
@@ -384,37 +42,484 @@ findConnectedVertices(const ShaderGraph &g,
   return result;
 }
 
-IDPair clone(ShaderGraph &g, VertexDescriptor sourceVd) {
-  const auto &sourceProp = g.getVertexProp(sourceVd);
+} // namespace
 
-  const auto newVd = g.addVertex(sourceProp.label, NodeFlags::Output);
-  auto &targetProp = g.getVertexProp(newVd);
+//
+// ShaderGraph class:
+//
 
-  std::visit(
-    [&g, newVd, &targetVariant = targetProp.variant](const auto &arg) {
-      using T = std::decay_t<decltype(arg)>;
+ShaderGraph::ShaderGraph(const rhi::ShaderType shaderType)
+    : m_graph{std::make_unique<Graph>()}, m_shaderType{shaderType} {}
 
-      if constexpr (is_any_v<T, std::monostate, ValueVariant, Attribute,
-                             PropertyValue, FrameBlockMember, CameraBlockMember,
-                             BuiltInConstant, BuiltInSampler, SplitVector,
-                             SplitMatrix, TextureParam>) {
-        targetVariant = arg;
-      } else if constexpr (std::is_same_v<T, ContainerNode>) {
-        targetVariant = arg.clone(g, newVd);
-      } else if constexpr (std::is_same_v<T, CompoundNodeVariant>) {
-        std::visit(
-          [&g, newVd, &targetVariant](const auto &compoundNode) {
-            targetVariant = compoundNode.clone(g, newVd);
-          },
-          arg);
-      } else if constexpr (std::is_same_v<T, MasterNodeVariant>) {
-        // Can't clone a master node (one master node per graph).
-        assert(false);
-      } else {
-        static_assert(always_false_v<T>, "non-exhaustive visitor!");
-      }
-    },
-    sourceProp.variant);
+ShaderGraph &ShaderGraph::clear() {
+  m_graph = std::make_unique<Graph>();
+  m_root = {};
 
-  return IDPair{newVd, targetProp.id};
+  m_nextVertexId = 0;
+  m_nextEdgeId = 0;
+
+  return *this;
+}
+bool ShaderGraph::empty() const { return countVertices() == 0; }
+
+rhi::ShaderType ShaderGraph::getShaderType() const { return m_shaderType; }
+
+IDPair ShaderGraph::getRoot() const { return m_root; }
+
+ShaderGraph &ShaderGraph::remove(const VertexDescriptor in) {
+  assert(in);
+  ZoneScopedN("ShaderGraph::remove(node)");
+
+  std::vector<VertexDescriptor> vertexList;
+  collectChildren(in, vertexList);
+
+  for (const auto vd : vertexList | std::views::reverse) {
+    publish(BeforeNodeRemoveEvent{
+      .node = (*m_graph)[vd].get(),
+      .phase = EventPhase::Default,
+    });
+    boost::clear_vertex(vd, *m_graph);
+    boost::remove_vertex(vd, *m_graph);
+  }
+  return *this;
+}
+IDPair ShaderGraph::clone(const VertexDescriptor source,
+                          const std::optional<VertexID> hint) {
+  ZoneScopedN("ShaderGraph::clone(node)");
+
+  const auto *sourceNode = getNode(source);
+  const auto vertex = _createVertex(hint);
+  (*m_graph)[vertex.vd] = sourceNode->clone(vertex);
+  auto *node = (*m_graph)[vertex.vd].get();
+  node->graph = this;
+  node->vertex = vertex;
+  node->label = sourceNode->label;
+  node->flags = sourceNode->flags;
+  node->joinChildren();
+  publish(NodeAddedEvent{.node = node, .phase = EventPhase::Default});
+  return vertex;
+}
+
+VertexDescriptor ShaderGraph::findVertex(const VertexID id) const {
+  for (const auto *node : nodes()) {
+    if (node && node->vertex.id == id) return node->vertex.vd;
+  }
+  return nullptr;
+}
+
+std::size_t ShaderGraph::countVertices() const {
+  return boost::num_vertices(*m_graph);
+}
+
+const ShaderGraph &ShaderGraph::updateVertexDescriptor(IDPair &vertex) const {
+  assert(vertex.id != kInvalidId);
+  if (vertex.vd == nullptr) vertex.vd = findVertex(vertex.id);
+  return *this;
+}
+const ShaderGraph &ShaderGraph::updateVertexDescriptor(Connection &c) const {
+  return updateVertexDescriptor(c.source).updateVertexDescriptor(c.target);
+}
+
+NodeBase *ShaderGraph::findNode(const VertexID id) {
+  return const_cast<NodeBase *>(
+    const_cast<const ShaderGraph *>(this)->findNode(id));
+}
+const NodeBase *ShaderGraph::findNode(const VertexID id) const {
+  for (auto *node : nodes()) {
+    if (node && node->vertex.id == id) return node;
+  }
+  return nullptr;
+}
+
+NodeBase *ShaderGraph::getNode(const VertexDescriptor vd) {
+  return const_cast<NodeBase *>(
+    const_cast<const ShaderGraph *>(this)->getNode(vd));
+}
+const NodeBase *ShaderGraph::getNode(const VertexDescriptor vd) const {
+  return (*m_graph)[vd].get();
+}
+
+boost::iterator_range<ShaderGraph::VertexIterator>
+ShaderGraph::vertices() const {
+  return boost::make_iterator_range(boost::vertices(*m_graph));
+}
+boost::iterator_range<ShaderGraph::NodeIterator> ShaderGraph::nodes() {
+  return boost::make_iterator_range(
+    boost::vertices(*m_graph) |
+    boost::adaptors::transformed(
+      [this](const auto vd) { return (*m_graph)[vd].get(); }));
+}
+boost::iterator_range<ShaderGraph::ConstNodeIterator>
+ShaderGraph::nodes() const {
+  return boost::make_iterator_range(
+    boost::vertices(*m_graph) |
+    boost::adaptors::transformed(
+      [this](const auto vd) { return (*m_graph)[vd].get(); }));
+}
+
+const ShaderGraph &
+ShaderGraph::collectChildren(const VertexDescriptor vd,
+                             std::vector<VertexDescriptor> &out) const {
+  out.push_back(vd);
+  getNode(vd)->collectChildren(out);
+  return *this;
+}
+
+std::optional<EdgeDescriptor>
+ShaderGraph::link(const EdgeType type, const ConnectedVDs c,
+                  const std::optional<EdgeID> hint) {
+  ZoneScopedN("ShaderGraph::link");
+
+  const auto id = hint ? *hint : m_nextEdgeId++;
+  const auto [ed, inserted] =
+    boost::add_edge(c.first, c.second, EdgeProperty{id, type}, *m_graph);
+  assert(inserted);
+  if (!_isAcyclic()) {
+    boost::remove_edge(ed, *m_graph);
+    return std::nullopt;
+  }
+  if (type == EdgeType::External) {
+    publish(EdgeAddedEvent{
+      .source = (*m_graph)[ed.m_source].get(),
+      .target = (*m_graph)[ed.m_target].get(),
+      .phase = EventPhase::Default,
+    });
+  }
+  return ed;
+}
+ShaderGraph &ShaderGraph::remove(const EdgeDescriptor &ed) {
+  assert(ed != EdgeDescriptor{});
+  if (getProperty(ed).type == EdgeType::External) {
+    publish(BeforeEdgeRemoveEvent{
+      .source = (*m_graph)[ed.m_source].get(),
+      .target = (*m_graph)[ed.m_target].get(),
+      .phase = EventPhase::Default,
+    });
+  }
+  boost::remove_edge(ed, *m_graph);
+  return *this;
+}
+ShaderGraph &ShaderGraph::removeOutEdges(const VertexDescriptor vd) {
+  assert(vd != nullptr);
+  boost::clear_out_edges(vd, *m_graph);
+  return *this;
+}
+
+std::optional<EdgeDescriptor> ShaderGraph::findEdge(const EdgeID id) const {
+  for (const auto &ed : edges()) {
+    if (getProperty(ed).id == id) return ed;
+  }
+  return std::nullopt;
+}
+
+EdgeProperty &ShaderGraph::getProperty(const EdgeDescriptor &ed) {
+  return const_cast<EdgeProperty &>(
+    const_cast<const ShaderGraph *>(this)->getProperty(ed));
+}
+const EdgeProperty &ShaderGraph::getProperty(const EdgeDescriptor &ed) const {
+  return (*m_graph)[ed];
+}
+
+Connection ShaderGraph::getConnection(const EdgeDescriptor &ed) const {
+  assert(ed != EdgeDescriptor{});
+  return {
+    .source = getNode(ed.m_source)->vertex,
+    .target = getNode(ed.m_target)->vertex,
+  };
+}
+
+std::size_t ShaderGraph::countEdges() const {
+  return boost::num_edges(*m_graph);
+}
+std::size_t ShaderGraph::countOutEdges(const VertexDescriptor vd) const {
+  assert(vd != nullptr);
+  return boost::out_degree(vd, *m_graph);
+}
+
+boost::iterator_range<ShaderGraph::EdgeIterator> ShaderGraph::edges() const {
+  return boost::make_iterator_range(boost::edges(*m_graph));
+}
+boost::iterator_range<ShaderGraph::LinkIterator> ShaderGraph::links() const {
+  return boost::make_iterator_range(
+    boost::edges(*m_graph) |
+    boost::adaptors::transformed([this](const auto &ed) {
+      return LinkInfo{getProperty(ed), getConnection(ed)};
+    }));
+}
+
+const ShaderGraph &ShaderGraph::exportGraphviz(std::ostream &os) const {
+  struct GraphWriter {
+    void operator()(std::ostream &os) const {
+      os << "rankdir=RL\n"
+            "node[shape=record]\n";
+    }
+  };
+
+  struct VertexWriter {
+    Graph &graph;
+
+    void operator()(std::ostream &os, VertexDescriptor vd) const {
+      const auto &node = *graph[vd];
+      auto label = std::format(R"([{}]: label="{}"|type={})", node.vertex.id,
+                               node.label, node.toString());
+      boost::replace_all(label, "<", "\\<");
+      boost::replace_all(label, ">", "\\>");
+      os << "[label=" << boost::escape_dot_string(label) << "]";
+    }
+  };
+  struct EdgeWriter {
+    Graph &graph;
+
+    void operator()(std::ostream &os, const EdgeDescriptor &ed) const {
+      const auto &prop = graph[ed];
+      const auto label = std::format(
+        "{}{}", prop.id, prop.type == EdgeType::External ? 'e' : 'i');
+      os << "[label=" << boost::escape_dot_string(label) << "]";
+    }
+  };
+
+  boost::write_graphviz(
+    os, *m_graph, VertexWriter{*m_graph}, EdgeWriter{*m_graph}, GraphWriter{},
+    boost::make_assoc_property_map(buildVertexDescriptorToIndexMap(*this)));
+
+  return *this;
+}
+
+const ShaderGraph &ShaderGraph::save(std::ostream &os) const {
+  ZoneScopedN("ShaderGraph::save");
+  {
+    cereal::BinaryOutputArchive archive{os};
+    archive.saveBinary(kMagicId, kMagicIdSize);
+
+    archive(m_nextVertexId);
+
+    // -- Vertices:
+
+    const auto numVertices = countVertices();
+    archive(numVertices);
+
+    for (const auto vd : vertices()) {
+      auto &node = (*m_graph)[vd];
+      archive(node);
+    }
+
+    // -- Edges:
+    // Only external edges are saved (internal ones are recreated in `load`).
+    // Edge IDs don't matter and can be regenerated during loading.
+
+    auto filteredLinks = links() | std::views::filter(externalLink);
+    const std::size_t numLinks = std::ranges::distance(filteredLinks);
+    archive(numLinks);
+
+    for (const auto &[_, connection] : filteredLinks) {
+      archive(connection);
+    }
+  }
+  return *this;
+}
+
+ShaderGraph &ShaderGraph::load(std::istream &is) {
+  ZoneScopedN("ShaderGraph::load");
+  clear();
+
+  cereal::BinaryInputArchive archive{is};
+
+  std::remove_const_t<decltype(kMagicId)> magicId{};
+  archive.loadBinary(magicId, kMagicIdSize);
+  if (strncmp(magicId, kMagicId, kMagicIdSize) != 0)
+    throw std::runtime_error{"Invalid ShaderGraph signature."};
+
+  archive(m_nextVertexId);
+
+  // -- Vertices:
+
+  std::size_t numVertices;
+  archive(numVertices);
+  if (numVertices <= 0) {
+    throw std::runtime_error{"Can't load a graph without vertices."};
+  }
+
+  for (decltype(numVertices) i{0}; i < numVertices; ++i) {
+    const auto vd = boost::add_vertex(*m_graph);
+    auto &node = (*m_graph)[vd];
+    archive(node);
+    node->graph = this;
+    node->vertex.vd = vd;
+    publish(NodeAddedEvent{.node = node.get(), .phase = EventPhase::Load});
+  }
+  for (auto *node : nodes() | boost::adaptors::reversed |
+                      std::views::filter(nonInternalNode)) {
+    node->joinChildren();
+  }
+  m_root = IDPair{findVertex(kRootNodeId), kRootNodeId};
+
+  // -- Edges (only external):
+
+  std::size_t numEdges;
+  archive(numEdges);
+
+  for (decltype(numEdges) i{0}; i < numEdges; ++i) {
+    Connection c{};
+    archive(c);
+    updateVertexDescriptor(c);
+    auto [ed, inserted] = boost::add_edge(
+      c.source, c.target, {.type = EdgeType::External}, *m_graph);
+    assert(inserted);
+    publish(EdgeAddedEvent{
+      .source = (*m_graph)[ed.m_source].get(),
+      .target = (*m_graph)[ed.m_target].get(),
+      .phase = EventPhase::Load,
+    });
+  }
+
+  for (const auto &[i, ed] : edges() | std::views::enumerate) {
+    getProperty(ed).id = static_cast<EdgeID>(i);
+  }
+  m_nextEdgeId = countEdges();
+
+  return *this;
+}
+
+std::string ShaderGraph::makeSnapshot(const VertexDescriptor vd) const {
+  ZoneScopedN("ShaderGraph::makeSnapshot");
+
+  std::vector<VertexDescriptor> hierarchy;
+  collectChildren(vd, hierarchy);
+  std::ostringstream oss;
+  {
+    cereal::BinaryOutputArchive archive{oss};
+
+    archive(hierarchy.size());
+    for (const auto vd : hierarchy) {
+      auto &node = (*m_graph)[vd];
+      archive(node);
+    }
+  }
+  return oss.str();
+}
+ShaderGraph &ShaderGraph::loadSnapshot(const std::string &snapshot) {
+  ZoneScopedN("ShaderGraph::loadSnapshot");
+
+  std::istringstream iss{snapshot};
+  cereal::BinaryInputArchive archive{iss};
+
+  std::size_t numVertices;
+  archive(numVertices);
+
+  std::vector<VertexDescriptor> loaded(numVertices);
+  for (decltype(numVertices) i{0}; i < numVertices; ++i) {
+    const auto vd = boost::add_vertex(*m_graph);
+    auto &node = (*m_graph)[vd];
+    archive(node);
+    node->graph = this;
+    node->vertex.vd = vd;
+    publish(NodeAddedEvent{.node = node.get(), .phase = EventPhase::Restore});
+
+    loaded[i] = vd;
+  }
+  for (const auto vd : loaded | std::views::reverse) {
+    getNode(vd)->joinChildren();
+  }
+
+  return *this;
+}
+
+bool ShaderGraph::isLinkedToRoot(const VertexDescriptor vd) const {
+  return findConnectedVertices(*this).contains(vd);
+}
+
+std::stack<VertexDescriptor>
+ShaderGraph::getExecutionOrder(VertexDescriptor root) const {
+  ZoneScopedN("ShaderGraph::getExecutionOrder");
+
+  if (!root) root = getRoot();
+
+  std::stack<VertexDescriptor> stack;
+  if (root != nullptr) {
+    traverse(*m_graph, root, [&stack](const auto vd) { stack.push(vd); });
+  }
+  return stack;
+}
+
+//
+// (private):
+//
+
+IDPair ShaderGraph::_createVertex(const std::optional<VertexID> hint) {
+  ZoneScopedN("ShaderGraph::createVertex");
+
+  const auto id = hint ? *hint : m_nextVertexId;
+  assert(!findVertex(id));
+  const auto vertex = IDPair{boost::add_vertex(*m_graph), id};
+  if (!m_root.isValid()) [[unlikely]] {
+    m_root = vertex;
+  }
+  m_nextVertexId = std::max(m_nextVertexId, hint.value_or(m_nextVertexId)) + 1;
+  return vertex;
+}
+
+bool ShaderGraph::_isAcyclic() const {
+  ZoneScopedN("ShaderGraph::_isAcyclic");
+
+  std::vector<boost::default_color_type> colorMap(m_nextVertexId);
+  auto descriptorToIndex = buildVertexDescriptorToIndexMap(*this);
+  auto ipmap = boost::make_assoc_property_map(descriptorToIndex);
+  auto cpmap = boost::make_iterator_property_map(colorMap.begin(), ipmap);
+
+  class CycleDetector final : public boost::default_dfs_visitor {
+  public:
+    void back_edge(const EdgeDescriptor &ed, const Graph &g) {
+      throw std::runtime_error{"Cycle detected."};
+    }
+  };
+  try {
+    boost::depth_first_search(*m_graph, CycleDetector{}, cpmap);
+  } catch (...) {
+    return false;
+  }
+  return true;
+}
+
+//
+// Helper:
+//
+
+bool externalLink(const std::pair<const EdgeProperty, const Connection> &p) {
+  return p.first.type == EdgeType::External;
+}
+bool nonInternalNode(const NodeBase *node) {
+  return !bool(node->flags & NodeBase::Flags::Internal);
+}
+
+Connection transform(ShaderGraph &g, const ConnectedIDs c) {
+  return {
+    .source = {g.findVertex(c.first), c.first},
+    .target = {g.findVertex(c.second), c.second},
+  };
+}
+
+LinkedNodes extractNodes(const ShaderGraph &g, const Connection &c) {
+  return std::pair{g.getNode(c.source.vd), g.getNode(c.target.vd)};
+}
+LinkedNodes extractNodes(const ShaderGraph &g, const ConnectedIDs ids) {
+  return std::pair{g.findNode(ids.first), g.findNode(ids.second)};
+}
+
+void collectExternalEdges(const ShaderGraph &g, const VertexID id,
+                          std::unordered_set<EdgeDescriptor> &out) {
+  return collectExternalEdges(g, g.findVertex(id), out);
+}
+void collectExternalEdges(const ShaderGraph &g, const VertexDescriptor vd,
+                          std::unordered_set<EdgeDescriptor> &out) {
+  std::vector<VertexDescriptor> hierarchy;
+  g.collectChildren(vd, hierarchy);
+
+  const auto inHierarchy = [&g, &hierarchy](const auto &ed) {
+    return g.getProperty(ed).type == EdgeType::External &&
+           std::ranges::any_of(hierarchy, [&ed](const auto vd) {
+             return ed.m_source == vd || ed.m_target == vd;
+           });
+  };
+  std::ranges::copy(g.edges() | std::views::filter(inHierarchy),
+                    std::inserter(out, out.begin()));
 }

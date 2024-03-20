@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MaterialEditor/Nodes/NodeCommon.hpp"
+#include "DataType.hpp"
 
 enum class Attribute {
   Position,
@@ -12,9 +12,5 @@ enum class Attribute {
   COUNT,
 };
 
-[[nodiscard]] DataType getDataType(Attribute);
-
-[[nodiscard]] const char *toString(Attribute);
-
-[[nodiscard]] NodeResult evaluate(MaterialGenerationContext &, int32_t id,
-                                  Attribute);
+[[nodiscard]] DataType getDataType(const Attribute);
+[[nodiscard]] const char *toString(const Attribute);

@@ -1,41 +1,43 @@
 #include "ImNodesStyleJSON.hpp"
 #include "ImVecJSON.hpp"
+#include "imnodes.h"
 #include <fstream>
 
 #define MAKE_COLOR_PAIR(Value)                                                 \
   { ImNodesCol##_##Value, #Value }
-NLOHMANN_JSON_SERIALIZE_ENUM(ImNodesCol_,
-                             {
-                               MAKE_COLOR_PAIR(NodeBackground),
-                               MAKE_COLOR_PAIR(NodeBackgroundHovered),
-                               MAKE_COLOR_PAIR(NodeBackgroundSelected),
-                               MAKE_COLOR_PAIR(NodeOutline),
-                               MAKE_COLOR_PAIR(TitleBar),
-                               MAKE_COLOR_PAIR(TitleBarHovered),
-                               MAKE_COLOR_PAIR(TitleBarSelected),
-                               MAKE_COLOR_PAIR(Link),
-                               MAKE_COLOR_PAIR(LinkHovered),
-                               MAKE_COLOR_PAIR(LinkSelected),
-                               MAKE_COLOR_PAIR(Pin),
-                               MAKE_COLOR_PAIR(PinHovered),
-                               MAKE_COLOR_PAIR(BoxSelector),
-                               MAKE_COLOR_PAIR(BoxSelectorOutline),
-                               MAKE_COLOR_PAIR(GridBackground),
-                               MAKE_COLOR_PAIR(GridLine),
-                               MAKE_COLOR_PAIR(GridLinePrimary),
-                               MAKE_COLOR_PAIR(MiniMapBackground),
-                               MAKE_COLOR_PAIR(MiniMapBackgroundHovered),
-                               MAKE_COLOR_PAIR(MiniMapOutline),
-                               MAKE_COLOR_PAIR(MiniMapOutlineHovered),
-                               MAKE_COLOR_PAIR(MiniMapNodeBackground),
-                               MAKE_COLOR_PAIR(MiniMapNodeBackgroundHovered),
-                               MAKE_COLOR_PAIR(MiniMapNodeBackgroundSelected),
-                               MAKE_COLOR_PAIR(MiniMapNodeOutline),
-                               MAKE_COLOR_PAIR(MiniMapLink),
-                               MAKE_COLOR_PAIR(MiniMapLinkSelected),
-                               MAKE_COLOR_PAIR(MiniMapCanvas),
-                               MAKE_COLOR_PAIR(MiniMapCanvasOutline),
-                             });
+// clang-format off
+NLOHMANN_JSON_SERIALIZE_ENUM(ImNodesCol_, {
+  MAKE_COLOR_PAIR(NodeBackground),
+  MAKE_COLOR_PAIR(NodeBackgroundHovered),
+  MAKE_COLOR_PAIR(NodeBackgroundSelected),
+  MAKE_COLOR_PAIR(NodeOutline),
+  MAKE_COLOR_PAIR(TitleBar),
+  MAKE_COLOR_PAIR(TitleBarHovered),
+  MAKE_COLOR_PAIR(TitleBarSelected),
+  MAKE_COLOR_PAIR(Link),
+  MAKE_COLOR_PAIR(LinkHovered),
+  MAKE_COLOR_PAIR(LinkSelected),
+  MAKE_COLOR_PAIR(Pin),
+  MAKE_COLOR_PAIR(PinHovered),
+  MAKE_COLOR_PAIR(BoxSelector),
+  MAKE_COLOR_PAIR(BoxSelectorOutline),
+  MAKE_COLOR_PAIR(GridBackground),
+  MAKE_COLOR_PAIR(GridLine),
+  MAKE_COLOR_PAIR(GridLinePrimary),
+  MAKE_COLOR_PAIR(MiniMapBackground),
+  MAKE_COLOR_PAIR(MiniMapBackgroundHovered),
+  MAKE_COLOR_PAIR(MiniMapOutline),
+  MAKE_COLOR_PAIR(MiniMapOutlineHovered),
+  MAKE_COLOR_PAIR(MiniMapNodeBackground),
+  MAKE_COLOR_PAIR(MiniMapNodeBackgroundHovered),
+  MAKE_COLOR_PAIR(MiniMapNodeBackgroundSelected),
+  MAKE_COLOR_PAIR(MiniMapNodeOutline),
+  MAKE_COLOR_PAIR(MiniMapLink),
+  MAKE_COLOR_PAIR(MiniMapLinkSelected),
+  MAKE_COLOR_PAIR(MiniMapCanvas),
+  MAKE_COLOR_PAIR(MiniMapCanvasOutline),
+});
+// clang-format on
 #undef MAKE_COLOR_PAIR
 static_assert(ImNodesCol_COUNT == 29);
 
@@ -107,7 +109,7 @@ static void to_json(nlohmann::ordered_json &j, const ImNodesStyle &in) {
 }
 
 bool save(const std::filesystem::path &p, const ImNodesStyle &style) {
-  if (std::ofstream f{p}; f.is_open()) {
+  if (std::ofstream f{p, std::ios::trunc}; f.is_open()) {
     f << std::setw(2) << nlohmann::ordered_json{style}[0] << std::endl;
     return true;
   }

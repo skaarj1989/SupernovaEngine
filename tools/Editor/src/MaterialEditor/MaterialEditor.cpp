@@ -1,37 +1,30 @@
 #include "MaterialEditor/MaterialEditor.hpp"
-#include "MaterialEditor/LuaMaterialEditor.hpp"
 
 #include "TypeTraits.hpp"
 #include "AlwaysFalse.hpp"
 
-#include "Services.hpp"
+#include "MaterialEditor/LuaMaterialEditor.hpp"
+#include "GraphCommands.hpp"
+#include "ProjectCommands.hpp"
 
-#include "ImNodesStyleWidget.hpp"
-#include "ImNodesStyleJSON.hpp"
-
-#include "NodeContextMenuEntries.hpp"
-
-#include "ImGuiDragAndDrop.hpp"
-#include "MaterialEditor/ImNodesHelper.hpp"
 #include "ImGuiTitleBarMacro.hpp"
-#include "InspectEnum.hpp"
-
-#include "FileDialog.hpp"
-#include "ImGuiPopups.hpp"
+#include "ImGuiDragAndDrop.hpp"
+#include "ImGuiHelper.hpp"
 #include "ImGuiModal.hpp"
+#include "FileDialog.hpp"
 #include "TextEditorCommon.hpp"
-#include "imgui_internal.h"
-#include "imgui_stdlib.h" // InputText(WithHint)
+
+#include "imgui_internal.h" // DockBuilder*, *Ex,  Push/PopItemFlag
+#include "imgui_stdlib.h"   // InputText(WithHint)
 
 #include "spdlog/spdlog.h"
-#include "spdlog/fmt/chrono.h"
 
-#include <fstream> // ofstream
 #include <ranges>
+#include <algorithm>
 
 namespace {
 
-#define TOOL_ID "##MaterialEditor"
+constexpr auto kProjectExtension = ".mgproj";
 
 struct GUI {
   GUI() = delete;
@@ -39,191 +32,55 @@ struct GUI {
   struct Windows {
     Windows() = delete;
 
-    static constexpr auto kCanvas = ICON_FA_DIAGRAM_PROJECT " Canvas" TOOL_ID;
+#define TOOL_ID "##MaterialEditor"
+    static constexpr auto kNodeCanvas =
+      ICON_FA_DIAGRAM_PROJECT " NodeCanvas" TOOL_ID;
     static constexpr auto kCodeEditor = ICON_FA_CODE " Code" TOOL_ID;
     static constexpr auto kPreview = ICON_FA_TV " Preview" TOOL_ID;
-    static constexpr auto kRenderSettings = ICON_FA_GEARS " RenderSettings";
-    static constexpr auto kSceneSettings = ICON_FA_IMAGE " Scene";
+    static constexpr auto kRenderSettings =
+      ICON_FA_GEARS " RenderSettings" TOOL_ID;
+    static constexpr auto kSceneSettings = ICON_FA_IMAGE " Scene" TOOL_ID;
     static constexpr auto kSettings = ICON_FA_SLIDERS " Settings" TOOL_ID;
     static constexpr auto kNodeList = ICON_FA_LIST " Nodes" TOOL_ID;
-  };
-
-  struct Modals {
-    Modals() = delete;
-  };
-};
-
 #undef TOOL_ID
+  };
+  struct Actions {
+    static constexpr auto kLoadMaterial =
+      MAKE_TITLE_BAR(ICON_FA_UPLOAD, "Open Material");
+    static constexpr auto kSaveMaterialAs =
+      MAKE_TITLE_BAR(ICON_FA_FLOPPY_DISK, "Save Material As...");
+    static constexpr auto kExportMaterial =
+      MAKE_TITLE_BAR(ICON_FA_FILE_EXPORT, "Export Material");
+    static constexpr auto kDiscardMaterial = MAKE_WARNING("Discard Material?");
 
-template <typename... _Ty, typename... _Types>
-constexpr bool holds_any_of(std::variant<_Types...> const &v) noexcept {
-  return (std::holds_alternative<_Ty>(v) || ...);
-}
-
-void stageSelector(const char *name, rhi::ShaderType &v, bool surface) {
-  if (ImGui::BeginCombo(name, toString(v))) {
-    using enum rhi::ShaderType;
-    for (const auto shaderType : {Vertex, Fragment}) {
-      const auto isSelected = (v == shaderType);
-      const auto flags = !surface && shaderType == Vertex
-                           ? ImGuiSelectableFlags_Disabled
-                           : ImGuiSelectableFlags_None;
-      if (ImGui::Selectable(toString(shaderType), isSelected, flags)) {
-        v = shaderType;
-      }
-    }
-    ImGui::EndCombo();
-  }
-}
-
-struct Request {
-  enum class Operation { Clone, Remove };
-  Operation operation;
-  VertexDescriptor vd{nullptr};
-  ImVec2 position;
+    static constexpr auto kShowKeyboardShortcuts =
+      MAKE_TITLE_BAR(ICON_FA_CIRCLE_QUESTION, "Help");
+  };
 };
-[[nodiscard]] bool
-handleRequest(ShaderGraph &g, std::optional<Request> &request,
-              const std::set<VertexDescriptor> &connectedVertices) {
-  auto changed = false;
 
-  const auto &[operation, vd, clickPos] = *request;
-  switch (operation) {
-    using enum Request::Operation;
+const std::vector<EditorActionInfo> kNodeCanvasActions{
+  {"Define UserFunction", {"Ctrl+M"}},
+  {"Edit UserFunction(s)", {"Ctrl+Alt+M"}},
 
-  case Clone: {
-    const auto [_, id] = clone(g, vd);
-    ImNodes::ClearSelection();
-    ImNodes::SetNodeScreenSpacePos(id, clickPos);
-    ImNodes::SelectNode(id);
-  } break;
-  case Remove:
-    removeNode(g, vd);
-    changed |= connectedVertices.contains(vd);
-    break;
-  }
+  {"Select all", {"Ctrl+A"}},
 
-  request = std::nullopt;
-  return changed;
-}
-
-[[nodiscard]] auto nodeWidget(ShaderGraph &g, VertexProp &vertexProp,
-                              const gfx::Material::Blueprint &blueprint) {
-  ZoneTransientN(__tracy_zone, toString(vertexProp.variant).c_str(), true);
-
-  const auto id = vertexProp.id;
-  ImNodes::BeginNode(id);
-  const auto changed = std::visit(
-    [&g, &blueprint, id, userLabel = getUserLabel(vertexProp)](auto &&arg) {
-      using T = std::decay_t<decltype(arg)>;
-
-      if constexpr (is_any_v<T, std::monostate, SplitVector, SplitMatrix>) {
-        assert(false); // Should have the 'Internal' flag.
-        return false;
-      } else if constexpr (std::is_same_v<T, ContainerNode>) {
-        return arg.inspect(g, id);
-      } else if constexpr (is_any_v<T, ValueVariant, PropertyValue,
-                                    TextureParam>) {
-        return inspectNode(id, userLabel, arg);
-      } else if constexpr (is_any_v<T, Attribute, FrameBlockMember,
-                                    CameraBlockMember, BuiltInConstant,
-                                    BuiltInSampler>) {
-        inspectNode(id, userLabel, arg);
-        return false;
-      } else if constexpr (std::is_same_v<T, CompoundNodeVariant>) {
-        return std::visit([&g, id](auto &v) { return v.inspect(g, id); }, arg);
-      } else if constexpr (std::is_same_v<T, MasterNodeVariant>) {
-        return std::visit(
-          [&g, id, &blueprint](auto &v) {
-            using U = std::decay_t<decltype(v)>;
-
-            if constexpr (std::is_same_v<U, SurfaceMasterNode>) {
-              return v.inspect(g, id, *blueprint.surface);
-            } else {
-              return v.inspect(g, id);
-            }
-          },
-          arg);
-      } else {
-        static_assert(always_false_v<T>, "non-exhaustive visitor!");
-      }
-    },
-    vertexProp.variant);
-  ImNodes::EndNode();
-
-  return changed;
-}
-
-auto nodeContextMenu(const char *name, ShaderGraph &g, VertexDescriptor vd,
-                     std::optional<Request> &request) {
-  auto dirty = false;
-
-  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {8, 8});
-  if (ImGui::BeginPopup(name, ImGuiWindowFlags_NoMove)) {
-    ZoneScopedN("MaterialEditor::NodeContextMenu");
-
-    auto &vertexProp = g.getVertexProp(vd);
-    const auto id = vertexProp.id;
-    const auto isMasterNode = id == ShaderGraph::kRootNodeId;
-    ImGui::Text(ICON_FA_HASHTAG " Node ID: %d", id);
-    if (!isMasterNode) {
-      ImGui::SetNextItemWidth(100);
-      dirty = ImGui::InputTextWithHint(IM_UNIQUE_ID, "Label", &vertexProp.label,
-                                       ImGuiInputTextFlags_EnterReturnsTrue);
-    }
-
-    ImGui::Spacing();
-    ImGui::Separator();
-    ImGui::Spacing();
-
-    using enum Request::Operation;
-    if (ImGui::MenuItemEx("Clone", ICON_FA_CLONE, nullptr, false,
-                          !isMasterNode)) {
-      request = {
-        .operation = Clone,
-        .vd = vd,
-        .position = ImGui::GetMousePos(),
-      };
-    }
-
-    ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
-    ImGui::MenuItemEx("Remove", ICON_FA_TRASH, nullptr, false, !isMasterNode);
-    ImGui::PopItemFlag();
-
-    attachPopup(nullptr, ImGuiMouseButton_Left, [&request, vd] {
-      ImGui::Text("Do you really want to remove the selected node?");
-      ImGui::Separator();
-      if (ImGui::Button(ICON_FA_TRASH " Yes")) {
-        request = {.operation = Remove, .vd = vd};
-        ImGui::CloseCurrentPopup();
-      }
-      ImGui::SameLine();
-      if (ImGui::Button(ICON_FA_BAN " No")) ImGui::CloseCurrentPopup();
-    });
-
-    ImGui::EndPopup();
-  }
-  ImGui::PopStyleVar();
-
-  return dirty;
-}
-
-bool validId(int32_t id) { return id >= 0; }
-
-[[nodiscard]] bool
-removeLink(ShaderGraph &g, const EdgeDescriptor &ed,
-           const std::set<VertexDescriptor> &connectedVertices) {
-  g.removeEdge(ed);
-  const auto c = g.getConnection(ed);
-  return connectedVertices.contains(c.from);
-}
-
-[[nodiscard]] bool
-removeNode(ShaderGraph &g, VertexDescriptor vd,
-           const std::set<VertexDescriptor> &connectedVertices) {
-  removeNode(g, vd);
-  return connectedVertices.contains(vd);
-}
+  {"Undo", {"Ctrl+Z"}},
+  {"Redo", {"Ctrl+Y"}},
+  {"Graphviz (clipboard)", {"Ctrl+D"}},
+  {"Graphviz (file)", {"Ctrl+Alt+D"}},
+};
+const std::vector<EditorActionInfo> kMaterialEditorActions{
+  {"New Material (Surface)", {"Ctrl+N"}},
+  {"New Material (PostProcess)", {"Ctrl+Alt+N"}},
+  {"Open", {"Ctrl+O"}},
+  {"Save", {"Ctrl+S"}},
+  {"Save As...", {"Ctrl+Shift+S"}},
+  {"Export", {"Ctrl+E"}},
+  {"Go to VertexStage", {"Ctrl+F1"}},
+  {"Go to FragmentStage", {"Ctrl+F2"}},
+  {"Compose", {"F7"}},
+  {"Build", {"Ctrl+B"}},
+};
 
 void listFiles(const std::filesystem::path &dir,
                std::vector<std::filesystem::path> &out) {
@@ -232,6 +89,21 @@ void listFiles(const std::filesystem::path &dir,
       listFiles(entry.path(), out);
     } else if (entry.is_regular_file()) {
       out.emplace_back(entry.path());
+    }
+  }
+}
+
+void stageMenuItems(rhi::ShaderType &v, const gfx::MaterialDomain domain) {
+  using enum rhi::ShaderType;
+  for (const auto [shaderType, shortcut] : {
+         std::pair{Vertex, "Ctrl+F1"},
+         std::pair{Fragment, "Ctrl+F2"},
+       }) {
+    const auto isSelected = (v == shaderType);
+    const auto enabled =
+      !(shaderType == Vertex && domain == gfx::MaterialDomain::PostProcess);
+    if (ImGui::MenuItem(toString(shaderType), shortcut, isSelected, enabled)) {
+      v = shaderType;
     }
   }
 }
@@ -322,177 +194,336 @@ bool inspect(gfx::Material::Blueprint &blueprint) {
 
 MaterialEditor::MaterialEditor(os::InputSystem &inputSystem,
                                gfx::WorldRenderer &renderer)
-    : m_logger{spdlog::default_logger()},
+    : m_logger{spdlog::default_logger()}, m_project{&m_scriptedFunctions},
+      m_nodeEditor{m_nodeFactoryRegistry},
       m_previewWidget{inputSystem, renderer} {
+  m_logger->set_level(spdlog::level::trace);
+
   m_luaState.open_libraries(sol::lib::base, sol::lib::table, sol::lib::math);
   registerMaterialNodes(m_luaState);
   _loadFunctions();
 
-  ImNodes::CreateContext();
-  load("./assets/MaterialEditor/ImNodes.json", ImNodes::GetStyle());
+  m_nodeFactoryRegistry.load(m_scriptedFunctions);
+  m_nodeEditor.refreshFunctionEntries(m_scriptedFunctions);
 
-#define SET_MODIFIER(Name, Key)                                                \
-  ImNodes::GetIO().Name.Modifier = &ImGui::GetIO().Key
-
-  SET_MODIFIER(LinkDetachWithModifierClick, KeyAlt);
-  SET_MODIFIER(MultipleSelectModifier, KeyCtrl);
-#undef SET_MODIFIER
-
-  _initMaterial(gfx::MaterialDomain::Surface);
+  _connectProject();
+  m_project.init(gfx::MaterialDomain::Surface);
 }
-MaterialEditor::~MaterialEditor() {
-  clear();
-  ImNodes::DestroyContext();
-}
+MaterialEditor::~MaterialEditor() { clear(); }
 
 void MaterialEditor::clear() { m_project.clear(); }
 
 void MaterialEditor::show(const char *name, bool *open) {
   ZoneScopedN("MaterialEditor");
-  ImGui::Begin(name, open, ImGuiWindowFlags_MenuBar);
-  auto changed = _menuBar();
-  const auto dockspaceId = ImGui::GetID("DockSpace");
-  _setupDockSpace(dockspaceId);
-  ImGui::DockSpace(dockspaceId);
-  ImGui::End();
 
-  if (!m_project) return;
+  using OptionalAction = std::optional<const char *>;
+  static std::pair<OptionalAction, OptionalAction> actions;
+  static std::unique_ptr<Command> deferredCommand;
 
-  auto &stage = m_project.stages[m_shaderType];
-  ImNodes::EditorContextSet(stage.nodeEditorContext.get());
-  auto &graph = stage.graph;
+  const auto newMaterial = [this](const gfx::MaterialDomain materialDomain) {
+    auto cmd = std::make_unique<NewMaterialCommand>(m_project, materialDomain);
+    if (m_project.isChanged()) {
+      actions.first = GUI::Actions::kDiscardMaterial;
+      deferredCommand = std::move(cmd);
+    } else {
+      m_project.addCommand(std::move(cmd));
+    }
+  };
+  const auto saveProject = [&] {
+    if (m_project.isOnDisk()) {
+      if (auto error = m_project.save(); !error) {
+        m_logger->info("MaterialProject saved.");
+      } else {
+        m_logger->error("Failed to save MaterialProject. {}", *error);
+      }
+    } else {
+      actions.first = GUI::Actions::kSaveMaterialAs;
+    }
+  };
+  const auto loadProject = [&] {
+    if (m_project.isChanged()) {
+      actions = {
+        GUI::Actions::kDiscardMaterial,
+        GUI::Actions::kLoadMaterial,
+      };
+    } else {
+      actions.first = GUI::Actions::kLoadMaterial;
+    }
+  };
+  const auto composeCurrentStage = [this]() {
+    m_project.addCommand<ComposeShaderCommand>(m_project,
+                                               rhi::getStage(m_shaderType));
+  };
+  const auto buildMaterial = [this] {
+    m_project.addCommand<BuildMaterialCommand>(m_project,
+                                               m_previewWidget.getRenderer());
+  };
+  const auto exportMaterial = [&] {
+    if (m_project.isOnDisk()) {
+      if (auto error = m_project.exportMaterial(); !error) {
+        m_logger->info("Material exported.");
+      } else {
+        m_logger->error("Failed to export material. {}", *error);
+      }
+    } else {
+      actions.first = GUI::Actions::kExportMaterial;
+    }
+  };
 
-  if (ImGui::Begin(GUI::Windows::kNodeList)) {
-    ZoneScopedN("MaterialEditor::NodeList");
-    _nodeListWidget(graph);
-  }
-  ImGui::End();
-  if (ImGui::Begin(GUI::Windows::kSettings)) {
-    ZoneScopedN("MaterialEditor::Settings");
-    changed |= _settingsWidget();
-  }
-  ImGui::End();
-  if (ImGui::Begin(GUI::Windows::kCodeEditor)) {
-    ZoneScopedN("MaterialEditor::CodeEditor");
-    basicTextEditorWidget(stage.codeEditor, IM_UNIQUE_ID);
-  }
-  ImGui::End();
-
-  constexpr auto kLoadStyleActionId = MAKE_TITLE_BAR(ICON_FA_UPLOAD, "Load");
-  constexpr auto kSaveStyleActionId =
-    MAKE_TITLE_BAR(ICON_FA_FLOPPY_DISK, "Save As ...");
-
-  std::optional<const char *> action;
-  static bool showStyleEditor = false;
-
-  if (ImGui::Begin(GUI::Windows::kCanvas, nullptr, ImGuiWindowFlags_MenuBar)) {
-    if (ImGui::BeginMenuBar()) {
-      if (ImGui::BeginMenu("Debug")) {
-        if (ImGui::BeginMenuEx("Graphviz", ICON_FA_DIAGRAM_PROJECT)) {
-          if (ImGui::MenuItemEx("File", ICON_FA_FLOPPY_DISK)) {
-            std::ofstream out{"ShaderGraph.dot"};
-            graph.exportGraphviz(out);
-          }
-          if (ImGui::MenuItemEx("Clipboard", ICON_FA_CLIPBOARD)) {
-            std::ostringstream oss;
-            graph.exportGraphviz(oss);
-            ImGui::SetClipboardText(oss.str().c_str());
-          }
-          ImGui::EndMenu();
+  ImGui::Begin(name, open,
+               ImGuiWindowFlags_MenuBar |
+                 (m_project.isChanged() ? ImGuiWindowFlags_UnsavedDocument
+                                        : ImGuiWindowFlags_None));
+  auto hasFocus = ImGui::IsWindowFocused();
+  if (ImGui::BeginMenuBar()) {
+    if (ImGui::BeginMenu("Material")) {
+      if (ImGui::BeginMenu("New...")) {
+        using enum gfx::MaterialDomain;
+        if (ImGui::MenuItemEx("Surface", ICON_FA_CUBE, "Ctrl+N")) {
+          newMaterial(Surface);
+        }
+        if (ImGui::MenuItemEx("PostProcess", ICON_FA_IMAGE, "Ctrl+Alt+N")) {
+          newMaterial(PostProcess);
         }
         ImGui::EndMenu();
       }
-      if (ImGui::BeginMenu("MiniMap")) {
-        ImGui::Checkbox("Enabled", &m_miniMap.enabled);
-        ImGui::PushItemWidth(110);
-        ImGui::BeginDisabled(!m_miniMap.enabled);
-        ImGui::SliderFloat("Size", &m_miniMap.size, 0.01f, 0.5f, "%.3f",
-                           ImGuiSliderFlags_AlwaysClamp);
-        ImGui::Combo("Location", &m_miniMap.location,
-                     "Bottom-Left\0"
-                     "Bottom-Right\0"
-                     "Top-Left\0"
-                     "TopRight\0"
-                     "\0");
-        ImGui::EndDisabled();
-        ImGui::PopItemWidth();
-
-        ImGui::EndMenu();
+      if (ImGui::MenuItemEx("Open", ICON_FA_FILE_ARROW_UP, "Ctrl+O")) {
+        loadProject();
       }
-      if (ImGui::BeginMenu("Style")) {
-        if (ImGui::MenuItem("Load")) {
-          action = kLoadStyleActionId;
-        }
-        if (ImGui::MenuItem("Save")) {
-          action = kSaveStyleActionId;
-        }
-        ImGui::Separator();
-        if (ImGui::MenuItem("Edit")) {
-          showStyleEditor = true;
-        }
-        ImGui::EndMenu();
+      if (ImGui::MenuItemEx("Save", ICON_FA_FLOPPY_DISK, "Ctrl+S", false,
+                            m_project)) {
+        saveProject();
+      }
+      if (ImGui::MenuItemEx("Save As...", ICON_FA_FILE_ARROW_DOWN,
+                            "Ctrl+Shift+S", false, m_project)) {
+        actions.first = GUI::Actions::kSaveMaterialAs;
+      }
+      if (ImGui::MenuItemEx("Export", ICON_FA_FILE_EXPORT, "Ctrl+E", false,
+                            m_project)) {
+        exportMaterial();
       }
 
       ImGui::Separator();
 
-      ImGui::CheckboxFlags("Grid Snapping", &ImNodes::GetStyle().Flags,
-                           ImNodesStyleFlags_GridSnapping);
-
-      ImGui::EndMenuBar();
-    }
-
-    if (showStyleEditor) {
-      if (ImGui::Begin(MAKE_TITLE_BAR(ICON_FA_PALETTE, "Style"),
-                       &showStyleEditor)) {
-        ImNodes::ShowStyleEditor();
+      ImGui::BeginDisabled(!m_project);
+      if (ImGui::MenuItem("Compose", "F7", false, !m_livePreview)) {
+        composeCurrentStage();
       }
-      ImGui::End();
+      if (ImGui::MenuItem("Compile", "Ctrl+B")) {
+        buildMaterial();
+      }
+      ImGui::Checkbox("Live preview", &m_livePreview);
+      ImGui::EndDisabled();
+
+      ImGui::EndMenu();
+    }
+    if (ImGui::BeginMenu("Stage", m_project)) {
+      stageMenuItems(m_shaderType, m_project.getMaterialDomain());
+      ImGui::EndMenu();
     }
 
-    if (action) ImGui::OpenPopup(*action, ImGuiWindowFlags_NoMove);
+    if (ImGui::BeginMenu("Windows")) {
+      ImGui::MenuItem("Canvas", nullptr, &m_windows.canvas);
+      ImGui::MenuItem("Node List", nullptr, &m_windows.nodeList);
+      ImGui::MenuItem("Code Editor", nullptr, &m_windows.codeEditor);
+      ImGui::MenuItem("Settings", nullptr, &m_windows.settings);
+      ImGui::MenuItem("Scene Settings", nullptr, &m_windows.sceneSettings);
+      ImGui::MenuItem("Render Settings", nullptr, &m_windows.renderSettings);
+      ImGui::MenuItem("Preview", nullptr, &m_windows.preview);
 
-    constexpr auto kStyleExtension = ".json";
-    constexpr auto styleFilter = makeExtensionFilter(kStyleExtension);
-
-    static auto rootPath = std::filesystem::current_path();
-
-    if (const auto p = showFileDialog(kLoadStyleActionId,
-                                      {
-                                        .dir = rootPath,
-                                        .entryFilter = styleFilter,
-                                      });
-        p) {
-      load(*p, ImNodes::GetStyle());
-    }
-    if (const auto p =
-          showFileDialog(kSaveStyleActionId,
-                         {
-                           .dir = rootPath,
-                           .entryFilter = styleFilter,
-                           .forceExtension = kStyleExtension,
-                           .flags = FileDialogFlags_AskOverwrite |
-                                    FileDialogFlags_CreateDirectoryButton,
-                         });
-        p) {
-      save(*p, ImNodes::GetStyle());
+      ImGui::EndMenu();
     }
 
-    // ---
+    ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical, 2.0f);
 
-    const auto connectedVertices = findConnectedVertices(graph);
-    changed |= _canvasWidget(graph, connectedVertices);
-    onDropTarget(kImGuiPayloadTypeFile, [this](const auto *payload) {
-      // NOTE: &stage and &graph becomes dangling after _loadProject.
-      _loadProject(ImGui::ExtractPath(*payload));
-    });
+    if (ImGui::BeginMenu("Help")) {
+      if (ImGui::MenuItem("Keyboard shortcuts", "Ctrl+H")) {
+        actions.first = GUI::Actions::kShowKeyboardShortcuts;
+      }
+      ImGui::EndMenu();
+    }
+
+    ImGui::EndMenuBar();
   }
+
+  const auto dockspaceId = ImGui::GetID("DockSpace");
+  _setupDockSpace(dockspaceId);
+  ImGui::DockSpace(dockspaceId);
+  onDropTarget(kImGuiPayloadTypeFile, [this](const auto *payload) {
+    ImGui::SetWindowFocus();
+
+    auto p = ImGui::ExtractPath(*payload);
+    if (const auto ext = os::FileSystem::getExtension(p);
+        ext == kProjectExtension) {
+      if (m_project != p) {
+        auto cmd =
+          std::make_unique<LoadProjectCommand>(m_project, std::move(p));
+        if (m_project.isChanged()) {
+          actions.first = GUI::Actions::kDiscardMaterial;
+          deferredCommand = std::move(cmd);
+        } else {
+          m_project.addCommand(std::move(cmd));
+        }
+      }
+    } else {
+      m_logger->error("Invalid extension: '{}', expected: '{}'",
+                      ext.value_or(""), kProjectExtension);
+    }
+  });
   ImGui::End();
 
-  m_previewWidget.showPreview(GUI::Windows::kPreview);
-  m_previewWidget.showSceneSettings(GUI::Windows::kSceneSettings);
-  m_previewWidget.showRenderSettings(GUI::Windows::kRenderSettings);
+  if (m_shaderType == rhi::ShaderType::Vertex &&
+      m_project.getMaterialDomain() == gfx::MaterialDomain::PostProcess) {
+    m_shaderType = rhi::ShaderType::Fragment;
+  }
 
-  if (changed && m_livePreview) _composeMaterialAndUpdatePreview();
+  auto *stage = m_project.getStage(m_shaderType);
+
+  if (m_windows.canvas) {
+    if (ImGui::Begin(GUI::Windows::kNodeCanvas, &m_windows.canvas,
+                     ImGuiWindowFlags_MenuBar)) {
+      hasFocus |= ImGui::IsWindowFocused(ImGuiHoveredFlags_ChildWindows);
+      m_nodeEditor.showCanvas(m_project, makeView(*stage), *m_logger);
+    }
+    ImGui::End();
+  }
+  if (m_windows.nodeList) {
+    if (ImGui::Begin(GUI::Windows::kNodeList, &m_windows.nodeList)) {
+      hasFocus |= ImGui::IsWindowFocused();
+      m_nodeEditor.showNodeList(makeView(*stage));
+    }
+    ImGui::End();
+  }
+  if (m_windows.codeEditor) {
+    if (ImGui::Begin(GUI::Windows::kCodeEditor, &m_windows.codeEditor)) {
+      ZoneScopedN("MaterialEditor::CodeEditor");
+      hasFocus |= ImGui::IsWindowFocused();
+      basicTextEditorWidget(stage->codeEditor, IM_UNIQUE_ID);
+    }
+    ImGui::End();
+  }
+  if (m_windows.settings) {
+    if (ImGui::Begin(GUI::Windows::kSettings, &m_windows.settings)) {
+      ZoneScopedN("MaterialEditor::Settings");
+      hasFocus |= ImGui::IsWindowFocused();
+      _settingsWidget();
+    }
+    ImGui::End();
+  }
+
+  if (m_windows.sceneSettings) {
+    m_previewWidget.showSceneSettings(GUI::Windows::kSceneSettings,
+                                      &m_windows.sceneSettings);
+  }
+  if (m_windows.renderSettings) {
+    m_previewWidget.showRenderSettings(GUI::Windows::kRenderSettings,
+                                       &m_windows.renderSettings);
+  }
+  if (m_windows.preview) {
+    m_previewWidget.showPreview(GUI::Windows::kPreview, &m_windows.preview);
+  }
+
+  // --- Keyboard shortcuts (main):
+
+  if (hasFocus && !actions.first) {
+    using enum gfx::MaterialDomain;
+    if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_H)) {
+      actions.first = GUI::Actions::kShowKeyboardShortcuts;
+    } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_N)) {
+      newMaterial(Surface);
+    } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiMod_Alt |
+                                        ImGuiKey_N)) {
+      newMaterial(PostProcess);
+    } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_O)) {
+      loadProject();
+    } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_S)) {
+      saveProject();
+    } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiMod_Shift |
+                                        ImGuiKey_S)) {
+      actions.first = GUI::Actions::kSaveMaterialAs;
+    } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_E)) {
+      exportMaterial();
+    } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_F1)) {
+      m_shaderType = rhi::ShaderType::Vertex;
+    } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_F2)) {
+      m_shaderType = rhi::ShaderType::Fragment;
+    } else if (ImGui::IsKeyChordPressed(ImGuiKey_F7)) {
+      composeCurrentStage();
+    } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_B)) {
+      buildMaterial();
+    }
+  }
+
+  if (actions.first) {
+    ImGui::OpenPopup(*actions.first);
+    actions.first.reset();
+  }
+
+  showModal<ModalButtons::Ok>(GUI::Actions::kShowKeyboardShortcuts, [] {
+    keyboardShortcutsTable("Material Editor", kMaterialEditorActions);
+    keyboardShortcutsTable("Node Editor", kNodeCanvasActions);
+  });
+
+  if (const auto button =
+        showMessageBox<ModalButtons::Yes | ModalButtons::Cancel>(
+          GUI::Actions::kDiscardMaterial,
+          "Do you really want to discard changes?");
+      button) {
+    if (button == ModalButton::Yes) {
+      actions = {actions.second, std::nullopt};
+      if (deferredCommand) {
+        m_project.addCommand(std::move(deferredCommand));
+      }
+    } else {
+      deferredCommand.reset();
+      actions = {};
+    }
+  }
+
+  static const auto projectFilter = makeExtensionFilter(kProjectExtension);
+
+  const auto &rootDir = os::FileSystem::getRoot();
+  static auto currentDir = rootDir;
+
+  if (const auto p = showFileDialog(GUI::Actions::kLoadMaterial,
+                                    {
+                                      .dir = currentDir,
+                                      .barrier = rootDir,
+                                      .entryFilter = projectFilter,
+                                    });
+      p) {
+    m_project.addCommand<LoadProjectCommand>(m_project, *p);
+  }
+  if (const auto p =
+        showFileDialog(GUI::Actions::kSaveMaterialAs,
+                       {
+                         .dir = currentDir,
+                         .barrier = rootDir,
+                         .entryFilter = projectFilter,
+                         .forceExtension = kProjectExtension,
+                         .flags = FileDialogFlags_AskOverwrite |
+                                  FileDialogFlags_CreateDirectoryButton,
+                       });
+      p) {
+    m_project.addCommand<SaveProjectCommand>(m_project, *p);
+  }
+  if (const auto p =
+        showFileDialog(GUI::Actions::kExportMaterial,
+                       {
+                         .dir = currentDir,
+                         .barrier = rootDir,
+                         .forceExtension = ".material",
+                         .flags = FileDialogFlags_AskOverwrite |
+                                  FileDialogFlags_CreateDirectoryButton,
+                       });
+      p) {
+    m_project.addCommand<ExportMaterialCommand>(m_project, *p);
+  }
+
+  if (const auto count = m_project.executeAll(Command::Context{*m_logger});
+      count > 0) {
+    m_logger->trace("[CommandInvoker] Executed: {} command(s).", count);
+  }
 }
 
 void MaterialEditor::onRender(rhi::CommandBuffer &cb, float dt) {
@@ -505,16 +536,17 @@ void MaterialEditor::onRender(rhi::CommandBuffer &cb, float dt) {
 //
 
 void MaterialEditor::_loadFunctions() {
-  std::vector<std::filesystem::path> scripts;
-  scripts.reserve(100);
-  listFiles("./assets/MaterialEditor/nodes", scripts);
+  std::vector<std::filesystem::path> scriptPaths;
+  scriptPaths.reserve(100);
+  listFiles("./assets/MaterialEditor/nodes", scriptPaths);
 
-  for (const auto &p : scripts) {
+  for (const auto &p : scriptPaths) {
     if (auto data = loadFunction(p, m_luaState); data) {
-      auto &[guid, function] = *data;
-      if (!m_scriptedFunctions.contains(guid)) {
-        m_scriptedFunctions[guid] =
-          std::make_unique<ScriptedFunctionData>(std::move(function));
+      auto scriptedFunction = std::move(*data);
+      if (!m_scriptedFunctions.contains(scriptedFunction.id)) {
+        m_scriptedFunctions[scriptedFunction.id] =
+          std::make_unique<ScriptedFunction::Data>(
+            std::move(scriptedFunction.data));
       }
     } else {
       m_logger->error(data.error());
@@ -522,226 +554,71 @@ void MaterialEditor::_loadFunctions() {
   }
 }
 
-void MaterialEditor::_initMaterial(gfx::MaterialDomain domain) {
-  m_project.init(domain);
-  // Make the canvas of fragment shader stage active.
-  // The vertex stage is unavailable in a PostProcess material.
-  m_shaderType = rhi::ShaderType::Fragment;
-}
+void MaterialEditor::_connectProject() {
+  m_project.on<MaterialProjectInitializedEvent>(
+    [this](const auto &, const auto &project) {
+      m_logger->trace("[Event] MaterialProjectInitialized");
 
-bool MaterialEditor::_loadProject(const std::filesystem::path &p) {
-  if (m_project.path && m_project.path == p) return false;
-
-  ZoneScopedN("MaterialEditor::LoadProject");
-  const auto relativePath = os::FileSystem::relativeToRoot(p)->generic_string();
-
-  MaterialProject project;
-  auto payload = project.load(p);
-  if (!payload) {
-    m_logger->error("'{}': Is not a material project.", relativePath);
-    return false;
-  }
-  m_project = std::move(project);
-  if (!m_project.postLoad(Services::Resources::Textures::value(),
-                          payload->texturePaths, m_scriptedFunctions)) {
-    m_logger->critical("Could not finalize (missing a texture or a function).");
-    _initMaterial(gfx::MaterialDomain::Surface);
-    return false;
-  }
-  m_logger->info("Material project loaded from: '{}'", relativePath);
-  return _composeMaterialAndUpdatePreview();
-}
-
-bool MaterialEditor::_composeMaterial() {
-  if (const auto ns = m_project.composeMaterial(); ns) {
-    m_logger->info("Material composed in: {}.",
-                   std::chrono::duration_cast<std::chrono::milliseconds>(*ns));
-    return true;
-  } else {
-    m_logger->error(ns.error());
-    return false;
-  }
-}
-bool MaterialEditor::_composeMaterialAndUpdatePreview() {
-  return _composeMaterial() && _forceUpdatePreview();
-}
-bool MaterialEditor::_forceUpdatePreview() {
-  ZoneScopedN("MaterialEditor::ForceUpdatePreview");
-  const auto begin = std::chrono::steady_clock::now();
-
-  auto material = m_project.buildMaterial();
-  if (const auto errorLog = m_previewWidget.getRenderer().isValid(material);
-      errorLog) {
-    m_project.setErrorMarkers(*errorLog);
-    m_logger->error("Corrupted material.");
-    return false;
-  }
-
-  const auto end = std::chrono::steady_clock::now();
-
-  m_project.resetErrorMarkers();
-  m_previewWidget.updateMaterial(
-    std::make_shared<gfx::Material>(std::move(material)));
-
-  m_logger->info(
-    "Shaders compiled in: {}.",
-    std::chrono::duration_cast<std::chrono::milliseconds>(end - begin));
-  return true;
-}
-
-bool MaterialEditor::_menuBar() {
-  constexpr auto kSaveMaterialActionId =
-    MAKE_TITLE_BAR(ICON_FA_FLOPPY_DISK, "Save As ...");
-  constexpr auto kLoadMaterialActionId =
-    MAKE_TITLE_BAR(ICON_FA_UPLOAD, "Load Material");
-
-  constexpr auto kCreateCustomNodeActionId =
-    MAKE_TITLE_BAR(ICON_FA_PEN_TO_SQUARE, "Custom Node");
-  constexpr auto kEditCustomNodesActionId =
-    MAKE_TITLE_BAR(ICON_FA_PENCIL, "Custom Node");
-
-  const auto &rootDir = os::FileSystem::getRoot();
-  static auto currentDir = rootDir;
-
-  ZoneScopedN("MaterialEditor::MenuBar");
-  std::optional<const char *> action;
-  if (ImGui::BeginMenuBar()) {
-    if (ImGui::BeginMenu("Material")) {
-      if (ImGui::BeginMenu("New ...")) {
-        using enum gfx::MaterialDomain;
-        if (ImGui::MenuItemEx("Surface", ICON_FA_CUBE)) {
-          _initMaterial(Surface);
-          _composeMaterialAndUpdatePreview();
-        }
-        if (ImGui::MenuItemEx("PostProcess", ICON_FA_IMAGE)) {
-          _initMaterial(PostProcess);
-          _composeMaterialAndUpdatePreview();
-        }
-        ImGui::EndMenu();
+      const auto &userFunctions = project.getUserFunctions();
+      if (m_nodeFactoryRegistry.load(userFunctions) > 0) {
+        m_nodeEditor.refreshFunctionEntries(userFunctions);
       }
+    });
+  m_project.on<BeforeMaterialProjectUnloadEvent>(
+    [this](const auto &, const auto &project) {
+      m_logger->trace("[Event] BeforeMaterialProjectUnload");
 
-      if (ImGui::MenuItemEx("Save", ICON_FA_FLOPPY_DISK, nullptr, false,
-                            m_project)) {
-        if (m_project.path) {
-          m_project.save();
-        } else {
-          action = kSaveMaterialActionId;
+      const auto &userFunctions = project.getUserFunctions();
+      if (m_nodeFactoryRegistry.unload(userFunctions) > 0) {
+        m_nodeEditor.purgeUserFunctionMenu();
+      }
+    });
+
+  m_project.on<MasterNodeChangedEvent>(
+    [this](const MasterNodeChangedEvent &evt, const auto &) {
+      m_logger->trace("[Event] MasterNodeChanged");
+      if (m_livePreview) {
+        if (m_project.hasDirtyStages()) {
+          m_logger->trace(" ComposeShaderRequest");
+          m_project.addCommand<ComposeShaderCommand>(m_project, evt.stages);
         }
       }
-      if (ImGui::MenuItemEx("Save As ...", ICON_FA_FILE_ARROW_DOWN, nullptr,
-                            false, m_project)) {
-        action = kSaveMaterialActionId;
+    });
+
+  m_project.on<UserFunctionAddedEvent>(
+    [this](const UserFunctionAddedEvent &evt, const auto &project) {
+      m_nodeFactoryRegistry.add({evt.id, project.getUserFunctionData(evt.id)});
+      m_nodeEditor.refreshFunctionEntries(project.getUserFunctions());
+      m_logger->info("UserFunction[{}] Added", evt.id);
+    });
+  m_project.on<UserFunctionUpdatedEvent>(
+    [this](const UserFunctionUpdatedEvent &evt, const auto &) {
+      m_logger->info("UserFunction[{}] Updated", evt.id);
+    });
+  m_project.on<UserFunctionRemovedEvent>(
+    [this](const UserFunctionRemovedEvent &evt, const auto &project) {
+      m_nodeFactoryRegistry.remove(evt.id);
+      m_nodeEditor.refreshFunctionEntries(project.getUserFunctions());
+      m_logger->info("UserFunction[{}] Removed", evt.id);
+    });
+
+  m_project.on<ShaderComposedEvent>(
+    [this](const ShaderComposedEvent &evt, MaterialProject &project) {
+      m_logger->trace("[Event] ShaderComposed");
+      if (!project.hasDirtyStages()) {
+        m_logger->trace("No dirty stages, building ...");
+        project.addCommand<BuildMaterialCommand>(project,
+                                                 m_previewWidget.getRenderer());
       }
-      if (ImGui::MenuItemEx("Load", ICON_FA_FILE_ARROW_UP))
-        action = kLoadMaterialActionId;
-      if (ImGui::MenuItemEx("Export", ICON_FA_FILE_EXPORT, nullptr, false,
-                            m_project)) {
-        if (m_project.path) {
-          m_project.exportMaterial(*m_project.path);
-        } else {
-          action = kSaveMaterialActionId;
-        }
-      }
+    });
 
-      ImGui::Separator();
-
-      if (ImGui::BeginMenu("Custom node", m_project)) {
-        if (ImGui::MenuItem("Define")) action = kCreateCustomNodeActionId;
-        if (ImGui::MenuItem("Edit", nullptr, nullptr,
-                            !m_project.userFunctions.empty())) {
-          action = kEditCustomNodesActionId;
-        }
-        ImGui::EndMenu();
-      }
-
-      ImGui::Separator();
-
-      ImGui::BeginDisabled(!m_project);
-      if (ImGui::MenuItem("Compose", nullptr, nullptr, !m_livePreview)) {
-        _composeMaterial();
-      }
-      if (ImGui::MenuItem("Compile", nullptr, nullptr, !m_livePreview)) {
-        _forceUpdatePreview();
-      }
-      ImGui::Checkbox("Live preview", &m_livePreview);
-      ImGui::EndDisabled();
-
-      ImGui::EndMenu();
-    }
-
-    ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical, 2.0f);
-
-    ImGui::SetNextItemWidth(100);
-    ImGui::BeginDisabled(!m_project);
-    stageSelector("Stage", m_shaderType, gfx::isSurface(m_project.blueprint));
-    ImGui::EndDisabled();
-
-    ImGui::EndMenuBar();
-  }
-
-  if (action) ImGui::OpenPopup(*action, ImGuiWindowFlags_NoMove);
-
-  constexpr auto kProjectExtension = ".mgproj";
-  constexpr auto projectFilter = makeExtensionFilter(kProjectExtension);
-
-  if (const auto p =
-        showFileDialog(kSaveMaterialActionId,
-                       {
-                         .dir = currentDir,
-                         .barrier = rootDir,
-                         .entryFilter = projectFilter,
-                         .forceExtension = kProjectExtension,
-                         .flags = FileDialogFlags_AskOverwrite |
-                                  FileDialogFlags_CreateDirectoryButton,
-                       });
-      p) {
-    if (m_project.saveAs(*p)) {
-      currentDir = p->parent_path();
-    }
-  }
-  if (const auto p = showFileDialog(kLoadMaterialActionId,
-                                    {
-                                      .dir = currentDir,
-                                      .barrier = rootDir,
-                                      .entryFilter = projectFilter,
-                                    });
-      p) {
-    if (_loadProject(*p)) {
-      currentDir = p->parent_path();
-    }
-  }
-
-  // ---
-
-  const auto characterWidth = ImGui::CalcTextSize("#").x;
-  const auto modalWidth = characterWidth * 80;
-
-  if (auto data = m_customNodeWidget.showCreator(
-        kCreateCustomNodeActionId, {modalWidth, 500}, m_project.userFunctions);
-      data) {
-    m_project.addUserFunction(std::move(*data));
-  }
-
-  auto changed = false;
-
-  if (auto event = m_customNodeWidget.showEditor(
-        kEditCustomNodesActionId, {modalWidth, 400}, m_project.userFunctions);
-      event) {
-    auto [customNodeAction, data] = *event;
-    switch (customNodeAction) {
-      using enum CustomNodeEditor::Action;
-
-    case CodeChanged:
-      changed |= m_project.isUsed(data);
-      break;
-    case Remove: {
-      changed |= m_project.removeUserFunction(data).second;
-    } break;
-    }
-  }
-
-  return changed;
+  m_project.on<MaterialBuiltEvent>(
+    [this](MaterialBuiltEvent &evt, MaterialProject &project) {
+      m_logger->trace("[Event] MaterialBuilt");
+      m_previewWidget.updateMaterial(std::move(evt.material));
+    });
 }
+
 void MaterialEditor::_setupDockSpace(const ImGuiID dockspaceId) const {
   if (static auto firstTime = true; firstTime) [[unlikely]] {
     firstTime = false;
@@ -779,236 +656,22 @@ void MaterialEditor::_setupDockSpace(const ImGuiID dockspaceId) const {
           GUI::Windows::kSceneSettings,
         },
         leftBottomNodeId);
-      ImGui::DockBuilderDockWindow(GUI::Windows::kCanvas, centerNodeId);
+      ImGui::DockBuilderDockWindow(GUI::Windows::kNodeCanvas, centerNodeId);
 
       ImGui::DockBuilderFinish(dockspaceId);
     }
   }
 }
 
-void MaterialEditor::_nodeListWidget(ShaderGraph &g) {
-  for (const auto vd : g.vertices()) {
-    if (const auto &prop = g.getVertexProp(vd);
-        !bool(prop.flags & NodeFlags::Internal)) {
-      const auto id = prop.id;
-      if (auto selected = ImNodes::IsNodeSelected(id);
-          ImGui::Selectable(prop.toString().c_str(), &selected)) {
-        if (selected) {
-          if (!ImGui::IsKeyDown(ImGuiMod_Ctrl)) {
-            ImNodes::ClearNodeSelection();
-          }
-          ImNodes::SelectNode(id);
-        } else {
-          ImNodes::ClearNodeSelection(id);
-        }
-        ImNodes::EditorContextMoveToNodeCenter(id);
-      }
-    }
-  }
-}
-
-bool MaterialEditor::_canvasWidget(
-  ShaderGraph &g, const std::set<VertexDescriptor> &connectedVertices) {
-  assert(hasRoot(g));
-
-  ZoneScopedN("MaterialEditor::Canvas");
-  ImNodes::BeginNodeEditor();
-
-  constexpr auto kAddNodePopupId = IM_UNIQUE_ID;
-  if (ImNodes::IsEditorHovered() &&
-      ImGui::IsMouseReleased(ImGuiMouseButton_Right)) {
-    ImGui::OpenPopup(kAddNodePopupId);
-  }
-  _nodePopup(kAddNodePopupId, g);
-  auto changed = _inspectNodes(g, connectedVertices);
-  _renderLinks(g);
-  if (m_miniMap.enabled) ImNodes::MiniMap(m_miniMap.size, m_miniMap.location);
-
-  ImNodes::EndNodeEditor();
-
-  if (ImGui::IsWindowFocused(ImGuiHoveredFlags_ChildWindows)) {
-    changed |= _handleNewLinks(g, connectedVertices);
-    changed |= _handleDeletedLinks(g, connectedVertices);
-    changed |= _handleDeletedNodes(g, connectedVertices);
-  }
-  return changed;
-}
-
-void MaterialEditor::_nodePopup(const char *name, ShaderGraph &g) {
-  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {8, 8});
-  if (ImGui::BeginPopup(name, ImGuiWindowFlags_NoMove)) {
-    ZoneScopedN("MaterialEditor::NodePopup");
-
-    const auto clickPos = ImGui::GetMousePosOnOpeningCurrentPopup();
-
-    static std::string pattern;
-    ImGui::InputTextWithHint(IM_UNIQUE_ID, ICON_FA_FILTER " Filter", &pattern);
-    ImGui::SameLine();
-    if (ImGui::SmallButton(ICON_FA_ERASER)) pattern.clear();
-
-    ImGui::Spacing();
-    ImGui::Separator();
-    ImGui::Spacing();
-
-    const auto entries =
-      buildNodeMenuEntries(m_scriptedFunctions, m_project.userFunctions);
-    if (const auto node = processNodeMenu(g, entries, pattern, m_shaderType,
-                                          m_project.blueprint);
-        node) {
-      ImNodes::ClearSelection();
-      const auto id = node->id;
-      ImNodes::SetNodeScreenSpacePos(id, clickPos);
-      ImNodes::SelectNode(id);
-    }
-
-    ImGui::EndPopup();
-  }
-  ImGui::PopStyleVar();
-}
-bool MaterialEditor::_inspectNodes(
-  ShaderGraph &g, const std::set<VertexDescriptor> &connectedVertices) {
-  auto changed = false;
-
-  static std::optional<Request> request;
-  if (request) {
-    changed |= handleRequest(g, request, connectedVertices);
-  }
-  for (const auto vd : g.vertices()) {
-    auto &vertexProp = g.getVertexProp(vd);
-    assert(vertexProp.id >= 0);
-    if (bool(vertexProp.flags & NodeFlags::Internal)) continue;
-
-    ImGui::PushID(vertexProp.id);
-    auto dirty = nodeWidget(g, vertexProp, m_project.blueprint);
-    constexpr auto kContextMenuId = IM_UNIQUE_ID;
-    ImGui::OpenPopupOnItemClick(kContextMenuId,
-                                ImGuiPopupFlags_MouseButtonRight);
-    if (!request) {
-      const auto labelChanged = nodeContextMenu(kContextMenuId, g, vd, request);
-      if (labelChanged &&
-          holds_any_of<PropertyValue, TextureParam>(vertexProp.variant)) {
-        dirty = true;
-      }
-    }
-    ImGui::PopID();
-
-    if (dirty && connectedVertices.contains(vd)) changed = true;
-  }
-  return changed;
-}
-void MaterialEditor::_renderLinks(const ShaderGraph &g) {
-  ZoneScopedN("MaterialEditor::RenderLinks");
-  for (const auto &&ed : g.edges()) {
-    if (const auto &prop = g.getEdgeProp(ed); prop.type == EdgeType::Explicit) {
-      const auto [from, to] = g.getConnection(ed);
-      ImNodes::Link(prop.id, g.getVertexProp(from).id, g.getVertexProp(to).id);
-    }
-  }
-}
-bool MaterialEditor::_handleNewLinks(
-  ShaderGraph &g, const std::set<VertexDescriptor> &connectedVertices) {
-  if (std::pair<int32_t, int32_t> pair;
-      ImNodes::IsLinkCreated(&pair.first, &pair.second)) {
-    auto sourceVd = g.findVertex(pair.first);
-    auto targetVd = g.findVertex(pair.second);
-    assert(sourceVd && targetVd);
-
-    constexpr auto isLinkValid = [](auto a, auto b) {
-      return a != NodeFlags::None && b != NodeFlags::None && a != b;
-    };
-
-    const auto sourceFlags = g.getVertexProp(*sourceVd).flags;
-    if (isLinkValid(sourceFlags, g.getVertexProp(*targetVd).flags)) {
-      // Ensure the edge is always directed from the value to
-      // whatever produces the value.
-      if (sourceFlags != NodeFlags::Input) std::swap(sourceVd, targetVd);
-
-      g.removeOutEdges(*sourceVd);
-      const auto ed =
-        g.addEdge(EdgeType::Explicit, {.from = *sourceVd, .to = *targetVd});
-      if (isAcyclic(g)) {
-        return connectedVertices.contains(*sourceVd);
-      } else {
-        g.removeEdge(ed);
-        m_logger->warn(
-          "Link has been discarded. Cycles in a shader graph are forbidden.");
-      }
-    }
-  }
-  return false;
-}
-bool MaterialEditor::_handleDeletedLinks(
-  ShaderGraph &g, const std::set<VertexDescriptor> &connectedVertices) {
-  auto changed = false;
-
-  const auto removeLink = [&g, &connectedVertices, &changed](int32_t id) {
-    changed |= ::removeLink(g, *g.findEdge(id), connectedVertices);
-  };
-
-  // Triggered when a link is clicked (if any of the following is set):
-  // ImNodesIO::LinkDetachWithModifierClick
-  // ImNodesAttributeFlags_EnableLinkDetachWithDragClick
-  // (PushAttributeFlag)
-  if (int32_t linkId; ImNodes::IsLinkDestroyed(&linkId)) {
-    removeLink(linkId);
-  }
-
-  constexpr auto kConfirmDestructionId = MAKE_WARNING("Destroy Links");
-
-  static std::vector<int32_t> selectedLinks;
-  if (const auto numSelectedLinks = ImNodes::NumSelectedLinks();
-      numSelectedLinks > 0 && ImGui::IsKeyReleased(ImGuiKey_Delete)) {
-    selectedLinks.resize(numSelectedLinks);
-    ImNodes::GetSelectedLinks(selectedLinks.data());
-
-    ImGui::OpenPopup(kConfirmDestructionId);
-  }
-
-  if (const auto button =
-        showMessageBox<ModalButtons::Yes | ModalButtons::Cancel>(
-          kConfirmDestructionId, "Remove selected links?");
-      button && *button == ModalButton::Yes) {
-    std::ranges::for_each(selectedLinks | std::views::filter(validId),
-                          removeLink);
-  }
-  return changed;
-}
-bool MaterialEditor::_handleDeletedNodes(
-  ShaderGraph &g, const std::set<VertexDescriptor> &connectedVertices) {
-  auto changed = false;
-
-  constexpr auto kConfirmDestructionId = MAKE_WARNING("Destroy Nodes");
-
-  static std::vector<int32_t> selectedNodes;
-  if (const auto numSelectedNodes = ImNodes::NumSelectedNodes();
-      numSelectedNodes > 0 && ImGui::IsKeyReleased(ImGuiKey_Delete)) {
-    selectedNodes.resize(numSelectedNodes);
-    ImNodes::GetSelectedNodes(selectedNodes.data());
-
-    // Ignore the master node (if selected).
-    std::erase(selectedNodes, ShaderGraph::kRootNodeId);
-
-    if (!selectedNodes.empty()) ImGui::OpenPopup(kConfirmDestructionId);
-  }
-  if (const auto button =
-        showMessageBox<ModalButtons::Yes | ModalButtons::Cancel>(
-          kConfirmDestructionId, "Remove selected nodes?");
-      button && *button == ModalButton::Yes) {
-    for (const auto id : selectedNodes | std::views::filter(validId)) {
-      changed |= removeNode(g, *g.findVertex(id), connectedVertices);
-    }
-  }
-  return changed;
-}
-
-bool MaterialEditor::_settingsWidget() {
+void MaterialEditor::_settingsWidget() {
   ImGui::SetNextItemWidth(150);
-  ImGui::InputText("Name", &m_project.name);
+  ImGui::InputText("Name", &m_project.m_name);
 
   ImGui::Dummy({0, 2});
   ImGui::PushItemWidth(100);
-  const auto changed = inspect(m_project.blueprint);
+  if (inspect(m_project.m_blueprint)) {
+    m_project.addCommand<BuildMaterialCommand>(m_project,
+                                               m_previewWidget.getRenderer());
+  }
   ImGui::PopItemWidth();
-
-  return changed;
 }

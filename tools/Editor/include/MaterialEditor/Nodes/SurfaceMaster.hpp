@@ -1,14 +1,32 @@
 #pragma once
 
-#include "NodeCommon.hpp"
+#include "Compound.hpp"
+#include "MaterialEditor/TransientVariant.hpp"
 #include "renderer/Material.hpp"
 
-struct SurfaceMasterNode final : CustomizableNode {
-  void remove(ShaderGraph &) = delete;
+class SurfaceMasterNode : public CompoundNode {
+public:
+  SurfaceMasterNode() = default;
+  SurfaceMasterNode(ShaderGraph &, const IDPair);
 
-  static SurfaceMasterNode create(ShaderGraph &, VertexDescriptor parent);
+  std::unique_ptr<NodeBase> clone(const IDPair) const override;
 
-  bool inspect(ShaderGraph &, int32_t id, const gfx::Material::Surface &);
-  [[nodiscard]] MasterNodeResult evaluate(MaterialGenerationContext &,
-                                          int32_t id) const;
+  void accept(NodeVisitor &visitor) override { visitor.visit(*this); }
+  void accept(NodeVisitor &visitor) const override { visitor.visit(*this); }
+
+  std::string toString() const override;
+
+  // ---
+
+  struct FieldInfo {
+    const char *name;
+    TransientVariant defaultValue;
+
+    bool (*isAvailable)(const gfx::Material::Surface &);
+  };
+  static const std::vector<FieldInfo> kFields;
+
+  template <class Archive> void serialize(Archive &archive) {
+    archive(cereal::base_class<CompoundNode>(this));
+  }
 };

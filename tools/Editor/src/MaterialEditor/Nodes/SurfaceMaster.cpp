@@ -1,50 +1,38 @@
 #include "MaterialEditor/Nodes/SurfaceMaster.hpp"
-#include "VariantCast.hpp"
-#include "NodesInternal.hpp"
-#include "MaterialEditor/MaterialGenerationContext.hpp"
-#include <ranges>
-#include <format>
+#include "Utility.hpp"
 
 namespace {
-
-using DefaultValue = std::variant<ValueVariant, Attribute>;
-
-[[nodiscard]] auto getDataType(const DefaultValue &v) {
-  return std::visit([](const auto &arg) { return ::getDataType(arg); }, v);
-}
-
-bool always(const gfx::Material::Surface &) { return true; }
-
-bool litOnly(const gfx::Material::Surface &surface) {
-  return surface.shadingModel == gfx::ShadingModel::Lit;
-}
-bool transparentOnly(const gfx::Material::Surface &surface) {
-  using enum gfx::BlendMode;
-  return surface.blendMode == Transparent || surface.blendMode == Add ||
-         surface.blendMode == Modulate;
-}
-bool transmissiveOnly(const gfx::Material::Surface &surface) {
-  return litOnly(surface) && surface.blendMode == gfx::BlendMode::Opaque &&
-         surface.lightingMode == gfx::LightingMode::Transmission;
-}
 
 constexpr glm::vec3 kWhite{1.0f};
 constexpr glm::vec3 kBlack{0.0f};
 
-struct FieldInfo {
-  const char *name;
-  DefaultValue defaultValue;
+using namespace gfx;
 
-  bool (*isAvailable)(const gfx::Material::Surface &){always};
-};
-constexpr std::array<FieldInfo, 13> kSurfaceFields{
-  FieldInfo{"baseColor", ValueVariant{kWhite}, litOnly},
+bool always(const Material::Surface &) { return true; }
+
+bool litOnly(const Material::Surface &surface) {
+  return surface.shadingModel == ShadingModel::Lit;
+}
+bool transparentOnly(const Material::Surface &surface) {
+  using enum BlendMode;
+  return surface.blendMode == Transparent || surface.blendMode == Add ||
+         surface.blendMode == Modulate;
+}
+bool transmissiveOnly(const Material::Surface &surface) {
+  return litOnly(surface) && surface.blendMode == BlendMode::Opaque &&
+         surface.lightingMode == LightingMode::Transmission;
+}
+
+} // namespace
+
+const std::vector<SurfaceMasterNode::FieldInfo> SurfaceMasterNode::kFields{
+  {"baseColor", ValueVariant{kWhite}, litOnly},
   {
     "opacity",
     ValueVariant{1.0f},
     [](const auto &surface) {
       return transparentOnly(surface) || transmissiveOnly(surface) ||
-             surface.blendMode == gfx::BlendMode::Masked;
+             surface.blendMode == BlendMode::Masked;
     },
   },
   {"ior", ValueVariant{1.5f}, transmissiveOnly},
@@ -56,72 +44,36 @@ constexpr std::array<FieldInfo, 13> kSurfaceFields{
   {"metallic", ValueVariant{1.0f}, litOnly},
   {"roughness", ValueVariant{1.0f}, litOnly},
   {"specular", ValueVariant{1.0f}, litOnly},
-  {"emissiveColor", ValueVariant{kBlack}},
+  {"emissiveColor", ValueVariant{kBlack}, always},
   {
     "ambientOcclusion",
     ValueVariant{1.0f},
     [](const auto &surface) {
-      using enum gfx::BlendMode;
+      using enum BlendMode;
       return litOnly(surface) &&
              (surface.blendMode == Opaque || surface.blendMode == Masked);
     },
   },
 };
 
-} // namespace
-
 //
-// SurfaceMasterNode struct:
+// SurfaceMasterNode class:
 //
 
-SurfaceMasterNode SurfaceMasterNode::create(ShaderGraph &g,
-                                            VertexDescriptor parent) {
-  SurfaceMasterNode node{};
-  node.inputs.reserve(kSurfaceFields.size());
-  std::ranges::transform(
-    kSurfaceFields, std::back_inserter(node.inputs), [&](const auto &info) {
-      return createInternalInput(g, parent, info.name,
-                                 variant_cast(info.defaultValue));
-    });
-  return node;
-}
-
-bool SurfaceMasterNode::inspect(ShaderGraph &g, int32_t,
-                                const gfx::Material::Surface &surface) {
-  ImNodes::BeginNodeTitleBar();
-  ImGui::TextUnformatted("SurfaceMaster");
-  ImNodes::EndNodeTitleBar();
-
-  auto changed = false;
-  for (auto [i, vd] : std::views::enumerate(inputs)) {
-    const auto &[name, _, isAvailable] = kSurfaceFields[i];
-    changed |=
-      addInputPin(g, vd, {.name = name, .active = isAvailable(surface)},
-                  InspectorMode::Popup, false);
-    ++i;
+SurfaceMasterNode::SurfaceMasterNode(ShaderGraph &g, const IDPair vertex)
+    : CompoundNode{g, vertex, Flags::None} {
+  auto hint = vertex.id + 1;
+  inputs.reserve(kFields.size());
+  for (const auto &[name, value, _] : kFields) {
+    auto *node = createNode(g, hint++, value);
+    node->label = name;
+    node->flags = Flags::Internal | Flags::Input;
+    inputs.emplace_back(node->vertex);
   }
-
-  return changed;
 }
-MasterNodeResult SurfaceMasterNode::evaluate(MaterialGenerationContext &context,
-                                             int32_t id) const {
-  auto &[_, tokens, composer] = *context.currentShader;
 
-  assert(tokens.size() == kSurfaceFields.size());
-
-  for (auto [i, arg] :
-       extract<kSurfaceFields.size()>(tokens) | std::views::enumerate) {
-    const auto &[name, defaultValue, _] = kSurfaceFields[i];
-    const auto requiredType = getDataType(defaultValue);
-    if (auto argStr = assure(arg, requiredType); argStr) {
-      composer.addExpression(std::format("material.{} = {};", name, *argStr));
-    } else {
-      return std::unexpected{
-        std::format("'{}': Can't convert {} -> {}.", name,
-                    toString(arg.dataType), toString(requiredType)),
-      };
-    }
-  }
-
-  return std::monostate{};
+std::unique_ptr<NodeBase> SurfaceMasterNode::clone(const IDPair) const {
+  throw std::logic_error("Forbidden operation.");
 }
+
+std::string SurfaceMasterNode::toString() const { return "SurfaceMaster"; }

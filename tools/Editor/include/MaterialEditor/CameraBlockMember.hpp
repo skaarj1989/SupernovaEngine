@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MaterialEditor/Nodes/NodeCommon.hpp"
+#include "DataType.hpp"
 
 enum class CameraBlockMember {
   Projection,
@@ -11,12 +11,10 @@ enum class CameraBlockMember {
   InversedViewProjection,
   Resolution,
   Near,
-  Far
+  Far,
+
+  COUNT,
 };
 
-[[nodiscard]] DataType getDataType(CameraBlockMember);
-
-[[nodiscard]] const char *toString(CameraBlockMember);
-
-[[nodiscard]] NodeResult evaluate(MaterialGenerationContext &, int32_t id,
-                                  CameraBlockMember);
+[[nodiscard]] DataType getDataType(const CameraBlockMember);
+[[nodiscard]] const char *toString(const CameraBlockMember);

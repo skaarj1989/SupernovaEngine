@@ -1,41 +1,25 @@
 #pragma once
 
-#include "NodeCommon.hpp"
+#include "Compound.hpp"
 
-struct TextureSamplingNode final : NodeBase {
-  struct Input {
-    VertexDescriptor sampler;
-    VertexDescriptor uv;
-    struct LOD {
-      VertexDescriptor vd{nullptr};
-      bool enabled{false};
+class TextureSamplingNode : public CompoundNode {
+public:
+  TextureSamplingNode() = default;
+  TextureSamplingNode(ShaderGraph &, const IDPair);
 
-      template <class Archive> void serialize(Archive &archive) {
-        archive(Serializer{vd}, enabled);
-      }
-    };
-    LOD lod;
+  std::unique_ptr<NodeBase> clone(const IDPair) const override;
 
-    template <class Archive> void serialize(Archive &archive) {
-      archive(Serializer{sampler}, Serializer{uv}, lod);
-    }
-  };
-  Input input;
+  void accept(NodeVisitor &visitor) override { visitor.visit(*this); }
+  void accept(NodeVisitor &visitor) const override { visitor.visit(*this); }
 
-  VertexDescriptor split; // VectorSplitterNode
+  std::string toString() const override;
 
   // ---
 
-  static TextureSamplingNode create(ShaderGraph &, VertexDescriptor parent);
-  TextureSamplingNode clone(ShaderGraph &, VertexDescriptor parent) const;
-
-  void remove(ShaderGraph &);
-
-  bool inspect(ShaderGraph &, int32_t id);
-  [[nodiscard]] NodeResult evaluate(MaterialGenerationContext &,
-                                    int32_t id) const;
+  bool useLOD{false};
 
   template <class Archive> void serialize(Archive &archive) {
-    archive(input, Serializer{split});
+    archive(cereal::base_class<CompoundNode>(this));
+    archive(useLOD);
   }
 };

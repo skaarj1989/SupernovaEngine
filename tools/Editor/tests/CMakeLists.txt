@@ -11,7 +11,6 @@ add_executable(TestShaderCodeComposer
     "../src/MaterialEditor/DataType.cpp"
     "../src/MaterialEditor/ValueVariant.cpp"
     "../src/MaterialEditor/ShaderCodeComposer.cpp"
-    "../src/MaterialEditor/MaterialGenerationContext.cpp"
     "TestShaderCodeComposer.cpp"
 )
 target_include_directories(TestShaderCodeComposer PUBLIC ../include)

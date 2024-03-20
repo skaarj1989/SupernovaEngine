@@ -1,10 +1,20 @@
 #pragma once
 
-#include "os/InputSystem.hpp"
-#include "renderer/WorldRenderer.hpp"
 #include "RenderTargetPreview.hpp"
+#include "renderer/RenderSettings.hpp"
+#include "renderer/Light.hpp"
+#include "renderer/SkyLight.hpp"
+#include "renderer/MeshInstance.hpp"
 #include "CameraController.hpp"
 #include "SceneEditor/GizmoController.hpp"
+
+namespace os {
+class InputSystem;
+};
+
+namespace gfx {
+class WorldRenderer;
+};
 
 class MaterialPreviewWidget final : public RenderTargetPreview {
 public:
@@ -17,9 +27,9 @@ public:
 
   void onRender(rhi::CommandBuffer &, float dt);
 
-  void showPreview(const char *name);
-  void showSceneSettings(const char *name);
-  void showRenderSettings(const char *name);
+  void showPreview(const char *name, bool *open = nullptr);
+  void showSceneSettings(const char *name, bool *open = nullptr);
+  void showRenderSettings(const char *name, bool *open = nullptr);
 
 private:
   os::InputSystem &m_inputSystem;

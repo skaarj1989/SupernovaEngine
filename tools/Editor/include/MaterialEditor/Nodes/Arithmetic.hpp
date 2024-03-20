@@ -1,36 +1,29 @@
 #pragma once
 
-#include "NodeCommon.hpp"
+#include "Compound.hpp"
 
-struct ArithmeticNode final : NodeBase {
-  struct Input {
-    VertexDescriptor lhs;
-    VertexDescriptor rhs;
-
-    template <class Archive> void serialize(Archive &archive) {
-      archive(Serializer{lhs}, Serializer{rhs});
-    }
-  };
-  Input input;
-
+class ArithmeticNode : public CompoundNode {
+public:
   enum class Operation { Add, Subtract, Multiply, Divide, COUNT };
-  Operation operation{Operation::Add};
+
+  ArithmeticNode() = default;
+  ArithmeticNode(ShaderGraph &, const IDPair, const Operation);
+
+  std::unique_ptr<NodeBase> clone(const IDPair) const override;
+
+  void accept(NodeVisitor &visitor) override { visitor.visit(*this); }
+  void accept(NodeVisitor &visitor) const override { visitor.visit(*this); }
+
+  std::string toString() const override;
 
   // ---
 
-  static ArithmeticNode create(ShaderGraph &, VertexDescriptor parent,
-                               Operation);
-  ArithmeticNode clone(ShaderGraph &, VertexDescriptor parent) const;
-
-  void remove(ShaderGraph &);
-
-  bool inspect(ShaderGraph &, int32_t id);
-  [[nodiscard]] NodeResult evaluate(MaterialGenerationContext &,
-                                    int32_t id) const;
+  Operation operation{Operation::Add};
 
   template <class Archive> void serialize(Archive &archive) {
-    archive(input, operation);
+    archive(cereal::base_class<CompoundNode>(this));
+    archive(operation);
   }
 };
 
-[[nodiscard]] const char *toString(ArithmeticNode::Operation);
+[[nodiscard]] const char *toString(const ArithmeticNode::Operation);

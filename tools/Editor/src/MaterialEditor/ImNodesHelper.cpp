@@ -4,33 +4,12 @@
 
 namespace ImNodes {
 
-void ClearSelection() {
+void ClearSelections() {
   ClearLinkSelection();
   ClearNodeSelection();
 }
 
-void MiniMapWidget(ImNodesEditorContext *editorContext) {
-  assert(editorContext);
-  auto &enabled = editorContext->MiniMapEnabled;
-
-  ImGui::PushItemWidth(100.0f);
-
-  ImGui::Checkbox("Enabled", &enabled);
-
-  ImGui::BeginDisabled(!enabled);
-  ImGui::SliderFloat("Size", &editorContext->MiniMapSizeFraction, 0.01f, 0.5f);
-  ImGui::Combo("Location", &editorContext->MiniMapLocation,
-               "Bottom-Left\0"
-               "Bottom-Right\0"
-               "Top-Left\0"
-               "TopRight\0"
-               "\0");
-  ImGui::EndDisabled();
-
-  ImGui::PopItemWidth();
-}
-
-void EditorContextMoveToNodeCenter(int32_t id) {
+void EditorContextMoveToNodeCenter(const int32_t id) {
   const auto canvasSize = GetCurrentContext()->CanvasRectScreenSpace.GetSize();
   const auto nodeSize = glm::vec2{GetNodeDimensions(id)};
   const auto offset = (canvasSize * 0.5f) - (nodeSize * 0.5f);
@@ -38,8 +17,8 @@ void EditorContextMoveToNodeCenter(int32_t id) {
   ImNodes::EditorContextResetPanning(nodePos + offset);
 }
 
-void AddOutputAttribute(int32_t id, const OutputAttributeParams &params) {
-  AddOutputAttribute(id, params.active, [&params] {
+void AddOutputAttribute(const int32_t id, const OutputAttributeParams &params) {
+  AddOutputAttribute(id, params.pinShape, [&params] {
     const auto labelWidth = ImGui::CalcTextSize(params.name.data()).x;
     auto w = params.nodeWidth - labelWidth;
     if (w <= 0.0f) w = 0.0f;
