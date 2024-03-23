@@ -7,6 +7,8 @@
 #include "glm/gtc/quaternion.hpp"
 
 #include <expected>
+#include <filesystem>
+#include <memory>
 #include <span>
 
 struct TriangleMesh {

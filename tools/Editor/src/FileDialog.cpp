@@ -5,7 +5,7 @@
 #include "ImGuiModal.hpp"
 #include "imgui_stdlib.h" // InputText
 
-#include "Tracy/Tracy.hpp"
+#include "tracy/Tracy.hpp"
 #include "spdlog/spdlog.h"
 
 namespace {

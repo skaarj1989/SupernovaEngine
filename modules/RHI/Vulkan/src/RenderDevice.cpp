@@ -820,7 +820,7 @@ void RenderDevice::_selectPhysicalDevice(
 void RenderDevice::_createLogicalDevice(uint32_t familyIndex) {
   assert(familyIndex != VK_QUEUE_FAMILY_IGNORED);
 
-  constexpr auto kMandatoryDeviceExtensions = {
+  static constexpr auto kMandatoryDeviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME,
     VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME,
     VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,

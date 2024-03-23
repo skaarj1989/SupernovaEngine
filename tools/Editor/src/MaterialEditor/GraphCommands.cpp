@@ -35,8 +35,8 @@ bool CreateNodeCommand::execute(const Context &ctx) {
   ImNodes::ClearNodeSelection();
   ImNodes::SelectNode(*m_id);
 
-  ctx.logger.info("[" __FUNCTION__ "][node_id={}] Created (factory_id={})",
-                  *m_id, m_factoryId);
+  ctx.logger.info("[{}][node_id={}] Created (factory_id={})",
+                  __FUNCTION__, *m_id, m_factoryId);
   return true;
 }
 bool CreateNodeCommand::undo(const Context &ctx) {
@@ -45,10 +45,10 @@ bool CreateNodeCommand::undo(const Context &ctx) {
     ImNodes::ClearNodeSelection();
 
     m_view.graph->remove(vd);
-    ctx.logger.info("[" __FUNCTION__ "][node_id={}] Removed", *m_id);
+    ctx.logger.info("[{}][node_id={}] Removed", __FUNCTION__, *m_id);
     return true;
   } else {
-    ctx.logger.error("[" __FUNCTION__ "][node_id={}] Not Found!", *m_id);
+    ctx.logger.error("[{}][node_id={}] Not Found!", __FUNCTION__, *m_id);
     return true;
   }
 }
@@ -71,16 +71,16 @@ bool RemoveNodeCommand::execute(const Context &ctx) {
     m_memento = g->makeSnapshot(vd);
     // At this point the node should not have any in/out edges.
     g->remove(vd);
-    ctx.logger.info("[" __FUNCTION__ "][node_id={}] Removed", m_id);
+    ctx.logger.info("[{}][node_id={}] Removed", __FUNCTION__, m_id);
     return true;
   } else {
-    ctx.logger.error("[" __FUNCTION__ "][node_id={}] Not Found!", m_id);
+    ctx.logger.error("[{}][node_id={}] Not Found!", __FUNCTION__, m_id);
     return false;
   }
 }
 bool RemoveNodeCommand::undo(const Context &ctx) {
   m_view.graph->loadSnapshot(m_memento);
-  ctx.logger.info("[" __FUNCTION__ "][node_id={}] Restored", m_id);
+  ctx.logger.info("[{}][node_id={}] Restored", __FUNCTION__, m_id);
 
   ImNodes::EditorContextSet(m_view.nodeEditorContext);
   ImNodes::SetNodeGridSpacePos(m_id, m_position);
@@ -107,8 +107,8 @@ bool CloneNodeCommand::execute(const Context &ctx) {
     const auto vertex = g->clone(sourceVd, m_id);
     m_id = vertex.id;
     ctx.logger.info(
-      "[" __FUNCTION__ "][node_id={}] Created (source_node_id={})", *m_id,
-      m_sourceId);
+      "[{}][node_id={}] Created (source_node_id={})", __FUNCTION__,
+      *m_id, m_sourceId);
 
     ImNodes::EditorContextSet(nec);
     ImNodes::SetNodeGridSpacePos(*m_id, m_position);
@@ -116,8 +116,8 @@ bool CloneNodeCommand::execute(const Context &ctx) {
     ImNodes::SelectNode(*m_id);
     return true;
   } else {
-    ctx.logger.error("[" __FUNCTION__ "][source_node_id={}] Not Found!",
-                     m_sourceId);
+    ctx.logger.error("[{}][source_node_id={}] Not Found!",
+                     __FUNCTION__, m_sourceId);
     return false;
   }
 }
@@ -127,10 +127,10 @@ bool CloneNodeCommand::undo(const Context &ctx) {
     ImNodes::ClearNodeSelection();
 
     m_view.graph->remove(vd);
-    ctx.logger.info("[" __FUNCTION__ "][node_id={}] Removed", *m_id);
+    ctx.logger.info("[{}][node_id={}] Removed", __FUNCTION__, *m_id);
     return true;
   } else {
-    ctx.logger.error("[" __FUNCTION__ "][node_id={}] Not Found!", *m_id);
+    ctx.logger.error("[{}][node_id={}] Not Found!", __FUNCTION__, *m_id);
     return false;
   }
 }
@@ -145,13 +145,13 @@ RenameNodeCommand::RenameNodeCommand(ShaderGraph &g, const VertexID id,
 bool RenameNodeCommand::execute(const Context &ctx) {
   if (auto *node = m_view.graph->findNode(m_id); node) {
     if (auto previousLabel = node->setLabel(m_name); previousLabel) {
-      ctx.logger.info("[" __FUNCTION__ "][node_id={}] '{}'->'{}'", m_id, m_name,
+      ctx.logger.info("[{}][node_id={}] '{}'->'{}'", __FUNCTION__, m_id, m_name,
                       node->label);
       m_name = std::move(*previousLabel);
       return true;
     }
   } else {
-    ctx.logger.error("[" __FUNCTION__ "][node_id={}] Not Found!", m_id);
+    ctx.logger.error("[{}][node_id={}] Not Found!", __FUNCTION__, m_id);
   }
   return false;
 }
@@ -173,7 +173,7 @@ bool CreateLinkCommand::execute(const Context &ctx) {
   g->removeOutEdges(c.source.vd);
   if (const auto ed = g->link(EdgeType::External, c, m_id); ed) {
     m_id = g->getProperty(*ed).id;
-    ctx.logger.info("[" __FUNCTION__ "][link_id={}] {}->{}", *m_id,
+    ctx.logger.info("[{}][link_id={}] {}->{}", __FUNCTION__, *m_id,
                     m_connection.second, m_connection.first);
     return true;
   } else {
@@ -186,11 +186,11 @@ bool CreateLinkCommand::execute(const Context &ctx) {
 bool CreateLinkCommand::undo(const Context &ctx) {
   if (const auto ed = m_view.graph->findEdge(*m_id); ed) {
     m_view.graph->remove(*ed);
-    ctx.logger.info("[" __FUNCTION__ "][link_id={}] Connected {}->{}", *m_id,
+    ctx.logger.info("[{}][link_id={}] Connected {}->{}", __FUNCTION__, *m_id,
                     m_connection.second, m_connection.first);
     return true;
   } else {
-    ctx.logger.error("[" __FUNCTION__ "][link_id={}, {}->{}] Not Found!", *m_id,
+    ctx.logger.error("[{}][link_id={}, {}->{}] Not Found!", __FUNCTION__, *m_id,
                      m_connection.second, m_connection.first);
     return false;
   }
@@ -211,11 +211,11 @@ bool RemoveLinkCommand::execute(const Context &ctx) {
 
     m_connection = c;
     g.remove(*ed);
-    ctx.logger.info("[" __FUNCTION__ "][link_id={}] Disconnected {}-/>{}", m_id,
+    ctx.logger.info("[{}][link_id={}] Disconnected {}-/>{}", __FUNCTION__, m_id,
                     m_connection.second, m_connection.first);
     return true;
   } else {
-    ctx.logger.error("[" __FUNCTION__ "][link_id={}, {}->{}] Not Found!", m_id,
+    ctx.logger.error("[{}][link_id={}, {}->{}] Not Found!", __FUNCTION__, m_id,
                      m_connection.second, m_connection.first);
     return false;
   }
@@ -224,11 +224,11 @@ bool RemoveLinkCommand::undo(const Context &ctx) {
   auto &g = *m_view.graph;
   if (const auto c = transform(g, m_connection); c.isValid()) {
     g.link(EdgeType::External, c, m_id);
-    ctx.logger.info("[" __FUNCTION__ "][link_id={}] Connected {}->{}", m_id,
+    ctx.logger.info("[{}][link_id={}] Connected {}->{}", __FUNCTION__, m_id,
                     m_connection.second, m_connection.first);
     return true;
   } else {
-    ctx.logger.error("[" __FUNCTION__ "][link_id={}, {}->{}]  Not Found!", m_id,
+    ctx.logger.error("[{}][link_id={}, {}->{}]  Not Found!", __FUNCTION__, m_id,
                      c.target.id, c.source.id);
     return false;
   }
@@ -247,10 +247,10 @@ bool ShaderGraphToGraphvizCommand::execute(const Context &ctx) {
   m_graph->exportGraphviz(oss);
   if (!m_path.empty()) {
     os::FileSystem::saveText(m_path, oss.str());
-    ctx.logger.info("[" __FUNCTION__ "] -> '{}'", m_path.string());
+    ctx.logger.info("[{}] -> '{}'", __FUNCTION__, m_path.string());
   } else {
     ImGui::SetClipboardText(oss.str().c_str());
-    ctx.logger.info("[" __FUNCTION__ "] -> Clipboard");
+    ctx.logger.info("[{}] -> Clipboard", __FUNCTION__);
   }
   return true;
 }

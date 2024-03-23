@@ -3,6 +3,9 @@
 #include "MaterialEditor/Nodes/SurfaceMaster.hpp"
 #include "MaterialEditor/Nodes/PostProcessMaster.hpp"
 
+#include <format>
+#include <ranges>
+
 void ShaderCodeEvaluator::visit(const VertexMasterNode &node) {
   if (m_tokens.size() != VertexMasterNode::kFields.size()) {
     throw NodeEvaluationException{node, "Unexpected number of inputs."};

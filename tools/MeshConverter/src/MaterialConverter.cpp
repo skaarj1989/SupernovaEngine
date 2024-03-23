@@ -48,6 +48,14 @@ void to_json(nlohmann::ordered_json &j, const Material &in) {
 
 } // namespace offline
 
+enum class TextureFlags {
+  None = 0,
+  Metallic = 1 << aiTextureType_METALNESS,          // .b
+  Roughness = 1 << aiTextureType_DIFFUSE_ROUGHNESS, // .g
+  Occlusion = 1 << aiTextureType_LIGHTMAP,          // .r
+};
+template <> struct has_flags<TextureFlags> : std::true_type {};
+
 namespace {
 
 [[nodiscard]] std::optional<aiString> getName(const aiMaterial &material) {
@@ -114,14 +122,6 @@ void eraseForbiddenCharacters(std::string &s) {
   return !suffix ? std::format("HAS_{}", n)
                  : std::format("HAS_{}_{}", n, suffix);
 }
-
-enum class TextureFlags {
-  None = 0,
-  Metallic = 1 << aiTextureType_METALNESS,          // .b
-  Roughness = 1 << aiTextureType_DIFFUSE_ROUGHNESS, // .g
-  Occlusion = 1 << aiTextureType_LIGHTMAP,          // .r
-};
-template <> struct has_flags<TextureFlags> : std::true_type {};
 
 class Decorator {
 public:

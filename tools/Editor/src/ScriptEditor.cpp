@@ -6,6 +6,7 @@
 #include "FileDialog.hpp"
 #include "TextEditorCommon.hpp"
 
+#include <format>
 #include <ranges>
 
 namespace {
