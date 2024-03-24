@@ -207,7 +207,6 @@ MaterialEditor::MaterialEditor(os::InputSystem &inputSystem,
   m_nodeEditor.refreshFunctionEntries(m_scriptedFunctions);
 
   _connectProject();
-  m_project.init(gfx::MaterialDomain::Surface);
 }
 MaterialEditor::~MaterialEditor() { clear(); }
 
@@ -376,148 +375,147 @@ void MaterialEditor::show(const char *name, bool *open) {
       m_project.getMaterialDomain() == gfx::MaterialDomain::PostProcess) {
     m_shaderType = rhi::ShaderType::Fragment;
   }
-
-  auto *stage = m_project.getStage(m_shaderType);
-
-  if (m_windows.canvas) {
-    if (ImGui::Begin(GUI::Windows::kNodeCanvas, &m_windows.canvas,
-                     ImGuiWindowFlags_MenuBar)) {
-      hasFocus |= ImGui::IsWindowFocused(ImGuiHoveredFlags_ChildWindows);
-      m_nodeEditor.showCanvas(m_project, makeView(*stage), *m_logger);
-    }
-    ImGui::End();
-  }
-  if (m_windows.nodeList) {
-    if (ImGui::Begin(GUI::Windows::kNodeList, &m_windows.nodeList)) {
-      hasFocus |= ImGui::IsWindowFocused();
-      m_nodeEditor.showNodeList(makeView(*stage));
-    }
-    ImGui::End();
-  }
-  if (m_windows.codeEditor) {
-    if (ImGui::Begin(GUI::Windows::kCodeEditor, &m_windows.codeEditor)) {
-      ZoneScopedN("MaterialEditor::CodeEditor");
-      hasFocus |= ImGui::IsWindowFocused();
-      basicTextEditorWidget(stage->codeEditor, IM_UNIQUE_ID);
-    }
-    ImGui::End();
-  }
-  if (m_windows.settings) {
-    if (ImGui::Begin(GUI::Windows::kSettings, &m_windows.settings)) {
-      ZoneScopedN("MaterialEditor::Settings");
-      hasFocus |= ImGui::IsWindowFocused();
-      _settingsWidget();
-    }
-    ImGui::End();
-  }
-
-  if (m_windows.sceneSettings) {
-    m_previewWidget.showSceneSettings(GUI::Windows::kSceneSettings,
-                                      &m_windows.sceneSettings);
-  }
-  if (m_windows.renderSettings) {
-    m_previewWidget.showRenderSettings(GUI::Windows::kRenderSettings,
-                                       &m_windows.renderSettings);
-  }
-  if (m_windows.preview) {
-    m_previewWidget.showPreview(GUI::Windows::kPreview, &m_windows.preview);
-  }
-
-  // --- Keyboard shortcuts (main):
-
-  if (hasFocus && !actions.first) {
-    using enum gfx::MaterialDomain;
-    if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_H)) {
-      actions.first = GUI::Actions::kShowKeyboardShortcuts;
-    } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_N)) {
-      newMaterial(Surface);
-    } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiMod_Alt |
-                                        ImGuiKey_N)) {
-      newMaterial(PostProcess);
-    } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_O)) {
-      loadProject();
-    } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_S)) {
-      saveProject();
-    } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiMod_Shift |
-                                        ImGuiKey_S)) {
-      actions.first = GUI::Actions::kSaveMaterialAs;
-    } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_E)) {
-      exportMaterial();
-    } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_F1)) {
-      m_shaderType = rhi::ShaderType::Vertex;
-    } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_F2)) {
-      m_shaderType = rhi::ShaderType::Fragment;
-    } else if (ImGui::IsKeyChordPressed(ImGuiKey_F7)) {
-      composeCurrentStage();
-    } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_B)) {
-      buildMaterial();
-    }
-  }
-
-  if (actions.first) {
-    ImGui::OpenPopup(*actions.first);
-    actions.first.reset();
-  }
-
-  showModal<ModalButtons::Ok>(GUI::Actions::kShowKeyboardShortcuts, [] {
-    keyboardShortcutsTable("Material Editor", kMaterialEditorActions);
-    keyboardShortcutsTable("Node Editor", kNodeCanvasActions);
-  });
-
-  if (const auto button =
-        showMessageBox<ModalButtons::Yes | ModalButtons::Cancel>(
-          GUI::Actions::kDiscardMaterial,
-          "Do you really want to discard changes?");
-      button) {
-    if (button == ModalButton::Yes) {
-      actions = {actions.second, std::nullopt};
-      if (deferredCommand) {
-        m_project.addCommand(std::move(deferredCommand));
+  if (auto *stage = m_project.getStage(m_shaderType); stage) {
+    if (m_windows.canvas) {
+      if (ImGui::Begin(GUI::Windows::kNodeCanvas, &m_windows.canvas,
+                       ImGuiWindowFlags_MenuBar)) {
+        hasFocus |= ImGui::IsWindowFocused(ImGuiHoveredFlags_ChildWindows);
+        m_nodeEditor.showCanvas(m_project, makeView(*stage), *m_logger);
       }
-    } else {
-      deferredCommand.reset();
-      actions = {};
+      ImGui::End();
     }
-  }
+    if (m_windows.nodeList) {
+      if (ImGui::Begin(GUI::Windows::kNodeList, &m_windows.nodeList)) {
+        hasFocus |= ImGui::IsWindowFocused();
+        m_nodeEditor.showNodeList(makeView(*stage));
+      }
+      ImGui::End();
+    }
+    if (m_windows.codeEditor) {
+      if (ImGui::Begin(GUI::Windows::kCodeEditor, &m_windows.codeEditor)) {
+        ZoneScopedN("MaterialEditor::CodeEditor");
+        hasFocus |= ImGui::IsWindowFocused();
+        basicTextEditorWidget(stage->codeEditor, IM_UNIQUE_ID);
+      }
+      ImGui::End();
+    }
+    if (m_windows.settings) {
+      if (ImGui::Begin(GUI::Windows::kSettings, &m_windows.settings)) {
+        ZoneScopedN("MaterialEditor::Settings");
+        hasFocus |= ImGui::IsWindowFocused();
+        _settingsWidget();
+      }
+      ImGui::End();
+    }
 
-  static const auto projectFilter = makeExtensionFilter(kProjectExtension);
+    if (m_windows.sceneSettings) {
+      m_previewWidget.showSceneSettings(GUI::Windows::kSceneSettings,
+                                        &m_windows.sceneSettings);
+    }
+    if (m_windows.renderSettings) {
+      m_previewWidget.showRenderSettings(GUI::Windows::kRenderSettings,
+                                         &m_windows.renderSettings);
+    }
+    if (m_windows.preview) {
+      m_previewWidget.showPreview(GUI::Windows::kPreview, &m_windows.preview);
+    }
 
-  const auto &rootDir = os::FileSystem::getRoot();
-  static auto currentDir = rootDir;
+    // --- Keyboard shortcuts (main):
 
-  if (const auto p = showFileDialog(GUI::Actions::kLoadMaterial,
-                                    {
-                                      .dir = currentDir,
-                                      .barrier = rootDir,
-                                      .entryFilter = projectFilter,
-                                    });
-      p) {
-    m_project.addCommand<LoadProjectCommand>(m_project, *p);
-  }
-  if (const auto p =
-        showFileDialog(GUI::Actions::kSaveMaterialAs,
-                       {
-                         .dir = currentDir,
-                         .barrier = rootDir,
-                         .entryFilter = projectFilter,
-                         .forceExtension = kProjectExtension,
-                         .flags = FileDialogFlags_AskOverwrite |
-                                  FileDialogFlags_CreateDirectoryButton,
-                       });
-      p) {
-    m_project.addCommand<SaveProjectCommand>(m_project, *p);
-  }
-  if (const auto p =
-        showFileDialog(GUI::Actions::kExportMaterial,
-                       {
-                         .dir = currentDir,
-                         .barrier = rootDir,
-                         .forceExtension = ".material",
-                         .flags = FileDialogFlags_AskOverwrite |
-                                  FileDialogFlags_CreateDirectoryButton,
-                       });
-      p) {
-    m_project.addCommand<ExportMaterialCommand>(m_project, *p);
+    if (hasFocus && !actions.first) {
+      using enum gfx::MaterialDomain;
+      if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_H)) {
+        actions.first = GUI::Actions::kShowKeyboardShortcuts;
+      } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_N)) {
+        newMaterial(Surface);
+      } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiMod_Alt |
+                                          ImGuiKey_N)) {
+        newMaterial(PostProcess);
+      } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_O)) {
+        loadProject();
+      } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_S)) {
+        saveProject();
+      } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiMod_Shift |
+                                          ImGuiKey_S)) {
+        actions.first = GUI::Actions::kSaveMaterialAs;
+      } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_E)) {
+        exportMaterial();
+      } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_F1)) {
+        m_shaderType = rhi::ShaderType::Vertex;
+      } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_F2)) {
+        m_shaderType = rhi::ShaderType::Fragment;
+      } else if (ImGui::IsKeyChordPressed(ImGuiKey_F7)) {
+        composeCurrentStage();
+      } else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_B)) {
+        buildMaterial();
+      }
+    }
+
+    if (actions.first) {
+      ImGui::OpenPopup(*actions.first);
+      actions.first.reset();
+    }
+
+    showModal<ModalButtons::Ok>(GUI::Actions::kShowKeyboardShortcuts, [] {
+      keyboardShortcutsTable("Material Editor", kMaterialEditorActions);
+      keyboardShortcutsTable("Node Editor", kNodeCanvasActions);
+    });
+
+    if (const auto button =
+          showMessageBox<ModalButtons::Yes | ModalButtons::Cancel>(
+            GUI::Actions::kDiscardMaterial,
+            "Do you really want to discard changes?");
+        button) {
+      if (button == ModalButton::Yes) {
+        actions = {actions.second, std::nullopt};
+        if (deferredCommand) {
+          m_project.addCommand(std::move(deferredCommand));
+        }
+      } else {
+        deferredCommand.reset();
+        actions = {};
+      }
+    }
+
+    static const auto projectFilter = makeExtensionFilter(kProjectExtension);
+
+    const auto &rootDir = os::FileSystem::getRoot();
+    static auto currentDir = rootDir;
+
+    if (const auto p = showFileDialog(GUI::Actions::kLoadMaterial,
+                                      {
+                                        .dir = currentDir,
+                                        .barrier = rootDir,
+                                        .entryFilter = projectFilter,
+                                      });
+        p) {
+      m_project.addCommand<LoadProjectCommand>(m_project, *p);
+    }
+    if (const auto p =
+          showFileDialog(GUI::Actions::kSaveMaterialAs,
+                         {
+                           .dir = currentDir,
+                           .barrier = rootDir,
+                           .entryFilter = projectFilter,
+                           .forceExtension = kProjectExtension,
+                           .flags = FileDialogFlags_AskOverwrite |
+                                    FileDialogFlags_CreateDirectoryButton,
+                         });
+        p) {
+      m_project.addCommand<SaveProjectCommand>(m_project, *p);
+    }
+    if (const auto p =
+          showFileDialog(GUI::Actions::kExportMaterial,
+                         {
+                           .dir = currentDir,
+                           .barrier = rootDir,
+                           .forceExtension = ".material",
+                           .flags = FileDialogFlags_AskOverwrite |
+                                    FileDialogFlags_CreateDirectoryButton,
+                         });
+        p) {
+      m_project.addCommand<ExportMaterialCommand>(m_project, *p);
+    }
   }
 
   if (const auto count = m_project.executeAll(Command::Context{*m_logger});
