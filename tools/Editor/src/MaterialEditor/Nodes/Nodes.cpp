@@ -7,7 +7,7 @@
 
 #include "cereal/types/polymorphic.hpp"
 
-#include "Math/Serialization.hpp"
+#include "math/Serialization.hpp"
 #include "cereal/types/string.hpp"  // NodeBase
 #include "cereal/types/vector.hpp"  // CompoundNode
 #include "cereal/types/variant.hpp" // ValueNode

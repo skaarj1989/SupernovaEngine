@@ -108,7 +108,6 @@ public:
 
   // ---
 
-  using ErrorMessage = std::string;
   std::optional<ErrorMessage> compose(const rhi::ShaderStages);
 
   bool buildMaterial(const gfx::WorldRenderer &);

@@ -26,6 +26,7 @@
 
 #include "tracy/Tracy.hpp"
 
+#include <format>
 #include <ranges>
 
 namespace {

@@ -62,7 +62,7 @@ makeArithmeticFactoryPair(const ArithmeticNode::Operation op) {
 }
 
 template <typename NodeT, typename Handle>
-bool addFactory(NodeFactoryRegistry::Storage &storage, Handle handle) {
+bool addFactory(auto &storage, Handle handle) {
   const auto [_, inserted] =
     storage.try_emplace(handle.id, [handle](ShaderGraph &g, auto hint) {
       return g.add<NodeT>(hint, handle)->vertex;
@@ -74,14 +74,12 @@ bool addFactory(NodeFactoryRegistry::Storage &storage, Handle handle) {
 
 NodeFactoryRegistry::NodeFactoryRegistry() {
   m_storage = {
-#pragma region Attribute
     makeEnumFactoryPair(Attribute::Position),
     makeEnumFactoryPair(Attribute::TexCoord0),
     makeEnumFactoryPair(Attribute::TexCoord1),
     makeEnumFactoryPair(Attribute::Normal),
     makeEnumFactoryPair(Attribute::Color),
-#pragma endregion
-#pragma region BuiltInConstant
+
     makeEnumFactoryPair(BuiltInConstant::CameraPosition),
     makeEnumFactoryPair(BuiltInConstant::ScreenTexelSize),
     makeEnumFactoryPair(BuiltInConstant::AspectRatio),
@@ -89,16 +87,13 @@ NodeFactoryRegistry::NodeFactoryRegistry() {
     makeEnumFactoryPair(BuiltInConstant::FragPosWorldSpace),
     makeEnumFactoryPair(BuiltInConstant::FragPosViewSpace),
     makeEnumFactoryPair(BuiltInConstant::ViewDir),
-#pragma endregion
-#pragma region BuiltInSampler
+
     makeEnumFactoryPair(BuiltInSampler::SceneDepth),
     makeEnumFactoryPair(BuiltInSampler::SceneColor),
-#pragma endregion
-#pragma region FrameBlock
+
     makeEnumFactoryPair(FrameBlockMember::Time),
     makeEnumFactoryPair(FrameBlockMember::DeltaTime),
-#pragma endregion
-#pragma region CameraBlock
+
     makeEnumFactoryPair(CameraBlockMember::Projection),
     makeEnumFactoryPair(CameraBlockMember::InversedProjection),
     makeEnumFactoryPair(CameraBlockMember::View),
@@ -108,9 +103,7 @@ NodeFactoryRegistry::NodeFactoryRegistry() {
     makeEnumFactoryPair(CameraBlockMember::Resolution),
     makeEnumFactoryPair(CameraBlockMember::Near),
     makeEnumFactoryPair(CameraBlockMember::Far),
-#pragma endregion
 
-#pragma region Constants
     makeConstantFactoryPair(false),
     makeConstantFactoryPair(glm::bvec2{false}),
     makeConstantFactoryPair(glm::bvec3{false}),
@@ -139,26 +132,22 @@ NodeFactoryRegistry::NodeFactoryRegistry() {
     makeConstantFactoryPair(glm::mat2{1.0f}),
     makeConstantFactoryPair(glm::mat3{1.0f}),
     makeConstantFactoryPair(glm::mat4{1.0f}),
-#pragma endregion
-#pragma region Property
+
     makePropertyFactoryPair(0),
     makePropertyFactoryPair(0u),
     makePropertyFactoryPair(0.0f),
     makePropertyFactoryPair(glm::vec2{0.0f}),
     makePropertyFactoryPair(glm::vec4{0.0f}),
-#pragma endregion
 
     std::pair{
       typeid(TextureParam).hash_code(),
       createEmbeddedNodeFactory(TextureParam{}),
     },
 
-#pragma region Arithmetic
     makeArithmeticFactoryPair(ArithmeticNode::Operation::Add),
     makeArithmeticFactoryPair(ArithmeticNode::Operation::Subtract),
     makeArithmeticFactoryPair(ArithmeticNode::Operation::Multiply),
     makeArithmeticFactoryPair(ArithmeticNode::Operation::Divide),
-#pragma endregion
 
     makeCompoundNodeFactoryPair<AppendNode>(),
     makeCompoundNodeFactoryPair<VectorSplitterNode>(),

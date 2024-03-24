@@ -1,6 +1,7 @@
 #pragma once
 
 #include "NodeBase.hpp"
+#include <format>
 
 template <typename T>
 concept has_toString = requires(T t) {

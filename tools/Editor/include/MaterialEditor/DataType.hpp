@@ -3,6 +3,7 @@
 #include <optional>
 #include <string>
 #include <cstdint>
+#include <utility>
 
 // clang-format off
 enum class DataType {

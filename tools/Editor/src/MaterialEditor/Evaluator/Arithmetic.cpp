@@ -1,6 +1,8 @@
 #include "MaterialEditor/ShaderCodeEvaluator.hpp"
 #include "MaterialEditor/Nodes/Arithmetic.hpp"
 
+#include <format>
+
 namespace {
 
 [[nodiscard]] constexpr auto makeHash(const DataType lhs,

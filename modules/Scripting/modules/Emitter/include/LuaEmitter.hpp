@@ -56,14 +56,14 @@ private:
   template <class Emitter, typename Event>
   static void _connect(Emitter *emitter, const sol::function &f) {
     assert(emitter);
-    emitter->on<Event>(
+    emitter->template on<Event>(
       [f](const Event &evt, Emitter &sender) { f(evt, sender); });
   }
 
   template <class Emitter, typename Event>
   static void _disconnect(Emitter *emitter) {
     assert(emitter);
-    emitter->erase<Event>();
+    emitter->template erase<Event>();
   }
 
   template <class Emitter>

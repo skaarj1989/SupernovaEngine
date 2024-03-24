@@ -44,6 +44,8 @@
 
 #include "tracy/Tracy.hpp"
 
+#include <ranges>
+
 namespace ImGui {
 
 [[nodiscard]] static auto TreeNode2(const char *label, const float width) {

@@ -3,6 +3,7 @@
 #include "imnodes.h"
 #include <optional>
 #include <string>
+#include <variant>
 
 namespace ImNodes {
 
