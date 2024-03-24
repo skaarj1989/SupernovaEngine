@@ -782,7 +782,7 @@ void RenderDevice::_createInstance() {
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
       VK_KHR_XCB_SURFACE_EXTENSION_NAME,
 #endif
-#ifdef _DEBUG
+#if defined(_DEBUG) || defined(RHI_USE_DEBUG_MARKER)
       VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
 #endif
   };
