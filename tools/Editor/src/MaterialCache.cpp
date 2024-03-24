@@ -21,8 +21,8 @@ void print(const gfx::Material::Blueprint &blueprint) {
 
     ImGui::Separator();
 
-    ImGui::BulletText("Num properties: %u", blueprint.properties.size());
-    ImGui::BulletText("Num textures: %u", blueprint.defaultTextures.size());
+    ImGui::BulletText("Num properties: %zu", blueprint.properties.size());
+    ImGui::BulletText("Num textures: %zu", blueprint.defaultTextures.size());
   } else {
     ImGui::BulletText("Domain: PostProcess");
   }

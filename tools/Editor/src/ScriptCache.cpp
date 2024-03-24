@@ -9,7 +9,7 @@ void show(const char *name, bool *open, ScriptCache &cache) {
       cache,
       [](auto id) {
         onDragSource(kImGuiPayloadTypeScript, id,
-                     [] { ImGui::Text("Script inside ..."); });
+                     [] { ImGui::TextUnformatted("Script inside ..."); });
       },
       std::nullopt, std::nullopt);
   }

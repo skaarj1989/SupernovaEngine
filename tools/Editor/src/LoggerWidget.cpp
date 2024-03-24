@@ -84,14 +84,14 @@ statLevel(spdlog::level::level_enum level) {
   if (entry.prefix) {
     auto str = std::format("[{}]", entry.prefix->time);
     auto textWidth = ImGui::CalcTextSize(str.c_str()).x;
-    ImGui::Text(str.c_str());
+    ImGui::TextUnformatted(str.c_str());
 
     auto [levelStr, levelColor] = statLevel(entry.prefix->level);
     str = std::format("[{}]", levelStr);
     textWidth += ImGui::CalcTextSize(str.c_str()).x;
 
     ImGui::SameLine();
-    ImGui::TextColored(levelColor, str.c_str());
+    ImGui::TextColored(levelColor, "%s", str.c_str());
 
     lastCursorPosX = textWidth + 20.0f;
 
@@ -101,7 +101,7 @@ statLevel(spdlog::level::level_enum level) {
     if (lastCursorPosX) ImGui::SetCursorPosX(*lastCursorPosX);
   }
 
-  ImGui::Text(entry.message.c_str());
+  ImGui::TextUnformatted(entry.message.c_str());
 
   return lastCursorPosX;
 }

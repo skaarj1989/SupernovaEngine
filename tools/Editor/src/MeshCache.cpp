@@ -6,18 +6,19 @@ namespace {
 
 void listAttributes(const rhi::VertexAttributes &attributes) {
   for (const auto &[location, _] : attributes)
-    ImGui::BulletText(toString(static_cast<gfx::AttributeLocation>(location)));
+    ImGui::BulletText("%s",
+                      toString(static_cast<gfx::AttributeLocation>(location)));
 }
 void print(const gfx::VertexFormat &vertexFormat) {
-  ImGui::Text("VertexFormat: %u", vertexFormat.getHash());
+  ImGui::Text("VertexFormat: %zu", vertexFormat.getHash());
   ImGui::SeparatorText("Attributes");
   listAttributes(vertexFormat.getAttributes());
 }
 void print(const AABB &aabb) {
-  ImGui::Text("AABB:");
+  ImGui::TextUnformatted("AABB:");
   if (isUninitialized(aabb)) {
     ImGui::SameLine();
-    ImGui::Text("(uninitialized)");
+    ImGui::TextUnformatted("(uninitialized)");
   } else {
 #if 1
     const auto center = aabb.getCenter();
@@ -38,7 +39,7 @@ void print(const AABB &aabb) {
 void print(const gfx::Mesh &mesh) {
   print(mesh.getVertexFormat());
   ImGui::Separator();
-  ImGui::Text("Num submeshes: %u", mesh.getSubMeshes().size());
+  ImGui::Text("Num submeshes: %zu", mesh.getSubMeshes().size());
   ImGui::Separator();
   print(mesh.getAABB());
 }
@@ -52,7 +53,7 @@ void show(const char *name, bool *open, gfx::MeshManager &cache) {
       cache,
       [](auto id) {
         onDragSource(kImGuiPayloadTypeMesh, id,
-                     [] { ImGui::Text("Mesh inside ..."); });
+                     [] { ImGui::TextUnformatted("Mesh inside ..."); });
       },
       [](const auto &r) { print(r); },
       [&cache](auto id) { return !cache.isBuiltIn(id); });

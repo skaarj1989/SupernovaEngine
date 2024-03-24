@@ -18,7 +18,7 @@ bool inspect(std::vector<gfx::Property> &properties) {
       ImGui::TableNextRow();
 
       ImGui::TableSetColumnIndex(0);
-      ImGui::Text(name.c_str());
+      ImGui::TextUnformatted(name.c_str());
 
       ImGui::TableSetColumnIndex(1);
       dirty |= inspect(IM_UNIQUE_ID, value);

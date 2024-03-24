@@ -152,7 +152,7 @@ void inspect(PhysicsWorld &physicsWorld) {
     const auto printRow = [](const char *label, uint32_t count) {
       ImGui::TableNextRow();
       ImGui::TableSetColumnIndex(0);
-      ImGui::Text(label);
+      ImGui::TextUnformatted(label);
       ImGui::TableSetColumnIndex(1);
       ImGui::Text("%u", count);
     };

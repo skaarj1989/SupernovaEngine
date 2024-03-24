@@ -10,7 +10,7 @@ void show(const char *name, bool *open, SkeletonCache &cache) {
       cache,
       [](auto id) {
         onDragSource(kImGuiPayloadTypeSkeleton, id,
-                     [] { ImGui::Text("Skeleton inside ..."); });
+                     [] { ImGui::TextUnformatted("Skeleton inside ..."); });
       },
       print, std::nullopt);
   }

@@ -60,5 +60,5 @@ std::optional<ModalButton> showModal(const char *name, Func callback) {
 
 template <ModalButtons _Buttons = ModalButtons::Ok>
 auto showMessageBox(const char *name, const char *text) {
-  return showModal<_Buttons>(name, [text] { ImGui::Text(text); });
+  return showModal<_Buttons>(name, [text] { ImGui::TextUnformatted(text); });
 }

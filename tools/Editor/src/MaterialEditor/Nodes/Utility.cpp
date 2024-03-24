@@ -1,5 +1,3 @@
-#pragma once
-
 #include "Utility.hpp"
 #include "AlwaysFalse.hpp"
 

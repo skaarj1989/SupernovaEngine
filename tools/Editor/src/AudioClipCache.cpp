@@ -35,7 +35,7 @@ namespace {
 }
 
 void print(const audio::ClipInfo &info) {
-  ImGui::BulletText(toString(info.numChannels));
+  ImGui::BulletText("%s", toString(info.numChannels));
   ImGui::BulletText("bitsPerSample: %d", info.bitsPerSample);
   ImGui::BulletText("sampleRate: %u Hz", info.sampleRate);
   ImGui::BulletText("numSamples: %zu", info.numSamples);

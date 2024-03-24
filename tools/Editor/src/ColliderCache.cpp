@@ -10,7 +10,7 @@ void show(const char *name, bool *open, ColliderCache &cache) {
       cache,
       [](auto id) {
         onDragSource(kImGuiPayloadTypeCollider, id,
-                     [] { ImGui::Text("Collider inside ..."); });
+                     [] { ImGui::TextUnformatted("Collider inside ..."); });
       },
       [](const auto &r) { print(r.getCollisionShape()); }, std::nullopt);
   }

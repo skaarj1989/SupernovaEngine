@@ -101,12 +101,12 @@ selectableEntry(const std::filesystem::directory_entry &entry,
   }
 
   ImGui::TableSetColumnIndex(1);
-  ImGui::Text(formatFileClock(entry.last_write_time()).c_str());
+  ImGui::TextUnformatted(formatFileClock(entry.last_write_time()).c_str());
 
   ImGui::TableSetColumnIndex(2);
   std::error_code e;
   const auto size = entry.file_size(e);
-  ImGui::Text("%s", !e ? formatBytes(size).c_str() : "--");
+  ImGui::TextUnformatted(!e ? formatBytes(size).c_str() : "--");
 
   return action;
 }
@@ -141,7 +141,7 @@ showFileDialog(const char *name, const FileDialogSettings &settings) {
                                .generic_string()
                                .c_str());
     } else {
-      ImGui::Text(settings.dir.generic_string().c_str());
+      ImGui::TextUnformatted(settings.dir.generic_string().c_str());
     }
 
     // -- Optional "create directory" button:
@@ -211,7 +211,7 @@ showFileDialog(const char *name, const FileDialogSettings &settings) {
                                blockFileSystemForbiddenCharacters);
       if (settings.forceExtension) {
         ImGui::SameLine();
-        ImGui::Text(settings.forceExtension->data());
+        ImGui::TextUnformatted(settings.forceExtension->data());
       }
     });
 

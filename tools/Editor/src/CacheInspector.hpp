@@ -72,7 +72,7 @@ void view(Cache &cache, OnDragCallback onDrag, TooltipCallback tooltip,
       }
 
       ImGui::TableSetColumnIndex(1);
-      ImGui::Text(
+      ImGui::TextUnformatted(
         resource->isVirtual()
           ? "--"
           : os::FileSystem::relativeToRoot(path)->generic_string().c_str());

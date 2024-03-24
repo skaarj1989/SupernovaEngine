@@ -62,7 +62,7 @@ void CenterNextWindow(ImGuiCond cond) {
 
 void ShowTooltip(const std::string_view s, ImVec2 padding) {
   PushStyleVar(ImGuiStyleVar_WindowPadding, padding);
-  SetTooltip(s.data());
+  SetTooltip("%s", s.data());
   PopStyleVar();
 }
 

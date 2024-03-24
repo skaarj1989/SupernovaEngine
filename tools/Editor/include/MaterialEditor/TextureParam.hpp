@@ -11,4 +11,4 @@ inline bool operator==(const TextureParam &lhs, const TextureParam &rhs) {
   return lhs.texture == rhs.texture;
 }
 
-[[nodsicard]] DataType getDataType(const TextureParam &);
+[[nodiscard]] DataType getDataType(const TextureParam &);

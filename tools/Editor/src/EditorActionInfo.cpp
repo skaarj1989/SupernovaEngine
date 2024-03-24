@@ -12,10 +12,10 @@ void keyboardShortcutsTable(const char *label,
 
       ImGui::TableSetColumnIndex(0);
       for (const auto *chord : shortcuts) {
-        ImGui::Text(chord);
+        ImGui::TextUnformatted(chord);
       }
       ImGui::TableSetColumnIndex(1);
-      ImGui::Text(description);
+      ImGui::TextUnformatted(description);
     }
     ImGui::EndTable();
   }

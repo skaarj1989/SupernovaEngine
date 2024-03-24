@@ -42,7 +42,7 @@ void showWorldRendererWindow(const char *name, bool *open,
           ImGui::TableNextRow();
 
           ImGui::TableSetColumnIndex(0);
-          ImGui::Text(toString(group));
+          ImGui::TextUnformatted(toString(group));
 
           ImGui::TableSetColumnIndex(1);
           const auto cacheSize = renderer.countPipelines(group);

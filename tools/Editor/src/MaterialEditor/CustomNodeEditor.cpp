@@ -421,7 +421,7 @@ void CustomNodeEditor::show(const char *name, ImVec2 size,
             ImGui::TableNextRow();
 
             ImGui::TableSetColumnIndex(0);
-            ImGui::Text(toString(data->shaderStages));
+            ImGui::TextUnformatted(toString(data->shaderStages));
 
             ImGui::TableSetColumnIndex(1);
             ImGui::PushID(i);
