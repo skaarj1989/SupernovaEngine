@@ -22,7 +22,7 @@ void main() {
   histogram[gl_LocalInvocationIndex] =
     countForThisBin * gl_LocalInvocationIndex;
 
-  groupMemoryBarrier();
+  barrier();
 
   [[unroll]] for (uint binIndex = (NUM_HISTOGRAM_BINS >> 1); binIndex > 0;
                   binIndex >>= 1) {
@@ -31,7 +31,7 @@ void main() {
                 histogram[gl_LocalInvocationIndex + binIndex]);
     }
 
-    groupMemoryBarrier();
+    barrier();
   }
 
   if (gl_LocalInvocationIndex == 0) {

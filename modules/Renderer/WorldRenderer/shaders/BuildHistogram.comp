@@ -31,7 +31,7 @@ uint colorToBin(vec3 hdrColor) {
 void main() {
   histogram[gl_LocalInvocationIndex] = 0;
 
-  groupMemoryBarrier();
+  barrier();
 
   if (all(lessThan(gl_GlobalInvocationID.xy, u_PC.extent))) {
     const vec3 hdrColor =
@@ -40,7 +40,7 @@ void main() {
     atomicAdd(histogram[binIndex], 1);
   }
 
-  groupMemoryBarrier();
+  barrier();
 
   atomicAdd(g_Histogram[gl_LocalInvocationIndex],
             histogram[gl_LocalInvocationIndex]);
