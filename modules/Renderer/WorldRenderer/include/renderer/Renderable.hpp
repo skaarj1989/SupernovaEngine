@@ -1,5 +1,7 @@
 #pragma once
 
+#include <climits>
+#include <cstdint>
 #include <unordered_map>
 #include <span>
 

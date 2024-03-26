@@ -5,6 +5,7 @@
 
 #include "ktxvulkan.h" // ktxTexture_GetVkFormat
 
+#include <cmath>   // ceilf
 #include <numeric> // lcm
 #include <format>
 

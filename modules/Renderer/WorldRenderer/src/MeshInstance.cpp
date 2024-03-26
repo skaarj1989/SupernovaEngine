@@ -2,6 +2,8 @@
 #include "Transform.hpp"
 #include "spdlog/spdlog.h"
 
+#include <algorithm> // count_if
+
 namespace gfx {
 
 MeshInstance::MeshInstance(std::shared_ptr<Mesh> mesh) : m_prototype{mesh} {

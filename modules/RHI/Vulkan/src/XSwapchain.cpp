@@ -1,4 +1,5 @@
 #include "rhi/Swapchain.hpp"
+#include "os/Window.hpp"
 #include "VkCheck.hpp"
 
 namespace rhi {

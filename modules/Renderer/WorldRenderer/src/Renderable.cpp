@@ -1,6 +1,8 @@
 #include "renderer/Renderable.hpp"
 #include "renderer/MeshInstance.hpp"
 
+#include <algorithm> // sort
+
 namespace gfx {
 
 const Material *getMaterial(const Renderable &renderable) {

@@ -5,6 +5,7 @@
 #include "entt/core/type_info.hpp"
 #include "glm/ext/vector_float3.hpp"
 #include <memory>
+#include <filesystem>
 
 struct ListenerComponent {
   static constexpr auto in_place_delete = true;

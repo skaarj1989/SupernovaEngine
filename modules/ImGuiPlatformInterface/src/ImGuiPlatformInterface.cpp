@@ -2,7 +2,6 @@
 #include "os/Platform.hpp"
 #include "os/Monitor.hpp"
 #include "os/Window.hpp"
-#include "imgui.h"
 #include <algorithm> // transform
 
 namespace {
@@ -33,7 +32,7 @@ void updateMonitors() {
 
 } // namespace
 
-std::optional<ImGuiKey> remapKeyCode(os::KeyCode keyCode) {
+std::optional<ImGuiKey> remapKeyCode(const os::KeyCode keyCode) {
   switch (keyCode) {
   case os::KeyCode::Tab:
     return ImGuiKey_Tab;
@@ -230,7 +229,7 @@ std::optional<ImGuiKey> remapKeyCode(os::KeyCode keyCode) {
   }
   return std::nullopt;
 }
-std::optional<ImGuiKey> getKeyModifier(os::KeyCode keyCode) {
+std::optional<ImGuiKey> getKeyModifier(const os::KeyCode keyCode) {
   switch (keyCode) {
     using enum os::KeyCode;
 

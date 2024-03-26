@@ -2,7 +2,7 @@
 #include "renderer/Material.hpp"
 #include "spdlog/spdlog.h"
 
-#include <ranges>
+#include <algorithm> // all_of
 
 namespace gfx {
 

@@ -1,4 +1,5 @@
 #include "rhi/ShaderType.hpp"
+#include <utility> // to_underlying
 #include <bitset>
 #include <cassert>
 
