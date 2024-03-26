@@ -6,3 +6,5 @@ define_script_module(
 if(MSVC)
   target_compile_options(LuaWorldRenderer PRIVATE /bigobj)
 endif()
+
+add_binding("LuaWorldRenderer.hpp" "registerWorldRenderer")

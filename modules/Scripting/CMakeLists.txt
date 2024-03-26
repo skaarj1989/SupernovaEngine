@@ -24,8 +24,6 @@ add_library(Scripting
 
   "include/ScriptContext.hpp"
   "src/ScriptContext.cpp"
-
-  "include/LuaModules.hpp"
 )
 target_include_directories(Scripting PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(Scripting

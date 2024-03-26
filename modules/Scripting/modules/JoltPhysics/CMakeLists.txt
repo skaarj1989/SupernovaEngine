@@ -7,3 +7,5 @@ define_script_module(
 if(MSVC)
   target_compile_options(LuaJoltPhysics PRIVATE /bigobj)
 endif()
+
+add_binding("LuaPhysics.hpp" "registerJoltPhysics")

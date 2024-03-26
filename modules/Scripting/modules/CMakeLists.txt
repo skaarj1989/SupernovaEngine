@@ -40,3 +40,5 @@ add_subdirectory(Scene)
 
 add_subdirectory(Components/NameComponent)
 add_subdirectory(Components/ScriptComponent)
+
+create_lua_bindings_header_file()

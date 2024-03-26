@@ -42,3 +42,5 @@ set_target_properties(LuaRmlUi PROPERTIES FOLDER "Framework/ScriptingModules")
 if(MSVC)
   target_compile_options(LuaRmlUi PRIVATE /bigobj)
 endif()
+
+add_binding("LuaRmlUi.hpp" "registerRmlUi")

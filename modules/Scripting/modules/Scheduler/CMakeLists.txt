@@ -7,3 +7,5 @@ target_link_libraries(LuaScheduler
   PUBLIC EnTT::EnTT sol2::sol2
 )
 set_target_properties(LuaScheduler PROPERTIES FOLDER "Framework/ScriptingModules")
+
+add_binding("LuaScheduler.hpp" "registerScheduler")
