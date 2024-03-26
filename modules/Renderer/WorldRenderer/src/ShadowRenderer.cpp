@@ -1,8 +1,18 @@
 #include "renderer/ShadowRenderer.hpp"
+#include "rhi/RenderDevice.hpp"
 
+#include "math/CollisionDetection.hpp"
+
+#include "PerspectiveCamera.hpp"
+#include "renderer/VertexFormat.hpp"
+#include "renderer/MeshInstance.hpp"
+
+#include "FrameGraphResourceAccess.hpp"
 #include "FrameGraphCommon.hpp"
 #include "renderer/FrameGraphTexture.hpp"
-#include "FrameGraphResourceAccess.hpp"
+#include "UploadInstances.hpp"
+#include "UploadCameraBlock.hpp"
+#include "UploadShadowBlock.hpp"
 
 #include "FrameGraphData/DummyResources.hpp"
 #include "FrameGraphData/Frame.hpp"
@@ -13,17 +23,12 @@
 #include "FrameGraphData/GBuffer.hpp"
 #include "FrameGraphData/ShadowMap.hpp"
 
-#include "UploadInstances.hpp"
-#include "UploadCameraBlock.hpp"
-#include "UploadShadowBlock.hpp"
-
-#include "math/CollisionDetection.hpp"
-
 #include "MaterialShader.hpp"
-#include "BatchBuilder.hpp"
 #include "ShadowCascadesBuilder.hpp"
+#include "BatchBuilder.hpp"
 
 #include "RenderContext.hpp"
+#include "ShaderCodeBuilder.hpp"
 
 #include <ranges>
 
@@ -85,7 +90,7 @@ struct SortByDistance {
 }
 [[nodiscard]] auto
 getShadowCastingLights(std::span<const Light *> visibleLights,
-                       LightType lightType) {
+                       const LightType lightType) {
   ZoneScopedN("GetShadowCastingLights");
 
   std::vector<const Light *> result;
@@ -124,7 +129,8 @@ getVisibleShadowCasters(std::span<const Renderable> renderables,
 }
 
 void read(FrameGraph::Builder &builder, const FrameGraphBlackboard &blackboard,
-          CameraData cameraData, std::optional<FrameGraphResource> instances) {
+          const CameraData cameraData,
+          const std::optional<FrameGraphResource> instances) {
   read(builder, blackboard.get<FrameData>());
   read(builder, cameraData);
 
@@ -133,7 +139,7 @@ void read(FrameGraph::Builder &builder, const FrameGraphBlackboard &blackboard,
   read(builder, blackboard.try_get<TransformData>(), dummyResources);
   read(builder, blackboard.try_get<SkinData>(), dummyResources);
 
-  if (auto *d = blackboard.try_get<MaterialPropertiesData>(); d) {
+  if (const auto *d = blackboard.try_get<MaterialPropertiesData>(); d) {
     read(builder, *d);
   }
 }
@@ -168,7 +174,7 @@ ShadowRenderer::ShadowRenderer(rhi::RenderDevice &rd)
     : rhi::RenderPass<ShadowRenderer>{rd},
       m_debugPipeline{createDebugPipeline(rd)} {}
 
-uint32_t ShadowRenderer::count(PipelineGroups flags) const {
+uint32_t ShadowRenderer::count(const PipelineGroups flags) const {
   uint32_t n{0};
   if (bool(flags & PipelineGroups::BuiltIn)) {
     n += 1; // Single debug pipeline (visualize cascade splits).
@@ -178,7 +184,7 @@ uint32_t ShadowRenderer::count(PipelineGroups flags) const {
   }
   return n;
 }
-void ShadowRenderer::clear(PipelineGroups flags) {
+void ShadowRenderer::clear(const PipelineGroups flags) {
   if (bool(flags & PipelineGroups::SurfaceMaterial)) BasePass::clear();
 }
 
@@ -276,6 +282,41 @@ ShadowRenderer::visualizeCascades(FrameGraph &fg,
   return target;
 }
 
+CodePair ShadowRenderer::buildShaderCode(const rhi::RenderDevice &rd,
+                                         const VertexFormat *vertexFormat,
+                                         const Material &material) {
+  const auto offsetAlignment =
+    rd.getDeviceLimits().minStorageBufferOffsetAlignment;
+
+  CodePair code;
+
+  auto commonDefines = buildDefines(*vertexFormat);
+  commonDefines.emplace_back(std::format("DEPTH_PASS {}", 1));
+
+  ShaderCodeBuilder shaderCodeBuilder;
+
+  // -- VertexShader:
+
+  shaderCodeBuilder.setDefines(commonDefines);
+  addMaterial(shaderCodeBuilder, material, rhi::ShaderType::Vertex,
+              offsetAlignment);
+  code.vert = shaderCodeBuilder.buildFromFile("Mesh.vert");
+
+  // -- FragmentShader:
+
+  shaderCodeBuilder.setDefines(commonDefines);
+  if (getSurface(material).blendMode == BlendMode::Masked) {
+    addMaterial(shaderCodeBuilder, material, rhi::ShaderType::Fragment,
+                offsetAlignment);
+  } else {
+    noMaterial(shaderCodeBuilder);
+  }
+
+  code.frag = shaderCodeBuilder.buildFromFile("DepthPass.frag");
+
+  return code;
+}
+
 //
 // (private):
 //
@@ -312,7 +353,8 @@ std::vector<Cascade> ShadowRenderer::_buildCascadedShadowMaps(
 }
 
 FrameGraphResource ShadowRenderer::_addCascadePass(
-  FrameGraph &fg, const FrameGraphBlackboard &blackboard, uint32_t cascadeIndex,
+  FrameGraph &fg, const FrameGraphBlackboard &blackboard,
+  const uint32_t cascadeIndex,
   std::optional<FrameGraphResource> cascadedShadowMaps,
   const RawCamera &lightView, std::vector<const Renderable *> &&renderables,
   const PropertyGroupOffsets &propertyGroupOffsets,
@@ -405,7 +447,7 @@ std::vector<glm::mat4> ShadowRenderer::_buildSpotLightShadowMaps(
 }
 
 FrameGraphResource ShadowRenderer::_addSpotLightPass(
-  FrameGraph &fg, const FrameGraphBlackboard &blackboard, uint32_t index,
+  FrameGraph &fg, const FrameGraphBlackboard &blackboard, const uint32_t index,
   std::optional<FrameGraphResource> shadowMaps, const RawCamera &lightView,
   std::vector<const Renderable *> &&renderables,
   const PropertyGroupOffsets &propertyGroupOffsets,
@@ -490,8 +532,8 @@ void ShadowRenderer::_buildOmniLightShadowMaps(
 }
 
 FrameGraphResource ShadowRenderer::_addOmniLightPass(
-  FrameGraph &fg, FrameGraphBlackboard &blackboard, uint32_t index,
-  rhi::CubeFace face, std::optional<FrameGraphResource> shadowMaps,
+  FrameGraph &fg, FrameGraphBlackboard &blackboard, const uint32_t index,
+  const rhi::CubeFace face, std::optional<FrameGraphResource> shadowMaps,
   const Light &light, std::span<const Renderable *> renderablesInRange,
   const PropertyGroupOffsets &propertyGroupOffsets,
   const Settings::OmniShadowMaps &settings) {
@@ -591,41 +633,6 @@ ShadowRenderer::_createPipeline(const BaseGeometryPassInfo &passInfo) const {
       .depthClampEnable = true,
     })
     .build(rd);
-}
-
-CodePair ShadowRenderer::buildShaderCode(const rhi::RenderDevice &rd,
-                                         const VertexFormat *vertexFormat,
-                                         const Material &material) {
-  const auto offsetAlignment =
-    rd.getDeviceLimits().minStorageBufferOffsetAlignment;
-
-  CodePair code;
-
-  auto commonDefines = buildDefines(*vertexFormat);
-  commonDefines.emplace_back(std::format("DEPTH_PASS {}", 1));
-
-  ShaderCodeBuilder shaderCodeBuilder;
-
-  // -- VertexShader:
-
-  shaderCodeBuilder.setDefines(commonDefines);
-  addMaterial(shaderCodeBuilder, material, rhi::ShaderType::Vertex,
-              offsetAlignment);
-  code.vert = shaderCodeBuilder.buildFromFile("Mesh.vert");
-
-  // -- FragmentShader:
-
-  shaderCodeBuilder.setDefines(commonDefines);
-  if (getSurface(material).blendMode == BlendMode::Masked) {
-    addMaterial(shaderCodeBuilder, material, rhi::ShaderType::Fragment,
-                offsetAlignment);
-  } else {
-    noMaterial(shaderCodeBuilder);
-  }
-
-  code.frag = shaderCodeBuilder.buildFromFile("DepthPass.frag");
-
-  return code;
 }
 
 } // namespace gfx

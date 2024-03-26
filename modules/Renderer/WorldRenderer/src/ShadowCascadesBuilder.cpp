@@ -1,4 +1,6 @@
 #include "ShadowCascadesBuilder.hpp"
+#include "PerspectiveCamera.hpp"
+#include "Transform.hpp"
 #include "tracy/Tracy.hpp"
 
 // https://johanmedestrom.wordpress.com/2016/03/18/opengl-cascaded-shadow-maps/
@@ -13,8 +15,9 @@ namespace {
 
 using Splits = std::vector<float>;
 
-[[nodiscard]] auto buildCascadeSplits(uint32_t numCascades, float lambda,
-                                      float near, float clipRange) {
+[[nodiscard]] auto buildCascadeSplits(const uint32_t numCascades,
+                                      const float lambda, const float near,
+                                      const float clipRange) {
   assert(numCascades > 0);
 
   const auto minZ = near;
@@ -40,7 +43,8 @@ using Splits = std::vector<float>;
 
 // Returns frustum corners in world space.
 [[nodiscard]] auto buildFrustumCorners(const glm::mat4 &inversedViewProj,
-                                       float splitDist, float lastSplitDist) {
+                                       const float splitDist,
+                                       const float lastSplitDist) {
   auto frustumCorners = Frustum::buildWorldSpaceCorners(inversedViewProj);
 
   for (auto i = 0; i < 4; ++i) {
@@ -72,7 +76,7 @@ using Splits = std::vector<float>;
 }
 
 void eliminateShimmering(const glm::mat4 &view, glm::mat4 &projection,
-                         uint32_t shadowMapSize) {
+                         const uint32_t shadowMapSize) {
   ZoneScopedN("EliminateShimmering");
 
   const auto shadowMatrix = projection * view;
@@ -88,8 +92,9 @@ void eliminateShimmering(const glm::mat4 &view, glm::mat4 &projection,
 
 [[nodiscard]] auto buildDirLightMatrix(const glm::mat4 &inversedViewProj,
                                        const glm::vec3 &lightDirection,
-                                       uint32_t shadowMapSize, float splitDist,
-                                       float lastSplitDist) {
+                                       const uint32_t shadowMapSize,
+                                       const float splitDist,
+                                       const float lastSplitDist) {
   ZoneScopedN("BuildDirLightMatrix");
 
   const auto frustumCorners =
@@ -118,8 +123,8 @@ void eliminateShimmering(const glm::mat4 &view, glm::mat4 &projection,
 
 std::vector<Cascade> buildCascades(const PerspectiveCamera &camera,
                                    const glm::vec3 &lightDirection,
-                                   uint32_t numCascades, float lambda,
-                                   uint32_t shadowMapSize) {
+                                   uint32_t numCascades, const float lambda,
+                                   const uint32_t shadowMapSize) {
   ZoneScopedN("BuildCascades");
 
   numCascades = glm::clamp(numCascades, 1u, kMaxNumCascades);

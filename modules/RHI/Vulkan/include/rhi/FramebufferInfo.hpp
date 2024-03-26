@@ -1,8 +1,14 @@
 #pragma once
 
-#include "rhi/Texture.hpp"
-#include "rhi/Rect2D.hpp"
+#include "Rect2D.hpp"
+#include "CubeFace.hpp"
+#include "PixelFormat.hpp"
+#include "ResourceIndices.hpp"
+
 #include "glm/ext/vector_float4.hpp"
+#include <vector>
+#include <variant>
+#include <optional>
 
 namespace rhi {
 
@@ -27,15 +33,9 @@ struct FramebufferInfo {
   std::vector<AttachmentInfo> colorAttachments;
 };
 
-[[nodiscard]] inline auto getDepthFormat(const FramebufferInfo &info) {
-  return info.depthAttachment ? info.depthAttachment->target->getPixelFormat()
-                              : PixelFormat::Undefined;
-}
-[[nodiscard]] inline auto getColorFormat(const FramebufferInfo &info,
-                                         int32_t index) {
-  assert(index >= 0 && index < info.colorAttachments.size());
-  return info.colorAttachments[index].target->getPixelFormat();
-}
+[[nodiscard]] PixelFormat getDepthFormat(const FramebufferInfo &);
+[[nodiscard]] PixelFormat getColorFormat(const FramebufferInfo &,
+                                         const AttachmentIndex);
 
 [[nodiscard]] std::vector<PixelFormat> getColorFormats(const FramebufferInfo &);
 

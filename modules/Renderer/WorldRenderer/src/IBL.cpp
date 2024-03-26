@@ -1,6 +1,6 @@
 #include "renderer/IBL.hpp"
+#include "rhi/RenderDevice.hpp"
 #include "ShaderCodeBuilder.hpp"
-#include "RenderContext.hpp" // TRACY_GPU_ZONE
 
 #include "glm/common.hpp" // max
 
@@ -21,14 +21,14 @@ IBL::IBL(rhi::RenderDevice &rd) : m_renderDevice{rd} {
     ShaderCodeBuilder{}.buildFromFile("Utility/GenerateBRDF.comp"));
 }
 
-uint32_t IBL::count(PipelineGroups flags) const {
+uint32_t IBL::count(const PipelineGroups flags) const {
   uint32_t n{0};
   if (bool(flags & PipelineGroups::BuiltIn)) {
     n += m_irradianceGenerator.count() + m_prefilterGenerator.count() + 1;
   }
   return n;
 }
-void IBL::clear(PipelineGroups flags) {
+void IBL::clear(const PipelineGroups flags) {
   if (bool(flags & PipelineGroups::BuiltIn)) {
     m_irradianceGenerator.clear();
     m_prefilterGenerator.clear();
@@ -309,7 +309,7 @@ rhi::Texture IBL::PrefilterGenerator::generate(rhi::CommandBuffer &cb,
 }
 
 rhi::ComputePipeline
-IBL::PrefilterGenerator::_createPipeline(uint32_t numMipLevels) const {
+IBL::PrefilterGenerator::_createPipeline(const uint32_t numMipLevels) const {
   return getRenderDevice().createComputePipeline(
     ShaderCodeBuilder{}
       .addDefine("NUM_MIP_LEVELS", numMipLevels)

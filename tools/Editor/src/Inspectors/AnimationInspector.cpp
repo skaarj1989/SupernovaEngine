@@ -1,4 +1,5 @@
 #include "Inspectors/AnimationInspector.hpp"
+#include "ozz/animation/runtime/animation.h"
 #include "imgui.h"
 
 void print(const ozz::animation::Animation &animation) {

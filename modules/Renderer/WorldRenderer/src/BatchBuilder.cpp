@@ -1,4 +1,6 @@
 #include "BatchBuilder.hpp"
+#include "renderer/VertexFormat.hpp"
+#include "renderer/MeshInstance.hpp"
 #include "tracy/Tracy.hpp"
 
 namespace gfx {

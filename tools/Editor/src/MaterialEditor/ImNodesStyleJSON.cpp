@@ -1,6 +1,7 @@
 #include "ImNodesStyleJSON.hpp"
 #include "ImVecJSON.hpp"
 #include "imnodes.h"
+#include "nlohmann/json.hpp"
 #include <fstream>
 
 #define MAKE_COLOR_PAIR(Value)                                                 \

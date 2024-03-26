@@ -1,8 +1,11 @@
 #pragma once
 
 #include "entt/core/type_info.hpp"
-#include "RmlUi/Core/Context.h"
 #include "RmlUiRenderInterface.hpp"
+
+namespace Rml {
+class Context;
+}
 
 struct UIComponent {
   static constexpr auto in_place_delete = true;

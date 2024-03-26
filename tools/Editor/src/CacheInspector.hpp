@@ -24,7 +24,7 @@ template <class Cache, typename OnDragCallback = std::monostate,
 void view(Cache &cache, OnDragCallback onDrag, TooltipCallback tooltip,
           IsRemovableCallback isRemovable) {
   if (cache.empty()) {
-    ImGui::Text("(empty)");
+    ImGui::TextUnformatted("(empty)");
     return;
   }
 

@@ -1,9 +1,10 @@
 #pragma once
 
 #include "fg/Fwd.hpp"
-#include "renderer/Grid.hpp"
 
 namespace gfx {
+
+struct Grid;
 
 [[nodiscard]] FrameGraphResource uploadSceneGrid(FrameGraph &, const Grid &);
 

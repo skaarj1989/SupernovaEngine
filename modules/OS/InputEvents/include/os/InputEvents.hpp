@@ -2,6 +2,7 @@
 
 #include "KeyCodes.hpp"
 #include "glm/ext/vector_int2.hpp"
+#include <cstdint>
 #include <variant>
 
 namespace os {

@@ -3,12 +3,11 @@
 #include "Jolt/Jolt.h"
 #include "Jolt/Physics/Collision/Shape/Shape.h"
 
-#include "glm/vec3.hpp"
-#include "glm/gtc/quaternion.hpp"
+#include "glm/ext/quaternion_float.hpp"
 
+#include <memory>
 #include <expected>
 #include <filesystem>
-#include <memory>
 #include <span>
 
 struct TriangleMesh {

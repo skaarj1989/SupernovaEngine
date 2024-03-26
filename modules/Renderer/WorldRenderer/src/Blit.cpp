@@ -1,14 +1,15 @@
 #include "renderer/Blit.hpp"
-
-#include "fg/FrameGraph.hpp"
-#include "renderer/FrameGraphTexture.hpp"
-#include "FrameGraphResourceAccess.hpp"
+#include "rhi/CommandBuffer.hpp"
 
 #include "renderer/CommonSamplers.hpp"
-#include "ShaderCodeBuilder.hpp"
-
 #include "renderer/PostProcess.hpp"
+
+#include "fg/FrameGraph.hpp"
+#include "FrameGraphResourceAccess.hpp"
+#include "renderer/FrameGraphTexture.hpp"
+
 #include "RenderContext.hpp"
+#include "ShaderCodeBuilder.hpp"
 
 namespace std {
 
@@ -34,15 +35,15 @@ namespace gfx {
 Blit::Blit(rhi::RenderDevice &rd, const CommonSamplers &commonSamplers)
     : BasePass{rd}, m_samplers{commonSamplers} {}
 
-uint32_t Blit::count(PipelineGroups flags) const {
+uint32_t Blit::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::BuiltIn) ? BasePass::count() : 0;
 }
-void Blit::clear(PipelineGroups flags) {
+void Blit::clear(const PipelineGroups flags) {
   if (bool(flags & PipelineGroups::BuiltIn)) BasePass::clear();
 }
 
-FrameGraphResource Blit::mix(FrameGraph &fg, FrameGraphResource a,
-                             FrameGraphResource b) {
+FrameGraphResource Blit::mix(FrameGraph &fg, const FrameGraphResource a,
+                             const FrameGraphResource b) {
   constexpr auto kPassName = "Mix";
   ZoneScopedN(kPassName);
 
@@ -95,8 +96,9 @@ FrameGraphResource Blit::mix(FrameGraph &fg, FrameGraphResource a,
   return output;
 }
 
-FrameGraphResource Blit::addColor(FrameGraph &fg, FrameGraphResource target,
-                                  FrameGraphResource source) {
+FrameGraphResource Blit::addColor(FrameGraph &fg,
+                                  const FrameGraphResource target,
+                                  const FrameGraphResource source) {
   return merge(fg, target, {source});
 }
 

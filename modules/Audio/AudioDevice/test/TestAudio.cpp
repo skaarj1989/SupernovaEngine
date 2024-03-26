@@ -2,6 +2,8 @@
 
 #include "os/FileSystem.hpp"
 #include "audio/Device.hpp"
+#include "audio/Source.hpp"
+#include "audio/StreamPlayer.hpp"
 
 #include "VorbisDecoder.hpp"
 #include "WaveDecoder.hpp"

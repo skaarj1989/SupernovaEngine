@@ -1,4 +1,6 @@
-#include "renderer/BaseGeometryPassInfo.hpp"
+#include "BaseGeometryPassInfo.hpp"
+#include "renderer/VertexFormat.hpp"
+#include "renderer/Material.hpp"
 #include "math/Hash.hpp"
 
 namespace std {

@@ -23,7 +23,7 @@ void SceneEditor::_onInspect(entt::handle h, const ParentComponent &c) {
       ImGui::EndTable();
     }
   } else {
-    ImGui::Text("(none)");
+    ImGui::TextUnformatted("(none)");
   }
 }
 void SceneEditor::_onInspect(entt::handle h, const ChildrenComponent &c) {
@@ -37,6 +37,6 @@ void SceneEditor::_onInspect(entt::handle h, const ChildrenComponent &c) {
       }
     }
   } else {
-    ImGui::Text("(empty)");
+    ImGui::TextUnformatted("(empty)");
   }
 }

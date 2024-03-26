@@ -1,6 +1,8 @@
 #include "ImGuiPlatformInterface.hpp"
 #include "os/Platform.hpp"
 #include "os/Monitor.hpp"
+#include "os/Window.hpp"
+#include "imgui.h"
 #include <algorithm> // transform
 
 namespace {

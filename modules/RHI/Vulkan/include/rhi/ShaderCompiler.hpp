@@ -1,7 +1,7 @@
 #pragma once
 
-#include "rhi/ShaderType.hpp"
-#include "rhi/SPIRV.hpp"
+#include "ShaderType.hpp"
+#include "SPIRV.hpp"
 #include <string>
 #include <expected>
 
@@ -17,8 +17,11 @@ public:
   ShaderCompiler &operator=(const ShaderCompiler &) = delete;
   ShaderCompiler &operator=(ShaderCompiler &&) noexcept = delete;
 
-  [[nodiscard]] std::expected<SPIRV, std::string>
-  compile(ShaderType, const std::string_view) const;
+  using ErrorMessage = std::string;
+  using Result = std::expected<SPIRV, ErrorMessage>;
+
+  [[nodiscard]] Result compile(const ShaderType,
+                               const std::string_view code) const;
 };
 
 } // namespace rhi

@@ -3,7 +3,7 @@
 
 namespace rhi {
 
-VkImageAspectFlags getAspectMask(PixelFormat pixelFormat) {
+VkImageAspectFlags getAspectMask(const PixelFormat pixelFormat) {
   assert(pixelFormat != PixelFormat::Undefined);
 
   switch (pixelFormat) {
@@ -36,7 +36,7 @@ VkImageAspectFlags getAspectMask(PixelFormat pixelFormat) {
   case Value:                                                                  \
     return #Value
 
-const char *toString(PixelFormat pixelFormat) {
+const char *toString(const PixelFormat pixelFormat) {
   switch (pixelFormat) {
     using enum PixelFormat;
 

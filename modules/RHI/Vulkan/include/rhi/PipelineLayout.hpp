@@ -1,6 +1,7 @@
 #pragma once
 
 #include "glad/vulkan.h"
+#include "ResourceIndices.hpp"
 #include <array>
 #include <vector>
 
@@ -31,7 +32,8 @@ public:
   [[nodiscard]] explicit operator bool() const;
 
   [[nodiscard]] VkPipelineLayout getHandle() const;
-  [[nodiscard]] VkDescriptorSetLayout getDescriptorSet(uint32_t set) const;
+  [[nodiscard]] VkDescriptorSetLayout
+  getDescriptorSet(const DescriptorSetIndex) const;
 
   class Builder {
   public:
@@ -43,19 +45,21 @@ public:
     Builder &operator=(const Builder &) = delete;
     Builder &operator=(Builder &&) noexcept = delete;
 
-    Builder &addImage(uint32_t set, uint32_t binding, VkShaderStageFlags);
-    Builder &addImages(uint32_t set, uint32_t binding, uint32_t count,
-                       VkShaderStageFlags);
-    Builder &addSampledImage(uint32_t set, uint32_t binding,
-                             VkShaderStageFlags);
-    Builder &addSampledImages(uint32_t set, uint32_t binding, uint32_t count,
-                              VkShaderStageFlags);
-    Builder &addUniformBuffer(uint32_t set, uint32_t binding,
-                              VkShaderStageFlags);
-    Builder &addStorageBuffer(uint32_t set, uint32_t binding,
-                              VkShaderStageFlags);
+    Builder &addImage(const DescriptorSetIndex, const BindingIndex,
+                      const VkShaderStageFlags);
+    Builder &addImages(const DescriptorSetIndex, const BindingIndex,
+                       const uint32_t count, const VkShaderStageFlags);
+    Builder &addSampledImage(const DescriptorSetIndex, const BindingIndex,
+                             const VkShaderStageFlags);
+    Builder &addSampledImages(const DescriptorSetIndex, const BindingIndex,
+                              const uint32_t count, const VkShaderStageFlags);
+    Builder &addUniformBuffer(const DescriptorSetIndex, const BindingIndex,
+                              const VkShaderStageFlags);
+    Builder &addStorageBuffer(const DescriptorSetIndex, const BindingIndex,
+                              const VkShaderStageFlags);
 
-    Builder &addResource(uint32_t set, VkDescriptorSetLayoutBinding);
+    Builder &addResource(const DescriptorSetIndex,
+                         VkDescriptorSetLayoutBinding);
     Builder &addPushConstantRange(VkPushConstantRange);
 
     [[nodiscard]] PipelineLayout build(RenderDevice &) const;
@@ -65,7 +69,7 @@ public:
   };
 
 private:
-  PipelineLayout(VkPipelineLayout, std::vector<VkDescriptorSetLayout> &&);
+  PipelineLayout(const VkPipelineLayout, std::vector<VkDescriptorSetLayout> &&);
 
 private:
   VkPipelineLayout m_handle{VK_NULL_HANDLE}; // Non-owning.

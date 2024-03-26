@@ -1,5 +1,6 @@
 #include "SceneEditor/SceneEditor.hpp"
 #include "Services.hpp"
+
 #include "Inspectors/ResourceInspector.hpp"
 #include "Inspectors/SkeletonInspector.hpp"
 #include "IconsFontAwesome6.h"

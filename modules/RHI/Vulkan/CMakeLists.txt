@@ -22,6 +22,8 @@ add_library(VulkanRHI
   "include/rhi/GarbageCollector.hpp"
   "src/GarbageCollector.cpp"
 
+  "include/rhi/ResourceIndices.hpp"
+
   "include/rhi/Offset2D.hpp"
   "include/rhi/Extent2D.hpp"
   "src/Extent2D.cpp"
@@ -29,6 +31,8 @@ add_library(VulkanRHI
   "include/rhi/TexelFilter.hpp"
   "include/rhi/CompareOp.hpp"
   "include/rhi/SamplerInfo.hpp"
+  "include/rhi/ImageUsage.hpp"
+  "src/ImageUsage.cpp"
   "include/rhi/TextureType.hpp"
   "src/TextureType.cpp"
   "include/rhi/CubeFace.hpp"

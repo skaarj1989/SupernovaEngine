@@ -57,7 +57,7 @@ public:
   Window &setPosition(const Position);
   // @param {width, height} (with non-client area).
   Window &setExtent(const Extent);
-  Window &setAlpha(float);
+  Window &setAlpha(const float);
 
   Window &setCaption(const std::string_view);
 

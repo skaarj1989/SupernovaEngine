@@ -7,7 +7,10 @@
 #include "Jolt/Physics/Collision/CollisionCollectorImpl.h"
 
 #include "physics/JoltPhysics.hpp"
+#include "physics/DebugRenderer.hpp"
 #include "physics/Conversion.hpp"
+
+#include "Transform.hpp"
 
 #include "tracy/Tracy.hpp"
 
@@ -15,7 +18,7 @@
 
 namespace {
 
-[[nodiscard]] auto convert(MotionType motionType) {
+[[nodiscard]] auto convert(const MotionType motionType) {
 #define CASE(Value)                                                            \
   case MotionType::Value:                                                      \
     return JPH::EMotionType::Value

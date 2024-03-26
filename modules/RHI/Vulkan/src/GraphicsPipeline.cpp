@@ -9,7 +9,8 @@ namespace rhi {
 
 namespace {
 
-[[nodiscard]] constexpr VkShaderStageFlagBits toVk(ShaderType shaderType) {
+[[nodiscard]] constexpr VkShaderStageFlagBits
+toVk(const ShaderType shaderType) {
   switch (shaderType) {
     using enum ShaderType;
 
@@ -72,7 +73,7 @@ const VkPipelineMultisampleStateCreateInfo kIgnoreMultisampleState{
 
 [[nodiscard]] auto convert(const auto &container) {
   std::vector<VkFormat> out(container.size());
-  std::ranges::transform(container, out.begin(), [](PixelFormat format) {
+  std::ranges::transform(container, out.begin(), [](const PixelFormat format) {
     assert(getAspectMask(format) & VK_IMAGE_ASPECT_COLOR_BIT);
     return VkFormat(format);
   });
@@ -85,9 +86,9 @@ const VkPipelineMultisampleStateCreateInfo kIgnoreMultisampleState{
 // GraphicsPipeline class:
 //
 
-GraphicsPipeline::GraphicsPipeline(VkDevice device,
+GraphicsPipeline::GraphicsPipeline(const VkDevice device,
                                    PipelineLayout &&pipelineLayout,
-                                   VkPipeline pipeline)
+                                   const VkPipeline pipeline)
     : BasePipeline{device, std::move(pipelineLayout), pipeline} {}
 
 //
@@ -121,7 +122,7 @@ Builder::Builder() {
   };
 }
 
-Builder &Builder::setDepthFormat(PixelFormat depthFormat) {
+Builder &Builder::setDepthFormat(const PixelFormat depthFormat) {
   const auto aspectMask = getAspectMask(depthFormat);
   m_depthFormat = aspectMask & VK_IMAGE_ASPECT_DEPTH_BIT ? VkFormat(depthFormat)
                                                          : VK_FORMAT_UNDEFINED;
@@ -168,7 +169,7 @@ Builder &Builder::setInputAssembly(const VertexAttributes &vertexAttributes) {
   }
   return *this;
 }
-Builder &Builder::setTopology(PrimitiveTopology topology) {
+Builder &Builder::setTopology(const PrimitiveTopology topology) {
   m_primitiveTopology = VkPrimitiveTopology(topology);
   return *this;
 }
@@ -177,7 +178,8 @@ Builder &Builder::setPipelineLayout(PipelineLayout pipelineLayout) {
   m_pipelineLayout = std::move(pipelineLayout);
   return *this;
 }
-Builder &Builder::addShader(ShaderType type, const std::string_view code) {
+Builder &Builder::addShader(const ShaderType type,
+                            const std::string_view code) {
   // Again, Sonarlint is wrong, DO NOT replace 'emplace' with 'try_emplace'.
   // A builder might be used to create multiple pipelines, hence it's
   // necessary to REPLACE a given shader with another one (try_emplace prevents
@@ -208,10 +210,11 @@ Builder &Builder::setRasterizer(const RasterizerState &desc) {
   m_rasterizerState.lineWidth = desc.lineWidth;
   return *this;
 }
-Builder &Builder::setBlending(uint32_t attachment, const BlendState &desc) {
-  if (attachment >= m_blendStates.size()) m_blendStates.resize(attachment + 1);
+Builder &Builder::setBlending(const AttachmentIndex index,
+                              const BlendState &desc) {
+  if (index >= m_blendStates.size()) m_blendStates.resize(index + 1);
 
-  m_blendStates[attachment] = VkPipelineColorBlendAttachmentState{
+  m_blendStates[index] = VkPipelineColorBlendAttachmentState{
     .blendEnable = desc.enabled,
     .srcColorBlendFactor = VkBlendFactor(desc.srcColor),
     .dstColorBlendFactor = VkBlendFactor(desc.dstColor),
@@ -342,7 +345,7 @@ GraphicsPipeline Builder::build(RenderDevice &rd) {
     .basePipelineHandle = VK_NULL_HANDLE,
   };
 
-  auto device = rd._getLogicalDevice();
+  const auto device = rd._getLogicalDevice();
 
   VkPipeline handle{VK_NULL_HANDLE};
   VK_CHECK(vkCreateGraphicsPipelines(device, rd._getPipelineCache(), 1,

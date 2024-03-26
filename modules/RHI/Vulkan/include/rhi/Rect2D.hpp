@@ -1,7 +1,7 @@
 #pragma once
 
-#include "rhi/Offset2D.hpp"
-#include "rhi/Extent2D.hpp"
+#include "Offset2D.hpp"
+#include "Extent2D.hpp"
 #include "glm/ext/vector_int4.hpp"
 
 namespace rhi {

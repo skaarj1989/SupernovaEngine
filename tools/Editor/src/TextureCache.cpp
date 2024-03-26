@@ -1,4 +1,5 @@
 #include "TextureCache.hpp"
+#include "renderer/TextureManager.hpp"
 #include "TexturePreview.hpp"
 #include "ImGuiTitleBarMacro.hpp"
 #include "ImGuiDragAndDrop.hpp"
@@ -19,9 +20,10 @@ void print(const rhi::Texture &texture) {
   ImGui::BulletText("Layers: %u", texture.getNumLayers());
 }
 
-void view(gfx::TextureCache &cache, float windowWidth, float thumbnailSize) {
+void view(gfx::TextureCache &cache, const float windowWidth,
+          const float thumbnailSize) {
   if (cache.empty()) {
-    ImGui::Text("(empty)");
+    ImGui::TextUnformatted("(empty)");
     return;
   }
 
@@ -33,7 +35,7 @@ void view(gfx::TextureCache &cache, float windowWidth, float thumbnailSize) {
 
     preview(resource.handle().get(), glm::vec2{thumbnailSize});
     onDragSource(kImGuiPayloadTypeTexture, id,
-                 [] { ImGui::Text("Texture inside ..."); });
+                 [] { ImGui::TextUnformatted("Texture inside ..."); });
 
     const auto path = resource->getPath().string();
 

@@ -1,5 +1,7 @@
 #pragma once
 
-#include "renderer/Light.hpp"
+namespace gfx {
+struct Light;
+}
 
-void inspect(gfx::Light &, bool inspectTransform);
+void inspect(gfx::Light &, const bool inspectTransform);

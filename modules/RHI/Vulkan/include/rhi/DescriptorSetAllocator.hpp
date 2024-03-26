@@ -26,18 +26,18 @@ public:
   DescriptorSetAllocator &operator=(const DescriptorSetAllocator &) = delete;
   DescriptorSetAllocator &operator=(DescriptorSetAllocator &&) noexcept;
 
-  [[nodiscard]] VkDescriptorSet allocate(VkDescriptorSetLayout);
+  [[nodiscard]] VkDescriptorSet allocate(const VkDescriptorSetLayout);
   void reset();
 
 private:
-  explicit DescriptorSetAllocator(VkDevice);
+  explicit DescriptorSetAllocator(const VkDevice);
 
   void _destroy() noexcept;
 
   [[nodiscard]] DescriptorPool &_createPool();
   [[nodiscard]] DescriptorPool &_getPool();
   [[nodiscard]] VkDescriptorSet _allocate(DescriptorPool &,
-                                          VkDescriptorSetLayout) const;
+                                          const VkDescriptorSetLayout) const;
 
 private:
   VkDevice m_device{VK_NULL_HANDLE};

@@ -24,7 +24,7 @@ enum class RenderFeatures : int32_t {
   All = Default | SoftShadows | GI | SSR,
 };
 
-[[nodiscard]] std::string toString(RenderFeatures);
+[[nodiscard]] std::string toString(const RenderFeatures);
 
 } // namespace gfx
 

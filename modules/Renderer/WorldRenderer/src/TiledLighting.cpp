@@ -1,18 +1,20 @@
 #include "renderer/TiledLighting.hpp"
+#include "rhi/RenderDevice.hpp"
+
 #include "renderer/Blit.hpp"
 
+#include "FrameGraphResourceAccess.hpp"
 #include "FrameGraphCommon.hpp"
 #include "renderer/FrameGraphBuffer.hpp"
 #include "renderer/FrameGraphTexture.hpp"
-#include "FrameGraphResourceAccess.hpp"
 
 #include "FrameGraphData/Camera.hpp"
 #include "FrameGraphData/GBuffer.hpp"
 #include "FrameGraphData/Lights.hpp"
 #include "FrameGraphData/LightCulling.hpp"
 
-#include "ShaderCodeBuilder.hpp"
 #include "RenderContext.hpp"
+#include "ShaderCodeBuilder.hpp"
 
 namespace gfx {
 
@@ -34,12 +36,12 @@ static_assert(sizeof(GPUFrustumTile) == 64);
 TiledLighting::TiledLighting(rhi::RenderDevice &rd)
     : m_frustumBuilder{rd}, m_lightCuller{rd} {}
 
-uint32_t TiledLighting::count(PipelineGroups flags) const {
+uint32_t TiledLighting::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::BuiltIn)
            ? m_frustumBuilder.count() + m_lightCuller.count()
            : 0;
 }
-void TiledLighting::clear(PipelineGroups flags) {
+void TiledLighting::clear(const PipelineGroups flags) {
   if (bool(flags & PipelineGroups::BuiltIn)) {
     m_frustumBuilder.clear();
     m_lightCuller.clear();
@@ -47,7 +49,7 @@ void TiledLighting::clear(PipelineGroups flags) {
 }
 
 void TiledLighting::cullLights(FrameGraph &fg, FrameGraphBlackboard &blackboard,
-                               TileSize tileSize) {
+                               const TileSize tileSize) {
   ZoneScopedN("TiledLighting");
 
   const auto depthBuffer = blackboard.get<GBufferData>().depth;
@@ -65,8 +67,9 @@ void TiledLighting::cullLights(FrameGraph &fg, FrameGraphBlackboard &blackboard,
 }
 
 FrameGraphResource
-TiledLighting::addDebugOverlay(FrameGraph &fg, FrameGraphBlackboard &blackboard,
-                               Blit &blit, FrameGraphResource target) {
+TiledLighting::addDebugOverlay(FrameGraph &fg,
+                               const FrameGraphBlackboard &blackboard,
+                               Blit &blit, const FrameGraphResource target) {
   ZoneScopedN("TiledLighting::Debug");
 
   const auto *d = blackboard.try_get<LightCullingData>();
@@ -81,7 +84,8 @@ TiledLighting::FrustumBuilder::FrustumBuilder(rhi::RenderDevice &rd)
     : rhi::ComputePass<FrustumBuilder>{rd} {}
 
 FrameGraphResource TiledLighting::FrustumBuilder::buildFrustums(
-  FrameGraph &fg, FrameGraphBlackboard &blackboard, const PassInfo &passInfo) {
+  FrameGraph &fg, const FrameGraphBlackboard &blackboard,
+  const PassInfo &passInfo) {
   constexpr auto kPassName = "BuildFrustums";
   ZoneScopedN(kPassName);
 
@@ -128,7 +132,7 @@ FrameGraphResource TiledLighting::FrustumBuilder::buildFrustums(
 }
 
 rhi::ComputePipeline
-TiledLighting::FrustumBuilder::_createPipeline(TileSize tileSize) const {
+TiledLighting::FrustumBuilder::_createPipeline(const TileSize tileSize) const {
   return getRenderDevice().createComputePipeline(
     ShaderCodeBuilder{}
       .addDefine("TILE_SIZE", tileSize)
@@ -142,10 +146,9 @@ TiledLighting::FrustumBuilder::_createPipeline(TileSize tileSize) const {
 TiledLighting::LightCuller::LightCuller(rhi::RenderDevice &rd)
     : rhi::ComputePass<LightCuller>{rd} {}
 
-void TiledLighting::LightCuller::cullLights(FrameGraph &fg,
-                                            FrameGraphBlackboard &blackboard,
-                                            FrameGraphResource gridFrustums,
-                                            const PassInfo &passInfo) {
+void TiledLighting::LightCuller::cullLights(
+  FrameGraph &fg, FrameGraphBlackboard &blackboard,
+  const FrameGraphResource gridFrustums, const PassInfo &passInfo) {
   constexpr auto kPassName = "CullLights";
   ZoneScopedN(kPassName);
 
@@ -253,7 +256,7 @@ void TiledLighting::LightCuller::cullLights(FrameGraph &fg,
 }
 
 rhi::ComputePipeline
-TiledLighting::LightCuller::_createPipeline(TileSize tileSize) const {
+TiledLighting::LightCuller::_createPipeline(const TileSize tileSize) const {
   return getRenderDevice().createComputePipeline(
     ShaderCodeBuilder{}
       .addDefine("TILE_SIZE", tileSize)

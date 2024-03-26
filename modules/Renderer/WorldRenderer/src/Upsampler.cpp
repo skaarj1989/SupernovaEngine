@@ -1,11 +1,13 @@
 #include "renderer/Upsampler.hpp"
-
-#include "fg/FrameGraph.hpp"
-#include "renderer/FrameGraphTexture.hpp"
-#include "FrameGraphResourceAccess.hpp"
+#include "rhi/CommandBuffer.hpp"
 
 #include "renderer/CommonSamplers.hpp"
 #include "renderer/PostProcess.hpp"
+
+#include "fg/FrameGraph.hpp"
+#include "FrameGraphResourceAccess.hpp"
+#include "renderer/FrameGraphTexture.hpp"
+
 #include "RenderContext.hpp"
 
 namespace gfx {
@@ -26,8 +28,9 @@ Upsampler::Upsampler(rhi::RenderDevice &rd,
                      const CommonSamplers &commonSamplers)
     : rhi::RenderPass<Upsampler>{rd}, m_samplers{commonSamplers} {}
 
-FrameGraphResource Upsampler::addPass(FrameGraph &fg, FrameGraphResource input,
-                                      float radius) {
+FrameGraphResource Upsampler::addPass(FrameGraph &fg,
+                                      const FrameGraphResource input,
+                                      const float radius) {
   constexpr auto kPassName = "UpsamplePass";
   ZoneScopedN(kPassName);
 
@@ -85,7 +88,7 @@ FrameGraphResource Upsampler::addPass(FrameGraph &fg, FrameGraphResource input,
 //
 
 rhi::GraphicsPipeline
-Upsampler::_createPipeline(rhi::PixelFormat colorFormat) const {
+Upsampler::_createPipeline(const rhi::PixelFormat colorFormat) const {
   return createPostProcessPipelineFromFile(getRenderDevice(), colorFormat,
                                            "Upsample.frag");
 }

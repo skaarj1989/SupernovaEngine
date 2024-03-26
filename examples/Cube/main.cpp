@@ -1,4 +1,5 @@
 #include "BaseApp.hpp"
+#include "rhi/GraphicsPipeline.hpp"
 #include "KTXLoader.hpp"
 #include "glm/trigonometric.hpp"        // radians
 #include "glm/gtc/matrix_transform.hpp" // perspective, translate, rotate, scale
@@ -72,13 +73,13 @@ private:
     }
   }
 
-  void _onUpdate(fsec dt) override {
+  void _onUpdate(const fsec dt) override {
     constexpr auto kDegPerSec = 90.0f;
     m_angle += kDegPerSec * dt.count();
   }
 
-  void _onRender(rhi::CommandBuffer &cb, rhi::RenderTargetView rtv,
-                 fsec) override {
+  void _onRender(rhi::CommandBuffer &cb, const rhi::RenderTargetView rtv,
+                 const fsec) override {
     constexpr auto kCubeSize = 1.2f;
 
     rhi::prepareForAttachment(cb, m_depthStencilBuffer, false);
@@ -351,7 +352,7 @@ void main() {
         .build(getRenderDevice());
   }
 
-  [[nodiscard]] glm::mat4 _transformCube(float scale) const {
+  [[nodiscard]] glm::mat4 _transformCube(const float scale) const {
     auto modelMatrix = glm::translate(glm::mat4{1.0f}, {0.0f, 0.0f, -6.0f});
     modelMatrix =
       glm::rotate(modelMatrix, glm::radians(m_angle), {0.2f, 0.4f, 0.1f});

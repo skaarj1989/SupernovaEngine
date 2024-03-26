@@ -3,7 +3,7 @@
 
 namespace rhi {
 
-const char *toString(TextureType textureType) {
+const char *toString(const TextureType textureType) {
 #define CASE(Value)                                                            \
   case Value:                                                                  \
     return #Value

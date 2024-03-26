@@ -1,4 +1,6 @@
 #include "UploadCameraBlock.hpp"
+#include "PerspectiveCamera.hpp"
+#include "renderer/RawCamera.hpp"
 #include "UploadStruct.hpp"
 
 namespace gfx {
@@ -7,7 +9,7 @@ namespace {
 
 // shaders/resources/CameraBlock.glsl
 struct alignas(16) GPUCameraBlock {
-  GPUCameraBlock(rhi::Extent2D extent, const RawCamera &camera,
+  GPUCameraBlock(const rhi::Extent2D extent, const RawCamera &camera,
                  const ClippingPlanes &clippingPlanes)
       : projection{camera.projection},
         inversedProjection{glm::inverse(projection)}, view{camera.view},
@@ -43,7 +45,8 @@ static_assert(sizeof(GPUCameraBlock) == 400);
 
 } // namespace
 
-FrameGraphResource uploadCameraBlock(FrameGraph &fg, rhi::Extent2D resolution,
+FrameGraphResource uploadCameraBlock(FrameGraph &fg,
+                                     const rhi::Extent2D resolution,
                                      const PerspectiveCamera &camera) {
   auto projection = camera.getProjection();
   projection[1][1] *= -1.0f;
@@ -58,7 +61,8 @@ FrameGraphResource uploadCameraBlock(FrameGraph &fg, rhi::Extent2D resolution,
                                });
 }
 
-FrameGraphResource uploadCameraBlock(FrameGraph &fg, rhi::Extent2D resolution,
+FrameGraphResource uploadCameraBlock(FrameGraph &fg,
+                                     const rhi::Extent2D resolution,
                                      const RawCamera &camera) {
   return uploadCameraBlock(fg, GPUCameraBlock{
                                  resolution,

@@ -7,10 +7,11 @@ namespace gfx {
 
 [[nodiscard]] rhi::GraphicsPipeline
 createPostProcessPipelineFromFile(rhi::RenderDevice &,
-                                  rhi::PixelFormat colorFormat,
+                                  const rhi::PixelFormat colorFormat,
                                   const std::filesystem::path &);
 [[nodiscard]] rhi::GraphicsPipeline
-createPostProcessPipeline(rhi::RenderDevice &, rhi::PixelFormat colorFormat,
+createPostProcessPipeline(rhi::RenderDevice &,
+                          const rhi::PixelFormat colorFormat,
                           const std::string_view fragCode);
 
 } // namespace gfx

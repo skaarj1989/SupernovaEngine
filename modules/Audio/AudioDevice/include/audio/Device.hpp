@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Source.hpp"
-#include "StreamPlayer.hpp"
+#include "Buffer.hpp"
 #include "AL/alc.h"
+#include "glm/fwd.hpp"
+#include <cstdint>
 
 namespace audio {
 

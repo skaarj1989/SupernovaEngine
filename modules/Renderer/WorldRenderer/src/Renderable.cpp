@@ -1,4 +1,5 @@
 #include "renderer/Renderable.hpp"
+#include "renderer/MeshInstance.hpp"
 
 namespace gfx {
 

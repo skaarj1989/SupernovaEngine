@@ -14,6 +14,6 @@ enum class TextureType {
   TextureCubeArray,
 };
 
-[[nodiscard]] const char *toString(TextureType);
+[[nodiscard]] const char *toString(const TextureType);
 
 } // namespace rhi

@@ -47,8 +47,8 @@ private:
     m_clearColor = {bg.r, bg.g, bg.b, bg.a};
   }
 
-  void _onRender(rhi::CommandBuffer &cb, rhi::RenderTargetView rtv,
-                 fsec dt) override {
+  void _onRender(rhi::CommandBuffer &cb, const rhi::RenderTargetView rtv,
+                 const fsec dt) override {
     drawGui(cb, rtv, m_clearColor);
   }
 

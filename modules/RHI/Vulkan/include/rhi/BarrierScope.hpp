@@ -1,7 +1,7 @@
 #pragma once
 
-#include "rhi/PipelineStage.hpp"
-#include "rhi/Access.hpp"
+#include "PipelineStage.hpp"
+#include "Access.hpp"
 
 namespace rhi {
 
@@ -16,7 +16,7 @@ constexpr auto kInitialBarrierScope = BarrierScope{
   .stageMask = PipelineStages::Top,
   .accessMask = Access::None,
 };
-constexpr auto kFatScope = rhi::BarrierScope{
+constexpr auto kFatScope = BarrierScope{
   .stageMask = PipelineStages::AllCommands,
   .accessMask = Access::MemoryRead | Access::MemoryWrite,
 };

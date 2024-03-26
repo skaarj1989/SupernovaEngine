@@ -1,8 +1,13 @@
 #include "renderer/DeferredLightingPass.hpp"
+#include "rhi/CommandBuffer.hpp"
 
+#include "renderer/CommonSamplers.hpp"
+#include "LightingSettings.hpp"
+#include "LightingPassFeatures.hpp"
+
+#include "FrameGraphResourceAccess.hpp"
 #include "FrameGraphCommon.hpp"
 #include "renderer/FrameGraphTexture.hpp"
-#include "FrameGraphResourceAccess.hpp"
 
 #include "FrameGraphData/DummyResources.hpp"
 #include "FrameGraphData/BRDF.hpp"
@@ -15,24 +20,8 @@
 #include "FrameGraphData/GBuffer.hpp"
 #include "FrameGraphData/SSAO.hpp"
 
-#include "renderer/CommonSamplers.hpp"
-
-#include "ShaderCodeBuilder.hpp"
-
 #include "RenderContext.hpp"
-
-namespace std {
-
-template <> struct hash<gfx::DeferredLightingPass::PassInfo> {
-  auto operator()(
-    const gfx::DeferredLightingPass::PassInfo &passInfo) const noexcept {
-    size_t h{0};
-    hashCombine(h, passInfo.colorFormat, passInfo.features);
-    return h;
-  }
-};
-
-} // namespace std
+#include "ShaderCodeBuilder.hpp"
 
 namespace gfx {
 
@@ -40,18 +29,17 @@ DeferredLightingPass::DeferredLightingPass(rhi::RenderDevice &rd,
                                            const CommonSamplers &commonSamplers)
     : rhi::RenderPass<DeferredLightingPass>{rd}, m_samplers{commonSamplers} {}
 
-uint32_t DeferredLightingPass::count(PipelineGroups flags) const {
+uint32_t DeferredLightingPass::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::BuiltIn) ? BasePass::count() : 0;
 }
-void DeferredLightingPass::clear(PipelineGroups flags) {
+void DeferredLightingPass::clear(const PipelineGroups flags) {
   if (bool(flags & PipelineGroups::BuiltIn)) BasePass::clear();
 }
 
-FrameGraphResource
-DeferredLightingPass::addPass(FrameGraph &fg,
-                              const FrameGraphBlackboard &blackboard,
-                              const LightingSettings &lightingSettings,
-                              bool softShadows, bool irradianceOnly) {
+FrameGraphResource DeferredLightingPass::addPass(
+  FrameGraph &fg, const FrameGraphBlackboard &blackboard,
+  const LightingSettings &lightingSettings, const bool softShadows,
+  const bool irradianceOnly) {
   constexpr auto kPassName = "DeferredLighting Pass";
   ZoneScopedN(kPassName);
 
@@ -113,10 +101,8 @@ DeferredLightingPass::addPass(FrameGraph &fg,
       auto &[cb, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, kPassName);
 
-      const auto *pipeline = _getPipeline(PassInfo{
-        .colorFormat = rhi::getColorFormat(*framebufferInfo, 0),
-        .features = features,
-      });
+      const auto *pipeline =
+        _getPipeline(rhi::getColorFormat(*framebufferInfo, 0), features);
       if (pipeline) {
         auto &samplerBindings = sets[0];
         samplerBindings[3] = rhi::bindings::SeparateSampler{m_samplers.point};
@@ -142,18 +128,19 @@ DeferredLightingPass::addPass(FrameGraph &fg,
 // (private):
 //
 
-rhi::GraphicsPipeline
-DeferredLightingPass::_createPipeline(const PassInfo &passInfo) const {
+rhi::GraphicsPipeline DeferredLightingPass::_createPipeline(
+  const rhi::PixelFormat colorFormat,
+  const LightingPassFeatures &features) const {
   ShaderCodeBuilder shaderCodeBuilder;
   const auto vertCode =
     shaderCodeBuilder.buildFromFile("FullScreenTriangle.vert");
 
-  addLighting(shaderCodeBuilder, passInfo.features);
+  addLighting(shaderCodeBuilder, features);
   const auto fragCode =
     shaderCodeBuilder.buildFromFile("DeferredLighting.frag");
 
   return rhi::GraphicsPipeline::Builder{}
-    .setColorFormats({passInfo.colorFormat})
+    .setColorFormats({colorFormat})
     .setInputAssembly({})
     .addShader(rhi::ShaderType::Vertex, vertCode)
     .addShader(rhi::ShaderType::Fragment, fragCode)

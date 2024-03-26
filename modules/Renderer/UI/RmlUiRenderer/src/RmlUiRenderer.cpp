@@ -1,4 +1,5 @@
 #include "RmlUiRenderer.hpp"
+#include "rhi/RenderDevice.hpp"
 #include "ShaderCodeBuilder.hpp"
 
 namespace {
@@ -93,8 +94,8 @@ void RmlUiRenderer::draw(rhi::CommandBuffer &cb,
 //
 
 rhi::GraphicsPipeline
-RmlUiRenderer::_createPipeline(rhi::PixelFormat colorFormat,
-                               bool textured) const {
+RmlUiRenderer::_createPipeline(const rhi::PixelFormat colorFormat,
+                               const bool textured) const {
   ShaderCodeBuilder shaderCodeBuilder{};
   const auto vertCode = shaderCodeBuilder.buildFromFile("RmlUI.vert");
 

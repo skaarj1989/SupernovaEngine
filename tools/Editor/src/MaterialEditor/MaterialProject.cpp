@@ -24,12 +24,12 @@
 #include "MaterialEditor/ShaderCodeEvaluator.hpp"
 
 #include "renderer/WorldRenderer.hpp"
+#include "renderer/Material.hpp"
 
 #include "imnodes_internal.h" // context.Panning
 
 #include "tracy/Tracy.hpp"
 
-#include <bitset>
 #include <ranges>
 #include <format>
 #include <fstream>
@@ -56,11 +56,6 @@ namespace {
 
 constexpr char kMagicId[] = "sneMP";
 constexpr auto kMagicIdSize = sizeof(kMagicId);
-
-[[nodiscard]] auto countStages(const rhi::ShaderStages flags) {
-  return std::bitset<sizeof(rhi::ShaderStages) * 8>{std::to_underlying(flags)}
-    .count();
-}
 
 template <typename Func>
 concept NodeFilter = std::predicate<Func, const NodeBase *>;
@@ -284,7 +279,7 @@ MaterialProject::load(const std::filesystem::path &p) {
     // clang-format on
     m_pathMap.reset(makeAbsolute(std::move(pathStorage), p.parent_path()));
 
-    for (auto i = 0; i < countStages(usedStages); ++i) {
+    for (auto i = 0; i < rhi::countStages(usedStages); ++i) {
       rhi::ShaderType type{};
       archive(type);
       auto *stage = _addStage(type);

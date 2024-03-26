@@ -415,7 +415,7 @@ void NodeEditor::_nodeContextMenu(const char *name,
     ImGui::PopItemFlag();
 
     attachPopup(nullptr, ImGuiMouseButton_Left, [this, view, id] {
-      ImGui::Text("Do you really want to remove the selected node?");
+      ImGui::TextUnformatted("Do you really want to remove the selected node?");
       ImGui::Separator();
       if (ImGui::Button(ICON_FA_TRASH " Yes")) {
         std::unordered_set<EdgeDescriptor> edges;

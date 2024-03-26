@@ -2,8 +2,10 @@
 
 #include "RenderDoc.hpp"
 #include "os/Platform.hpp"
-#include "rhi/FrameController.hpp"
+#include "os/Window.hpp"
 #include "os/InputSystem.hpp"
+#include "rhi/RenderDevice.hpp"
+#include "rhi/FrameController.hpp"
 #include "spdlog/spdlog.h"
 
 using fsec = std::chrono::duration<float>;
@@ -41,13 +43,14 @@ protected:
   virtual void _onResizeWindow(const os::ResizeWindowEvent &);
   virtual void _onInput(const os::InputEvent &);
 
-  virtual void _onPreUpdate(fsec) {}
-  virtual void _onUpdate(fsec) {}
-  virtual void _onPhysicsUpdate(fsec) {}
-  virtual void _onPostUpdate(fsec) {}
+  virtual void _onPreUpdate(const fsec) {}
+  virtual void _onUpdate(const fsec) {}
+  virtual void _onPhysicsUpdate(const fsec) {}
+  virtual void _onPostUpdate(const fsec) {}
 
   virtual void _onPreRender() {}
-  virtual void _onRender(rhi::CommandBuffer &, rhi::RenderTargetView, fsec) {}
+  virtual void _onRender(rhi::CommandBuffer &, const rhi::RenderTargetView,
+                         const fsec) {}
 
   virtual void _onPostRender() {}
 

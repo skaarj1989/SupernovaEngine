@@ -1,10 +1,12 @@
 #pragma once
 
-#include "FrameGraphCommon.hpp"
+#include "fg/FrameGraph.hpp"
+
+class FrameGraphBlackboard;
 
 namespace gfx {
 
 void read(FrameGraph::Builder &, const FrameGraphBlackboard &,
-          FrameGraphResource instances);
+          const FrameGraphResource instances);
 
 } // namespace gfx

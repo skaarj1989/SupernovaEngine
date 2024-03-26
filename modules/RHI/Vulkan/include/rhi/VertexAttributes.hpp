@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ResourceIndices.hpp"
 #include "glad/vulkan.h"
 #include <map>
 
@@ -20,14 +21,9 @@ struct VertexAttribute {
   uint32_t offset{0};
 };
 
-// Key = location
 // layout(location = index)
-using VertexAttributes = std::map<uint32_t, VertexAttribute>;
+using VertexAttributes = std::map<LocationIndex, VertexAttribute>;
 
-// Assign to VertexAttribute::offset in GraphicsPipeline::setInputAssembly
-// to silence "Vertex attribute at location x not consumed by vertex shader".
-constexpr uint32_t kIgnoreVertexAttribute = ~0;
-
-[[nodiscard]] uint32_t getSize(VertexAttribute::Type);
+[[nodiscard]] uint32_t getSize(const VertexAttribute::Type);
 
 } // namespace rhi

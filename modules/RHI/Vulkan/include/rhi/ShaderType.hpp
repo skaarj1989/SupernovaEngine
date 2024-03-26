@@ -12,7 +12,7 @@ enum class ShaderType {
   Compute,
 };
 
-[[nodiscard]] const char *toString(ShaderType);
+[[nodiscard]] const char *toString(const ShaderType);
 
 enum class ShaderStages : VkShaderStageFlags {
   Vertex = VK_SHADER_STAGE_VERTEX_BIT,
@@ -21,7 +21,8 @@ enum class ShaderStages : VkShaderStageFlags {
   Compute = VK_SHADER_STAGE_COMPUTE_BIT
 };
 
-[[nodiscard]] ShaderStages getStage(ShaderType);
+[[nodiscard]] ShaderStages getStage(const ShaderType);
+[[nodiscard]] uint32_t countStages(const ShaderStages);
 
 } // namespace rhi
 

@@ -1,8 +1,11 @@
 #pragma once
 
 #include "os/InputEvents.hpp"
-#include "rhi/CommandBuffer.hpp"
 #include <functional>
+
+namespace rhi {
+class CommandBuffer;
+}
 
 class WidgetWindow {
 public:
@@ -11,9 +14,9 @@ public:
   virtual void show(const char *name, bool *open) = 0;
 
   virtual void onInput(const os::InputEvent &) {}
-  virtual void onUpdate(float dt) {}
-  virtual void onPhysicsUpdate(float dt) {}
-  virtual void onRender(rhi::CommandBuffer &, float dt) {}
+  virtual void onUpdate(const float dt) {}
+  virtual void onPhysicsUpdate(const float dt) {}
+  virtual void onRender(rhi::CommandBuffer &, const float dt) {}
 };
 
 class SimpleWidgetWindow final : public WidgetWindow {

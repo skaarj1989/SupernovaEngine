@@ -16,9 +16,9 @@ class HierarchySystem {
 public:
   static void setup(entt::registry &);
 
-  static void attachTo(entt::registry &, entt::entity child,
-                       entt::entity designatedParent);
-  static void detach(entt::registry &, entt::entity);
+  static void attachTo(entt::registry &, const entt::entity child,
+                       const entt::entity designatedParent);
+  static void detach(entt::registry &, const entt::entity);
 };
 
-std::optional<entt::handle> getParent(entt::handle);
+std::optional<entt::handle> getParent(const entt::handle);

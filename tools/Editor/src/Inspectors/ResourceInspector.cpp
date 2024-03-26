@@ -1,4 +1,5 @@
 #include "Inspectors/ResourceInspector.hpp"
+#include "Resource.hpp"
 #include "IconsFontAwesome6.h"
 #include "imgui.h"
 

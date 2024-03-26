@@ -4,7 +4,7 @@
 #include "fg/Blackboard.hpp"
 #include "FrameGraphData/Transforms.hpp"
 
-#include "glm/mat4x4.hpp"
+#include "glm/ext/matrix_float4x4.hpp"
 
 namespace gfx {
 

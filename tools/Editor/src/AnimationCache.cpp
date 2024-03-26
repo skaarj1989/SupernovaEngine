@@ -8,9 +8,9 @@ void show(const char *name, bool *open, AnimationCache &cache) {
     defaultMenuBar(cache);
     view(
       cache,
-      [](auto id) {
+      [](const auto id) {
         onDragSource(kImGuiPayloadTypeAnimation, id,
-                     [] { ImGui::Text("Animation inside ..."); });
+                     [] { ImGui::TextUnformatted("Animation inside ..."); });
       },
       print, std::nullopt);
   }

@@ -2,7 +2,6 @@
 
 #include "WidgetWindow.hpp"
 #include "Inspector.hpp"
-#include "os/InputSystem.hpp"
 
 #include "Scene.hpp"
 
@@ -10,13 +9,15 @@
 #include "CameraController.hpp"
 #include "GizmoController.hpp"
 
-#include "ScriptContext.hpp"
-
 #include "RmlUiPlatformInterface.hpp"
 #include "RmlUiRenderInterface.hpp"
 
 #include "entt/signal/dispatcher.hpp"
 #include "sol/forward.hpp"
+
+namespace os {
+class InputSystem;
+}
 
 class SceneEditor final : public WidgetWindow,
                           public Inspector<SceneEditor>,
@@ -68,9 +69,9 @@ public:
   void show(const char *name, bool *open) override;
 
   void onInput(const os::InputEvent &) override;
-  void onUpdate(float dt) override;
-  void onPhysicsUpdate(float dt) override;
-  void onRender(rhi::CommandBuffer &, float dt) override;
+  void onUpdate(const float dt) override;
+  void onPhysicsUpdate(const float dt) override;
+  void onRender(rhi::CommandBuffer &, const float dt) override;
 
 private:
   void _expose(sol::state &);
@@ -100,16 +101,16 @@ private:
   void _showConfigWidget(Entry &);
 
   void _showEntitiesWidget(Entry &);
-  void _viewEntity(entt::handle inspected, entt::handle &selected,
-                   int32_t level);
+  void _viewEntity(const entt::handle inspected, entt::handle &selected,
+                   const int32_t level);
   void _inspectorWidget(entt::handle &);
 
   // ---
 
-  void _drawWorld(rhi::CommandBuffer &, rhi::Texture &, float dt);
-  void _drawWorld(Entry &, rhi::CommandBuffer &, rhi::Texture &, float dt,
+  void _drawWorld(rhi::CommandBuffer &, rhi::Texture &, const float dt);
+  void _drawWorld(Entry &, rhi::CommandBuffer &, rhi::Texture &, const float dt,
                   gfx::DebugOutput *);
-  void _drawWorld(Scene &, rhi::CommandBuffer &, rhi::Texture &, float dt,
+  void _drawWorld(Scene &, rhi::CommandBuffer &, rhi::Texture &, const float dt,
                   gfx::DebugOutput *);
 
   // -- Component inspectors:

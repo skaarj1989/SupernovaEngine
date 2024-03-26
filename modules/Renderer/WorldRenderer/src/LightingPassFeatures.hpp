@@ -1,7 +1,7 @@
 #pragma once
 
-#include <optional>
 #include <cstdint>
+#include <optional>
 
 class ShaderCodeBuilder;
 
@@ -24,7 +24,7 @@ void addLighting(ShaderCodeBuilder &, const LightingPassFeatures &);
 namespace std {
 
 template <> struct hash<gfx::LightingPassFeatures> {
-  std::size_t operator()(const gfx::LightingPassFeatures &) const noexcept;
+  size_t operator()(const gfx::LightingPassFeatures &) const noexcept;
 };
 
 } // namespace std

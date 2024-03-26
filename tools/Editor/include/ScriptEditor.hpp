@@ -52,7 +52,7 @@ private:
 
   Entry *_getActiveEntry();
   void _runScript(const Entry &);
-  void _removeScriptAt(std::size_t index);
+  void _removeScriptAt(const std::size_t index);
 
 private:
   std::vector<Entry> m_scripts;

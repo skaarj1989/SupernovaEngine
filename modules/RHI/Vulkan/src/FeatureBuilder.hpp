@@ -15,13 +15,13 @@ concept VkFeatureInfo = requires {
 
 class FeatureBuilder final {
 public:
-  explicit FeatureBuilder(VkPhysicalDevice physicalDevice)
+  explicit FeatureBuilder(const VkPhysicalDevice physicalDevice)
       : m_physicalDevice{physicalDevice} {
     assert(m_physicalDevice != VK_NULL_HANDLE);
   }
 
   template <VkFeatureInfo T>
-  [[nodiscard]] T &requestExtensionFeatures(VkStructureType sType) {
+  [[nodiscard]] T &requestExtensionFeatures(const VkStructureType sType) {
     if (auto it = m_extensionFeatures.find(sType);
         it != m_extensionFeatures.end()) {
       return *static_cast<T *>(it->second.get());

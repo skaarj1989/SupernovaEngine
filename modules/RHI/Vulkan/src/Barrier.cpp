@@ -86,7 +86,6 @@ Builder &Builder::imageBarrier(ImageInfo info, const BarrierScope &dst) {
 
   if (layout != info.newLayout || lastScope != dst) {
     fixAspectMask(info.subresourceRange.aspectMask, info.image);
-
     _imageBarrier(info.image.getImageHandle(), lastScope, dst, layout,
                   info.newLayout, info.subresourceRange);
     layout = info.newLayout;
@@ -102,12 +101,11 @@ Barrier Builder::build() { return Barrier{std::move(m_dependencies)}; }
 //
 
 Builder &
-Builder::_imageBarrier(VkImage image, const BarrierScope &src,
-                       const BarrierScope &dst, ImageLayout oldLayout,
-                       ImageLayout newLayout,
+Builder::_imageBarrier(const VkImage image, const BarrierScope &src,
+                       const BarrierScope &dst, const ImageLayout oldLayout,
+                       const ImageLayout newLayout,
                        const VkImageSubresourceRange &subresourceRange) {
   assert(newLayout != ImageLayout::Undefined);
-
   m_dependencies.image.emplace_back(VkImageMemoryBarrier2{
     .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
     .srcStageMask = uint64_t(src.stageMask),

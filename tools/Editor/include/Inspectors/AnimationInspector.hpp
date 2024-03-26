@@ -1,5 +1,7 @@
 #pragma once
 
-#include "ozz/animation/runtime/animation.h"
+namespace ozz::animation {
+class Animation;
+}
 
 void print(const ozz::animation::Animation &);

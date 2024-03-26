@@ -1,4 +1,5 @@
 #include "rhi/Swapchain.hpp"
+#include "os/Window.hpp"
 #include "VkCheck.hpp"
 #include "tracy/Tracy.hpp"
 
@@ -13,8 +14,8 @@ struct SurfaceInfo {
   std::vector<VkSurfaceFormatKHR> formats;
   std::vector<VkPresentModeKHR> presentModes;
 };
-[[nodiscard]] auto getSurfaceInfo(VkPhysicalDevice physicalDevice,
-                                  VkSurfaceKHR surface) {
+[[nodiscard]] auto getSurfaceInfo(const VkPhysicalDevice physicalDevice,
+                                  const VkSurfaceKHR surface) {
   assert(physicalDevice != VK_NULL_HANDLE && surface != VK_NULL_HANDLE);
 
   SurfaceInfo surfaceInfo;
@@ -39,11 +40,11 @@ struct SurfaceInfo {
   return surfaceInfo;
 }
 
-[[nodiscard]] Extent2D fromVk(VkExtent2D extent) {
+[[nodiscard]] Extent2D fromVk(const VkExtent2D extent) {
   return {extent.width, extent.height};
 }
 
-[[nodiscard]] auto getPresentMode(VerticalSync vsync) {
+[[nodiscard]] auto getPresentMode(const VerticalSync vsync) {
   switch (vsync) {
     using enum VerticalSync;
 
@@ -114,7 +115,9 @@ Extent2D Swapchain::getExtent() const {
 std::size_t Swapchain::getNumBuffers() const { return m_buffers.size(); }
 
 const std::vector<Texture> &Swapchain::getBuffers() const { return m_buffers; }
-const Texture &Swapchain::getBuffer(uint32_t i) const { return m_buffers[i]; }
+const Texture &Swapchain::getBuffer(const uint32_t i) const {
+  return m_buffers[i];
+}
 
 uint32_t Swapchain::getCurrentBufferIndex() const {
   return m_currentImageIndex;
@@ -123,12 +126,12 @@ Texture &Swapchain::getCurrentBuffer() {
   return m_buffers[m_currentImageIndex];
 }
 
-void Swapchain::recreate(std::optional<VerticalSync> vsync) {
+void Swapchain::recreate(const std::optional<VerticalSync> vsync) {
   m_buffers.clear();
   _create(m_format, vsync.value_or(m_verticalSync));
 }
 
-bool Swapchain::acquireNextImage(VkSemaphore imageAcquired) {
+bool Swapchain::acquireNextImage(const VkSemaphore imageAcquired) {
   assert(m_handle != VK_NULL_HANDLE);
   ZoneScopedN("RHI::AcquireNextImage");
 
@@ -152,15 +155,16 @@ bool Swapchain::acquireNextImage(VkSemaphore imageAcquired) {
 // (private):
 //
 
-Swapchain::Swapchain(VkInstance instance, VkPhysicalDevice physicalDevice,
-                     VkDevice device, const os::Window &window, Format format,
-                     VerticalSync vsync)
+Swapchain::Swapchain(const VkInstance instance,
+                     const VkPhysicalDevice physicalDevice,
+                     const VkDevice device, const os::Window &window,
+                     const Format format, const VerticalSync vsync)
     : m_instance{instance}, m_physicalDevice{physicalDevice}, m_device{device} {
   _createSurface(window);
   _create(format, vsync);
 }
 
-void Swapchain::_create(Format format, VerticalSync vsync) {
+void Swapchain::_create(const Format format, const VerticalSync vsync) {
   const auto oldSwapchain = std::exchange(m_handle, VK_NULL_HANDLE);
 
   const auto surfaceInfo = getSurfaceInfo(m_physicalDevice, m_surface);
@@ -201,7 +205,8 @@ void Swapchain::_create(Format format, VerticalSync vsync) {
     vkDestroySwapchainKHR(m_device, oldSwapchain, nullptr);
   }
 }
-void Swapchain::_buildBuffers(Extent2D extent, PixelFormat pixelFormat) {
+void Swapchain::_buildBuffers(const Extent2D extent,
+                              const PixelFormat pixelFormat) {
   assert(m_buffers.empty());
 
   uint32_t imageCount{0};

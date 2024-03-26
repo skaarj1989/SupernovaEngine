@@ -5,6 +5,7 @@
 
 #include "physics/JoltPhysics.hpp"
 
+#include "ScriptContext.hpp"
 #include "LuaModules.hpp"
 
 #include "ImGuiTitleBarMacro.hpp"

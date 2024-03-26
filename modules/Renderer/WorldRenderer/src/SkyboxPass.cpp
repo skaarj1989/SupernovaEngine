@@ -1,15 +1,16 @@
 #include "renderer/SkyboxPass.hpp"
+#include "rhi/CommandBuffer.hpp"
 
+#include "FrameGraphResourceAccess.hpp"
 #include "FrameGraphCommon.hpp"
 #include "renderer/FrameGraphTexture.hpp"
-#include "FrameGraphResourceAccess.hpp"
 
 #include "FrameGraphData/SkyLight.hpp"
 #include "FrameGraphData/Camera.hpp"
 #include "FrameGraphData/GBuffer.hpp"
 
-#include "ShaderCodeBuilder.hpp"
 #include "RenderContext.hpp"
+#include "ShaderCodeBuilder.hpp"
 
 namespace std {
 
@@ -29,10 +30,10 @@ namespace gfx {
 SkyboxPass::SkyboxPass(rhi::RenderDevice &rd)
     : rhi::RenderPass<SkyboxPass>{rd} {}
 
-uint32_t SkyboxPass::count(PipelineGroups flags) const {
+uint32_t SkyboxPass::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::BuiltIn) ? BasePass::count() : 0;
 }
-void SkyboxPass::clear(PipelineGroups flags) {
+void SkyboxPass::clear(const PipelineGroups flags) {
   if (bool(flags & PipelineGroups::BuiltIn)) BasePass::clear();
 }
 

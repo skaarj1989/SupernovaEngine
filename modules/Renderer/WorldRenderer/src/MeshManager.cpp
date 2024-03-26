@@ -144,15 +144,15 @@ MeshManager::MeshManager(rhi::RenderDevice &rd,
 bool MeshManager::isBuiltIn(const std::filesystem::path &p) const {
   return isBuiltIn(entt::hashed_string{p.string().c_str()});
 }
-bool MeshManager::isBuiltIn(uint32_t id) const {
+bool MeshManager::isBuiltIn(const uint32_t id) const {
   static const auto kBuiltInMeshIds = std::array{
     BasicShapes::Plane,
     BasicShapes::SubdividedPlane,
     BasicShapes::Cube,
     BasicShapes::Sphere,
   };
-  return std::ranges::any_of(kBuiltInMeshIds,
-                             [id](auto _id) { return id == _id; });
+  return std::ranges::any_of(
+    kBuiltInMeshIds, [id](const auto builtInId) { return id == builtInId; });
 }
 
 MeshResourceHandle MeshManager::load(const std::filesystem::path &p) {

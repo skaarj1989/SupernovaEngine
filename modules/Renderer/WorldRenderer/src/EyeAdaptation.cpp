@@ -1,17 +1,20 @@
 #include "renderer/EyeAdaptation.hpp"
+#include "rhi/RenderDevice.hpp"
+
+#include "renderer/AdaptiveExposure.hpp"
 
 #include "fg/FrameGraph.hpp"
+#include "fg/Blackboard.hpp"
+#include "FrameGraphResourceAccess.hpp"
 #include "renderer/FrameGraphBuffer.hpp"
 #include "renderer/FrameGraphTexture.hpp"
 #include "FrameGraphImport.hpp"
-#include "FrameGraphResourceAccess.hpp"
-#include "fg/Blackboard.hpp"
 
 #include "FrameGraphData/SceneColor.hpp"
 #include "FrameGraphData/AverageLuminance.hpp"
 
-#include "ShaderCodeBuilder.hpp"
 #include "RenderContext.hpp"
+#include "ShaderCodeBuilder.hpp"
 
 #include "glm/common.hpp"      // clamp
 #include "glm/exponential.hpp" // exp
@@ -90,16 +93,16 @@ constexpr auto kNumHistogramBins = 256u;
 EyeAdaptation::EyeAdaptation(rhi::RenderDevice &rd)
     : m_histogramBuilder{rd}, m_averageLuminance{rd} {}
 
-uint32_t EyeAdaptation::count(PipelineGroups flags) const {
+uint32_t EyeAdaptation::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::BuiltIn) ? 2 : 0;
 }
-void EyeAdaptation::clear(PipelineGroups) {
+void EyeAdaptation::clear(const PipelineGroups) {
   /* Pipeline rebuilding unsupported. */
 }
 
 void EyeAdaptation::compute(FrameGraph &fg, FrameGraphBlackboard &blackboard,
                             const AdaptiveExposure &adaptiveExposure,
-                            uint64_t uid, float deltaTime) {
+                            const ID uid, const float deltaTime) {
   ZoneScopedN("EyeAdaptation");
 
   const auto sceneColor = blackboard.get<SceneColorData>().HDR;
@@ -130,8 +133,8 @@ EyeAdaptation::HistogramBuilder::HistogramBuilder(rhi::RenderDevice &rd) {
 }
 
 FrameGraphResource EyeAdaptation::HistogramBuilder::buildHistogram(
-  FrameGraph &fg, FrameGraphResource sceneColor, float minLogLuminance,
-  float logLuminanceRange) {
+  FrameGraph &fg, const FrameGraphResource sceneColor,
+  const float minLogLuminance, const float logLuminanceRange) {
   constexpr auto kPassName = "BuildHistogram";
   ZoneScopedN(kPassName);
 
@@ -202,9 +205,10 @@ EyeAdaptation::AverageLuminance::AverageLuminance(rhi::RenderDevice &rd)
 }
 
 FrameGraphResource EyeAdaptation::AverageLuminance::calculateAverageLuminance(
-  FrameGraph &fg, FrameGraphResource histogram, float minLogLuminance,
-  float logLuminanceRange, rhi::Extent2D dimensions, float tau, uint64_t uid,
-  float deltaTime) {
+  FrameGraph &fg, const FrameGraphResource histogram,
+  const float minLogLuminance, const float logLuminanceRange,
+  const rhi::Extent2D dimensions, const float tau, const ID uid,
+  const float deltaTime) {
   constexpr auto kPassName = "AverageLuminance";
   ZoneScopedN(kPassName);
 
@@ -265,7 +269,7 @@ FrameGraphResource EyeAdaptation::AverageLuminance::calculateAverageLuminance(
 }
 
 rhi::Texture *
-EyeAdaptation::AverageLuminance::_getAverageLuminanceTexture(uint64_t uid) {
+EyeAdaptation::AverageLuminance::_getAverageLuminanceTexture(const ID uid) {
   if (const auto it = m_textureCache.find(uid); it != m_textureCache.cend())
     return it->second.get();
 

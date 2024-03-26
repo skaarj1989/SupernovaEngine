@@ -34,7 +34,7 @@ const std::vector<EditorActionInfo> kBasicActions{
 } // namespace
 
 void basicTextEditorWidget(TextEditor &textEditor, const char *name,
-                           bool border) {
+                           const bool border) {
   constexpr auto kShowKeyboardShortcuts_ActionId =
     MAKE_TITLE_BAR(ICON_FA_CIRCLE_QUESTION, "Help");
 

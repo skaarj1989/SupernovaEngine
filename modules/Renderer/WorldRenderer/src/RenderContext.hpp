@@ -1,13 +1,22 @@
 #pragma once
 
-#include "rhi/RenderDevice.hpp"
-#include "renderer/ForwardPassInfo.hpp"
+#include "rhi/DescriptorSetBuilder.hpp"
+#include "rhi/FramebufferInfo.hpp"
+#include "renderer/Material.hpp"
+#include "BaseGeometryPassInfo.hpp"
+
+namespace rhi {
+class BasePipeline;
+class GraphicsPipeline;
+class CommandBuffer;
+} // namespace rhi
 
 namespace gfx {
 
 using ResourceBindings =
-  robin_hood::unordered_map<uint32_t, rhi::ResourceBinding>;
-using ResourceSet = robin_hood::unordered_map<uint32_t, ResourceBindings>;
+  robin_hood::unordered_map<rhi::BindingIndex, rhi::ResourceBinding>;
+using ResourceSet =
+  robin_hood::unordered_map<rhi::DescriptorSetIndex, ResourceBindings>;
 
 [[nodiscard]] std::string toString(const ResourceSet &);
 
@@ -19,7 +28,7 @@ struct RenderContext {
   ResourceSet resourceSet;
 };
 
-void overrideSampler(rhi::ResourceBinding &, VkSampler);
+void overrideSampler(rhi::ResourceBinding &, const VkSampler);
 
 struct Batch;
 

@@ -1,6 +1,7 @@
 #include "LuaDebugDraw.hpp"
 #include "sol/state.hpp"
 
+#include "math/AABB.hpp"
 #include "DebugDraw.hpp"
 #include "Sol2HelperMacros.hpp"
 

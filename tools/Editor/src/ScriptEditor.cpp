@@ -6,6 +6,8 @@
 #include "FileDialog.hpp"
 #include "TextEditorCommon.hpp"
 
+#include "tracy/Tracy.hpp"
+
 #include <format>
 #include <ranges>
 

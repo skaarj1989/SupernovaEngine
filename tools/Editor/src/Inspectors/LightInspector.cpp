@@ -1,8 +1,9 @@
 #include "Inspectors/LightInspector.hpp"
+#include "renderer/Light.hpp"
 #include "ImGuiHelper.hpp"
 #include "glm/gtc/type_ptr.hpp" // value_ptr
 
-void inspect(gfx::Light &light, bool inspectTransform) {
+void inspect(gfx::Light &light, const bool inspectTransform) {
   ImGui::PushItemWidth(150);
 
   ImGui::ComboEx("type", light.type,

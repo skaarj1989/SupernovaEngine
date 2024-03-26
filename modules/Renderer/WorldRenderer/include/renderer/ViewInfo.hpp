@@ -1,9 +1,11 @@
 #pragma once
 
-#include "PerspectiveCamera.hpp"
-#include "Renderable.hpp"
+#include <span>
 
 namespace gfx {
+
+class PerspectiveCamera;
+struct Renderable;
 
 struct ViewInfo {
   const PerspectiveCamera &camera;

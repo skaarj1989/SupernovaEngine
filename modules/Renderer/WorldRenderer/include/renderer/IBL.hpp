@@ -1,5 +1,6 @@
 #pragma once
 
+#include "rhi/Texture.hpp"
 #include "rhi/ComputePass.hpp"
 #include "Technique.hpp"
 
@@ -9,8 +10,8 @@ class IBL final : public Technique {
 public:
   explicit IBL(rhi::RenderDevice &);
 
-  uint32_t count(PipelineGroups) const override;
-  void clear(PipelineGroups) override;
+  uint32_t count(const PipelineGroups) const override;
+  void clear(const PipelineGroups) override;
 
   [[nodiscard]] rhi::Texture generateBRDF(rhi::CommandBuffer &);
 
@@ -47,7 +48,7 @@ public:
 
   private:
     [[nodiscard]] rhi::ComputePipeline
-    _createPipeline(uint32_t numMipLevels) const;
+    _createPipeline(const uint32_t numMipLevels) const;
   };
 
 private:

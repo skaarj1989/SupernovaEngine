@@ -15,11 +15,11 @@ public:
   Upsampler(rhi::RenderDevice &, const CommonSamplers &);
 
   [[nodiscard]] FrameGraphResource
-  addPass(FrameGraph &, FrameGraphResource input, float radius);
+  addPass(FrameGraph &, const FrameGraphResource input, const float radius);
 
 private:
   [[nodiscard]] rhi::GraphicsPipeline
-  _createPipeline(rhi::PixelFormat colorFormat) const;
+  _createPipeline(const rhi::PixelFormat colorFormat) const;
 
 private:
   const CommonSamplers &m_samplers;

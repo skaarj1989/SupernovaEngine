@@ -1,4 +1,5 @@
 #include "renderer/TransientResources.hpp"
+#include "rhi/RenderDevice.hpp"
 #include "math/Hash.hpp"
 #include "spdlog/spdlog.h"
 

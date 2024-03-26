@@ -25,26 +25,24 @@ template <typename Func> void eachType(Func f) {
 }
 
 SCENARIO("Has all conversions") {
-  eachType([](DataType from, DataType to) {
+  eachType([](const DataType from, const DataType to) {
     INFO(std::format("{}->{}", toString(from), toString(to)));
     REQUIRE(getConversionFormat(from, to));
   });
 }
 
 SCENARIO("GLSL Compiles") {
-  static const auto constructZero = [](DataType dataType) {
-    return std::format("{}(0)", toString(dataType));
-  };
-  static const auto defineVar = [](DataType dataType, const std::string &rhs) {
+  static const auto defineVar = [](const DataType dataType,
+                                   const std::string &rhs) {
     static auto i = 0;
     return std::format("const {} v{} = {};", toString(dataType), i++, rhs);
   };
 
   std::ostringstream oss;
-  eachType([&oss](DataType from, DataType to) {
+  eachType([&oss](const DataType from, const DataType to) {
     if (const auto fmt = getConversionFormat(from, to); fmt) {
-      const auto rhs =
-        std::vformat(*fmt, std::make_format_args(constructZero(from)));
+      const auto zero = std::format("{}(0)", toString(from));
+      const auto rhs = std::vformat(*fmt, std::make_format_args(zero));
       std::ostream_iterator<std::string>{oss, "\n"} = defineVar(to, rhs);
     }
   });

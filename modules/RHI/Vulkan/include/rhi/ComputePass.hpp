@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BasePass.hpp"
+#include "ComputePipeline.hpp"
 
 namespace rhi {
 

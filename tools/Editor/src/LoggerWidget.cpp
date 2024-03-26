@@ -1,7 +1,8 @@
 #include "LoggerWidget.hpp"
-
 #include "imgui.h"
+#include "spdlog/logger.h"
 #include "spdlog/sinks/base_sink.h"
+#include "tracy/Tracy.hpp"
 
 namespace {
 
@@ -116,7 +117,7 @@ void print(const Entry &entry) {
 
     ImGui::SameLine();
   }
-  ImGui::Text(entry.message.c_str());
+  ImGui::TextUnformatted(entry.message.c_str());
 }
 #endif
 
@@ -133,8 +134,8 @@ LoggerWidget::LoggerWidget(spdlog::logger &logger) : m_logger{&logger} {
 LoggerWidget::~LoggerWidget() { std::erase(m_logger->sinks(), m_sink); }
 
 void LoggerWidget::show(const char *name, bool *open) {
-  ZoneScopedN("LoggerWidget");
   if (ImGui::Begin(name, open, ImGuiWindowFlags_MenuBar)) {
+    ZoneScopedN("LoggerWidget");
     if (ImGui::BeginMenuBar()) {
       if (ImGui::Button("Clear")) {
         m_entries.clear();

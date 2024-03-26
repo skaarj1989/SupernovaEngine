@@ -97,7 +97,7 @@ queryExtension(std::span<const VkExtensionProperties> extensions,
   return std::nullopt;
 }
 
-[[nodiscard]] auto enumeratePhysicalDevices(VkInstance instance) {
+[[nodiscard]] auto enumeratePhysicalDevices(const VkInstance instance) {
   uint32_t count{0};
   VK_CHECK(vkEnumeratePhysicalDevices(instance, &count, nullptr));
   assert(count > 0);
@@ -108,7 +108,7 @@ queryExtension(std::span<const VkExtensionProperties> extensions,
   return physicalDevices;
 }
 
-[[nodiscard]] auto getPhysicalDevices(VkInstance instance) {
+[[nodiscard]] auto getPhysicalDevices(const VkInstance instance) {
   std::vector<PhysicalDevice> physicalDevices;
   std::ranges::transform(
     enumeratePhysicalDevices(instance), std::back_inserter(physicalDevices),
@@ -126,8 +126,8 @@ queryExtension(std::span<const VkExtensionProperties> extensions,
   return physicalDevices;
 }
 
-[[nodiscard]] auto findQueueFamily(VkPhysicalDevice physicalDevice,
-                                   VkQueueFlags requestedTypes) {
+[[nodiscard]] auto findQueueFamily(const VkPhysicalDevice physicalDevice,
+                                   const VkQueueFlags requestedTypes) {
   uint32_t count{0};
   vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &count, nullptr);
   assert(count > 0);
@@ -141,7 +141,8 @@ queryExtension(std::span<const VkExtensionProperties> extensions,
   return VK_QUEUE_FAMILY_IGNORED;
 }
 
-[[nodiscard]] auto enumeratePhysicalDeviceExtensions(VkPhysicalDevice device) {
+[[nodiscard]] auto
+enumeratePhysicalDeviceExtensions(const VkPhysicalDevice device) {
   uint32_t count{0};
   vkEnumerateDeviceExtensionProperties(device, nullptr, &count, nullptr);
   std::vector<VkExtensionProperties> properties(count);
@@ -150,7 +151,7 @@ queryExtension(std::span<const VkExtensionProperties> extensions,
   return properties;
 }
 
-[[nodiscard]] constexpr auto makeAllocationFlags(AllocationHints hints) {
+[[nodiscard]] constexpr auto makeAllocationFlags(const AllocationHints hints) {
   VkFlags flags{0};
   if (bool(hints & AllocationHints::MinMemory))
     flags |= VMA_ALLOCATION_CREATE_STRATEGY_MIN_MEMORY_BIT;
@@ -269,7 +270,7 @@ const VkPhysicalDeviceFeatures &RenderDevice::getDeviceFeatures() const {
 }
 
 VkFormatProperties
-RenderDevice::getFormatProperties(PixelFormat pixelFormat) const {
+RenderDevice::getFormatProperties(const PixelFormat pixelFormat) const {
   assert(m_physicalDevice.handle != VK_NULL_HANDLE);
   VkFormatProperties props;
   vkGetPhysicalDeviceFormatProperties(m_physicalDevice.handle,
@@ -278,17 +279,16 @@ RenderDevice::getFormatProperties(PixelFormat pixelFormat) const {
 }
 
 Swapchain RenderDevice::createSwapchain(const os::Window &window,
-                                        Swapchain::Format format,
-                                        VerticalSync vsync) {
+                                        const Swapchain::Format format,
+                                        const VerticalSync vsync) {
   assert(m_logicalDevice != VK_NULL_HANDLE);
   return Swapchain{
     m_instance, m_physicalDevice.handle, m_logicalDevice, window, format, vsync,
   };
 }
 
-VkFence RenderDevice::createFence(bool signaled) {
+VkFence RenderDevice::createFence(const bool signaled) {
   assert(m_logicalDevice != VK_NULL_HANDLE);
-
   const VkFenceCreateInfo createInfo{
     .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
     .flags = signaled ? VK_FENCE_CREATE_SIGNALED_BIT : 0u,
@@ -299,7 +299,6 @@ VkFence RenderDevice::createFence(bool signaled) {
 }
 VkSemaphore RenderDevice::createSemaphore() {
   assert(m_logicalDevice != VK_NULL_HANDLE);
-
   const VkSemaphoreCreateInfo createInfo{
     .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
     .flags = 0, // Always 0, reserved for future use.
@@ -310,9 +309,9 @@ VkSemaphore RenderDevice::createSemaphore() {
   return semaphore;
 }
 
-Buffer RenderDevice::createStagingBuffer(VkDeviceSize size, const void *data) {
+Buffer RenderDevice::createStagingBuffer(const VkDeviceSize size,
+                                         const void *data) {
   assert(m_memoryAllocator != nullptr);
-
   Buffer stagingBuffer{
     m_memoryAllocator,
     size,
@@ -328,11 +327,11 @@ Buffer RenderDevice::createStagingBuffer(VkDeviceSize size, const void *data) {
   return stagingBuffer;
 }
 
-VertexBuffer RenderDevice::createVertexBuffer(uint32_t stride,
-                                              VkDeviceSize capacity,
-                                              AllocationHints allocationHint) {
+VertexBuffer
+RenderDevice::createVertexBuffer(const Buffer::Stride stride,
+                                 const VkDeviceSize capacity,
+                                 const AllocationHints allocationHint) {
   assert(m_memoryAllocator != nullptr);
-
   return VertexBuffer{
     Buffer{
       m_memoryAllocator,
@@ -344,11 +343,11 @@ VertexBuffer RenderDevice::createVertexBuffer(uint32_t stride,
     stride,
   };
 }
-IndexBuffer RenderDevice::createIndexBuffer(IndexType indexType,
-                                            VkDeviceSize capacity,
-                                            AllocationHints allocationHint) {
+IndexBuffer
+RenderDevice::createIndexBuffer(const IndexType indexType,
+                                const VkDeviceSize capacity,
+                                const AllocationHints allocationHint) {
   assert(m_memoryAllocator != nullptr);
-
   return IndexBuffer{
     Buffer{
       m_memoryAllocator,
@@ -360,10 +359,9 @@ IndexBuffer RenderDevice::createIndexBuffer(IndexType indexType,
     indexType};
 }
 UniformBuffer
-RenderDevice::createUniformBuffer(VkDeviceSize size,
-                                  AllocationHints allocationHint) {
+RenderDevice::createUniformBuffer(const VkDeviceSize size,
+                                  const AllocationHints allocationHint) {
   assert(m_memoryAllocator != nullptr);
-
   return UniformBuffer{
     m_memoryAllocator,
     size,
@@ -373,10 +371,9 @@ RenderDevice::createUniformBuffer(VkDeviceSize size,
   };
 }
 StorageBuffer
-RenderDevice::createStorageBuffer(VkDeviceSize size,
-                                  AllocationHints allocationHint) {
+RenderDevice::createStorageBuffer(const VkDeviceSize size,
+                                  const AllocationHints allocationHint) {
   assert(m_memoryAllocator != nullptr);
-
   return StorageBuffer{
     m_memoryAllocator,
     size,
@@ -388,7 +385,6 @@ RenderDevice::createStorageBuffer(VkDeviceSize size,
 
 std::string RenderDevice::getMemoryStats() const {
   assert(m_memoryAllocator != nullptr);
-
   char *stats{nullptr};
   vmaBuildStatsString(m_memoryAllocator, &stats, VK_TRUE);
   std::string s{stats};
@@ -464,9 +460,11 @@ RenderDevice::createPipelineLayout(const PipelineLayoutInfo &layoutInfo) {
   return PipelineLayout{inserted->second, std::move(descriptorSetLayouts)};
 }
 
-Texture RenderDevice::createTexture2D(Extent2D extent, PixelFormat format,
-                                      uint32_t numMipLevels, uint32_t numLayers,
-                                      ImageUsage usageFlags) {
+Texture RenderDevice::createTexture2D(const Extent2D extent,
+                                      const PixelFormat format,
+                                      const uint32_t numMipLevels,
+                                      const uint32_t numLayers,
+                                      const ImageUsage usageFlags) {
   assert(m_memoryAllocator != nullptr);
   return Texture{
     m_memoryAllocator,
@@ -481,9 +479,11 @@ Texture RenderDevice::createTexture2D(Extent2D extent, PixelFormat format,
     },
   };
 }
-Texture RenderDevice::createTexture3D(Extent2D extent, uint32_t depth,
-                                      PixelFormat format, uint32_t numMipLevels,
-                                      ImageUsage usageFlags) {
+Texture RenderDevice::createTexture3D(const Extent2D extent,
+                                      const uint32_t depth,
+                                      const PixelFormat format,
+                                      const uint32_t numMipLevels,
+                                      const ImageUsage usageFlags) {
   assert(m_memoryAllocator != nullptr);
   return Texture{
     m_memoryAllocator,
@@ -499,9 +499,11 @@ Texture RenderDevice::createTexture3D(Extent2D extent, uint32_t depth,
   };
 }
 
-Texture RenderDevice::createCubemap(uint32_t size, PixelFormat format,
-                                    uint32_t numMipLevels, uint32_t numLayers,
-                                    ImageUsage usageFlags) {
+Texture RenderDevice::createCubemap(const uint32_t size,
+                                    const PixelFormat format,
+                                    const uint32_t numMipLevels,
+                                    const uint32_t numLayers,
+                                    const ImageUsage usageFlags) {
   assert(m_memoryAllocator != nullptr);
   return Texture{
     m_memoryAllocator,
@@ -546,7 +548,7 @@ RenderDevice::compile(ShaderType shaderType,
                       const std::string_view code) const {
   return m_shaderCompiler.compile(shaderType, code);
 }
-ShaderModule RenderDevice::createShaderModule(ShaderType shaderType,
+ShaderModule RenderDevice::createShaderModule(const ShaderType shaderType,
                                               const std::string_view code,
                                               ShaderReflection *reflection) {
   if (auto spv = compile(shaderType, code); spv) {
@@ -602,8 +604,8 @@ ComputePipeline RenderDevice::createComputePipeline(
   };
 }
 
-RenderDevice &RenderDevice::upload(Buffer &buffer, VkDeviceSize offset,
-                                   VkDeviceSize size, const void *data) {
+RenderDevice &RenderDevice::upload(Buffer &buffer, const VkDeviceSize offset,
+                                   const VkDeviceSize size, const void *data) {
   assert(buffer && data);
   assert(m_logicalDevice != VK_NULL_HANDLE);
 
@@ -682,7 +684,8 @@ RenderDevice &RenderDevice::execute(CommandBuffer &cb, const JobInfo &jobInfo) {
   return *this;
 }
 
-RenderDevice &RenderDevice::present(Swapchain &swapchain, VkSemaphore wait) {
+RenderDevice &RenderDevice::present(Swapchain &swapchain,
+                                    const VkSemaphore wait) {
   ZoneScopedN("RHI::Present");
 
   assert(swapchain);
@@ -725,13 +728,13 @@ RenderDevice &RenderDevice::stepGarbage(const FrameIndex::ValueType threshold) {
   return *this;
 }
 
-RenderDevice &RenderDevice::wait(VkFence fence) {
+RenderDevice &RenderDevice::wait(const VkFence fence) {
   assert(fence != VK_NULL_HANDLE);
   assert(m_logicalDevice != VK_NULL_HANDLE);
   VK_CHECK(vkWaitForFences(m_logicalDevice, 1, &fence, VK_TRUE, UINT64_MAX));
   return reset(fence);
 }
-RenderDevice &RenderDevice::reset(VkFence fence) {
+RenderDevice &RenderDevice::reset(const VkFence fence) {
   assert(fence != VK_NULL_HANDLE);
   assert(m_logicalDevice != VK_NULL_HANDLE);
   VK_CHECK(vkResetFences(m_logicalDevice, 1, &fence));
@@ -1025,7 +1028,7 @@ defaultDeviceSelector(std::span<const PhysicalDevice> physicalDevices) {
   return it != physicalDevices.cend() ? *it : physicalDevices.front();
 }
 
-PhysicalDeviceSelector selectVendor(Vendor vendor) {
+PhysicalDeviceSelector selectVendor(const Vendor vendor) {
   return [vendor](std::span<const PhysicalDevice> physicalDevices) {
     const auto isMadeBy = [vendor](const PhysicalDevice &device) {
       return device.properties.vendorID == std::to_underlying(vendor);

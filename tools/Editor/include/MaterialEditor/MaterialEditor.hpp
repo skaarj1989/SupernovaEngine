@@ -17,7 +17,7 @@ public:
   void clear();
 
   void show(const char *name, bool *open) override;
-  void onRender(rhi::CommandBuffer &, float dt) override;
+  void onRender(rhi::CommandBuffer &, const float dt) override;
 
 private:
   void _loadFunctions();

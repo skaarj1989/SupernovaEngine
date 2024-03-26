@@ -1,9 +1,10 @@
 #include "AudioSystem.hpp"
+#include "Transform.hpp"
 #include "tracy/Tracy.hpp"
 
 namespace {
 
-template <class T> void initComponent(entt::registry &r, entt::entity e) {
+template <class T> void initComponent(entt::registry &r, const entt::entity e) {
   const auto &world = r.ctx().get<AudioWorld>();
   world.init(r.try_get<Transform>(e), r.get<T>(e));
 }
@@ -24,7 +25,7 @@ void AudioSystem::setup(entt::registry &r, audio::Device &device) {
   connectComponent<SoundSourceComponent>(r);
   connectComponent<AudioPlayerComponent>(r);
 }
-void AudioSystem::update(entt::registry &r, [[maybe_unused]] float dt) {
+void AudioSystem::update(entt::registry &r, [[maybe_unused]] const float) {
   ZoneScopedN("AudioSystem::Update");
   auto &world = r.ctx().get<AudioWorld>();
 
@@ -36,10 +37,10 @@ void AudioSystem::update(entt::registry &r, [[maybe_unused]] float dt) {
     }
   }
 
-  for (auto [e, c] : r.view<SoundSourceComponent>().each()) {
+  for (const auto [e, c] : r.view<SoundSourceComponent>().each()) {
     if (auto *xf = r.try_get<const Transform>(e)) world.update(*xf, c);
   }
-  for (auto [e, c] : r.view<AudioPlayerComponent>().each()) {
+  for (const auto [e, c] : r.view<AudioPlayerComponent>().each()) {
     world.update(r.try_get<const Transform>(e), c);
   }
 }

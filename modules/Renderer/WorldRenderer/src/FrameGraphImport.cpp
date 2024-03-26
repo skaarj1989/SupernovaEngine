@@ -1,5 +1,6 @@
 #include "FrameGraphImport.hpp"
 #include "fg/FrameGraph.hpp"
+#include "rhi/Texture.hpp"
 #include "renderer/FrameGraphTexture.hpp"
 
 namespace gfx {

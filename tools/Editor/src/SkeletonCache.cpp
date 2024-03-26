@@ -8,7 +8,7 @@ void show(const char *name, bool *open, SkeletonCache &cache) {
     defaultMenuBar(cache);
     view(
       cache,
-      [](auto id) {
+      [](const auto id) {
         onDragSource(kImGuiPayloadTypeSkeleton, id,
                      [] { ImGui::TextUnformatted("Skeleton inside ..."); });
       },

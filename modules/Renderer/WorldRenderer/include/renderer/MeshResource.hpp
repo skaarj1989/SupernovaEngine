@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Resource.hpp"
 #include "Mesh.hpp"
 
 namespace gfx {

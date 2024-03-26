@@ -1,7 +1,9 @@
 #pragma once
 
-#include "AABB.hpp"
-#include "Sphere.hpp"
+#include "glm/fwd.hpp"
+
+struct AABB;
+struct Sphere;
 
 [[nodiscard]] bool isPointInside(const glm::vec3 &, const AABB &);
 [[nodiscard]] bool isPointInside(const glm::vec3 &, const Sphere &);

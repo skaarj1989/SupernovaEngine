@@ -1,13 +1,19 @@
 #pragma once
 
-#include "renderer/WorldRenderer.hpp"
+#include "PerspectiveCamera.hpp"
+#include "renderer/RenderSettings.hpp"
+#include "renderer/SkyLight.hpp"
+#include "renderer/MaterialInstance.hpp"
+#include "DebugDraw.hpp"
+
+#include "entt/core/type_info.hpp"
 
 class CameraComponent {
   static constexpr auto in_place_delete = true;
 
 public:
   CameraComponent() = default;
-  explicit CameraComponent(rhi::Extent2D _extent) : extent{_extent} {
+  explicit CameraComponent(const rhi::Extent2D extent_) : extent{extent_} {
     camera.setAspectRatio(extent.getAspectRatio());
   }
   CameraComponent(const CameraComponent &other)

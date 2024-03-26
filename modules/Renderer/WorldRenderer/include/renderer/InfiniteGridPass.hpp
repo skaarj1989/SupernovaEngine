@@ -13,8 +13,8 @@ class InfiniteGridPass final : public rhi::RenderPass<InfiniteGridPass>,
 public:
   explicit InfiniteGridPass(rhi::RenderDevice &);
 
-  uint32_t count(PipelineGroups) const override;
-  void clear(PipelineGroups) override;
+  uint32_t count(const PipelineGroups) const override;
+  void clear(const PipelineGroups) override;
 
   [[nodiscard]] FrameGraphResource addPass(FrameGraph &,
                                            const FrameGraphBlackboard &,

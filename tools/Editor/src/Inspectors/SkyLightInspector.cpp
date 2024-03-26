@@ -1,6 +1,8 @@
 #include "Inspectors/SkyLightInspector.hpp"
 #include "Inspectors/ResourceInspector.hpp"
 
+#include "renderer/WorldRenderer.hpp"
+
 #include "Services.hpp"
 
 #include "ImGuiDragAndDrop.hpp"

@@ -1,5 +1,8 @@
 #include "RenderContext.hpp"
+#include "rhi/CommandBuffer.hpp"
+#include "rhi/GraphicsPipeline.hpp"
 #include "Batch.hpp"
+#include "renderer/MeshInstance.hpp"
 
 #include <ranges>
 #include <format>
@@ -8,7 +11,7 @@ namespace gfx {
 
 namespace {
 
-void bindTextures(ResourceBindings &bindings, uint32_t firstBinding,
+void bindTextures(ResourceBindings &bindings, const uint32_t firstBinding,
                   const TextureResources &textures) {
   bindings.clear();
 
@@ -19,7 +22,7 @@ void bindTextures(ResourceBindings &bindings, uint32_t firstBinding,
     };
   }
 }
-void changeOffset(rhi::ResourceBinding &v, uint32_t offset) {
+void changeOffset(rhi::ResourceBinding &v, const uint32_t offset) {
   std::get<rhi::bindings::StorageBuffer>(v).offset = offset;
 }
 

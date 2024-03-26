@@ -14,21 +14,21 @@ public:
 
   // -- Mouse:
 
-  void setMousePosition(glm::ivec2);
+  void setMousePosition(const glm::ivec2);
 
   [[nodiscard]] glm::ivec2 getMousePosition() const;
   [[nodiscard]] glm::ivec2 getMouseDelta() const;
 
-  void showCursor(bool);
+  void showCursor(const bool);
   bool isCursorVisible() const;
 
-  bool isMouseDown(MouseButton) const;
-  bool isMouseUp(MouseButton) const;
+  bool isMouseDown(const MouseButton) const;
+  bool isMouseUp(const MouseButton) const;
 
   // -- Keyboard:
 
-  bool isKeyDown(KeyCode) const;
-  bool isKeyUp(KeyCode) const;
+  bool isKeyDown(const KeyCode) const;
+  bool isKeyUp(const KeyCode) const;
 
   void notify(const MouseButtonEvent &);
   void notify(const KeyboardEvent &);

@@ -1,4 +1,5 @@
 #include "math/AABB.hpp"
+#include "glm/ext/matrix_float4x4.hpp"
 
 AABB AABB::create(const glm::vec3 &center, const glm::vec3 &halfExtents) {
   return {.min = center - halfExtents, .max = center + halfExtents};

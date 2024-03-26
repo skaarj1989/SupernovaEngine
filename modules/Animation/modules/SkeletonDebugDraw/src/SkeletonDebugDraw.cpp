@@ -7,14 +7,14 @@ void drawSkeleton(DebugDraw &debugDraw,
                   const ozz::animation::Skeleton &skeleton,
                   ozz::span<const ozz::math::Float4x4> models,
                   const glm::mat4 &xf) {
-  drawSkeleton(debugDraw, skeleton, [models, &xf](uint32_t idx) {
+  drawSkeleton(debugDraw, skeleton, [models, &xf](const uint32_t idx) {
     return xf * to_mat4(models[idx]);
   });
 }
 
 void drawSkeleton(DebugDraw &debugDraw,
                   const ozz::animation::Skeleton &skeleton,
-                  const std::function<glm::mat4(uint32_t)> &jointGetter) {
+                  const std::function<glm::mat4(const uint32_t)> &jointGetter) {
   constexpr glm::vec3 kBoneColor{0.596f};
   constexpr glm::vec3 kJointColor{0.396f};
 

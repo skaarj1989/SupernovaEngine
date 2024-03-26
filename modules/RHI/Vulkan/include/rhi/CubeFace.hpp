@@ -11,6 +11,6 @@ enum class CubeFace {
   NegativeZ,
 };
 
-[[nodiscard]] const char *toString(CubeFace);
+[[nodiscard]] const char *toString(const CubeFace);
 
 } // namespace rhi

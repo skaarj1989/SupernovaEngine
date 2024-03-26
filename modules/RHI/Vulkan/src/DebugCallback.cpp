@@ -23,7 +23,9 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
     1835555994,  // Pipeline-SortAndBind
     411464045,   // BindPipeline-SwitchTessGeometryMesh
   };
-  constexpr auto equals = [](auto v) { return [v](auto e) { return e == v; }; };
+  constexpr auto equals = [](const auto v) {
+    return [v](const auto e) { return e == v; };
+  };
   if (std::ranges::any_of(kIgnoredIds,
                           equals(pCallbackData->messageIdNumber))) {
     return VK_FALSE;
@@ -45,7 +47,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 
 } // namespace
 
-VkDebugUtilsMessengerEXT createDebugMessenger(VkInstance instance) {
+VkDebugUtilsMessengerEXT createDebugMessenger(const VkInstance instance) {
   assert(instance != VK_NULL_HANDLE);
 
   const VkDebugUtilsMessengerCreateInfoEXT createInfo{

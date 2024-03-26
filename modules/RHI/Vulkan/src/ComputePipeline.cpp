@@ -4,9 +4,10 @@
 
 namespace rhi {
 
-ComputePipeline::ComputePipeline(VkDevice device,
+ComputePipeline::ComputePipeline(const VkDevice device,
                                  PipelineLayout &&pipelineLayout,
-                                 glm::uvec3 localSize, VkPipeline pipeline)
+                                 const glm::uvec3 localSize,
+                                 const VkPipeline pipeline)
     : BasePipeline{device, std::move(pipelineLayout), pipeline},
       m_localSize{localSize} {}
 
@@ -16,7 +17,8 @@ glm::uvec3 ComputePipeline::getWorkGroupSize() const { return m_localSize; }
 // Helper:
 //
 
-glm::uvec2 calcNumWorkGroups(glm::uvec2 extent, glm::uvec2 localSize) {
+glm::uvec2 calcNumWorkGroups(const glm::uvec2 extent,
+                             const glm::uvec2 localSize) {
   return glm::ceil(glm::vec2{extent} / glm::vec2{localSize});
 }
 

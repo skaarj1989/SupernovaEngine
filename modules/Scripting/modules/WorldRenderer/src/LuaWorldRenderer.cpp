@@ -4,7 +4,6 @@
 
 #include "renderer/Light.hpp"
 #include "renderer/SkyLight.hpp"
-#include "renderer/MeshInstance.hpp"
 #include "renderer/DecalInstance.hpp"
 #include "renderer/RenderSettings.hpp"
 

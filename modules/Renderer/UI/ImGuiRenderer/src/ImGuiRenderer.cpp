@@ -1,4 +1,5 @@
 #include "ImGuiRenderer.hpp"
+#include "rhi/RenderDevice.hpp"
 #include "ShaderCodeBuilder.hpp"
 #include "imgui.h"
 #include "glm/common.hpp" // min, max
@@ -128,7 +129,8 @@ ImGuiRenderer::FrameResources ImGuiRenderer::createFrameResources() const {
   };
 }
 
-void ImGuiRenderer::draw(rhi::CommandBuffer &cb, rhi::PixelFormat colorFormat,
+void ImGuiRenderer::draw(rhi::CommandBuffer &cb,
+                         const rhi::PixelFormat colorFormat,
                          FrameResources &resources,
                          const ImDrawData *drawData) {
   assert(drawData != nullptr);
@@ -253,8 +255,8 @@ void ImGuiRenderer::draw(rhi::CommandBuffer &cb, rhi::PixelFormat colorFormat,
 //
 
 rhi::GraphicsPipeline
-ImGuiRenderer::_createPipeline(rhi::PixelFormat colorFormat,
-                               bool cubemap) const {
+ImGuiRenderer::_createPipeline(const rhi::PixelFormat colorFormat,
+                               const bool cubemap) const {
   ShaderCodeBuilder shaderCodeBuilder{};
   const auto vertCode =
     shaderCodeBuilder.addDefine("USE_PROJECTION_MATRIX", USE_PROJECTION_MATRIX)

@@ -1,9 +1,10 @@
 #include "rhi/DescriptorSetBuilder.hpp"
+#include "VisitorHelper.hpp"
+#include "math/Hash.hpp"
 #include "rhi/DescriptorSetAllocator.hpp"
 #include "rhi/Buffer.hpp"
 #include "rhi/Texture.hpp"
-#include "math/Hash.hpp"
-#include "VisitorHelper.hpp"
+
 #include "tracy/Tracy.hpp"
 #include <bit>
 
@@ -11,8 +12,8 @@ namespace rhi {
 
 namespace {
 
-[[nodiscard]] auto validRange(const Buffer &buffer, VkDeviceSize offset,
-                              std::optional<VkDeviceSize> range) {
+[[nodiscard]] auto validRange(const Buffer &buffer, const VkDeviceSize offset,
+                              const std::optional<VkDeviceSize> range) {
   const auto size = buffer.getSize();
   if (offset > size) return false;
 
@@ -26,7 +27,7 @@ namespace {
 //
 
 DescriptorSetBuilder::DescriptorSetBuilder(
-  VkDevice device, DescriptorSetAllocator &descriptorSetAllocator,
+  const VkDevice device, DescriptorSetAllocator &descriptorSetAllocator,
   DescriptorSetCache &cache)
     : m_device{device}, m_descriptorSetAllocator{descriptorSetAllocator},
       m_descriptorSetCache{cache} {
@@ -34,7 +35,7 @@ DescriptorSetBuilder::DescriptorSetBuilder(
   m_descriptors.reserve(10);
 }
 
-DescriptorSetBuilder &DescriptorSetBuilder::bind(uint32_t index,
+DescriptorSetBuilder &DescriptorSetBuilder::bind(const BindingIndex index,
                                                  const ResourceBinding &r) {
   return std::visit(
     [this, index](auto &info) -> decltype(auto) { return bind(index, info); },
@@ -42,7 +43,7 @@ DescriptorSetBuilder &DescriptorSetBuilder::bind(uint32_t index,
 }
 
 DescriptorSetBuilder &
-DescriptorSetBuilder::bind(uint32_t index,
+DescriptorSetBuilder::bind(const BindingIndex index,
                            const bindings::SeparateSampler &info) {
   assert(info.handle != VK_NULL_HANDLE);
 
@@ -55,7 +56,7 @@ DescriptorSetBuilder::bind(uint32_t index,
   return *this;
 }
 DescriptorSetBuilder &
-DescriptorSetBuilder::bind(uint32_t index,
+DescriptorSetBuilder::bind(const BindingIndex index,
                            const bindings::CombinedImageSampler &info) {
   assert(info.texture && *info.texture);
 
@@ -81,7 +82,8 @@ DescriptorSetBuilder::bind(uint32_t index,
   return *this;
 }
 DescriptorSetBuilder &
-DescriptorSetBuilder::bind(uint32_t index, const bindings::SampledImage &info) {
+DescriptorSetBuilder::bind(const BindingIndex index,
+                           const bindings::SampledImage &info) {
   assert(info.texture && *info.texture);
 
   m_bindings[index] = BindingInfo{
@@ -94,7 +96,8 @@ DescriptorSetBuilder::bind(uint32_t index, const bindings::SampledImage &info) {
   return *this;
 }
 DescriptorSetBuilder &
-DescriptorSetBuilder::bind(uint32_t index, const bindings::StorageImage &info) {
+DescriptorSetBuilder::bind(const BindingIndex index,
+                           const bindings::StorageImage &info) {
   assert(info.texture && *info.texture);
   const auto imageLayout = info.texture->getImageLayout();
   assert(imageLayout == ImageLayout::General);
@@ -113,7 +116,7 @@ DescriptorSetBuilder::bind(uint32_t index, const bindings::StorageImage &info) {
   return *this;
 }
 DescriptorSetBuilder &
-DescriptorSetBuilder::bind(uint32_t index,
+DescriptorSetBuilder::bind(const BindingIndex index,
                            const bindings::UniformBuffer &info) {
   assert(info.buffer && validRange(*info.buffer, info.offset, info.range));
   return _bindBuffer(index, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
@@ -125,7 +128,7 @@ DescriptorSetBuilder::bind(uint32_t index,
   return *this;
 }
 DescriptorSetBuilder &
-DescriptorSetBuilder::bind(uint32_t index,
+DescriptorSetBuilder::bind(const BindingIndex index,
                            const bindings::StorageBuffer &info) {
   assert(info.buffer && validRange(*info.buffer, info.offset, info.range));
   return _bindBuffer(index, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
@@ -137,7 +140,8 @@ DescriptorSetBuilder::bind(uint32_t index,
   return *this;
 }
 
-VkDescriptorSet DescriptorSetBuilder::build(VkDescriptorSetLayout layout) {
+VkDescriptorSet
+DescriptorSetBuilder::build(const VkDescriptorSetLayout layout) {
   assert(layout != VK_NULL_HANDLE);
 
   ZoneScopedN("BuildDescriptorSet");
@@ -201,8 +205,8 @@ void DescriptorSetBuilder::_clear() {
   m_descriptors.clear();
 }
 
-void DescriptorSetBuilder::_addImage(VkImageView imageView,
-                                     VkImageLayout imageLayout) {
+void DescriptorSetBuilder::_addImage(const VkImageView imageView,
+                                     const VkImageLayout imageLayout) {
   assert(imageView != VK_NULL_HANDLE &&
          imageLayout != VK_IMAGE_LAYOUT_UNDEFINED);
   m_descriptors.emplace_back(DescriptorVariant{
@@ -214,7 +218,7 @@ void DescriptorSetBuilder::_addImage(VkImageView imageView,
       },
   });
 }
-void DescriptorSetBuilder::_addSampler(VkSampler sampler) {
+void DescriptorSetBuilder::_addSampler(const VkSampler sampler) {
   assert(sampler != VK_NULL_HANDLE);
   m_descriptors.emplace_back(DescriptorVariant{
     .imageInfo =
@@ -225,9 +229,9 @@ void DescriptorSetBuilder::_addSampler(VkSampler sampler) {
       },
   });
 }
-void DescriptorSetBuilder::_addCombinedImageSampler(VkImageView imageView,
-                                                    VkImageLayout imageLayout,
-                                                    VkSampler sampler) {
+void DescriptorSetBuilder::_addCombinedImageSampler(
+  const VkImageView imageView, const VkImageLayout imageLayout,
+  const VkSampler sampler) {
   assert(imageView != VK_NULL_HANDLE &&
          imageLayout != VK_IMAGE_LAYOUT_UNDEFINED && sampler != VK_NULL_HANDLE);
   m_descriptors.emplace_back(DescriptorVariant{
@@ -241,7 +245,8 @@ void DescriptorSetBuilder::_addCombinedImageSampler(VkImageView imageView,
 }
 
 DescriptorSetBuilder &
-DescriptorSetBuilder::_bindBuffer(uint32_t index, VkDescriptorType type,
+DescriptorSetBuilder::_bindBuffer(const BindingIndex index,
+                                  const VkDescriptorType type,
                                   VkDescriptorBufferInfo &&bufferInfo) {
   m_bindings[index] = BindingInfo{
     .type = type,
@@ -258,8 +263,8 @@ DescriptorSetBuilder::_bindBuffer(uint32_t index, VkDescriptorType type,
 // Utility:
 //
 
-const char *toString(const rhi::ResourceBinding &rb) {
-#define CASE(T) [](const rhi::bindings::T &) { return #T; }
+const char *toString(const ResourceBinding &rb) {
+#define CASE(T) [](const bindings::T &) { return #T; }
 
   return std::visit(
     Overload{

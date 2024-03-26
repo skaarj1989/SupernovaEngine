@@ -14,11 +14,11 @@ public:
   Downsampler(rhi::RenderDevice &, const CommonSamplers &);
 
   [[nodiscard]] FrameGraphResource
-  addPass(FrameGraph &, FrameGraphResource input, uint32_t level);
+  addPass(FrameGraph &, const FrameGraphResource input, const uint32_t level);
 
 private:
   [[nodiscard]] rhi::GraphicsPipeline
-  _createPipeline(rhi::PixelFormat colorFormat) const;
+  _createPipeline(const rhi::PixelFormat colorFormat) const;
 
 private:
   const CommonSamplers &m_samplers;

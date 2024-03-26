@@ -3,17 +3,21 @@
 #include "fg/Fwd.hpp"
 #include "rhi/RenderPass.hpp"
 #include "Technique.hpp"
-#include "PerspectiveCamera.hpp"
-#include "Renderable.hpp"
-#include "BaseGeometryPassInfo.hpp"
-#include "Light.hpp"
+
 #include "Cascade.hpp"
-#include "ShadowSettings.hpp"
+#include "Light.hpp"
+#include "Renderable.hpp"
 #include "CodePair.hpp"
+
+#include "ShadowSettings.hpp"
 
 namespace gfx {
 
-class Batch;
+struct BaseGeometryPassInfo;
+
+class PerspectiveCamera;
+class VertexFormat;
+class Material;
 
 using LightShadowPair = robin_hood::pair<const Light *, int32_t>;
 using ShadowMapIndices =
@@ -26,8 +30,8 @@ class ShadowRenderer final : public rhi::RenderPass<ShadowRenderer>,
 public:
   explicit ShadowRenderer(rhi::RenderDevice &);
 
-  uint32_t count(PipelineGroups) const override;
-  void clear(PipelineGroups) override;
+  uint32_t count(const PipelineGroups) const override;
+  void clear(const PipelineGroups) override;
 
   using Settings = ShadowSettings;
 
@@ -52,7 +56,7 @@ private:
     const PropertyGroupOffsets &, const Settings::CascadedShadowMaps &);
 
   [[nodiscard]] FrameGraphResource _addCascadePass(
-    FrameGraph &, const FrameGraphBlackboard &, uint32_t cascadeIndex,
+    FrameGraph &, const FrameGraphBlackboard &, const uint32_t cascadeIndex,
     std::optional<FrameGraphResource> cascadedShadowMaps,
     const RawCamera &lightView, std::vector<const Renderable *> &&,
     const PropertyGroupOffsets &, const Settings::CascadedShadowMaps &);
@@ -63,7 +67,7 @@ private:
     const PropertyGroupOffsets &, const Settings::SpotLightShadowMaps &);
 
   [[nodiscard]] FrameGraphResource _addSpotLightPass(
-    FrameGraph &, const FrameGraphBlackboard &, uint32_t index,
+    FrameGraph &, const FrameGraphBlackboard &, const uint32_t index,
     std::optional<FrameGraphResource> shadowMaps, const RawCamera &lightView,
     std::vector<const Renderable *> &&, const PropertyGroupOffsets &,
     const Settings::SpotLightShadowMaps &);
@@ -75,12 +79,11 @@ private:
                                  const PropertyGroupOffsets &,
                                  const Settings::OmniShadowMaps &);
 
-  [[nodiscard]] FrameGraphResource
-  _addOmniLightPass(FrameGraph &, FrameGraphBlackboard &, uint32_t index,
-                    rhi::CubeFace, std::optional<FrameGraphResource> shadowMaps,
-                    const Light &light, std::span<const Renderable *>,
-                    const PropertyGroupOffsets &,
-                    const Settings::OmniShadowMaps &);
+  [[nodiscard]] FrameGraphResource _addOmniLightPass(
+    FrameGraph &, FrameGraphBlackboard &, const uint32_t index,
+    const rhi::CubeFace, std::optional<FrameGraphResource> shadowMaps,
+    const Light &light, std::span<const Renderable *>,
+    const PropertyGroupOffsets &, const Settings::OmniShadowMaps &);
 
   [[nodiscard]] rhi::GraphicsPipeline
   _createPipeline(const BaseGeometryPassInfo &) const;

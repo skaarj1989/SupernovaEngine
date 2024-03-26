@@ -1,12 +1,15 @@
 #include "TexturePreview.hpp"
+#include "rhi/Texture.hpp"
 #include "ImGuiPopups.hpp"
 #include "imgui_internal.h" // ImRect
 #include "glm/common.hpp"   // floor, mix
 
 namespace {
 
-[[nodiscard]] auto getLocalRect(ImRect windowRect, glm::vec2 overlaySize,
-                                glm::vec2 offset, glm::vec2 origin) {
+[[nodiscard]] auto getLocalRect(const ImRect windowRect,
+                                const glm::vec2 overlaySize,
+                                const glm::vec2 offset,
+                                const glm::vec2 origin) {
   constexpr glm::vec2 kBorder{0, 0};
   const auto topLeft = glm::vec2{windowRect.Min} + offset + kBorder;
   const auto bottomRight =
@@ -24,7 +27,7 @@ namespace {
 
 } // namespace
 
-void overlay(rhi::Texture *texture, glm::vec2 size) {
+void overlay(rhi::Texture *texture, const glm::vec2 size) {
   static constexpr auto kTopLeft = glm::vec2{0, 0};
   static constexpr auto kTopRight = glm::vec2{1, 0};
   static constexpr auto kBottomRight = glm::vec2{1, 1};
@@ -54,7 +57,7 @@ void overlay(rhi::Texture *texture, glm::vec2 size) {
   ImGui::GetWindowDrawList()->AddRect(rect.Min, rect.Max, kBorderColor, 0.0f, 0,
                                       kBorder);
 }
-void preview(rhi::Texture *texture, glm::vec2 size) {
+void preview(rhi::Texture *texture, const glm::vec2 size) {
   if (texture && canPreview(*texture)) {
     ImGui::Image(texture, size);
   } else {

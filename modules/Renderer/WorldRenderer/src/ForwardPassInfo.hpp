@@ -14,7 +14,7 @@ struct ForwardPassInfo : BaseGeometryPassInfo {
 namespace std {
 
 template <> struct hash<gfx::ForwardPassInfo> {
-  std::size_t operator()(const gfx::ForwardPassInfo &) const noexcept;
+  size_t operator()(const gfx::ForwardPassInfo &) const noexcept;
 };
 
 } // namespace std

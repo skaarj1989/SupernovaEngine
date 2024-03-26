@@ -1,7 +1,12 @@
 #include "renderer/WireframePass.hpp"
+#include "rhi/CommandBuffer.hpp"
 
-#include "FrameGraphCommon.hpp"
+#include "renderer/ViewInfo.hpp"
+#include "renderer/VertexFormat.hpp"
+
 #include "FrameGraphResourceAccess.hpp"
+#include "FrameGraphCommon.hpp"
+#include "UploadInstances.hpp"
 
 #include "FrameGraphData/DummyResources.hpp"
 #include "FrameGraphData/Camera.hpp"
@@ -11,9 +16,12 @@
 
 #include "MaterialShader.hpp"
 #include "BatchBuilder.hpp"
-#include "UploadInstances.hpp"
 
 #include "RenderContext.hpp"
+#include "ShaderCodeBuilder.hpp"
+
+#include "glm/ext/vector_float3.hpp"
+#include "glm/ext/vector_float4.hpp"
 
 namespace gfx {
 
@@ -32,10 +40,10 @@ namespace {
 WireframePass::WireframePass(rhi::RenderDevice &rd)
     : rhi::RenderPass<WireframePass>{rd} {}
 
-uint32_t WireframePass::count(PipelineGroups flags) const {
+uint32_t WireframePass::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::SurfaceMaterial) ? BasePass::count() : 0;
 }
-void WireframePass::clear(PipelineGroups flags) {
+void WireframePass::clear(const PipelineGroups flags) {
   if (bool(flags & PipelineGroups::SurfaceMaterial)) BasePass::clear();
 }
 

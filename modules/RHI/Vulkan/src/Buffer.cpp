@@ -54,7 +54,7 @@ Buffer &Buffer::unmap() {
   return *this;
 }
 
-Buffer &Buffer::flush(VkDeviceSize offset, VkDeviceSize size) {
+Buffer &Buffer::flush(const VkDeviceSize offset, const VkDeviceSize size) {
   assert(m_handle != VK_NULL_HANDLE && m_mappedMemory);
   vmaFlushAllocation(m_memoryAllocator, m_allocation, offset, size);
   return *this;
@@ -64,10 +64,10 @@ Buffer &Buffer::flush(VkDeviceSize offset, VkDeviceSize size) {
 // (private):
 //
 
-Buffer::Buffer(VmaAllocator memoryAllocator, VkDeviceSize size,
-               VkBufferUsageFlags bufferUsage,
-               VmaAllocationCreateFlags allocationFlags,
-               VmaMemoryUsage memoryUsage)
+Buffer::Buffer(const VmaAllocator memoryAllocator, const VkDeviceSize size,
+               const VkBufferUsageFlags bufferUsage,
+               const VmaAllocationCreateFlags allocationFlags,
+               const VmaMemoryUsage memoryUsage)
     : m_memoryAllocator{memoryAllocator} {
   const VkBufferCreateInfo bufferCreateInfo{
     .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,

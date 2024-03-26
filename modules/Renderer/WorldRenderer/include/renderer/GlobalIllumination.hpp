@@ -3,19 +3,28 @@
 #include "fg/Fwd.hpp"
 #include "rhi/RenderPass.hpp"
 #include "Technique.hpp"
-#include "PerspectiveCamera.hpp"
 #include "Renderable.hpp"
-#include "Grid.hpp"
-#include "Light.hpp"
-#include "BaseGeometryPassInfo.hpp"
 #include "CodePair.hpp"
 
 #include "FrameGraphData/ReflectiveShadowMap.hpp"
 #include "FrameGraphData/LightPropagationVolumes.hpp"
 
+#include "glm/ext/vector_uint3.hpp"
+#include "glm/ext/vector_float3.hpp"
+
 namespace gfx {
 
 struct CommonSamplers;
+
+struct BaseGeometryPassInfo;
+
+class PerspectiveCamera;
+struct RawCamera;
+struct Light;
+struct Grid;
+
+class VertexFormat;
+class Material;
 
 class GlobalIllumination final : public rhi::RenderPass<GlobalIllumination>,
                                  public Technique {
@@ -24,8 +33,8 @@ class GlobalIllumination final : public rhi::RenderPass<GlobalIllumination>,
 public:
   GlobalIllumination(rhi::RenderDevice &, const CommonSamplers &);
 
-  uint32_t count(PipelineGroups) const override;
-  void clear(PipelineGroups) override;
+  uint32_t count(const PipelineGroups) const override;
+  void clear(const PipelineGroups) override;
 
   void update(FrameGraph &, FrameGraphBlackboard &, const Grid &,
               const PerspectiveCamera &, const Light &,
@@ -42,17 +51,16 @@ public:
 private:
   [[nodiscard]] ReflectiveShadowMapData _addReflectiveShadowMapPass(
     FrameGraph &, FrameGraphBlackboard &, const RawCamera &lightView,
-    glm::vec3 lightIntensity, std::vector<const Renderable *> &&,
+    const glm::vec3 lightIntensity, std::vector<const Renderable *> &&,
     const PropertyGroupOffsets &);
 
-  [[nodiscard]] LightPropagationVolumesData
-  _addRadianceInjectionPass(FrameGraph &, FrameGraphResource sceneGridBlock,
-                            const ReflectiveShadowMapData &,
-                            glm::uvec3 gridSize);
-  LightPropagationVolumesData
-  _addRadiancePropagationPass(FrameGraph &, FrameGraphResource sceneGridBlock,
-                              const LightPropagationVolumesData &,
-                              glm::uvec3 gridSize, uint32_t iteration);
+  [[nodiscard]] LightPropagationVolumesData _addRadianceInjectionPass(
+    FrameGraph &, const FrameGraphResource sceneGridBlock,
+    const ReflectiveShadowMapData &, const glm::uvec3 gridSize);
+  LightPropagationVolumesData _addRadiancePropagationPass(
+    FrameGraph &, const FrameGraphResource sceneGridBlock,
+    const LightPropagationVolumesData &, const glm::uvec3 gridSize,
+    const uint32_t iteration);
 
   rhi::GraphicsPipeline _createPipeline(const BaseGeometryPassInfo &) const;
 

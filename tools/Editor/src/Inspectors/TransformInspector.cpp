@@ -1,4 +1,5 @@
 #include "Inspectors/TransformInspector.hpp"
+#include "Transform.hpp"
 #include "ImGuiHelper.hpp"
 #include "glm/gtc/quaternion.hpp" // eulerAnles
 

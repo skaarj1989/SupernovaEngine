@@ -14,6 +14,6 @@ enum class CullMode : VkCullModeFlags {
   Back = VK_CULL_MODE_BACK_BIT,
 };
 
-[[nodiscard]] const char *toString(CullMode);
+[[nodiscard]] const char *toString(const CullMode);
 
 } // namespace rhi

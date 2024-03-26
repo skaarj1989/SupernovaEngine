@@ -2,6 +2,7 @@
 
 #include "fg/Fwd.hpp"
 #include "rhi/RenderPass.hpp"
+#include "rhi/TextureType.hpp"
 #include "Technique.hpp"
 
 namespace gfx {
@@ -12,8 +13,8 @@ class SkyboxPass final : public rhi::RenderPass<SkyboxPass>, public Technique {
 public:
   explicit SkyboxPass(rhi::RenderDevice &);
 
-  uint32_t count(PipelineGroups) const override;
-  void clear(PipelineGroups) override;
+  uint32_t count(const PipelineGroups) const override;
+  void clear(const PipelineGroups) override;
 
   [[nodiscard]] FrameGraphResource addPass(FrameGraph &,
                                            const FrameGraphBlackboard &,

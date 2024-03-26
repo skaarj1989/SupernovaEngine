@@ -3,7 +3,7 @@
 
 namespace rhi {
 
-const char *toString(CubeFace cubeFace) {
+const char *toString(const CubeFace cubeFace) {
   switch (cubeFace) {
     using enum CubeFace;
 

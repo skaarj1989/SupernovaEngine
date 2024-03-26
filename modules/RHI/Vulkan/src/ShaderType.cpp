@@ -1,9 +1,10 @@
 #include "rhi/ShaderType.hpp"
+#include <bitset>
 #include <cassert>
 
 namespace rhi {
 
-const char *toString(ShaderType shaderType) {
+const char *toString(const ShaderType shaderType) {
 #define CASE(Value)                                                            \
   case Value:                                                                  \
     return #Value
@@ -22,7 +23,7 @@ const char *toString(ShaderType shaderType) {
   return "Undefined";
 }
 
-ShaderStages getStage(ShaderType shaderType) {
+ShaderStages getStage(const ShaderType shaderType) {
 #define CASE(Value)                                                            \
   case ShaderType::Value:                                                      \
     return ShaderStages::Value
@@ -37,6 +38,10 @@ ShaderStages getStage(ShaderType shaderType) {
 
   assert(false);
   return ShaderStages{0};
+}
+uint32_t countStages(const ShaderStages flags) {
+  return std::bitset<sizeof(ShaderStages) * 8>{std::to_underlying(flags)}
+    .count();
 }
 
 } // namespace rhi

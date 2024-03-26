@@ -1,9 +1,23 @@
 #include "renderer/GlobalIllumination.hpp"
 #include "math/Math.hpp"
+#include "rhi/RenderDevice.hpp"
 
+#include "renderer/CommonSamplers.hpp"
+
+#include "renderer/VertexFormat.hpp"
+#include "renderer/Light.hpp"
+#include "renderer/MeshInstance.hpp"
+#include "renderer/Grid.hpp"
+
+#include "PerspectiveCamera.hpp"
+#include "Transform.hpp"
+
+#include "FrameGraphResourceAccess.hpp"
 #include "FrameGraphCommon.hpp"
 #include "renderer/FrameGraphTexture.hpp"
-#include "FrameGraphResourceAccess.hpp"
+#include "UploadInstances.hpp"
+#include "UploadCameraBlock.hpp"
+#include "UploadSceneGrid.hpp"
 
 #include "FrameGraphData/DummyResources.hpp"
 #include "FrameGraphData/Frame.hpp"
@@ -14,19 +28,12 @@
 #include "FrameGraphData/GBuffer.hpp"
 #include "FrameGraphData/GlobalIllumination.hpp"
 
-#include "renderer/CommonSamplers.hpp"
-
-#include "renderer/Grid.hpp"
-
+#include "MaterialShader.hpp"
 #include "ShadowCascadesBuilder.hpp"
 #include "BatchBuilder.hpp"
-#include "UploadInstances.hpp"
-#include "UploadCameraBlock.hpp"
-#include "UploadSceneGrid.hpp"
-
-#include "MaterialShader.hpp"
 
 #include "RenderContext.hpp"
+#include "ShaderCodeBuilder.hpp"
 
 namespace gfx {
 
@@ -157,7 +164,7 @@ getVisibleRenderables(const Frustum &frustum,
 }
 
 void read(FrameGraph::Builder &builder, const ReflectiveShadowMapData &RSM,
-          PipelineStage pipelineStage) {
+          const PipelineStage pipelineStage) {
   builder.read(RSM.position, TextureRead{
                                .binding =
                                  {
@@ -183,9 +190,8 @@ void read(FrameGraph::Builder &builder, const ReflectiveShadowMapData &RSM,
                            .type = TextureRead::Type::SampledImage,
                          });
 }
-
 void read(FrameGraph::Builder &builder, const LightPropagationVolumesData &LPV,
-          PipelineStage pipelineStage) {
+          const PipelineStage pipelineStage) {
   builder.read(LPV.r, TextureRead{
                         .binding =
                           {
@@ -239,7 +245,7 @@ GlobalIllumination::GlobalIllumination(rhi::RenderDevice &rd,
   m_debugPipeline = createDebugPipeline(rd);
 }
 
-uint32_t GlobalIllumination::count(PipelineGroups flags) const {
+uint32_t GlobalIllumination::count(const PipelineGroups flags) const {
   uint32_t n{0};
   if (bool(flags & PipelineGroups::BuiltIn)) {
     // radianceInjection + radiancePropagation + debug.
@@ -251,7 +257,7 @@ uint32_t GlobalIllumination::count(PipelineGroups flags) const {
   }
   return n;
 }
-void GlobalIllumination::clear(PipelineGroups flags) {
+void GlobalIllumination::clear(const PipelineGroups flags) {
   if (bool(flags & PipelineGroups::SurfaceMaterial)) BasePass::clear();
 }
 
@@ -383,7 +389,7 @@ CodePair GlobalIllumination::buildShaderCode(const rhi::RenderDevice &rd,
 
 ReflectiveShadowMapData GlobalIllumination::_addReflectiveShadowMapPass(
   FrameGraph &fg, FrameGraphBlackboard &blackboard, const RawCamera &lightView,
-  glm::vec3 lightIntensity, std::vector<const Renderable *> &&renderables,
+  const glm::vec3 lightIntensity, std::vector<const Renderable *> &&renderables,
   const PropertyGroupOffsets &propertyGroupOffsets) {
   constexpr auto kPassName = "ReflectiveShadowMap";
   ZoneScopedN(kPassName);
@@ -479,8 +485,8 @@ ReflectiveShadowMapData GlobalIllumination::_addReflectiveShadowMapPass(
 }
 
 LightPropagationVolumesData GlobalIllumination::_addRadianceInjectionPass(
-  FrameGraph &fg, FrameGraphResource sceneGridBlock,
-  const ReflectiveShadowMapData &RSM, glm::uvec3 gridSize) {
+  FrameGraph &fg, const FrameGraphResource sceneGridBlock,
+  const ReflectiveShadowMapData &RSM, const glm::uvec3 gridSize) {
   constexpr auto kPassName = "RadianceInjection";
   ZoneScopedN(kPassName);
 
@@ -544,9 +550,9 @@ LightPropagationVolumesData GlobalIllumination::_addRadianceInjectionPass(
 }
 
 LightPropagationVolumesData GlobalIllumination::_addRadiancePropagationPass(
-  FrameGraph &fg, FrameGraphResource sceneGridBlock,
-  const LightPropagationVolumesData &LPV, glm::uvec3 gridSize,
-  uint32_t iteration) {
+  FrameGraph &fg, const FrameGraphResource sceneGridBlock,
+  const LightPropagationVolumesData &LPV, const glm::uvec3 gridSize,
+  const uint32_t iteration) {
   const auto passName = std::format("RadiancePropagation #{}", iteration);
   ZoneTransientN(__tracy_zone, passName.c_str(), true);
 

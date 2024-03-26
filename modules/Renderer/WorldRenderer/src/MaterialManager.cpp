@@ -58,7 +58,7 @@ MaterialManager::MaterialManager(TextureManager &textureManager)
 bool MaterialManager::isBuiltIn(const std::filesystem::path &p) const {
   return isBuiltIn(entt::hashed_string{p.string().c_str()});
 }
-bool MaterialManager::isBuiltIn(entt::id_type id) const {
+bool MaterialManager::isBuiltIn(const entt::id_type id) const {
   return id == kDefault;
 }
 

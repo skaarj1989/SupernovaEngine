@@ -1,6 +1,7 @@
 #include "os/Platform.hpp"
 #include "os/Window.hpp"
 #include "rhi/RenderDevice.hpp"
+#include "rhi/GraphicsPipeline.hpp"
 #include "glm/ext/vector_float3.hpp"
 #include "spdlog/spdlog.h"
 

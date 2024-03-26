@@ -1,8 +1,8 @@
 #pragma once
 
 #include "WidgetWindow.hpp"
-#include "spdlog/logger.h"
-#include <vector>
+#include "spdlog/fwd.h"
+#include "spdlog/common.h"
 
 class LoggerWidget final : public WidgetWindow {
 public:

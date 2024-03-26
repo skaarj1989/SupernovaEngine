@@ -1,5 +1,8 @@
 #include "renderer/Mesh.hpp"
+#include "renderer/Material.hpp"
 #include "spdlog/spdlog.h"
+
+#include <ranges>
 
 namespace gfx {
 
@@ -48,11 +51,12 @@ Builder &Builder::setInverseBindPose(Joints joints) {
   return *this;
 }
 
-Builder &Builder::setTopology(rhi::PrimitiveTopology topology) {
+Builder &Builder::setTopology(const rhi::PrimitiveTopology topology) {
   m_topology = topology;
   return *this;
 }
-Builder &Builder::beginSubMesh(uint32_t vertexOffset, uint32_t numVertices,
+Builder &Builder::beginSubMesh(const uint32_t vertexOffset,
+                               const uint32_t numVertices,
                                std::shared_ptr<Material> material, AABB aabb) {
   if (!material) {
     SPDLOG_WARN("No material.");
@@ -70,7 +74,8 @@ Builder &Builder::beginSubMesh(uint32_t vertexOffset, uint32_t numVertices,
   });
   return *this;
 }
-Builder &Builder::addLOD(uint32_t indexOffset, uint32_t numIndices) {
+Builder &Builder::addLOD(const uint32_t indexOffset,
+                         const uint32_t numIndices) {
   m_subMeshes.back().lod.push_back({indexOffset, numIndices});
   return *this;
 }

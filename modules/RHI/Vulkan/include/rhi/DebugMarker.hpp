@@ -22,6 +22,8 @@ private:
   CommandBuffer &m_commandBuffer;
 };
 
+} // namespace rhi
+
 #  define RHI_DEBUG_MARKER_ID(Name, ID) _RHI_DEBUG_MARKER_ID(Name, ID)
 #  define _RHI_DEBUG_MARKER_ID(Name, ID) Name##ID
 
@@ -32,7 +34,6 @@ private:
 #  define RHI_DEBUG_MARKER(CommandBuffer)                                      \
     RHI_NAMED_DEBUG_MARKER(CommandBuffer, __FUNCTION__)
 
-} // namespace rhi
 #else
 #  define RHI_NAMED_DEBUG_MARKER(CommandBuffer, Label)
 #  define RHI_DEBUG_MARKER(CommandBuffer)

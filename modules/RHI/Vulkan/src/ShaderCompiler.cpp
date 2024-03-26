@@ -117,7 +117,7 @@ const TBuiltInResource kDefaultResources{
     },
 };
 
-[[nodiscard]] auto toLanguage(ShaderType type) {
+[[nodiscard]] auto toLanguage(const ShaderType type) {
 #define CASE(Value)                                                            \
   case ShaderType::Value:                                                      \
     return EShLang##Value
@@ -143,8 +143,8 @@ const TBuiltInResource kDefaultResources{
 ShaderCompiler::ShaderCompiler() { glslang::InitializeProcess(); }
 ShaderCompiler::~ShaderCompiler() { glslang::FinalizeProcess(); }
 
-std::expected<SPIRV, std::string>
-ShaderCompiler::compile(ShaderType shaderType,
+std::expected<SPIRV, ShaderCompiler::ErrorMessage>
+ShaderCompiler::compile(const ShaderType shaderType,
                         const std::string_view code) const {
   glslang::TShader shader{toLanguage(shaderType)};
 

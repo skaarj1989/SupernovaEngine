@@ -1,9 +1,13 @@
 #include "RenderSystem.hpp"
+#include "rhi/RenderDevice.hpp"
+#include "renderer/WorldRenderer.hpp"
+#include "renderer/WorldView.hpp"
+#include "Transform.hpp"
 #include <format>
 
 namespace {
 
-void initCamera(entt::registry &r, entt::entity e) {
+void initCamera(entt::registry &r, const entt::entity e) {
   if (auto &skyLight = r.get<CameraComponent>(e).skyLight; skyLight.source) {
     assert(!skyLight.diffuse && !skyLight.specular);
     skyLight = getRenderer(r).createSkyLight(skyLight.source);
@@ -67,7 +71,7 @@ template <class T>
   return cc.extent && (!cc.target || cc.target->getExtent() != cc.extent);
 }
 [[nodiscard]] auto createRenderTarget(rhi::RenderDevice &rd,
-                                      rhi::Extent2D extent) {
+                                      const rhi::Extent2D extent) {
   using enum rhi::ImageUsage;
   return rhi::Texture::Builder{}
     .setExtent(extent)
@@ -93,8 +97,8 @@ void RenderSystem::setup(entt::registry &r, gfx::WorldRenderer &wr) {
   r.on_construct<CameraComponent>().connect<&initCamera>();
 }
 
-void RenderSystem::update(entt::registry &r, rhi::CommandBuffer &cb, float dt,
-                          const gfx::SceneView *mainSceneView,
+void RenderSystem::update(entt::registry &r, rhi::CommandBuffer &cb,
+                          const float dt, const gfx::SceneView *mainSceneView,
                           gfx::DebugOutput *debugOutput) {
   ZoneScopedN("RenderSystem::Update");
 

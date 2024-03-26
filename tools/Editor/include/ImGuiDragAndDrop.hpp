@@ -14,7 +14,7 @@ inline void SetDragDropPayload(const char *type, const std::string_view s) {
 } // namespace ImGui
 
 template <typename T, typename Func>
-void onDragSource(const char *type, T id, std::size_t size,
+void onDragSource(const char *type, const T id, const std::size_t size,
                   Func onTooltipBody) {
   if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
     ImGui::SetDragDropPayload(type, &id, size);
@@ -23,7 +23,8 @@ void onDragSource(const char *type, T id, std::size_t size,
   }
 }
 template <typename Func>
-void onDragSource(const char *type, entt::id_type id, Func &&onTooltipBody) {
+void onDragSource(const char *type, const entt::id_type id,
+                  Func &&onTooltipBody) {
   onDragSource(type, id, sizeof(entt::id_type),
                std::forward<Func>(onTooltipBody));
 }

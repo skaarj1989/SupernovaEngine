@@ -2,7 +2,10 @@
 
 #include "MeshManager.hpp"
 #include "MaterialInstance.hpp"
-#include "Transform.hpp"
+#include "entt/core/type_info.hpp"
+#include "glm/ext/matrix_float4x4.hpp"
+
+class Transform;
 
 namespace gfx {
 
@@ -36,11 +39,11 @@ public:
 
   // ---
 
-  MeshInstance &show(bool);
+  MeshInstance &show(const bool);
   [[nodiscard]] std::size_t countVisible() const;
 
   virtual MeshInstance &setTransform(const Transform &);
-  MeshInstance &setMaterial(int32_t index, std::shared_ptr<Material>);
+  MeshInstance &setMaterial(const int32_t index, std::shared_ptr<Material>);
 
   MeshInstance &setSkinMatrices(Joints);
 
@@ -49,7 +52,7 @@ public:
   [[nodiscard]] const glm::mat4 &getModelMatrix() const;
   [[nodiscard]] const AABB &getAABB() const;
 
-  [[nodiscard]] MaterialInstance &getMaterial(uint32_t index);
+  [[nodiscard]] MaterialInstance &getMaterial(const uint32_t index);
 
   [[nodiscard]] bool hasSkin() const;
   [[nodiscard]] const Joints &getSkinMatrices() const;

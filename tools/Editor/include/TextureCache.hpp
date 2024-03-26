@@ -1,5 +1,7 @@
 #pragma once
 
-#include "renderer/TextureManager.hpp"
+namespace gfx {
+class TextureManager;
+}
 
 void show(const char *name, bool *open, gfx::TextureManager &);

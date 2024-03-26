@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Jolt/Jolt.h"
-#include "Jolt/Physics/Collision/Shape/Shape.h"
+namespace JPH {
+class Shape;
+}
 
 void print(const JPH::Shape *);

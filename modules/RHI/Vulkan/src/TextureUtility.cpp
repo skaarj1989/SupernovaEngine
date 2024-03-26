@@ -27,8 +27,8 @@ namespace {
 
 void upload(RenderDevice &rd, const Buffer &srcStagingBuffer,
             std::span<const VkBufferImageCopy> copyRegions, Texture &texture,
-            bool generateMipmaps) {
-  rd.execute([&](rhi::CommandBuffer &cb) {
+            const bool generateMipmaps) {
+  rd.execute([&](CommandBuffer &cb) {
     cb.copyBuffer(srcStagingBuffer, texture,
                   copyRegions.empty() ? std::array{getDefaultRegion(texture)}
                                       : copyRegions);
@@ -37,7 +37,7 @@ void upload(RenderDevice &rd, const Buffer &srcStagingBuffer,
     cb.getBarrierBuilder().imageBarrier(
       {
         .image = texture,
-        .newLayout = rhi::ImageLayout::ShaderReadOnly,
+        .newLayout = ImageLayout::ShaderReadOnly,
         .subresourceRange =
           {
             .levelCount = VK_REMAINING_MIP_LEVELS,
@@ -45,9 +45,9 @@ void upload(RenderDevice &rd, const Buffer &srcStagingBuffer,
           },
       },
       {
-        .stageMask = rhi::PipelineStages::FragmentShader |
-                     rhi::PipelineStages::ComputeShader,
-        .accessMask = rhi::Access::ShaderRead,
+        .stageMask =
+          PipelineStages::FragmentShader | PipelineStages::ComputeShader,
+        .accessMask = Access::ShaderRead,
       });
   });
 }

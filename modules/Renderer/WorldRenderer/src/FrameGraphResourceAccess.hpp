@@ -2,8 +2,8 @@
 
 #include "rhi/CubeFace.hpp"
 #include "PipelineStage.hpp"
-#include <optional>
 #include <cstdint>
+#include <optional>
 
 namespace gfx {
 

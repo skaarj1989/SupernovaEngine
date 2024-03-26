@@ -1,5 +1,6 @@
 #include "UploadSceneGrid.hpp"
 #include "UploadStruct.hpp"
+#include "renderer/Grid.hpp"
 
 namespace gfx {
 

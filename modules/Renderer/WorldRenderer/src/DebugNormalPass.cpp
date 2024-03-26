@@ -1,7 +1,12 @@
 #include "renderer/DebugNormalPass.hpp"
+#include "rhi/CommandBuffer.hpp"
+
+#include "renderer/VertexFormat.hpp"
+#include "renderer/ViewInfo.hpp"
 
 #include "FrameGraphCommon.hpp"
 #include "FrameGraphResourceAccess.hpp"
+#include "UploadInstances.hpp"
 
 #include "FrameGraphData/DummyResources.hpp"
 #include "FrameGraphData/Camera.hpp"
@@ -11,19 +16,19 @@
 
 #include "MaterialShader.hpp"
 #include "BatchBuilder.hpp"
-#include "UploadInstances.hpp"
 
 #include "RenderContext.hpp"
+#include "ShaderCodeBuilder.hpp"
 
 namespace gfx {
 
 DebugNormalPass::DebugNormalPass(rhi::RenderDevice &rd)
     : rhi::RenderPass<DebugNormalPass>{rd} {}
 
-uint32_t DebugNormalPass::count(PipelineGroups flags) const {
+uint32_t DebugNormalPass::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::BuiltIn) ? BasePass::count() : 0;
 }
-void DebugNormalPass::clear(PipelineGroups flags) {
+void DebugNormalPass::clear(const PipelineGroups flags) {
   if (bool(flags & PipelineGroups::BuiltIn)) BasePass::clear();
 }
 

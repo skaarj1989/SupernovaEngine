@@ -1,5 +1,7 @@
 #pragma once
 
-#include "renderer/MaterialInstance.hpp"
+namespace gfx {
+class MaterialInstance;
+}
 
 void inspect(gfx::MaterialInstance &);

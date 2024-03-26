@@ -1,6 +1,10 @@
 #include "rhi/CommandBuffer.hpp"
-
 #include "VisitorHelper.hpp"
+
+#include "rhi/IndexBuffer.hpp"
+#include "rhi/VertexBuffer.hpp"
+#include "rhi/Texture.hpp"
+#include "rhi/ComputePipeline.hpp"
 #include "VkCheck.hpp"
 
 #include "glm/gtc/type_ptr.hpp" // value_ptr
@@ -13,7 +17,7 @@ namespace {
 
 constexpr VkDeviceSize kMaxDataSize{65536};
 
-[[nodiscard]] auto toVk(IndexType indexType) {
+[[nodiscard]] auto toVk(const IndexType indexType) {
   switch (indexType) {
   case IndexType::UInt16:
     return VK_INDEX_TYPE_UINT16;
@@ -21,7 +25,7 @@ constexpr VkDeviceSize kMaxDataSize{65536};
     return VK_INDEX_TYPE_UINT32;
   }
   assert(false);
-  return VK_INDEX_TYPE_UINT16;
+  return VK_INDEX_TYPE_MAX_ENUM;
 }
 
 [[nodiscard]] auto toVk(const ClearValue &clearValue) {
@@ -35,15 +39,16 @@ constexpr VkDeviceSize kMaxDataSize{65536};
                     sizeof(glm::vec4));
         return result;
       },
-      [](float v) { return VkClearValue{.depthStencil = {.depth = v}}; },
-      [](uint32_t v) { return VkClearValue{.depthStencil = {.stencil = v}}; },
+      [](const float v) { return VkClearValue{.depthStencil = {.depth = v}}; },
+      [](const uint32_t v) {
+        return VkClearValue{.depthStencil = {.stencil = v}};
+      },
     },
     clearValue);
 }
 [[nodiscard]] VkRenderingAttachmentInfo toVk(const AttachmentInfo &attachment,
-                                             bool readOnly) {
+                                             const bool readOnly) {
   auto &[target, layer, face, clearValue] = attachment;
-
   return {
     .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
     .imageView =
@@ -201,26 +206,28 @@ CommandBuffer &CommandBuffer::dispatch(const ComputePipeline &pipeline,
 }
 CommandBuffer &CommandBuffer::dispatch(const glm::uvec3 &groupCount) {
   assert(_invariant(State::Recording, InvariantFlags::ValidComputePipeline));
-  
+
   _TRACY_GPU_ZONE2("Dispatch");
   flushBarriers();
   vkCmdDispatch(m_handle, groupCount.x, groupCount.y, groupCount.z);
   return *this;
 }
-CommandBuffer &CommandBuffer::bindDescriptorSet(uint32_t set,
-                                                VkDescriptorSet descriptorSet) {
+CommandBuffer &
+CommandBuffer::bindDescriptorSet(const DescriptorSetIndex index,
+                                 const VkDescriptorSet descriptorSet) {
   assert(descriptorSet != VK_NULL_HANDLE);
   assert(_invariant(State::Recording, InvariantFlags::ValidPipeline));
 
   _TRACY_GPU_ZONE2("BindDescriptorSet");
   vkCmdBindDescriptorSets(m_handle, m_pipeline->getBindPoint(),
-                          m_pipeline->getLayout().getHandle(), set, 1,
+                          m_pipeline->getLayout().getHandle(), index, 1,
                           &descriptorSet, 0, nullptr);
   return *this;
 }
 
-CommandBuffer &CommandBuffer::pushConstants(ShaderStages shaderStages,
-                                            uint32_t offset, uint32_t size,
+CommandBuffer &CommandBuffer::pushConstants(const ShaderStages shaderStages,
+                                            const uint32_t offset,
+                                            const uint32_t size,
                                             const void *data) {
   assert(data && size > 0);
   assert(_invariant(State::Recording, InvariantFlags::ValidPipeline));
@@ -305,7 +312,7 @@ CommandBuffer &CommandBuffer::setScissor(const Rect2D &rect) {
 }
 
 CommandBuffer &CommandBuffer::draw(const GeometryInfo &gi,
-                                   uint32_t numInstances) {
+                                   const uint32_t numInstances) {
   assert(_invariant(State::Recording, InvariantFlags::ValidGraphicsPipeline |
                                         InvariantFlags::InsideRenderPass));
   _TRACY_GPU_ZONE2("Draw");
@@ -419,8 +426,9 @@ CommandBuffer::copyBuffer(const Buffer &src, Texture &dst,
   return *this;
 }
 
-CommandBuffer &CommandBuffer::update(Buffer &buffer, VkDeviceSize offset,
-                                     VkDeviceSize size, const void *data) {
+CommandBuffer &CommandBuffer::update(Buffer &buffer, const VkDeviceSize offset,
+                                     const VkDeviceSize size,
+                                     const void *data) {
   assert(buffer && data);
   assert(_invariant(State::Recording, InvariantFlags::OutsideRenderPass));
 
@@ -435,7 +443,7 @@ CommandBuffer &CommandBuffer::update(Buffer &buffer, VkDeviceSize offset,
 }
 
 CommandBuffer &CommandBuffer::blit(Texture &src, Texture &dst,
-                                   VkFilter filter) {
+                                   const VkFilter filter) {
   assert(src && bool(src.getUsageFlags() & ImageUsage::TransferSrc));
   const auto aspectMask = getAspectMask(dst);
   assert(getAspectMask(src) == aspectMask);
@@ -508,12 +516,12 @@ CommandBuffer &CommandBuffer::blit(Texture &src, Texture &dst,
 }
 
 CommandBuffer &CommandBuffer::generateMipmaps(Texture &texture,
-                                              TexelFilter filter) {
+                                              const TexelFilter filter) {
   assert(texture);
   assert(_invariant(State::Recording, InvariantFlags::OutsideRenderPass));
 
   _TRACY_GPU_ZONE2("GenerateMipmaps");
-  auto imageHandle = texture.getImageHandle();
+  const auto imageHandle = texture.getImageHandle();
   m_barrierBuilder.imageBarrier(
     {
       .image = texture,
@@ -634,15 +642,16 @@ CommandBuffer &CommandBuffer::flushBarriers() {
 // (private):
 //
 
-CommandBuffer::CommandBuffer(VkDevice device, VkCommandPool commandPool,
-                             VkCommandBuffer handle, TracyVkCtx tracy,
-                             VkFence fence)
+CommandBuffer::CommandBuffer(const VkDevice device,
+                             const VkCommandPool commandPool,
+                             const VkCommandBuffer handle,
+                             const TracyVkCtx tracy, const VkFence fence)
     : m_device{device}, m_commandPool{commandPool}, m_state{State::Initial},
       m_handle{handle}, m_tracyContext{tracy}, m_fence{fence},
       m_descriptorSetAllocator{device} {}
 
-bool CommandBuffer::_invariant(State requiredState,
-                               InvariantFlags flags) const {
+bool CommandBuffer::_invariant(const State requiredState,
+                               const InvariantFlags flags) const {
   if (!m_handle || m_state != requiredState) return false;
 
   auto valid = true;
@@ -663,7 +672,6 @@ bool CommandBuffer::_invariant(State requiredState,
   if (bool(flags & InvariantFlags::OutsideRenderPass)) {
     valid |= !m_insideRenderPass;
   }
-
   return valid;
 }
 
@@ -696,8 +704,9 @@ void CommandBuffer::_destroy() noexcept {
   }
 }
 
-void CommandBuffer::_chunkedUpdate(VkBuffer bufferHandle, VkDeviceSize offset,
-                                   VkDeviceSize size, const void *data) {
+void CommandBuffer::_chunkedUpdate(const VkBuffer bufferHandle,
+                                   VkDeviceSize offset, VkDeviceSize size,
+                                   const void *data) {
   const auto numChunks = uint32_t(std::ceil(float(size) / float(kMaxDataSize)));
   assert(numChunks > 1);
 
@@ -713,7 +722,7 @@ void CommandBuffer::_chunkedUpdate(VkBuffer bufferHandle, VkDeviceSize offset,
 }
 
 void CommandBuffer::_setVertexBuffer(const VertexBuffer *vertexBuffer,
-                                     VkDeviceSize offset) {
+                                     const VkDeviceSize offset) {
   if (m_vertexBuffer != vertexBuffer) {
     if (vertexBuffer) {
       _TRACY_GPU_ZONE2("SetVertexBuffer");
@@ -753,7 +762,7 @@ void CommandBuffer::_popDebugGroup() {
 //
 
 void prepareForAttachment(CommandBuffer &cb, const Texture &texture,
-                          bool readOnly) {
+                          const bool readOnly) {
   assert(texture);
 
   BarrierScope dst{};

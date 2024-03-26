@@ -14,14 +14,15 @@ class SSR final : public rhi::RenderPass<SSR>, public Technique {
 public:
   SSR(rhi::RenderDevice &, const CommonSamplers &);
 
-  uint32_t count(PipelineGroups) const override;
-  void clear(PipelineGroups) override;
+  uint32_t count(const PipelineGroups) const override;
+  void clear(const PipelineGroups) override;
 
   [[nodiscard]] FrameGraphResource addPass(FrameGraph &,
                                            FrameGraphBlackboard &);
 
 private:
-  rhi::GraphicsPipeline _createPipeline(rhi::PixelFormat colorFormat) const;
+  rhi::GraphicsPipeline
+  _createPipeline(const rhi::PixelFormat colorFormat) const;
 
 private:
   const CommonSamplers &m_samplers;

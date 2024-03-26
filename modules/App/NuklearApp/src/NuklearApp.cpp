@@ -29,8 +29,9 @@ nk_context *NuklearApp::getNuklearContext() const {
   return m_nuklearContext.get();
 }
 
-void NuklearApp::drawGui(rhi::CommandBuffer &cb, rhi::RenderTargetView rtv,
-                         std::optional<glm::vec4> clearColor) {
+void NuklearApp::drawGui(rhi::CommandBuffer &cb,
+                         const rhi::RenderTargetView rtv,
+                         const std::optional<glm::vec4> clearColor) {
   RHI_GPU_ZONE(cb, "Nuklear");
   auto &[frameIndex, target] = rtv;
   const auto extent = target.getExtent();
@@ -46,7 +47,7 @@ void NuklearApp::drawGui(rhi::CommandBuffer &cb, rhi::RenderTargetView rtv,
   cb.endRendering();
 }
 
-void NuklearApp::_onPreUpdate(fsec) {
+void NuklearApp::_onPreUpdate(const fsec) {
   auto *ctx = getNuklearContext();
   nk_clear(ctx);
   nk_input_begin(ctx);
@@ -122,10 +123,12 @@ void NuklearApp::_notify(std::span<bool> keysDown) const {
 #undef GET_KEY
 }
 
-void NuklearApp::_onPostUpdate(fsec) { nk_input_end(getNuklearContext()); }
+void NuklearApp::_onPostUpdate(const fsec) {
+  nk_input_end(getNuklearContext());
+}
 
-void NuklearApp::_onRender(rhi::CommandBuffer &cb, rhi::RenderTargetView rtv,
-                           fsec) {
+void NuklearApp::_onRender(rhi::CommandBuffer &cb,
+                           const rhi::RenderTargetView rtv, const fsec) {
   constexpr auto kClearColor = glm::vec3{0.0f};
   drawGui(cb, rtv, glm::vec4{kClearColor, 1.0f});
 }

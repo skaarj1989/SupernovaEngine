@@ -10,7 +10,8 @@
 
 namespace {
 
-[[nodiscard]] std::string formatFileClock(std::filesystem::file_time_type t) {
+[[nodiscard]] std::string
+formatFileClock(const std::filesystem::file_time_type t) {
 #if 1
   // https://stackoverflow.com/questions/56788745/how-to-convert-stdfilesystemfile-time-type-to-a-string-using-gcc-9
   using namespace std::chrono;
@@ -199,7 +200,7 @@ showFileDialog(const char *name, const FileDialogSettings &settings) {
       }
       if (numEntries == 0) {
         ImGui::TableNextColumn();
-        ImGui::Text("(No items)");
+        ImGui::TextUnformatted("(No items)");
       }
       ImGui::EndTable();
     }

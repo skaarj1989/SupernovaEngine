@@ -12,7 +12,7 @@ public:
   explicit MaterialManager(TextureManager &);
 
   [[nodiscard]] bool isBuiltIn(const std::filesystem::path &p) const;
-  [[nodiscard]] bool isBuiltIn(entt::id_type) const;
+  [[nodiscard]] bool isBuiltIn(const entt::id_type) const;
 
   [[nodiscard]] MaterialResourceHandle load(const std::filesystem::path &);
   MaterialResourceHandle import(const std::string_view name, Material &&);

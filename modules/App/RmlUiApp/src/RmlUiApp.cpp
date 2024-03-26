@@ -44,8 +44,8 @@ RmlUiApp::~RmlUiApp() {
   m_uiFileInterface.reset();
 }
 
-void RmlUiApp::drawGui(rhi::CommandBuffer &cb, rhi::RenderTargetView rtv,
-                       std::optional<glm::vec4> clearColor) {
+void RmlUiApp::drawGui(rhi::CommandBuffer &cb, const rhi::RenderTargetView rtv,
+                       const std::optional<glm::vec4> clearColor) {
   RHI_GPU_ZONE(cb, "RmlUi");
   auto &target = rtv.texture;
   rhi::prepareForAttachment(cb, rtv.texture, false);
@@ -72,8 +72,8 @@ void RmlUiApp::_onInput(const os::InputEvent &evt) {
 
 void RmlUiApp::_onUpdate(fsec) { m_context->Update(); }
 
-void RmlUiApp::_onRender(rhi::CommandBuffer &cb, rhi::RenderTargetView rtv,
-                         fsec dt) {
+void RmlUiApp::_onRender(rhi::CommandBuffer &cb,
+                         const rhi::RenderTargetView rtv, const fsec dt) {
   constexpr auto kClearColor = glm::vec3{0.0f};
   drawGui(cb, rtv, glm::vec4{kClearColor, 1.0f});
 }

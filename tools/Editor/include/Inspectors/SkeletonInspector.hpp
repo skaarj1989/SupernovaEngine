@@ -1,5 +1,7 @@
 #pragma once
 
-#include "ozz/animation/runtime/skeleton.h"
+namespace ozz::animation {
+class Skeleton;
+}
 
 void print(const ozz::animation::Skeleton &);

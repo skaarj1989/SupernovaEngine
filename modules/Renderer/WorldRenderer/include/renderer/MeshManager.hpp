@@ -13,7 +13,7 @@ public:
   ~MeshManager() = default;
 
   [[nodiscard]] bool isBuiltIn(const std::filesystem::path &) const;
-  [[nodiscard]] bool isBuiltIn(uint32_t id) const;
+  [[nodiscard]] bool isBuiltIn(const uint32_t id) const;
 
   [[nodiscard]] MeshResourceHandle load(const std::filesystem::path &);
   void import(const std::string_view name, Mesh &&);

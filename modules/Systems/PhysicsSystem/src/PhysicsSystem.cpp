@@ -1,4 +1,5 @@
 #include "PhysicsSystem.hpp"
+#include "Transform.hpp"
 #include "physics/Conversion.hpp"
 #include "tracy/Tracy.hpp"
 
@@ -12,7 +13,7 @@ void setTransform(JPH::BodyInterface &bodyInterface, const JPH::BodyID bodyId,
                                        JPH::EActivation::DontActivate);
 }
 
-[[nodiscard]] auto *getCollisionShape(entt::registry &r, entt::entity e) {
+[[nodiscard]] auto *getCollisionShape(entt::registry &r, const entt::entity e) {
   const auto *c = r.try_get<ColliderComponent>(e);
   return (c && c->resource) ? c->resource->getCollisionShape() : nullptr;
 }
@@ -21,7 +22,7 @@ void setTransform(JPH::BodyInterface &bodyInterface, const JPH::BodyID bodyId,
 // ColliderComponent:
 //
 
-void initCollider(entt::registry &r, entt::entity e) {
+void initCollider(entt::registry &r, const entt::entity e) {
   if (const auto *collisionShape = getCollisionShape(r, e); collisionShape) {
     auto &world = getPhysicsWorld(r);
     if (auto *rb = r.try_get<RigidBody>(e); rb) {
@@ -35,8 +36,10 @@ void initCollider(entt::registry &r, entt::entity e) {
     }
   }
 }
-void updateCollider(entt::registry &r, entt::entity e) { initCollider(r, e); }
-void cleanupCollider(entt::registry &r, entt::entity e) {
+void updateCollider(entt::registry &r, const entt::entity e) {
+  initCollider(r, e);
+}
+void cleanupCollider(entt::registry &r, const entt::entity e) {
   r.remove<RigidBody, Character, CharacterVirtual>(e);
 }
 void connectColliderComponent(entt::registry &r) {
@@ -49,7 +52,7 @@ void connectColliderComponent(entt::registry &r) {
 // RigidBody:
 //
 
-void initRigidBody(entt::registry &r, entt::entity e) {
+void initRigidBody(entt::registry &r, const entt::entity e) {
   if (const auto *collisionShape = getCollisionShape(r, e); collisionShape) {
     auto &rb = r.get<RigidBody>(e);
     const auto &xf = r.get_or_emplace<Transform>(e);
@@ -60,7 +63,7 @@ void initRigidBody(entt::registry &r, entt::entity e) {
                                     });
   }
 }
-void cleanupRigidBody(entt::registry &r, entt::entity e) {
+void cleanupRigidBody(entt::registry &r, const entt::entity e) {
   const auto &rb = r.get<const RigidBody>(e);
   getPhysicsWorld(r).remove(rb);
 }
@@ -73,7 +76,7 @@ void connectRigidBodyComponent(entt::registry &r) {
 // Character:
 //
 
-void initCharacter(entt::registry &r, entt::entity e) {
+void initCharacter(entt::registry &r, const entt::entity e) {
   if (const auto *collisionShape = getCollisionShape(r, e); collisionShape) {
     auto &c = r.get<Character>(e);
     const auto &xf = r.get_or_emplace<Transform>(e);
@@ -84,7 +87,7 @@ void initCharacter(entt::registry &r, entt::entity e) {
                                         });
   }
 }
-void cleanupCharacter(entt::registry &r, entt::entity e) {
+void cleanupCharacter(entt::registry &r, const entt::entity e) {
   auto &c = r.get<const Character>(e);
   getPhysicsWorld(r).remove(c);
 }
@@ -97,7 +100,7 @@ void connectCharacterComponent(entt::registry &r) {
 // CharacterVirtual:
 //
 
-void initCharacterVirtual(entt::registry &r, entt::entity e) {
+void initCharacterVirtual(entt::registry &r, const entt::entity e) {
   if (const auto *collisionShape = getCollisionShape(r, e); collisionShape) {
     auto &c = r.get<CharacterVirtual>(e);
     const auto &xf = r.get_or_emplace<Transform>(e);
@@ -157,7 +160,7 @@ void PhysicsSystem::setup(entt::registry &r) {
   connectCharacterVirtualComponent(r);
 }
 
-void PhysicsSystem::simulate(entt::registry &r, float timeStep) {
+void PhysicsSystem::simulate(entt::registry &r, const float timeStep) {
   ZoneScopedN("PhysicsSystem::Simulate");
 
   auto &world = getPhysicsWorld(r);
@@ -182,7 +185,7 @@ void PhysicsSystem::debugDraw(entt::registry &r, DebugDraw &dd) {
   getPhysicsWorld(r).debugDraw(dd);
 }
 
-void PhysicsSystem::updateTransform(entt::registry &r, entt::entity e) {
+void PhysicsSystem::updateTransform(entt::registry &r, const entt::entity e) {
   if (const auto *xf = r.try_get<const Transform>(e); xf) {
     auto &bodyInterface = getPhysicsWorld(r).getBodyInterface();
     if (const auto *rb = r.try_get<RigidBody>(e); rb) {

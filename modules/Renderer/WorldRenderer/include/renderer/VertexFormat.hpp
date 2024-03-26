@@ -30,13 +30,16 @@ public:
   VertexFormat &operator=(const VertexFormat &) = delete;
   VertexFormat &operator=(VertexFormat &&) noexcept = default;
 
-  [[nodiscard]] std::size_t getHash() const;
+  using Hash = std::size_t;
+  using VertexStride = uint32_t;
+
+  [[nodiscard]] Hash getHash() const;
 
   [[nodiscard]] const rhi::VertexAttributes &getAttributes() const;
-  [[nodiscard]] bool contains(AttributeLocation) const;
+  [[nodiscard]] bool contains(const AttributeLocation) const;
   [[nodiscard]] bool contains(std::initializer_list<AttributeLocation>) const;
 
-  [[nodiscard]] uint32_t getStride() const;
+  [[nodiscard]] VertexStride getStride() const;
 
   friend bool operator==(const VertexFormat &, const VertexFormat &);
 
@@ -50,28 +53,28 @@ public:
     Builder &operator=(const Builder &) = delete;
     Builder &operator=(Builder &&) noexcept = delete;
 
-    Builder &setAttribute(AttributeLocation, const rhi::VertexAttribute &);
+    Builder &setAttribute(const AttributeLocation,
+                          const rhi::VertexAttribute &);
 
     [[nodiscard]] std::shared_ptr<VertexFormat> build();
 
   private:
     rhi::VertexAttributes m_attributes;
 
-    using Cache =
-      robin_hood::unordered_map<std::size_t, std::weak_ptr<VertexFormat>>;
+    using Cache = robin_hood::unordered_map<Hash, std::weak_ptr<VertexFormat>>;
     inline static Cache m_cache;
   };
 
 private:
-  VertexFormat(std::size_t hash, rhi::VertexAttributes &&, uint32_t stride);
+  VertexFormat(const Hash, rhi::VertexAttributes &&, const VertexStride);
 
 private:
-  const std::size_t m_hash{0u};
+  const Hash m_hash{0u};
   const rhi::VertexAttributes m_attributes;
-  const uint32_t m_stride{0};
+  const VertexStride m_stride{0};
 };
 
-[[nodiscard]] const char *toString(AttributeLocation);
+[[nodiscard]] const char *toString(const AttributeLocation);
 
 [[nodiscard]] std::vector<std::string> buildDefines(const VertexFormat &);
 [[nodiscard]] bool isSkinned(const VertexFormat &);

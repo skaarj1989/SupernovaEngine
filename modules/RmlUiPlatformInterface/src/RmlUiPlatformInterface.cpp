@@ -1,7 +1,7 @@
 #include "RmlUiPlatformInterface.hpp"
+#include "VisitorHelper.hpp"
 #include "os/Platform.hpp"
 #include "os/FileSystem.hpp"
-#include "VisitorHelper.hpp"
 #include "RmlUi/Core/Context.h"
 
 //

@@ -1,6 +1,8 @@
 #pragma once
 
-#include "renderer/WorldRenderer.hpp"
+namespace gfx {
+class WorldRenderer;
+}
 
 void showWorldRendererWindow(const char *name, bool *open,
                              gfx::WorldRenderer &);

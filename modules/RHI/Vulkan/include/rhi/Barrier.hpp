@@ -1,7 +1,7 @@
 #pragma once
 
-#include "rhi/BarrierScope.hpp"
-#include "rhi/ImageLayout.hpp"
+#include "BarrierScope.hpp"
+#include "ImageLayout.hpp"
 #include <vector>
 
 namespace rhi {
@@ -64,9 +64,9 @@ public:
     [[nodiscard]] Barrier build();
 
   private:
-    Builder &_imageBarrier(VkImage, const BarrierScope &src,
-                           const BarrierScope &dst, ImageLayout oldLayout,
-                           ImageLayout newLayout,
+    Builder &_imageBarrier(const VkImage, const BarrierScope &src,
+                           const BarrierScope &dst, const ImageLayout oldLayout,
+                           const ImageLayout newLayout,
                            const VkImageSubresourceRange &);
 
   private:

@@ -1,5 +1,6 @@
 #include "RmlUiRenderInterface.hpp"
 #include "os/FileSystem.hpp"
+#include "rhi/RenderDevice.hpp"
 #include "STBImageLoader.hpp"
 #include "glm/gtc/type_ptr.hpp"
 

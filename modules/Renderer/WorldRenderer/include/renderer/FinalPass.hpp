@@ -15,17 +15,17 @@ class FinalPass final : public rhi::RenderPass<FinalPass>, public Technique {
 public:
   FinalPass(rhi::RenderDevice &, const CommonSamplers &);
 
-  uint32_t count(PipelineGroups) const override;
-  void clear(PipelineGroups) override;
+  uint32_t count(const PipelineGroups) const override;
+  void clear(const PipelineGroups) override;
 
   FrameGraphResource compose(FrameGraph &, const FrameGraphBlackboard &,
-                             OutputMode, FrameGraphResource target);
+                             const OutputMode, FrameGraphResource target);
 
 private:
   enum class Mode { Final, Pattern };
 
   [[nodiscard]] rhi::GraphicsPipeline
-  _createPipeline(rhi::PixelFormat colorFormat, Mode) const;
+  _createPipeline(const rhi::PixelFormat colorFormat, const Mode) const;
 
 private:
   const CommonSamplers &m_samplers;

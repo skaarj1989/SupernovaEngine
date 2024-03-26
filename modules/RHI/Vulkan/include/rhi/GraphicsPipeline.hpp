@@ -1,15 +1,15 @@
 #pragma once
 
-#include "rhi/BasePipeline.hpp"
-#include "rhi/ShaderType.hpp"
-#include "rhi/PixelFormat.hpp"
-#include "rhi/VertexAttributes.hpp"
-#include "rhi/CompareOp.hpp"
-#include "rhi/CullMode.hpp"
-#include "rhi/PrimitiveTopology.hpp"
+#include "BasePipeline.hpp"
+#include "ShaderType.hpp"
+#include "PixelFormat.hpp"
+#include "CompareOp.hpp"
+#include "CullMode.hpp"
+#include "PrimitiveTopology.hpp"
+#include "VertexAttributes.hpp"
 
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
 #include <optional>
 #include <span>
 
@@ -160,6 +160,10 @@ struct BlendState {
   BlendOp alphaOp{BlendOp::Add};
 };
 
+// Assign to VertexAttribute::offset in GraphicsPipeline::setInputAssembly
+// to silence "Vertex attribute at location x not consumed by vertex shader".
+constexpr uint32_t kIgnoreVertexAttribute = ~0;
+
 class GraphicsPipeline final : public BasePipeline {
   friend class RenderDevice;
 
@@ -186,7 +190,7 @@ public:
     Builder &operator=(Builder &&) noexcept = delete;
 
     // PixelFormat can contain stencil bits (might also be Undefined).
-    Builder &setDepthFormat(PixelFormat);
+    Builder &setDepthFormat(const PixelFormat);
     // @param Can be empty
     Builder &setColorFormats(std::initializer_list<PixelFormat>);
     Builder &setColorFormats(std::span<const PixelFormat>);
@@ -194,16 +198,16 @@ public:
     // Do not omit vertex attributes that your shader does not use
     // (in that case use kIgnoreVertexAttribute as an offset).
     Builder &setInputAssembly(const VertexAttributes &);
-    Builder &setTopology(PrimitiveTopology);
+    Builder &setTopology(const PrimitiveTopology);
 
     Builder &setPipelineLayout(PipelineLayout);
     // If a shader of a given type is already specified, then its content will
     // be overwritten with the given code.
-    Builder &addShader(ShaderType, const std::string_view);
+    Builder &addShader(const ShaderType, const std::string_view);
 
     Builder &setDepthStencil(const DepthStencilState &);
     Builder &setRasterizer(const RasterizerState &);
-    Builder &setBlending(uint32_t attachment, const BlendState &);
+    Builder &setBlending(const AttachmentIndex, const BlendState &);
     Builder &setDynamicState(std::initializer_list<VkDynamicState>);
 
     [[nodiscard]] GraphicsPipeline build(RenderDevice &);
@@ -231,7 +235,7 @@ public:
   };
 
 private:
-  GraphicsPipeline(VkDevice, PipelineLayout &&, VkPipeline);
+  GraphicsPipeline(const VkDevice, PipelineLayout &&, const VkPipeline);
 };
 
 } // namespace rhi

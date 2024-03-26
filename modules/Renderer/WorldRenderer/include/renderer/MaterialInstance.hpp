@@ -29,11 +29,11 @@ public:
   MaterialInstance &setTexture(const std::string_view alias,
                                std::shared_ptr<rhi::Texture>);
 
-  MaterialInstance &setFlags(MaterialFlags);
-  MaterialInstance &setCastShadow(bool);
-  MaterialInstance &setReceiveShadow(bool);
+  MaterialInstance &setFlags(const MaterialFlags);
+  MaterialInstance &setCastShadow(const bool);
+  MaterialInstance &setReceiveShadow(const bool);
 
-  MaterialInstance &enable(bool);
+  MaterialInstance &enable(const bool);
 
   // ---
 

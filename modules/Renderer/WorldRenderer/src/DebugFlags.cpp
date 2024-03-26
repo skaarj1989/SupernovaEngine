@@ -4,7 +4,7 @@
 
 namespace gfx {
 
-std::string toString(DebugFlags flags) {
+std::string toString(const DebugFlags flags) {
   using enum DebugFlags;
   if (flags == None) return "None";
 

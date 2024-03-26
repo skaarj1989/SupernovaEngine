@@ -1,5 +1,6 @@
 #include "renderer/CubemapConverter.hpp"
 #include "math/Math.hpp"
+#include "rhi/RenderDevice.hpp"
 #include "ShaderCodeBuilder.hpp"
 #include "glm/gtc/constants.hpp"
 
@@ -27,10 +28,10 @@ constexpr auto kTileSize = 8u;
 CubemapConverter::CubemapConverter(rhi::RenderDevice &rd)
     : rhi::ComputePass<CubemapConverter>{rd} {}
 
-uint32_t CubemapConverter::count(PipelineGroups flags) const {
+uint32_t CubemapConverter::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::BuiltIn) ? BasePass::count() : 0;
 }
-void CubemapConverter::clear(PipelineGroups flags) {
+void CubemapConverter::clear(const PipelineGroups flags) {
   if (bool(flags & PipelineGroups::BuiltIn)) BasePass::clear();
 }
 
@@ -127,7 +128,8 @@ rhi::Texture CubemapConverter::equirectangularToCubemap(
 // (private):
 //
 
-rhi::ComputePipeline CubemapConverter::_createPipeline(rhi::PixelFormat) const {
+rhi::ComputePipeline
+CubemapConverter::_createPipeline(const rhi::PixelFormat) const {
   return getRenderDevice().createComputePipeline(
     ShaderCodeBuilder{}
       .addDefine("TILE_SIZE", kTileSize)

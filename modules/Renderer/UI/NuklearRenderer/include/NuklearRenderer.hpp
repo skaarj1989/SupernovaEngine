@@ -1,6 +1,11 @@
 #pragma once
 
-#include "rhi/RenderDevice.hpp"
+#include "rhi/FrameIndex.hpp"
+#include "rhi/VertexBuffer.hpp"
+#include "rhi/IndexBuffer.hpp"
+#include "rhi/Texture.hpp"
+#include "rhi/GraphicsPipeline.hpp"
+
 #include "Nuklear/nuklear.h"
 #include "glm/ext/vector_float2.hpp"
 
@@ -25,12 +30,12 @@ public:
   createResources(const rhi::FrameIndex::ValueType numFrames) const;
   [[nodiscard]] FrameResources createFrameResources() const;
 
-  void draw(rhi::CommandBuffer &, FrameResources &, rhi::Extent2D,
-            glm::vec2 scale = {1.0f, 1.0f});
+  void draw(rhi::CommandBuffer &, FrameResources &, const rhi::Extent2D,
+            const glm::vec2 scale = {1.0f, 1.0f});
 
 private:
   void _uploadGeometry(FrameResources &) const;
-  void _setupRenderState(rhi::CommandBuffer &, rhi::Extent2D) const;
+  void _setupRenderState(rhi::CommandBuffer &, const rhi::Extent2D) const;
 
 private:
   nk_context &m_ctx;

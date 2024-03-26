@@ -1,7 +1,7 @@
 #pragma once
 
-#include "sol/table.hpp"
 #include "os/InputEvents.hpp"
+#include "sol/table.hpp"
 
 class ScriptNode {
 public:

@@ -9,8 +9,8 @@ public:
            const std::filesystem::path &iconsDir = "./fonts");
   ~ImGuiApp() override;
 
-  void drawGui(rhi::CommandBuffer &, rhi::RenderTargetView,
-               std::optional<glm::vec4> clearColor = std::nullopt);
+  void drawGui(rhi::CommandBuffer &, const rhi::RenderTargetView,
+               const std::optional<glm::vec4> clearColor = std::nullopt);
 
 protected:
   void _onResizeWindow(const os::ResizeWindowEvent &) override;
@@ -24,9 +24,10 @@ protected:
   void _onKeyboard(const os::KeyboardEvent &);
   void _onInputCharacter(const os::InputCharacterEvent &);
 
-  void _onPostUpdate(fsec dt) override;
+  void _onPostUpdate(const fsec dt) override;
 
-  void _onRender(rhi::CommandBuffer &, rhi::RenderTargetView, fsec dt) override;
+  void _onRender(rhi::CommandBuffer &, const rhi::RenderTargetView,
+                 const fsec dt) override;
   void _onPostRender() override;
 
 private:

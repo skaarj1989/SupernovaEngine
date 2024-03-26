@@ -76,9 +76,9 @@ public:
   Transform &translate(const glm::vec3 &);
 
   Transform &rotate(const glm::quat &);
-  Transform &pitch(float angle);
-  Transform &yaw(float angle);
-  Transform &roll(float angle);
+  Transform &pitch(const float angle);
+  Transform &yaw(const float angle);
+  Transform &roll(const float angle);
 
   // Position (.w = 1).
   // Direction (.w = 0).

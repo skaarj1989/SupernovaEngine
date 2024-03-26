@@ -1,9 +1,15 @@
 #pragma once
 
-#include "renderer/Renderable.hpp"
+#include "renderer/TextureResources.hpp"
 #include <vector>
 
 namespace gfx {
+
+class Material;
+class Mesh;
+struct SubMesh;
+
+struct Renderable;
 
 // Group of renderables for a single draw call.
 struct Batch {

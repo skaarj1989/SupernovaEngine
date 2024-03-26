@@ -4,6 +4,7 @@
 #include "os/FileSystem.hpp"
 #include "AudioWorld.hpp"
 #include "SoundSourceComponent.hpp"
+#include "AudioPlayerComponent.hpp"
 
 #include "Sol2HelperMacros.hpp"
 

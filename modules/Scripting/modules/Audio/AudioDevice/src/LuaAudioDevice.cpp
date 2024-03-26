@@ -1,6 +1,7 @@
 #include "LuaAudioDevice.hpp"
 #include "sol/state.hpp"
 
+#include "Decoder.hpp"
 #include "audio/Device.hpp"
 #include "audio/Utility.hpp"
 

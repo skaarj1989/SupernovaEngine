@@ -1,5 +1,7 @@
 #include "CameraController.hpp"
 #include "PerspectiveCamera.hpp"
+#include "Transform.hpp"
+
 #include "imgui.h"
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/quaternion.hpp" // normalize, angleAxis
@@ -22,7 +24,7 @@ enum OperationMask_ {
 using OperationMask = int32_t;
 
 [[nodiscard]] std::optional<Operation>
-controllerBehavior(OperationMask mask = OperationMask_All) {
+controllerBehavior(const OperationMask mask = OperationMask_All) {
   if (ImGui::IsMouseDown(ImGuiMouseButton_Left) &&
       ImGui::IsMouseDown(ImGuiMouseButton_Right)) {
     if (mask & OperationMask_Zoom) return Operation::Zoom;
@@ -36,7 +38,8 @@ controllerBehavior(OperationMask mask = OperationMask_All) {
   return std::nullopt;
 }
 
-void zoom(gfx::PerspectiveCamera &camera, glm::vec2 mouseDelta, float speed) {
+void zoom(gfx::PerspectiveCamera &camera, const glm::vec2 mouseDelta,
+          const float speed) {
   auto p = camera.getPosition();
   const auto forward = camera.getForward();
   p -= (forward * (mouseDelta.x * speed));
@@ -46,7 +49,7 @@ void zoom(gfx::PerspectiveCamera &camera, glm::vec2 mouseDelta, float speed) {
 
 void arcball(gfx::PerspectiveCamera &camera,
              const CameraController::ArcBallConfig &config,
-             glm::vec2 mouseDelta, float speed) {
+             const glm::vec2 mouseDelta, const float speed) {
   const auto deltaAngle =
     glm::vec2{
       glm::two_pi<float>(), // A movement from left to right = 2*PI = 360 deg.
@@ -66,7 +69,8 @@ void arcball(gfx::PerspectiveCamera &camera,
 
   camera.fromTransform(Transform{}.setPosition(position).lookAt(pivot));
 }
-void rotate(gfx::PerspectiveCamera &camera, glm::vec2 mouseDelta, float speed) {
+void rotate(gfx::PerspectiveCamera &camera, const glm::vec2 mouseDelta,
+            const float speed) {
   const auto yaw = -mouseDelta.x * speed;
   auto qYaw = glm::angleAxis(glm::radians(yaw), Transform::kUp);
 
@@ -80,7 +84,8 @@ void rotate(gfx::PerspectiveCamera &camera, glm::vec2 mouseDelta, float speed) {
   camera.setOrientation(q);
 }
 
-void pan(gfx::PerspectiveCamera &camera, glm::vec2 mouseDelta, float speed) {
+void pan(gfx::PerspectiveCamera &camera, const glm::vec2 mouseDelta,
+         const float speed) {
   auto p = camera.getPosition();
   p += camera.getRight() * (mouseDelta.x * speed);
   p += camera.getUp() * (mouseDelta.y * speed);
@@ -91,8 +96,8 @@ void pan(gfx::PerspectiveCamera &camera, glm::vec2 mouseDelta, float speed) {
 
 CameraController::Result
 CameraController::update(gfx::PerspectiveCamera &camera,
-                         const Settings &settings, glm::vec2 mouseDelta,
-                         std::optional<ArcBallConfig> arcballConfig) {
+                         const Settings &settings, const glm::vec2 mouseDelta,
+                         const std::optional<ArcBallConfig> arcballConfig) {
   const auto op =
     controllerBehavior(arcballConfig ? OperationMask_Zoom | OperationMask_Rotate
                                      : OperationMask_All);

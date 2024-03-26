@@ -1,4 +1,5 @@
 #include "ProjectSettingsWidget.hpp"
+#include "ProjectSettings.hpp"
 #include "ImGuiModal.hpp"
 #include "imgui_stdlib.h" // InputText
 

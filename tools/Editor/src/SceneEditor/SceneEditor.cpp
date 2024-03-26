@@ -1,6 +1,11 @@
 #include "SceneEditor/SceneEditor.hpp"
-#include "Services.hpp"
 #include "TypeTraits.hpp"
+#include "Services.hpp"
+
+#include "os/InputSystem.hpp"
+
+#include "rhi/CommandBuffer.hpp"
+#include "renderer/WorldRenderer.hpp"
 
 #include "Inspectors/CameraInspector.hpp"
 #include "Inspectors/SkyLightInspector.hpp"
@@ -13,14 +18,15 @@
 
 #include "FileDialog.hpp"
 #include "TexturePreview.hpp"
-
 #include "RenderSettings.hpp"
 
+#include "sol/state.hpp"
 #include "RmlUi/Core.h"
 
 #include "glm/gtc/type_ptr.hpp" // value_ptr
 
 #include "spdlog/spdlog.h"
+#include "tracy/Tracy.hpp"
 
 #include <fstream> // ofstream
 #include <ranges>
@@ -62,7 +68,7 @@ struct GUI {
   return c && !c->name.empty() ? c->name : makeLabel(h.entity());
 }
 
-void embedEntity(entt::entity e) {
+void embedEntity(const entt::entity e) {
   ImGui::SetDragDropPayload(kImGuiPayloadTypeEntity, &e, sizeof(decltype(e)));
 }
 [[nodiscard]] auto extractEntity(const ImGuiPayload &payload) {
@@ -222,7 +228,7 @@ void inspect(SceneEditor::Viewport &viewport, gfx::WorldRenderer &renderer) {
   }
 }
 
-void cameraOverlay(entt::handle h, float height = 128) {
+void cameraOverlay(const entt::handle h, float height = 128) {
   if (h) {
     if (auto *cc = h.try_get<const CameraComponent>(); cc && cc->extent) {
       const auto width =
@@ -233,7 +239,8 @@ void cameraOverlay(entt::handle h, float height = 128) {
 }
 void showSceneViewportInspector(os::InputSystem &inputSystem,
                                 RenderTargetPreview &renderTargetPreview,
-                                SceneEditor::Entry &entry, bool showOverlay) {
+                                SceneEditor::Entry &entry,
+                                const bool showOverlay) {
   renderTargetPreview.show(
     [&entry](const auto extent) {
       entry.viewport.camera.setAspectRatio(extent.getAspectRatio());
@@ -256,7 +263,7 @@ void showSceneViewportInspector(os::InputSystem &inputSystem,
 
       // ---
 
-      auto h = entry.selectedEntity;
+      const auto h = entry.selectedEntity;
       if (!controller.wantUse && h) {
         if (GizmoController::update(camera, entry.gizmoSettings, h)) {
           PhysicsSystem::updateTransform(*h.registry(), h);
@@ -280,7 +287,7 @@ void showScenePreview(Scene &scene, RenderTargetPreview &renderTargetPreview) {
   }
 }
 
-void showComponentsMenuItems(entt::handle h) {
+void showComponentsMenuItems(const entt::handle h) {
   // WARNING:
   // Complex components can not be replaced! remove and then emplace.
 
@@ -608,7 +615,7 @@ void SceneEditor::onInput(const os::InputEvent &evt) {
       adjustMousePosition(evt, m_renderTargetPreview.getPosition()));
   }
 }
-void SceneEditor::onUpdate(float dt) {
+void SceneEditor::onUpdate(const float dt) {
   ZoneScopedN("SceneEditor::OnUpdate");
   m_dispatcher.update();
   if (m_playTest) {
@@ -619,7 +626,7 @@ void SceneEditor::onUpdate(float dt) {
     UISystem::update(r);
   }
 }
-void SceneEditor::onPhysicsUpdate(float dt) {
+void SceneEditor::onPhysicsUpdate(const float dt) {
   ZoneScopedN("SceneEditor::OnPhysicsUpdate");
   if (m_playTest) {
     auto &r = m_playTest->getRegistry();
@@ -627,7 +634,7 @@ void SceneEditor::onPhysicsUpdate(float dt) {
     PhysicsSystem::simulate(r, dt);
   }
 }
-void SceneEditor::onRender(rhi::CommandBuffer &cb, float dt) {
+void SceneEditor::onRender(rhi::CommandBuffer &cb, const float dt) {
   ZoneScopedN("SceneEditor::OnRender");
   m_renderTargetPreview.render(
     cb, [this, &cb, dt](auto &texture) { _drawWorld(cb, texture, dt); });
@@ -917,7 +924,7 @@ void SceneEditor::_showEntitiesWidget(Entry &entry) {
     ImGui::Separator();
     ImGui::Spacing();
 
-    for (auto [e] : scene.each()) {
+    for (const auto [e] : scene.each()) {
       _viewEntity(scene.get(e), selectedEntity, 0);
     }
 
@@ -929,8 +936,8 @@ void SceneEditor::_showEntitiesWidget(Entry &entry) {
   ImGui::End();
 }
 
-void SceneEditor::_viewEntity(entt::handle h, entt::handle &selected,
-                              int32_t level) {
+void SceneEditor::_viewEntity(const entt::handle h, entt::handle &selected,
+                              const int32_t level) {
   ZoneScopedN("SceneEditor::ViewEntity");
 
   const auto parent = getParent(h);
@@ -1027,7 +1034,7 @@ void SceneEditor::_inspectorWidget(entt::handle &h) {
 
   constexpr auto kRemoveComponentModalId = MAKE_WARNING("Remove Component");
 
-  for (auto [componentId, pool] : h.storage()) {
+  for (const auto [componentId, pool] : h.storage()) {
     if (componentId == entt::type_hash<entt::entity>::value()) {
       continue;
     }
@@ -1060,10 +1067,10 @@ void SceneEditor::_inspectorWidget(entt::handle &h) {
       ImGui::Frame([this, &metaType, h] {
         if (metaType) {
           if (const auto inspected = _onGui(metaType, h); !inspected) {
-            ImGui::Text("inspector not found!");
+            ImGui::TextUnformatted("inspector not found!");
           }
         } else {
-          ImGui::Text("meta_type not found!");
+          ImGui::TextUnformatted("meta_type not found!");
         }
       });
     }
@@ -1074,7 +1081,7 @@ void SceneEditor::_inspectorWidget(entt::handle &h) {
 }
 
 void SceneEditor::_drawWorld(rhi::CommandBuffer &cb, rhi::Texture &texture,
-                             float dt) {
+                             const float dt) {
   static gfx::DebugOutput debugOutput;
   if (auto *entry = getActiveSceneEntry(); entry) {
     _drawWorld(*entry, cb, texture, dt,
@@ -1101,7 +1108,7 @@ void SceneEditor::_drawWorld(rhi::CommandBuffer &cb, rhi::Texture &texture,
   }
 }
 void SceneEditor::_drawWorld(Entry &entry, rhi::CommandBuffer &cb,
-                             rhi::Texture &texture, float dt,
+                             rhi::Texture &texture, const float dt,
                              gfx::DebugOutput *debugOutput) {
   ZoneScopedN("SceneEditor::DrawWorld");
   auto &r = entry.scene.getRegistry();
@@ -1118,7 +1125,7 @@ void SceneEditor::_drawWorld(Entry &entry, rhi::CommandBuffer &cb,
   RenderSystem::update(r, cb, dt, &mainSceneView, debugOutput);
 }
 void SceneEditor::_drawWorld(Scene &scene, rhi::CommandBuffer &cb,
-                             rhi::Texture &texture, float dt,
+                             rhi::Texture &texture, const float dt,
                              gfx::DebugOutput *debugOutput) {
   auto &r = scene.getRegistry();
   if (auto *mainCamera = getMainCameraComponent(r); mainCamera) {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BasePass.hpp"
+#include "GraphicsPipeline.hpp"
 
 namespace rhi {
 

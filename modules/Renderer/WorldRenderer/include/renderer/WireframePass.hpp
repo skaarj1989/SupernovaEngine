@@ -3,10 +3,11 @@
 #include "fg/Fwd.hpp"
 #include "rhi/RenderPass.hpp"
 #include "Technique.hpp"
-#include "BaseGeometryPassInfo.hpp"
-#include "ViewInfo.hpp"
 
 namespace gfx {
+
+struct ViewInfo;
+struct BaseGeometryPassInfo;
 
 class WireframePass final : public rhi::RenderPass<WireframePass>,
                             public Technique {
@@ -15,8 +16,8 @@ class WireframePass final : public rhi::RenderPass<WireframePass>,
 public:
   explicit WireframePass(rhi::RenderDevice &);
 
-  uint32_t count(PipelineGroups) const override;
-  void clear(PipelineGroups) override;
+  uint32_t count(const PipelineGroups) const override;
+  void clear(const PipelineGroups) override;
 
   [[nodiscard]] FrameGraphResource addGeometryPass(FrameGraph &,
                                                    const FrameGraphBlackboard &,

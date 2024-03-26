@@ -7,7 +7,8 @@ namespace rhi {
 
 namespace {
 
-[[nodiscard]] VkShaderStageFlags toVk(spv::ExecutionModel executionModel) {
+[[nodiscard]] VkShaderStageFlags
+toVk(const spv::ExecutionModel executionModel) {
   switch (executionModel) {
   case spv::ExecutionModelVertex:
     return VK_SHADER_STAGE_VERTEX_BIT;

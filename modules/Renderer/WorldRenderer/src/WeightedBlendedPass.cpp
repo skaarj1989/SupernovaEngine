@@ -1,20 +1,30 @@
 #include "renderer/WeightedBlendedPass.hpp"
+#include "rhi/RenderDevice.hpp"
 
+#include "renderer/CommonSamplers.hpp"
+
+#include "renderer/ViewInfo.hpp"
+#include "renderer/VertexFormat.hpp"
+#include "renderer/MeshInstance.hpp"
+
+#include "ForwardPassInfo.hpp"
+#include "LightingSettings.hpp"
+
+#include "FrameGraphResourceAccess.hpp"
+#include "FrameGraphCommon.hpp"
 #include "FrameGraphForwardPass.hpp"
 #include "renderer/FrameGraphTexture.hpp"
-#include "FrameGraphResourceAccess.hpp"
+#include "UploadInstances.hpp"
 
 #include "FrameGraphData/GBuffer.hpp"
 #include "FrameGraphData/WeightedBlended.hpp"
 #include "FrameGraphData/SceneColor.hpp"
 
-#include "renderer/CommonSamplers.hpp"
-
 #include "MaterialShader.hpp"
 #include "BatchBuilder.hpp"
-#include "UploadInstances.hpp"
 
 #include "RenderContext.hpp"
+#include "ShaderCodeBuilder.hpp"
 
 namespace gfx {
 
@@ -41,7 +51,7 @@ WeightedBlendedPass::WeightedBlendedPass(rhi::RenderDevice &rd,
     : rhi::RenderPass<WeightedBlendedPass>{rd}, m_samplers{commonSamplers},
       m_compositionPass{rd} {}
 
-uint32_t WeightedBlendedPass::count(PipelineGroups flags) const {
+uint32_t WeightedBlendedPass::count(const PipelineGroups flags) const {
   uint32_t n{0};
   if (bool(flags & PipelineGroups::SurfaceMaterial)) {
     n += BasePass::count();
@@ -51,7 +61,7 @@ uint32_t WeightedBlendedPass::count(PipelineGroups flags) const {
   }
   return n;
 }
-void WeightedBlendedPass::clear(PipelineGroups flags) {
+void WeightedBlendedPass::clear(const PipelineGroups flags) {
   if (bool(flags & PipelineGroups::SurfaceMaterial)) BasePass::clear();
   if (bool(flags & PipelineGroups::BuiltIn)) m_compositionPass.clear();
 }
@@ -59,7 +69,7 @@ void WeightedBlendedPass::clear(PipelineGroups flags) {
 void WeightedBlendedPass::addGeometryPass(
   FrameGraph &fg, FrameGraphBlackboard &blackboard, const ViewInfo &viewData,
   const PropertyGroupOffsets &propertyGroupOffsets,
-  const LightingSettings &lightingSettings, bool softShadows) {
+  const LightingSettings &lightingSettings, const bool softShadows) {
   constexpr auto kPassName = "WeightedBlended OIT";
   ZoneScopedN(kPassName);
 

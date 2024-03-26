@@ -1,6 +1,8 @@
 #pragma once
 
-#include "Transform.hpp"
+#include "glm/fwd.hpp"
+
+class Transform;
 
 bool inspect(Transform &);
 bool inspectPosition(glm::vec3 &);

@@ -1,10 +1,13 @@
 #pragma once
 
 #include "RenderTargetPreview.hpp"
+#include "Transform.hpp"
+#include "PerspectiveCamera.hpp"
 #include "renderer/RenderSettings.hpp"
 #include "renderer/Light.hpp"
 #include "renderer/SkyLight.hpp"
 #include "renderer/MeshInstance.hpp"
+#include "renderer/MaterialInstance.hpp"
 #include "CameraController.hpp"
 #include "SceneEditor/GizmoController.hpp"
 
@@ -22,10 +25,10 @@ public:
 
   gfx::WorldRenderer &getRenderer() const;
 
-  void setMesh(entt::id_type meshId);
+  void setMesh(const entt::id_type meshId);
   void updateMaterial(std::shared_ptr<gfx::Material>);
 
-  void onRender(rhi::CommandBuffer &, float dt);
+  void onRender(rhi::CommandBuffer &, const float dt);
 
   void showPreview(const char *name, bool *open = nullptr);
   void showSceneSettings(const char *name, bool *open = nullptr);

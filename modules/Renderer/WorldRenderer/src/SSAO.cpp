@@ -1,19 +1,22 @@
 #include "renderer/SSAO.hpp"
+#include "rhi/RenderDevice.hpp"
 
+#include "renderer/CommonSamplers.hpp"
+#include "renderer/PostProcess.hpp"
+#include "renderer/Blur.hpp"
+
+#include "renderer/SSAOSettings.hpp"
+
+#include "FrameGraphResourceAccess.hpp"
 #include "FrameGraphCommon.hpp"
 #include "renderer/FrameGraphTexture.hpp"
-#include "FrameGraphResourceAccess.hpp"
 
 #include "FrameGraphData/Camera.hpp"
 #include "FrameGraphData/GBuffer.hpp"
 #include "FrameGraphData/SSAO.hpp"
 
-#include "renderer/PostProcess.hpp"
-#include "renderer/Blur.hpp"
-
-#include "renderer/CommonSamplers.hpp"
-#include "ShaderCodeBuilder.hpp"
 #include "RenderContext.hpp"
+#include "ShaderCodeBuilder.hpp"
 
 #include "glm/ext/vector_float3.hpp"
 #include "glm/geometric.hpp" // normalize
@@ -26,7 +29,7 @@ namespace {
 
 constexpr auto kKernelSize = 32;
 
-[[nodiscard]] auto generateNoise(uint32_t size) {
+[[nodiscard]] auto generateNoise(const uint32_t size) {
   std::uniform_real_distribution<float> dist{0.0, 1.0};
   std::random_device rd{};
   std::default_random_engine g{rd()};
@@ -76,7 +79,7 @@ constexpr auto kKernelSize = 32;
   return texture;
 }
 
-[[nodiscard]] auto generateKernel(uint32_t kernelSize) {
+[[nodiscard]] auto generateKernel(const uint32_t kernelSize) {
   std::uniform_real_distribution<float> dist{0.0f, 1.0f};
   std::random_device rd{};
   std::default_random_engine g{rd()};
@@ -122,10 +125,10 @@ SSAO::SSAO(rhi::RenderDevice &rd, const CommonSamplers &commonSamplers)
   m_kernelBuffer = generateSampleKernelBuffer(rd);
 }
 
-uint32_t SSAO::count(PipelineGroups flags) const {
+uint32_t SSAO::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::BuiltIn) ? BasePass::count() : 0;
 }
-void SSAO::clear(PipelineGroups flags) {
+void SSAO::clear(const PipelineGroups flags) {
   if (bool(flags & PipelineGroups::BuiltIn)) BasePass::clear();
 }
 
@@ -191,7 +194,7 @@ void SSAO::addPass(FrameGraph &fg, FrameGraphBlackboard &blackboard, Blur &blur,
 //
 
 rhi::GraphicsPipeline
-SSAO::_createPipeline(rhi::PixelFormat colorFormat) const {
+SSAO::_createPipeline(const rhi::PixelFormat colorFormat) const {
   return createPostProcessPipeline(getRenderDevice(), colorFormat,
                                    ShaderCodeBuilder{}
                                      .addDefine("KERNEL_SIZE", kKernelSize)

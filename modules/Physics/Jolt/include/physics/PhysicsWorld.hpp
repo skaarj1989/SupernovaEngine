@@ -1,16 +1,14 @@
 #pragma once
 
+#include "ScopedEnumFlags.hpp"
+
 #include "Jolt/Jolt.h"
 #include "Jolt/Physics/PhysicsSystem.h"
 #include "Jolt/Core/JobSystemThreadPool.h"
 
-#include "ScopedEnumFlags.hpp"
-
-#include "physics/DebugRenderer.hpp"
 #include "physics/RigidBody.hpp"
 #include "physics/Character.hpp"
 #include "physics/CharacterVirtual.hpp"
-#include "Transform.hpp"
 
 struct RayCastBPResult {
   glm::vec3 position;
@@ -34,6 +32,9 @@ struct ContactAddedEvent {
 struct ContactRemovedEvent {
   BodyUserDataPair bodyUserDataPair;
 };
+
+class Transform;
+class DebugDraw;
 
 class PhysicsWorld : private entt::emitter<PhysicsWorld>,
                      private JPH::ContactListener,

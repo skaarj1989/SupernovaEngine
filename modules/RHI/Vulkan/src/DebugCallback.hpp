@@ -4,6 +4,6 @@
 
 namespace rhi {
 
-[[nodiscard]] VkDebugUtilsMessengerEXT createDebugMessenger(VkInstance);
+[[nodiscard]] VkDebugUtilsMessengerEXT createDebugMessenger(const VkInstance);
 
 } // namespace rhi

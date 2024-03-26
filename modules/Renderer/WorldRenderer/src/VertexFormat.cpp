@@ -21,13 +21,13 @@ namespace gfx {
 // VertexFormat class:
 //
 
-std::size_t VertexFormat::getHash() const { return m_hash; }
+VertexFormat::Hash VertexFormat::getHash() const { return m_hash; }
 
 const rhi::VertexAttributes &VertexFormat::getAttributes() const {
   return m_attributes;
 }
-bool VertexFormat::contains(AttributeLocation location) const {
-  return m_attributes.contains(int32_t(location));
+bool VertexFormat::contains(const AttributeLocation location) const {
+  return m_attributes.contains(rhi::LocationIndex(location));
 }
 bool VertexFormat::contains(
   std::initializer_list<AttributeLocation> locations) const {
@@ -39,10 +39,10 @@ bool VertexFormat::contains(
     });
 }
 
-uint32_t VertexFormat::getStride() const { return m_stride; }
+VertexFormat::VertexStride VertexFormat::getStride() const { return m_stride; }
 
-VertexFormat::VertexFormat(std::size_t hash, rhi::VertexAttributes &&attributes,
-                           uint32_t stride)
+VertexFormat::VertexFormat(const Hash hash, rhi::VertexAttributes &&attributes,
+                           const VertexStride stride)
     : m_hash{hash}, m_attributes{std::move(attributes)}, m_stride{stride} {}
 
 //
@@ -51,16 +51,16 @@ VertexFormat::VertexFormat(std::size_t hash, rhi::VertexAttributes &&attributes,
 
 using Builder = VertexFormat::Builder;
 
-Builder &Builder::setAttribute(AttributeLocation location,
+Builder &Builder::setAttribute(const AttributeLocation location,
                                const rhi::VertexAttribute &attribute) {
-  m_attributes.insert_or_assign(int32_t(location), attribute);
+  m_attributes.insert_or_assign(rhi::LocationIndex(location), attribute);
   return *this;
 }
 
 std::shared_ptr<VertexFormat> Builder::build() {
-  std::size_t hash{0};
+  Hash hash{0};
 
-  uint32_t stride{0};
+  VertexStride stride{0};
   for (const auto &[location, attribute] : m_attributes) {
     hashCombine(hash, location, attribute);
     stride += getSize(attribute.type);

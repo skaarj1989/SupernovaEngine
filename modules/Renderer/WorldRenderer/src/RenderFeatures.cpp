@@ -4,7 +4,7 @@
 
 namespace gfx {
 
-std::string toString(RenderFeatures flags) {
+std::string toString(const RenderFeatures flags) {
   using enum RenderFeatures;
   if (flags == None) return "None";
 

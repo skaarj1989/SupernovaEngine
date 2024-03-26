@@ -1,12 +1,18 @@
 #include "renderer/DebugDrawPass.hpp"
+
 #include "MergeVector.hpp"
+#include "DebugDraw.hpp"
+
+#include "rhi/CommandBuffer.hpp"
+#include "rhi/VertexBuffer.hpp"
+#include "rhi/IndexBuffer.hpp"
 
 #include "FrameGraphCommon.hpp"
+#include "UploadContainer.hpp"
+
 #include "FrameGraphData/DummyResources.hpp"
 #include "FrameGraphData/Camera.hpp"
 #include "FrameGraphData/GBuffer.hpp"
-
-#include "UploadContainer.hpp"
 
 #include "ShaderCodeBuilder.hpp"
 
@@ -109,10 +115,10 @@ struct Buffers {
 DebugDrawPass::DebugDrawPass(rhi::RenderDevice &rd)
     : rhi::RenderPass<DebugDrawPass>{rd} {}
 
-uint32_t DebugDrawPass::count(PipelineGroups flags) const {
+uint32_t DebugDrawPass::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::BuiltIn) ? BasePass::count() : 0;
 }
-void DebugDrawPass::clear(PipelineGroups flags) {
+void DebugDrawPass::clear(const PipelineGroups flags) {
   if (bool(flags & PipelineGroups::BuiltIn)) BasePass::clear();
 }
 

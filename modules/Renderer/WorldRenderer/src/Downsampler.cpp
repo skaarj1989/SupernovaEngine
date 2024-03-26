@@ -1,12 +1,13 @@
 #include "renderer/Downsampler.hpp"
-
-#include "fg/FrameGraph.hpp"
-#include "renderer/FrameGraphTexture.hpp"
-#include "FrameGraphResourceAccess.hpp"
+#include "rhi/CommandBuffer.hpp"
 
 #include "renderer/CommonSamplers.hpp"
-
 #include "renderer/PostProcess.hpp"
+
+#include "fg/FrameGraph.hpp"
+#include "FrameGraphResourceAccess.hpp"
+#include "renderer/FrameGraphTexture.hpp"
+
 #include "RenderContext.hpp"
 
 #include "glm/common.hpp" // max
@@ -28,8 +29,9 @@ Downsampler::Downsampler(rhi::RenderDevice &rd,
                          const CommonSamplers &commonSamplers)
     : rhi::RenderPass<Downsampler>{rd}, m_samplers{commonSamplers} {}
 
-FrameGraphResource
-Downsampler::addPass(FrameGraph &fg, FrameGraphResource input, uint32_t level) {
+FrameGraphResource Downsampler::addPass(FrameGraph &fg,
+                                        const FrameGraphResource input,
+                                        const uint32_t level) {
   constexpr auto kPassName = "DownsamplePass";
   ZoneScopedN(kPassName);
 
@@ -91,7 +93,7 @@ Downsampler::addPass(FrameGraph &fg, FrameGraphResource input, uint32_t level) {
 //
 
 rhi::GraphicsPipeline
-Downsampler::_createPipeline(rhi::PixelFormat colorFormat) const {
+Downsampler::_createPipeline(const rhi::PixelFormat colorFormat) const {
   return createPostProcessPipelineFromFile(getRenderDevice(), colorFormat,
                                            "Downsample.frag");
 }

@@ -1,14 +1,20 @@
 #pragma once
 
-#include "rhi/ShaderCompiler.hpp"
-#include "rhi/ShaderModule.hpp"
-#include "rhi/SamplerInfo.hpp"
-#include "rhi/UniformBuffer.hpp"
-#include "rhi/StorageBuffer.hpp"
-#include "rhi/CommandBuffer.hpp"
-#include "rhi/Swapchain.hpp"
-#include "rhi/GarbageCollector.hpp"
-#include "rhi/DebugMarker.hpp"
+#include "VertexBuffer.hpp"
+#include "IndexBuffer.hpp"
+#include "UniformBuffer.hpp"
+#include "StorageBuffer.hpp"
+#include "Texture.hpp"
+#include "SamplerInfo.hpp"
+
+#include "ComputePipeline.hpp"
+#include "ShaderModule.hpp"
+#include "ShaderCompiler.hpp"
+
+#include "CommandBuffer.hpp"
+#include "Swapchain.hpp"
+
+#include "GarbageCollector.hpp"
 
 namespace rhi {
 
@@ -61,35 +67,35 @@ public:
   [[nodiscard]] const VkPhysicalDeviceLimits &getDeviceLimits() const;
   [[nodiscard]] const VkPhysicalDeviceFeatures &getDeviceFeatures() const;
 
-  [[nodiscard]] VkFormatProperties getFormatProperties(PixelFormat) const;
+  [[nodiscard]] VkFormatProperties getFormatProperties(const PixelFormat) const;
 
   // ---
 
   [[nodiscard]] Swapchain
   createSwapchain(const os::Window &,
-                  Swapchain::Format = Swapchain::Format::sRGB,
-                  VerticalSync = VerticalSync::Enabled);
+                  const Swapchain::Format = Swapchain::Format::sRGB,
+                  const VerticalSync = VerticalSync::Enabled);
 
-  [[nodiscard]] VkFence createFence(bool signaled = true);
+  [[nodiscard]] VkFence createFence(const bool signaled = true);
   [[nodiscard]] VkSemaphore createSemaphore();
 
   // ---
 
-  [[nodiscard]] Buffer createStagingBuffer(VkDeviceSize size,
+  [[nodiscard]] Buffer createStagingBuffer(const VkDeviceSize size,
                                            const void *data = nullptr);
 
   [[nodiscard]] VertexBuffer
-  createVertexBuffer(uint32_t stride, VkDeviceSize capacity,
-                     AllocationHints = AllocationHints::None);
+  createVertexBuffer(const Buffer::Stride, const VkDeviceSize capacity,
+                     const AllocationHints = AllocationHints::None);
   [[nodiscard]] IndexBuffer
-  createIndexBuffer(IndexType, VkDeviceSize capacity,
-                    AllocationHints = AllocationHints::None);
+  createIndexBuffer(const IndexType, const VkDeviceSize capacity,
+                    const AllocationHints = AllocationHints::None);
   [[nodiscard]] UniformBuffer
-  createUniformBuffer(VkDeviceSize size,
-                      AllocationHints = AllocationHints::None);
+  createUniformBuffer(const VkDeviceSize size,
+                      const AllocationHints = AllocationHints::None);
   [[nodiscard]] StorageBuffer
-  createStorageBuffer(VkDeviceSize size,
-                      AllocationHints = AllocationHints::None);
+  createStorageBuffer(const VkDeviceSize size,
+                      const AllocationHints = AllocationHints::None);
 
   [[nodiscard]] std::string getMemoryStats() const;
 
@@ -101,21 +107,25 @@ public:
 
   [[nodiscard]] PipelineLayout createPipelineLayout(const PipelineLayoutInfo &);
 
-  [[nodiscard]] Texture createTexture2D(Extent2D, PixelFormat,
-                                        uint32_t numMipLevels,
-                                        uint32_t numLayers, ImageUsage);
-  [[nodiscard]] Texture createTexture3D(Extent2D, uint32_t depth, PixelFormat,
-                                        uint32_t numMipLevels, ImageUsage);
-  [[nodiscard]] Texture createCubemap(uint32_t size, PixelFormat,
-                                      uint32_t numMipLevels, uint32_t numLayers,
-                                      ImageUsage);
+  [[nodiscard]] Texture createTexture2D(const Extent2D, const PixelFormat,
+                                        const uint32_t numMipLevels,
+                                        const uint32_t numLayers,
+                                        const ImageUsage);
+  [[nodiscard]] Texture createTexture3D(const Extent2D, const uint32_t depth,
+                                        const PixelFormat,
+                                        const uint32_t numMipLevels,
+                                        const ImageUsage);
+  [[nodiscard]] Texture createCubemap(const uint32_t size, const PixelFormat,
+                                      const uint32_t numMipLevels,
+                                      const uint32_t numLayers,
+                                      const ImageUsage);
 
   RenderDevice &setupSampler(Texture &, SamplerInfo);
   [[nodiscard]] VkSampler getSampler(const SamplerInfo &);
 
-  [[nodiscard]] std::expected<SPIRV, std::string>
-  compile(ShaderType, const std::string_view code) const;
-  [[nodiscard]] ShaderModule createShaderModule(ShaderType,
+  [[nodiscard]] ShaderCompiler::Result
+  compile(const ShaderType, const std::string_view code) const;
+  [[nodiscard]] ShaderModule createShaderModule(const ShaderType,
                                                 const std::string_view code,
                                                 ShaderReflection * = nullptr);
   [[nodiscard]] ShaderModule createShaderModule(SPIRV,
@@ -127,8 +137,8 @@ public:
 
   // ---
 
-  RenderDevice &upload(Buffer &, VkDeviceSize offset, VkDeviceSize size,
-                       const void *data);
+  RenderDevice &upload(Buffer &, const VkDeviceSize offset,
+                       const VkDeviceSize size, const void *data);
 
   RenderDevice &destroy(VkFence &);
   RenderDevice &destroy(VkSemaphore &);
@@ -141,7 +151,7 @@ public:
 
   // --
 
-  RenderDevice &present(Swapchain &, VkSemaphore wait = VK_NULL_HANDLE);
+  RenderDevice &present(Swapchain &, const VkSemaphore wait = VK_NULL_HANDLE);
 
   // ---
 
@@ -151,15 +161,15 @@ public:
 
   // ---
 
-  RenderDevice &wait(VkFence);
-  RenderDevice &reset(VkFence);
+  RenderDevice &wait(const VkFence);
+  RenderDevice &reset(const VkFence);
 
   RenderDevice &waitIdle();
 
 private:
   void _createInstance();
   void _selectPhysicalDevice(const PhysicalDeviceSelector &);
-  void _createLogicalDevice(uint32_t familyIndex);
+  void _createLogicalDevice(const uint32_t familyIndex);
   void _createMemoryAllocator();
 
   [[nodiscard]] VkDevice _getLogicalDevice() const;
@@ -205,12 +215,12 @@ enum class Vendor : uint32_t {
   NVIDIA = 0x10DE,
   Intel = 0x8086,
 };
-[[nodiscard]] PhysicalDeviceSelector selectVendor(Vendor);
+[[nodiscard]] PhysicalDeviceSelector selectVendor(const Vendor);
 
 template <class T, class... Args>
 [[nodiscard]] auto makeShared(RenderDevice &rd, Args &&...args) {
   struct Deleter {
-    rhi::RenderDevice &renderDevice;
+    RenderDevice &renderDevice;
 
     void operator()(T *resource) {
       renderDevice.pushGarbage(*resource);
@@ -223,7 +233,3 @@ template <class T, class... Args>
 } // namespace rhi
 
 template <> struct has_flags<rhi::AllocationHints> : std::true_type {};
-
-#define RHI_GPU_ZONE(CommandBuffer, Label)                                     \
-  RHI_NAMED_DEBUG_MARKER(CommandBuffer, Label);                                \
-  TRACY_GPU_TRANSIENT_ZONE(CommandBuffer, Label)

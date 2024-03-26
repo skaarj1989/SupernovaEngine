@@ -3,7 +3,7 @@
 
 namespace rhi {
 
-uint32_t getSize(VertexAttribute::Type type) {
+uint32_t getSize(const VertexAttribute::Type type) {
   switch (type) {
     using enum VertexAttribute::Type;
   case Float:

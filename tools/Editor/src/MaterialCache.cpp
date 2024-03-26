@@ -1,4 +1,5 @@
 #include "MaterialCache.hpp"
+#include "renderer/MaterialManager.hpp"
 #include "ImGuiDragAndDrop.hpp"
 #include "CacheInspector.hpp"
 
@@ -35,12 +36,12 @@ void show(const char *name, bool *open, gfx::MaterialManager &cache) {
     defaultMenuBar(cache);
     view(
       cache,
-      [](auto id) {
+      [](const auto id) {
         onDragSource(kImGuiPayloadTypeMaterial, id,
-                     [] { ImGui::Text("Material inside ..."); });
+                     [] { ImGui::TextUnformatted("Material inside ..."); });
       },
       [](const auto &r) { print(r.getBlueprint()); },
-      [&cache](auto id) { return !cache.isBuiltIn(id); });
+      [&cache](const auto id) { return !cache.isBuiltIn(id); });
   }
   ImGui::End();
 }

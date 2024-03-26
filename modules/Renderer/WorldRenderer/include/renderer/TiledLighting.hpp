@@ -12,17 +12,16 @@ class TiledLighting : public Technique {
 public:
   explicit TiledLighting(rhi::RenderDevice &);
 
-  uint32_t count(PipelineGroups) const override;
-  void clear(PipelineGroups) override;
+  uint32_t count(const PipelineGroups) const override;
+  void clear(const PipelineGroups) override;
 
   using TileSize = uint32_t;
 
-  void cullLights(FrameGraph &, FrameGraphBlackboard &, TileSize);
+  void cullLights(FrameGraph &, FrameGraphBlackboard &, const TileSize);
 
-  [[nodiscard]] FrameGraphResource addDebugOverlay(FrameGraph &,
-                                                   FrameGraphBlackboard &,
-                                                   Blit &,
-                                                   FrameGraphResource target);
+  [[nodiscard]] FrameGraphResource
+  addDebugOverlay(FrameGraph &, const FrameGraphBlackboard &, Blit &,
+                  const FrameGraphResource target);
 
 private:
   struct PassInfo {
@@ -38,10 +37,10 @@ private:
     explicit FrustumBuilder(rhi::RenderDevice &);
 
     [[nodiscard]] FrameGraphResource
-    buildFrustums(FrameGraph &, FrameGraphBlackboard &, const PassInfo &);
+    buildFrustums(FrameGraph &, const FrameGraphBlackboard &, const PassInfo &);
 
   private:
-    [[nodiscard]] rhi::ComputePipeline _createPipeline(TileSize) const;
+    [[nodiscard]] rhi::ComputePipeline _createPipeline(const TileSize) const;
   };
 
   class LightCuller final : public rhi::ComputePass<LightCuller> {
@@ -51,10 +50,10 @@ private:
     explicit LightCuller(rhi::RenderDevice &);
 
     void cullLights(FrameGraph &, FrameGraphBlackboard &,
-                    FrameGraphResource gridFrustums, const PassInfo &);
+                    const FrameGraphResource gridFrustums, const PassInfo &);
 
   private:
-    [[nodiscard]] rhi::ComputePipeline _createPipeline(TileSize) const;
+    [[nodiscard]] rhi::ComputePipeline _createPipeline(const TileSize) const;
   };
 
 private:

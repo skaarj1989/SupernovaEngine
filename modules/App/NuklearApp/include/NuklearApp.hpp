@@ -8,18 +8,19 @@ public:
 
   [[nodiscard]] nk_context *getNuklearContext() const;
 
-  void drawGui(rhi::CommandBuffer &, rhi::RenderTargetView,
-               std::optional<glm::vec4> clearColor);
+  void drawGui(rhi::CommandBuffer &, const rhi::RenderTargetView,
+               const std::optional<glm::vec4> clearColor);
 
 protected:
-  void _onPreUpdate(fsec dt) override;
+  void _onPreUpdate(const fsec dt) override;
 
   void _onInput(const os::InputEvent &) override;
   void _notify(std::span<bool> keysDown) const;
 
-  void _onPostUpdate(fsec dt) override;
+  void _onPostUpdate(const fsec dt) override;
 
-  void _onRender(rhi::CommandBuffer &, rhi::RenderTargetView, fsec dt) override;
+  void _onRender(rhi::CommandBuffer &, const rhi::RenderTargetView,
+                 const fsec dt) override;
 
 private:
   std::unique_ptr<nk_context> m_nuklearContext;

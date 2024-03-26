@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rhi/Buffer.hpp"
+#include "Buffer.hpp"
 
 namespace rhi {
 

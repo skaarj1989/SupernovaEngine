@@ -1,5 +1,5 @@
 #pragma once
 
-#include "physics/CollisionLayer.hpp"
+struct CollisionLayer;
 
 bool inspect(CollisionLayer &);

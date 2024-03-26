@@ -1,14 +1,14 @@
 #include "renderer/InfiniteGridPass.hpp"
+#include "rhi/CommandBuffer.hpp"
 
-#include "FrameGraphCommon.hpp"
 #include "FrameGraphResourceAccess.hpp"
+#include "FrameGraphCommon.hpp"
 
 #include "FrameGraphData/GBuffer.hpp"
 #include "FrameGraphData/Camera.hpp"
 
-#include "ShaderCodeBuilder.hpp"
-
 #include "RenderContext.hpp"
+#include "ShaderCodeBuilder.hpp"
 
 namespace std {
 
@@ -28,10 +28,10 @@ namespace gfx {
 InfiniteGridPass::InfiniteGridPass(rhi::RenderDevice &rd)
     : rhi::RenderPass<InfiniteGridPass>{rd} {}
 
-uint32_t InfiniteGridPass::count(PipelineGroups flags) const {
+uint32_t InfiniteGridPass::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::BuiltIn) ? BasePass::count() : 0;
 }
-void InfiniteGridPass::clear(PipelineGroups flags) {
+void InfiniteGridPass::clear(const PipelineGroups flags) {
   if (bool(flags & PipelineGroups::BuiltIn)) BasePass::clear();
 }
 

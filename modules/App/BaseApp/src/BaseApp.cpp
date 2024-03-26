@@ -41,7 +41,7 @@ public:
   explicit FPSMonitor(os::Window &window)
       : m_target{window}, m_originalCaption{window.getCaption()} {}
 
-  void update(fsec dt) {
+  void update(const fsec dt) {
     ++m_numFrames;
     m_time += dt;
 
@@ -186,11 +186,14 @@ void BaseApp::close() { m_quit = true; }
 //
 
 void BaseApp::_setupWindowCallbacks() {
-  m_window.on<os::CloseWindowEvent>([this](auto, auto &) { close(); });
+  m_window.on<os::CloseWindowEvent>(
+    [this](const auto, const auto &) { close(); });
   m_window.on<os::ResizeWindowEvent>(
-    [this](const auto &evt, auto &) { _onResizeWindow(evt); });
+    [this](const auto &evt, const auto &) { _onResizeWindow(evt); });
 
-  const auto inputCallback = [this](const auto &evt, auto &) { _onInput(evt); };
+  const auto inputCallback = [this](const auto &evt, const auto &) {
+    _onInput(evt);
+  };
 
   m_window.on<os::MouseMoveEvent>(inputCallback);
   m_window.on<os::MouseButtonEvent>(inputCallback);

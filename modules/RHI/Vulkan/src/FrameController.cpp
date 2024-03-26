@@ -1,4 +1,7 @@
 #include "rhi/FrameController.hpp"
+#include "rhi/RenderDevice.hpp"
+#include <algorithm> // generate_n
+#include <iterator>  // back_inserter
 
 // https://www.intel.com/content/www/us/en/developer/articles/training/practical-approach-to-vulkan-part-1.html
 

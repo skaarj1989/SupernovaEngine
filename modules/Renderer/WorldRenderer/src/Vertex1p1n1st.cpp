@@ -1,4 +1,5 @@
 #include "renderer/Vertex1p1n1st.hpp"
+#include "renderer/VertexFormat.hpp"
 
 namespace gfx {
 

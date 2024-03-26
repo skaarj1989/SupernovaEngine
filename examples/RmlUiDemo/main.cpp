@@ -111,7 +111,7 @@ public:
     if (m_document) m_document->Close();
   }
 
-  void update(float t) {
+  void update(const float t) {
     if (!m_document) return;
 
     if (t - m_prevFade >= 1.4f) {
@@ -163,7 +163,7 @@ public:
   }
 
 private:
-  void _onUpdate(fsec dt) override {
+  void _onUpdate(const fsec dt) override {
     m_demoWindow->update(dt.count());
     RmlUiApp::_onUpdate(dt);
   }

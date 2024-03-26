@@ -25,11 +25,12 @@ private:
 
   void _onInput(const os::InputEvent &) override;
 
-  void _onUpdate(fsec dt) override;
-  void _onPhysicsUpdate(fsec dt) override;
+  void _onUpdate(const fsec dt) override;
+  void _onPhysicsUpdate(const fsec dt) override;
 
   void _onPreRender() override;
-  void _onRender(rhi::CommandBuffer &, rhi::RenderTargetView, fsec dt) override;
+  void _onRender(rhi::CommandBuffer &, const rhi::RenderTargetView,
+                 const fsec dt) override;
 
 private:
   std::optional<ProjectSettings> m_projectSettings;

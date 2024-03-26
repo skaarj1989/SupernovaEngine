@@ -18,7 +18,8 @@ public:
   addPass(FrameGraph &, const WeightedBlendedData &, FrameGraphResource target);
 
 private:
-  rhi::GraphicsPipeline _createPipeline(rhi::PixelFormat colorFormat) const;
+  rhi::GraphicsPipeline
+  _createPipeline(const rhi::PixelFormat colorFormat) const;
 };
 
 } // namespace gfx

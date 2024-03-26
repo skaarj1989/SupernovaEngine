@@ -1,10 +1,14 @@
 #pragma once
 
+#include "rhi/PixelFormat.hpp"
 #include "rhi/PrimitiveTopology.hpp"
-#include "VertexFormat.hpp"
-#include "Material.hpp"
+#include <functional>
+#include <vector>
 
 namespace gfx {
+
+class VertexFormat;
+class Material;
 
 struct BaseGeometryPassInfo {
   rhi::PixelFormat depthFormat;
@@ -19,7 +23,7 @@ struct BaseGeometryPassInfo {
 namespace std {
 
 template <> struct hash<gfx::BaseGeometryPassInfo> {
-  std::size_t operator()(const gfx::BaseGeometryPassInfo &) const noexcept;
+  size_t operator()(const gfx::BaseGeometryPassInfo &) const noexcept;
 };
 
 } // namespace std

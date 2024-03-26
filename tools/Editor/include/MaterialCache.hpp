@@ -1,5 +1,7 @@
 #pragma once
 
-#include "renderer/MaterialManager.hpp"
+namespace gfx {
+class MaterialManager;
+}
 
 void show(const char *name, bool *open, gfx::MaterialManager &);

@@ -9,6 +9,7 @@
 #include "imgui_stdlib.h"   // InputTextWithHint
 
 #include "spdlog/spdlog.h"
+#include "tracy/Tracy.hpp"
 
 namespace {
 
@@ -19,8 +20,8 @@ namespace {
 } // namespace
 
 void FileBrowserWidget::show(const char *name, bool *open) {
-  ZoneScopedN("FileBrowserWidget");
   if (ImGui::Begin(name, open)) {
+    ZoneScopedN("FileBrowserWidget");
     if (ImGui::InputTextWithHint(IM_UNIQUE_ID, "Filter", &m_pattern)) {
       m_selected.clear();
     }
@@ -154,7 +155,8 @@ void FileBrowserWidget::_viewDirectory(const std::filesystem::path &dir) {
         ImGui::MenuItem(ICON_FA_TRASH " Remove");
         ImGui::PopItemFlag();
         attachPopup(nullptr, ImGuiMouseButton_Left, [this] {
-          ImGui::Text("Do you really want to remove the selected file(s)?");
+          ImGui::TextUnformatted(
+            "Do you really want to remove the selected file(s)?");
           ImGui::Spacing();
           ImGui::Separator();
           ImGui::Spacing();

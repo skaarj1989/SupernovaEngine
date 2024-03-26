@@ -15,22 +15,24 @@ class Blur final : public rhi::RenderPass<Blur>, public Technique {
 public:
   Blur(rhi::RenderDevice &, const CommonSamplers &);
 
-  uint32_t count(PipelineGroups) const override;
-  void clear(PipelineGroups) override;
+  uint32_t count(const PipelineGroups) const override;
+  void clear(const PipelineGroups) override;
 
   [[nodiscard]] FrameGraphResource addGaussianBlur(FrameGraph &,
                                                    FrameGraphResource input,
-                                                   int32_t iterations,
-                                                   float scale);
+                                                   const int32_t iterations,
+                                                   const float scale);
   [[nodiscard]] FrameGraphResource
-  addTwoPassGaussianBlur(FrameGraph &, FrameGraphResource input, float radius);
+  addTwoPassGaussianBlur(FrameGraph &, FrameGraphResource input,
+                         const float radius);
 
 private:
   [[nodiscard]] rhi::GraphicsPipeline
-  _createPipeline(rhi::PixelFormat colorFormat) const;
+  _createPipeline(const rhi::PixelFormat colorFormat) const;
 
-  [[nodiscard]] FrameGraphResource
-  _addPass(FrameGraph &, FrameGraphResource input, glm::vec2 direction);
+  [[nodiscard]] FrameGraphResource _addPass(FrameGraph &,
+                                            const FrameGraphResource input,
+                                            const glm::vec2 direction);
 
 private:
   const CommonSamplers &m_samplers;

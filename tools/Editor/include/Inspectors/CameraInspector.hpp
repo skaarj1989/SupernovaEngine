@@ -1,5 +1,7 @@
 #pragma once
 
-#include "PerspectiveCamera.hpp"
+namespace gfx {
+class PerspectiveCamera;
+}
 
-void inspect(gfx::PerspectiveCamera &, bool inspectTransform);
+void inspect(gfx::PerspectiveCamera &, const bool inspectTransform);

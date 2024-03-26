@@ -1,22 +1,30 @@
 #pragma once
 
-#include "rhi/VertexBuffer.hpp"
-#include "rhi/IndexBuffer.hpp"
-#include "rhi/TexelFilter.hpp"
-#include "rhi/Texture.hpp"
-#include "rhi/ComputePipeline.hpp"
-#include "rhi/GraphicsPipeline.hpp"
-#include "rhi/FramebufferInfo.hpp"
-#include "rhi/GeometryInfo.hpp"
-#include "rhi/Barrier.hpp"
-#include "rhi/DescriptorSetAllocator.hpp"
-#include "rhi/DescriptorSetBuilder.hpp"
+#include "TexelFilter.hpp"
+#include "ShaderType.hpp"
+#include "FramebufferInfo.hpp"
+#include "GeometryInfo.hpp"
+#include "Barrier.hpp"
+#include "DescriptorSetAllocator.hpp"
+#include "DescriptorSetBuilder.hpp"
+
+#include "DebugMarker.hpp"
+
+#include "glm/ext/vector_uint3.hpp"
+
 #include "tracy/Tracy.hpp"
 #include "tracy/TracyVulkan.hpp"
 
+#include <span>
+
 namespace rhi {
 
-class DebugMarker;
+class RenderDevice;
+class VertexBuffer;
+class IndexBuffer;
+class Texture;
+class BasePipeline;
+class ComputePipeline;
 
 class CommandBuffer final {
   friend class RenderDevice; // Calls the private constructor.
@@ -64,13 +72,14 @@ public:
   CommandBuffer &dispatch(const ComputePipeline &, const glm::uvec3 &);
   CommandBuffer &dispatch(const glm::uvec3 &);
 
-  CommandBuffer &bindDescriptorSet(uint32_t set, VkDescriptorSet);
+  CommandBuffer &bindDescriptorSet(const DescriptorSetIndex,
+                                   const VkDescriptorSet);
 
-  CommandBuffer &pushConstants(ShaderStages, uint32_t offset, uint32_t size,
-                               const void *data);
+  CommandBuffer &pushConstants(const ShaderStages, const uint32_t offset,
+                               const uint32_t size, const void *data);
   template <typename T>
-  CommandBuffer &pushConstants(ShaderStages shaderStages, uint32_t offset,
-                               const T *v) {
+  CommandBuffer &pushConstants(const ShaderStages shaderStages,
+                               const uint32_t offset, const T *v) {
     return pushConstants(shaderStages, offset, sizeof(T), v);
   }
 
@@ -83,7 +92,7 @@ public:
   CommandBuffer &setViewport(const Rect2D &);
   CommandBuffer &setScissor(const Rect2D &);
 
-  CommandBuffer &draw(const GeometryInfo &, uint32_t numInstances = 1);
+  CommandBuffer &draw(const GeometryInfo &, const uint32_t numInstances = 1);
   CommandBuffer &drawFullScreenTriangle();
   CommandBuffer &drawCube();
 
@@ -100,12 +109,13 @@ public:
   CommandBuffer &copyBuffer(const Buffer &src, Texture &dst,
                             std::span<const VkBufferImageCopy>);
 
-  CommandBuffer &update(Buffer &, VkDeviceSize offset, VkDeviceSize size,
-                        const void *data);
+  CommandBuffer &update(Buffer &, const VkDeviceSize offset,
+                        const VkDeviceSize size, const void *data);
 
-  CommandBuffer &blit(Texture &src, Texture &dst, VkFilter);
+  CommandBuffer &blit(Texture &src, Texture &dst, const VkFilter);
 
-  CommandBuffer &generateMipmaps(Texture &, TexelFilter = TexelFilter::Linear);
+  CommandBuffer &generateMipmaps(Texture &,
+                                 const TexelFilter = TexelFilter::Linear);
 
   // ---
 
@@ -114,17 +124,19 @@ public:
   CommandBuffer &flushBarriers();
 
 private:
-  CommandBuffer(VkDevice, VkCommandPool, VkCommandBuffer, TracyVkCtx, VkFence);
+  CommandBuffer(const VkDevice, const VkCommandPool, const VkCommandBuffer,
+                const TracyVkCtx, const VkFence);
 
-  [[nodiscard]] bool _invariant(State requiredState,
-                                InvariantFlags = InvariantFlags::None) const;
+  [[nodiscard]] bool
+  _invariant(const State requiredState,
+             const InvariantFlags = InvariantFlags::None) const;
 
   void _destroy() noexcept;
 
-  void _chunkedUpdate(VkBuffer, VkDeviceSize offset, VkDeviceSize size,
+  void _chunkedUpdate(const VkBuffer, VkDeviceSize offset, VkDeviceSize size,
                       const void *data);
 
-  void _setVertexBuffer(const VertexBuffer *, VkDeviceSize offset);
+  void _setVertexBuffer(const VertexBuffer *, const VkDeviceSize offset);
   void _setIndexBuffer(const IndexBuffer *);
 
   void _pushDebugGroup(const std::string_view);
@@ -153,7 +165,8 @@ private:
   bool m_insideRenderPass{false};
 };
 
-void prepareForAttachment(CommandBuffer &, const Texture &, bool readOnly);
+void prepareForAttachment(CommandBuffer &, const Texture &,
+                          const bool readOnly);
 void prepareForReading(CommandBuffer &, const Texture &);
 
 } // namespace rhi
@@ -173,3 +186,7 @@ struct has_flags<rhi::CommandBuffer::InvariantFlags> : std::true_type {};
   ZoneTransientN(_tracy_zone, Label, true);                                    \
   TracyVkZoneTransient(CommandBuffer.getTracyContext(), _tracy_vk_zone,        \
                        CommandBuffer.getHandle(), Label, true)
+
+#define RHI_GPU_ZONE(CommandBuffer, Label)                                     \
+  RHI_NAMED_DEBUG_MARKER(CommandBuffer, Label);                                \
+  TRACY_GPU_TRANSIENT_ZONE(CommandBuffer, Label)

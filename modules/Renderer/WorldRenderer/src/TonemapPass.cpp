@@ -1,19 +1,20 @@
 #include "renderer/TonemapPass.hpp"
+#include "rhi/CommandBuffer.hpp"
+
+#include "renderer/CommonSamplers.hpp"
+#include "renderer/PostProcess.hpp"
 
 #include "fg/FrameGraph.hpp"
-#include "renderer/FrameGraphTexture.hpp"
-#include "FrameGraphResourceAccess.hpp"
 #include "fg/Blackboard.hpp"
+#include "FrameGraphResourceAccess.hpp"
+#include "renderer/FrameGraphTexture.hpp"
 
 #include "FrameGraphData/SceneColor.hpp"
 #include "FrameGraphData/AverageLuminance.hpp"
 #include "FrameGraphData/BrightColor.hpp"
 
-#include "ShaderCodeBuilder.hpp"
-
-#include "renderer/CommonSamplers.hpp"
-#include "renderer/PostProcess.hpp"
 #include "RenderContext.hpp"
+#include "ShaderCodeBuilder.hpp"
 
 namespace gfx {
 
@@ -21,17 +22,18 @@ TonemapPass::TonemapPass(rhi::RenderDevice &rd,
                          const CommonSamplers &commonSamplers)
     : rhi::RenderPass<TonemapPass>{rd}, m_samplers{commonSamplers} {}
 
-uint32_t TonemapPass::count(PipelineGroups flags) const {
+uint32_t TonemapPass::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::BuiltIn) ? BasePass::count() : 0;
 }
-void TonemapPass::clear(PipelineGroups flags) {
+void TonemapPass::clear(const PipelineGroups flags) {
   if (bool(flags & PipelineGroups::BuiltIn)) BasePass::clear();
 }
 
 FrameGraphResource TonemapPass::addPass(FrameGraph &fg,
                                         FrameGraphBlackboard &blackboard,
-                                        Tonemap tonemap, float exposure,
-                                        float bloomStrength) {
+                                        const Tonemap tonemap,
+                                        const float exposure,
+                                        const float bloomStrength) {
   constexpr auto kPassName = "Tonemapping";
   ZoneScopedN(kPassName);
 
@@ -134,9 +136,9 @@ FrameGraphResource TonemapPass::addPass(FrameGraph &fg,
 // (private):
 //
 
-rhi::GraphicsPipeline TonemapPass::_createPipeline(rhi::PixelFormat colorFormat,
-                                                   bool autoExposure,
-                                                   bool bloom) const {
+rhi::GraphicsPipeline
+TonemapPass::_createPipeline(const rhi::PixelFormat colorFormat,
+                             const bool autoExposure, const bool bloom) const {
   ShaderCodeBuilder shaderCodeBuilder;
   shaderCodeBuilder.addDefine<int32_t>("HAS_EYE_ADAPTATION", autoExposure)
     .addDefine<int32_t>("HAS_BLOOM", bloom);

@@ -1,8 +1,12 @@
 #include "renderer/FinalPass.hpp"
+#include "rhi/CommandBuffer.hpp"
 
-#include "renderer/FrameGraphTexture.hpp"
-#include "FrameGraphCommon.hpp"
+#include "renderer/CommonSamplers.hpp"
+#include "renderer/PostProcess.hpp"
+
 #include "FrameGraphResourceAccess.hpp"
+#include "FrameGraphCommon.hpp"
+#include "renderer/FrameGraphTexture.hpp"
 
 #include "FrameGraphData/Camera.hpp"
 #include "FrameGraphData/GBuffer.hpp"
@@ -13,9 +17,6 @@
 #include "FrameGraphData/Reflections.hpp"
 #include "FrameGraphData/BrightColor.hpp"
 
-#include "renderer/CommonSamplers.hpp"
-
-#include "renderer/PostProcess.hpp"
 #include "RenderContext.hpp"
 
 namespace gfx {
@@ -34,7 +35,7 @@ enum class Mode {
 };
 
 [[nodiscard]] auto pickOutput(const FrameGraphBlackboard &blackboard,
-                              OutputMode outputMode) {
+                              const OutputMode outputMode) {
   auto mode{Mode::Default};
 
   std::optional<FrameGraphResource> input;
@@ -123,16 +124,16 @@ FinalPass::FinalPass(rhi::RenderDevice &rd,
                      const CommonSamplers &commonSamplers)
     : rhi::RenderPass<FinalPass>{rd}, m_samplers{commonSamplers} {}
 
-uint32_t FinalPass::count(PipelineGroups flags) const {
+uint32_t FinalPass::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::BuiltIn) ? BasePass::count() : 0;
 }
-void FinalPass::clear(PipelineGroups flags) {
+void FinalPass::clear(const PipelineGroups flags) {
   if (bool(flags & PipelineGroups::BuiltIn)) BasePass::clear();
 }
 
 FrameGraphResource FinalPass::compose(FrameGraph &fg,
                                       const FrameGraphBlackboard &blackboard,
-                                      OutputMode outputMode,
+                                      const OutputMode outputMode,
                                       FrameGraphResource target) {
   constexpr auto kPassName = "FinalComposition";
   ZoneScopedN(kPassName);
@@ -190,8 +191,9 @@ FrameGraphResource FinalPass::compose(FrameGraph &fg,
   return target;
 }
 
-rhi::GraphicsPipeline FinalPass::_createPipeline(rhi::PixelFormat colorFormat,
-                                                 Mode mode) const {
+rhi::GraphicsPipeline
+FinalPass::_createPipeline(const rhi::PixelFormat colorFormat,
+                           const Mode mode) const {
   return createPostProcessPipelineFromFile(
     getRenderDevice(), colorFormat,
     mode == Mode::Final ? "FinalPass.frag" : "Pattern.frag");

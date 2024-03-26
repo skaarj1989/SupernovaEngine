@@ -1,11 +1,15 @@
 #pragma once
 
-#include "renderer/Material.hpp"
+#include "glad/vulkan.h"
+#include "renderer/MaterialProperty.hpp"
+#include <vector>
 
 namespace gfx {
 
+struct PropertyLayout;
+
 [[nodiscard]] std::vector<std::byte>
 buildPropertyBuffer(const PropertyLayout &, const std::vector<Property> &,
-                    VkDeviceSize minOffsetAlignment);
+                    const VkDeviceSize minOffsetAlignment);
 
 } // namespace gfx

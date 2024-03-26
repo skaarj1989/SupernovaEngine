@@ -1,8 +1,9 @@
 #include "Inspectors/CameraInspector.hpp"
+#include "PerspectiveCamera.hpp"
 #include "Inspectors/TransformInspector.hpp"
 #include "imgui.h"
 
-void inspect(gfx::PerspectiveCamera &camera, bool inspectTransform) {
+void inspect(gfx::PerspectiveCamera &camera, const bool inspectTransform) {
   ImGui::PushItemWidth(100);
 
   if (auto fov = camera.getFov();

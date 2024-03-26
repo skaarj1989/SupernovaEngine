@@ -1,10 +1,12 @@
 #pragma once
 
 #include "rhi/ShaderType.hpp"
-#include "renderer/Material.hpp"
-#include "ShaderCodeBuilder.hpp"
+
+class ShaderCodeBuilder;
 
 namespace gfx {
+
+class Material;
 
 void noMaterial(ShaderCodeBuilder &);
 
@@ -13,9 +15,9 @@ struct ReferenceFrames {
   ReferenceFrame position;
   ReferenceFrame normal;
 };
-void setReferenceFrames(ShaderCodeBuilder &, ReferenceFrames);
+void setReferenceFrames(ShaderCodeBuilder &, const ReferenceFrames);
 
-void addMaterial(ShaderCodeBuilder &, const Material &, rhi::ShaderType,
-                 VkDeviceSize minOffsetAlignment);
+void addMaterial(ShaderCodeBuilder &, const Material &, const rhi::ShaderType,
+                 const VkDeviceSize minOffsetAlignment);
 
 } // namespace gfx

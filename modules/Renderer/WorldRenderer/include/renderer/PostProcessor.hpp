@@ -3,11 +3,13 @@
 #include "fg/Fwd.hpp"
 #include "rhi/RenderPass.hpp"
 #include "Technique.hpp"
-#include "MaterialInstance.hpp"
 
 namespace gfx {
 
 struct CommonSamplers;
+
+class Material;
+class MaterialInstance;
 
 class PostProcessor final : public rhi::RenderPass<PostProcessor>,
                             public Technique {
@@ -16,12 +18,12 @@ class PostProcessor final : public rhi::RenderPass<PostProcessor>,
 public:
   PostProcessor(rhi::RenderDevice &, const CommonSamplers &);
 
-  uint32_t count(PipelineGroups) const override;
-  void clear(PipelineGroups) override;
+  uint32_t count(const PipelineGroups) const override;
+  void clear(const PipelineGroups) override;
 
   [[nodiscard]] FrameGraphResource addPass(FrameGraph &,
                                            const FrameGraphBlackboard &,
-                                           FrameGraphResource sceneColor,
+                                           const FrameGraphResource sceneColor,
                                            const MaterialInstance &);
 
   [[nodiscard]] static std::string buildFragmentCode(const rhi::RenderDevice &,

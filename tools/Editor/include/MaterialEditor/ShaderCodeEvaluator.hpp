@@ -100,7 +100,8 @@ private:
 buildFunctionCall(const std::string_view functionName,
                   const std::vector<std::string> &args);
 
-std::optional<std::string> assure(const ShaderToken &, DataType requiredType);
+std::optional<std::string> assure(const ShaderToken &,
+                                  const DataType requiredType);
 
 template <std::size_t _Size>
 [[nodiscard]] auto extract(std::stack<ShaderToken> &tokens) {
@@ -119,11 +120,11 @@ template <std::size_t _Size>
 
 ShaderToken extractTop(std::stack<ShaderToken> &);
 
-inline void extractN(std::stack<ShaderToken> &tokens, std::size_t count,
+inline void extractN(std::stack<ShaderToken> &tokens, const std::size_t count,
                      auto &out) {
   assert(count > 0 && tokens.size() >= count);
   std::generate_n(out.rbegin(), count,
                   [&tokens] { return extractTop(tokens); });
 }
 [[nodiscard]] std::vector<ShaderToken> extractN(std::stack<ShaderToken> &,
-                                                std::size_t count);
+                                                const std::size_t count);

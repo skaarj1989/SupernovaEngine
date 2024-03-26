@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rhi/Buffer.hpp"
+#include "Buffer.hpp"
 
 namespace rhi {
 
@@ -10,14 +10,14 @@ class VertexBuffer final : public Buffer {
 public:
   VertexBuffer() = default;
 
-  [[nodiscard]] uint32_t getStride() const;
+  [[nodiscard]] Stride getStride() const;
   [[nodiscard]] VkDeviceSize getCapacity() const;
 
 private:
-  VertexBuffer(Buffer &&, uint32_t stride);
+  VertexBuffer(Buffer &&, const Stride);
 
 private:
-  uint32_t m_stride{0};
+  Stride m_stride{0};
 };
 
 } // namespace rhi

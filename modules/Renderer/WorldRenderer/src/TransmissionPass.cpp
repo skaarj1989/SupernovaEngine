@@ -1,16 +1,26 @@
 #include "renderer/TransmissionPass.hpp"
-
-#include "FrameGraphForwardPass.hpp"
-#include "renderer/FrameGraphTexture.hpp"
-#include "FrameGraphResourceAccess.hpp"
+#include "rhi/RenderDevice.hpp"
 
 #include "renderer/CommonSamplers.hpp"
 
-#include "MaterialShader.hpp"
-#include "BatchBuilder.hpp"
+#include "renderer/ViewInfo.hpp"
+#include "renderer/VertexFormat.hpp"
+#include "renderer/MeshInstance.hpp"
+
+#include "ForwardPassInfo.hpp"
+#include "LightingSettings.hpp"
+
+#include "FrameGraphResourceAccess.hpp"
+#include "FrameGraphCommon.hpp"
+#include "FrameGraphForwardPass.hpp"
+#include "renderer/FrameGraphTexture.hpp"
 #include "UploadInstances.hpp"
 
+#include "MaterialShader.hpp"
+#include "BatchBuilder.hpp"
+
 #include "RenderContext.hpp"
+#include "ShaderCodeBuilder.hpp"
 
 namespace gfx {
 
@@ -37,18 +47,18 @@ TransmissionPass::TransmissionPass(rhi::RenderDevice &rd,
                                    const CommonSamplers &commonSamplers)
     : rhi::RenderPass<TransmissionPass>{rd}, m_samplers{commonSamplers} {}
 
-uint32_t TransmissionPass::count(PipelineGroups flags) const {
+uint32_t TransmissionPass::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::SurfaceMaterial) ? BasePass::count() : 0;
 }
-void TransmissionPass::clear(PipelineGroups flags) {
+void TransmissionPass::clear(const PipelineGroups flags) {
   if (bool(flags & PipelineGroups::SurfaceMaterial)) BasePass::clear();
 }
 
 std::optional<FrameGraphResource> TransmissionPass::addGeometryPass(
   FrameGraph &fg, const FrameGraphBlackboard &blackboard,
-  FrameGraphResource sceneColor, const ViewInfo &viewData,
+  const FrameGraphResource sceneColor, const ViewInfo &viewData,
   const PropertyGroupOffsets &propertyGroupOffsets,
-  const LightingSettings &lightingSettings, bool softShadows) {
+  const LightingSettings &lightingSettings, const bool softShadows) {
   constexpr auto kPassName = "TransmissionPass";
   ZoneScopedN(kPassName);
 

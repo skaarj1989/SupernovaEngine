@@ -94,10 +94,6 @@ void fix(Material::Surface &surface) {
 
 } // namespace
 
-bool operator==(const TextureResources &a, const TextureResources &b) {
-  return a.size() == b.size() && std::equal(a.cbegin(), a.cend(), b.begin());
-}
-
 //
 // Material class:
 //
@@ -119,7 +115,7 @@ const PropertyLayout &Material::getPropertyLayout() const {
 // (private):
 //
 
-Material::Material(std::string &&name, std::size_t hash,
+Material::Material(std::string &&name, const Hash hash,
                    const Blueprint &blueprint)
     : m_name{std::move(name)}, m_hash{hash}, m_blueprint{blueprint},
       m_propertyLayout{buildPropertyLayout(blueprint.properties)} {}
@@ -140,7 +136,7 @@ Builder &Builder::setBlueprint(Blueprint b) {
   return *this;
 }
 
-Builder &Builder::setDomain(MaterialDomain domain) {
+Builder &Builder::setDomain(const MaterialDomain domain) {
   return domain == MaterialDomain::Surface ? setSurface(Surface{})
                                            : setPostProcess();
 }
@@ -165,18 +161,20 @@ Builder &Builder::addProperty(const Property &p) {
   }
   return *this;
 }
-Builder &Builder::addSampler(rhi::TextureType type, const std::string &alias,
+Builder &Builder::addSampler(const rhi::TextureType type,
+                             const std::string &alias,
                              std::shared_ptr<rhi::Texture> texture) {
   m_blueprint.defaultTextures[alias] = {type, texture};
   return *this;
 }
 
-Builder &Builder::setUserCode(rhi::ShaderType stage, Blueprint::Code code) {
+Builder &Builder::setUserCode(const rhi::ShaderType stage,
+                              Blueprint::Code code) {
   m_blueprint.userCode[stage] = std::move(code);
   return *this;
 }
 
-Builder &Builder::setFlags(MaterialFlags flags) {
+Builder &Builder::setFlags(const MaterialFlags flags) {
   m_blueprint.flags = flags;
   return *this;
 }
@@ -219,7 +217,7 @@ bool hasProperties(const Material &material) {
   case Value:                                                                  \
     return #Value
 
-const char *toString(MaterialDomain domain) {
+const char *toString(const MaterialDomain domain) {
   switch (domain) {
     using enum MaterialDomain;
 
@@ -229,7 +227,7 @@ const char *toString(MaterialDomain domain) {
   assert(false);
   return "Undefined";
 }
-const char *toString(ShadingModel shadingModel) {
+const char *toString(const ShadingModel shadingModel) {
   switch (shadingModel) {
     using enum ShadingModel;
 
@@ -239,7 +237,7 @@ const char *toString(ShadingModel shadingModel) {
   assert(false);
   return "Undefined";
 }
-const char *toString(BlendMode blendMode) {
+const char *toString(const BlendMode blendMode) {
   switch (blendMode) {
     using enum BlendMode;
 
@@ -252,7 +250,7 @@ const char *toString(BlendMode blendMode) {
   assert(false);
   return "Undefined";
 }
-const char *toString(LightingMode lightingMode) {
+const char *toString(const LightingMode lightingMode) {
   switch (lightingMode) {
     using enum LightingMode;
 
@@ -263,11 +261,11 @@ const char *toString(LightingMode lightingMode) {
   return "Undefined";
 }
 
-std::string toString(MaterialFlags flags) {
+std::string toString(const MaterialFlags flags) {
   const auto values = getValues(flags);
   return values.empty() ? "None" : join(values, ", ");
 }
-std::vector<const char *> getValues(MaterialFlags flags) {
+std::vector<const char *> getValues(const MaterialFlags flags) {
   using enum MaterialFlags;
   if (flags == None) return {};
 

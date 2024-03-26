@@ -3,7 +3,8 @@
 #include "fg/Fwd.hpp"
 #include "rhi/RenderPass.hpp"
 #include "Technique.hpp"
-#include "DebugDraw.hpp"
+
+class DebugDraw;
 
 namespace gfx {
 
@@ -14,13 +15,12 @@ class DebugDrawPass final : public rhi::RenderPass<DebugDrawPass>,
 public:
   explicit DebugDrawPass(rhi::RenderDevice &);
 
-  uint32_t count(PipelineGroups) const override;
-  void clear(PipelineGroups) override;
+  uint32_t count(const PipelineGroups) const override;
+  void clear(const PipelineGroups) override;
 
-  [[nodiscard]] FrameGraphResource addGeometryPass(FrameGraph &,
-                                                   const FrameGraphBlackboard &,
-                                                   FrameGraphResource target,
-                                                   DebugDraw &);
+  [[nodiscard]] FrameGraphResource
+  addGeometryPass(FrameGraph &, const FrameGraphBlackboard &,
+                  const FrameGraphResource target, DebugDraw &);
 
   struct PassInfo {
     rhi::PixelFormat depthFormat;

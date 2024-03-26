@@ -1,5 +1,6 @@
 #include "DebugDraw.hpp"
 #include "math/Frustum.hpp"
+#include "math/AABB.hpp"
 #include "math/Color.hpp"
 #include "MergeVector.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
@@ -10,12 +11,12 @@
 // DebugDraw class:
 //
 
-DebugDraw &DebugDraw::addPoint(const glm::vec3 &position, float size,
+DebugDraw &DebugDraw::addPoint(const glm::vec3 &position, const float size,
                                const glm::vec3 &color) {
   return addPoint(position, size, math::convertRGB(color));
 }
-DebugDraw &DebugDraw::addPoint(const glm::vec3 &position, float size,
-                               uint32_t color) {
+DebugDraw &DebugDraw::addPoint(const glm::vec3 &position, const float size,
+                               const uint32_t color) {
   m_primitives.points.emplace_back(glm::vec4{position, size}, color);
   return *this;
 }
@@ -24,13 +25,13 @@ DebugDraw &DebugDraw::addLine(const glm::vec3 &origin, const glm::vec3 &end,
   return addLine(origin, end, math::convertRGB(color));
 }
 DebugDraw &DebugDraw::addLine(const glm::vec3 &origin, const glm::vec3 &end,
-                              uint32_t color) {
+                              const uint32_t color) {
   m_primitives.lines.insert(m_primitives.lines.end(),
                             {{{origin, 1.0f}, color}, {{end, 1.0f}, color}});
   return *this;
 }
 
-DebugDraw &DebugDraw::addCircle(float radius, const glm::vec3 &color,
+DebugDraw &DebugDraw::addCircle(const float radius, const glm::vec3 &color,
                                 const glm::mat4 &model) {
   constexpr auto kSegments = 32;
   constexpr auto kIncrement = 2.0f * glm::pi<float>() / float{kSegments};
@@ -51,7 +52,7 @@ DebugDraw &DebugDraw::addCircle(float radius, const glm::vec3 &color,
   }
   return *this;
 }
-DebugDraw &DebugDraw::addSphere(float radius, const glm::vec3 &color,
+DebugDraw &DebugDraw::addSphere(const float radius, const glm::vec3 &color,
                                 const glm::mat4 &m) {
   static const auto kZX =
     glm::rotate(glm::radians(90.0f), glm::vec3{1.0f, 0.0f, 0.0f});
@@ -149,7 +150,7 @@ uint32_t DebugDraw::MeshRegistry::create(std::span<const Vertex> vertices,
 }
 
 const DebugDraw::MeshRegistry::TriangleMesh &
-DebugDraw::MeshRegistry::getTriangleMesh(uint32_t index) const {
+DebugDraw::MeshRegistry::getTriangleMesh(const uint32_t index) const {
   return m_meshes[index];
 }
 

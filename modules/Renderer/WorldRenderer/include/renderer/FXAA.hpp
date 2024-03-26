@@ -14,14 +14,16 @@ class FXAA final : public rhi::RenderPass<FXAA>, public Technique {
 public:
   FXAA(rhi::RenderDevice &, const CommonSamplers &);
 
-  uint32_t count(PipelineGroups) const override;
-  void clear(PipelineGroups) override;
+  uint32_t count(const PipelineGroups) const override;
+  void clear(const PipelineGroups) override;
 
-  [[nodiscard]] FrameGraphResource
-  addPass(FrameGraph &, const FrameGraphBlackboard &, FrameGraphResource input);
+  [[nodiscard]] FrameGraphResource addPass(FrameGraph &,
+                                           const FrameGraphBlackboard &,
+                                           const FrameGraphResource input);
 
 private:
-  rhi::GraphicsPipeline _createPipeline(rhi::PixelFormat colorFormat) const;
+  rhi::GraphicsPipeline
+  _createPipeline(const rhi::PixelFormat colorFormat) const;
 
 private:
   const CommonSamplers &m_samplers;

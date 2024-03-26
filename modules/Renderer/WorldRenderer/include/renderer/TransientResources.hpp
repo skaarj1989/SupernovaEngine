@@ -1,8 +1,14 @@
 #pragma once
 
-#include "rhi/RenderDevice.hpp"
 #include "FrameGraphTexture.hpp"
 #include "FrameGraphBuffer.hpp"
+#include "robin_hood.h"
+#include <memory>
+#include <vector>
+
+namespace rhi {
+class RenderDevice;
+}
 
 namespace gfx {
 

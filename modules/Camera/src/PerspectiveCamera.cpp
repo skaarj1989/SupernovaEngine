@@ -1,31 +1,31 @@
 #include "PerspectiveCamera.hpp"
 #include "math/Math.hpp"
-#include "glm/gtc/quaternion.hpp"
-
+#include "Transform.hpp"
+#include "glm/gtc/quaternion.hpp" // pitch, yaw, roll
 #include "tracy/Tracy.hpp"
 
 namespace gfx {
 
-PerspectiveCamera &PerspectiveCamera::freezeFrustum(bool freezed) {
+PerspectiveCamera &PerspectiveCamera::freezeFrustum(const bool freezed) {
   m_freezeFrustum = freezed;
   if (freezed == false) m_dirty |= DirtyFlags::FrustumUnfreezed;
   return *this;
 }
 
-PerspectiveCamera &PerspectiveCamera::setPerspective(float fov,
-                                                     float aspectRatio,
+PerspectiveCamera &PerspectiveCamera::setPerspective(const float fov,
+                                                     const float aspectRatio,
                                                      const ClippingPlanes &cp) {
   return setFov(fov).setAspectRatio(aspectRatio).setClippingPlanes(cp);
 }
 
-PerspectiveCamera &PerspectiveCamera::setFov(float s) {
+PerspectiveCamera &PerspectiveCamera::setFov(const float s) {
   if (!isApproximatelyEqual(m_fov, s)) {
     m_fov = s;
     m_dirty |= DirtyFlags::Projection;
   }
   return *this;
 }
-PerspectiveCamera &PerspectiveCamera::setAspectRatio(float s) {
+PerspectiveCamera &PerspectiveCamera::setAspectRatio(const float s) {
   if (!isApproximatelyEqual(m_aspectRatio, s)) {
     m_aspectRatio = s;
     m_dirty |= DirtyFlags::Projection;

@@ -1,9 +1,10 @@
 #pragma once
 
 #include "audio/Device.hpp"
-#include "SoundSourceComponent.hpp"
-#include "AudioPlayerComponent.hpp"
-#include "Transform.hpp"
+#include "Decoder.hpp"
+#include "entt/core/type_info.hpp"
+#include "glm/ext/vector_float3.hpp"
+#include <memory>
 
 struct ListenerComponent {
   static constexpr auto in_place_delete = true;
@@ -20,6 +21,10 @@ template <> struct entt::type_hash<ListenerComponent> {
     return 3293377831;
   }
 };
+
+class Transform;
+class SoundSourceComponent;
+class AudioPlayerComponent;
 
 class AudioWorld {
 public:

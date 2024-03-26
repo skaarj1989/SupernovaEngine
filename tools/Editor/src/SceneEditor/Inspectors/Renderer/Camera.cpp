@@ -11,7 +11,7 @@
 
 namespace {
 
-[[nodiscard]] auto toString(rhi::Extent2D extent) {
+[[nodiscard]] auto toString(const rhi::Extent2D extent) {
   return std::format("{}x{}", extent.width, extent.height);
 }
 [[nodiscard]] auto extentSelector() {

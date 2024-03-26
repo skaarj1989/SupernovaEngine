@@ -16,6 +16,9 @@
 #include "imgui_internal.h" // {Push/Pop}ItemFlag
 
 #include "spdlog/spdlog.h"
+#include "tracy/Tracy.hpp"
+
+#include <array>
 
 namespace {
 
@@ -192,8 +195,8 @@ void ShapeCreatorWidget::show(const char *name, bool *open) {
   constexpr auto kImportMeshAsConvexHullActionId =
     MAKE_TITLE_BAR(ICON_FA_UPLOAD, " Mesh->ConvexHull");
 
-  ZoneScopedN("ShapeCreatorWidget");
   if (ImGui::Begin(name, open, ImGuiWindowFlags_MenuBar)) {
+    ZoneScopedN("ShapeCreatorWidget");
     std::optional<const char *> action;
     if (ImGui::BeginMenuBar()) {
       if (ImGui::BeginMenu(ICON_FA_FILE " File")) {

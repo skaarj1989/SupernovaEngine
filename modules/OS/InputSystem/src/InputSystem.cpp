@@ -28,15 +28,17 @@ glm::ivec2 InputSystem::getMouseDelta() const { return m_mouseDelta; }
 
 bool InputSystem::isCursorVisible() const { return m_cursorVisible; }
 
-bool InputSystem::isMouseDown(MouseButton b) const {
+bool InputSystem::isMouseDown(const MouseButton b) const {
   return tryGet(m_mouseButtons, b).value_or(false);
 }
-bool InputSystem::isMouseUp(MouseButton b) const { return !isMouseDown(b); }
+bool InputSystem::isMouseUp(const MouseButton b) const {
+  return !isMouseDown(b);
+}
 
-bool InputSystem::isKeyDown(KeyCode c) const {
+bool InputSystem::isKeyDown(const KeyCode c) const {
   return tryGet(m_keys, c).value_or(false);
 }
-bool InputSystem::isKeyUp(KeyCode c) const { return !isKeyDown(c); }
+bool InputSystem::isKeyUp(const KeyCode c) const { return !isKeyDown(c); }
 
 void InputSystem::notify(const MouseButtonEvent &evt) {
   assert(evt.state != MouseButtonState::Undefined);

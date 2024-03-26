@@ -1,15 +1,14 @@
 #include "rhi/Texture.hpp"
+#include "VisitorHelper.hpp"
+
 #include "rhi/RenderDevice.hpp"
 
-#include "VisitorHelper.hpp"
-#include "StringUtility.hpp"
+#include "vk_mem_alloc.h"
+#include "VkCheck.hpp"
 
 #include "glm/ext/vector_float3.hpp"
 #include "glm/common.hpp"      // clamp, floor, max
 #include "glm/exponential.hpp" // pow, log2
-
-#include "vk_mem_alloc.h"
-#include "VkCheck.hpp"
 
 namespace rhi {
 
@@ -18,8 +17,9 @@ namespace {
 constexpr auto kSwapchainDefaultUsageFlags =
   ImageUsage::RenderTarget | ImageUsage::TransferDst;
 
-[[nodiscard]] auto findTextureType(Extent2D extent, uint32_t depth,
-                                   uint32_t numFaces, uint32_t numLayers) {
+[[nodiscard]] auto findTextureType(const Extent2D extent, const uint32_t depth,
+                                   const uint32_t numFaces,
+                                   const uint32_t numLayers) {
   using enum TextureType;
 
   TextureType type{Undefined};
@@ -52,7 +52,7 @@ constexpr auto kSwapchainDefaultUsageFlags =
   return type;
 }
 
-[[nodiscard]] auto getImageViewType(TextureType textureType) {
+[[nodiscard]] auto getImageViewType(const TextureType textureType) {
   switch (textureType) {
     using enum TextureType;
 
@@ -76,7 +76,7 @@ constexpr auto kSwapchainDefaultUsageFlags =
   return VkImageViewType(~0);
 }
 
-[[nodiscard]] auto isLayered(TextureType textureType) {
+[[nodiscard]] auto isLayered(const TextureType textureType) {
   switch (textureType) {
     using enum TextureType;
 
@@ -89,8 +89,8 @@ constexpr auto kSwapchainDefaultUsageFlags =
 }
 
 [[nodiscard]] auto
-createImageView(VkDevice device, VkImage image, VkImageViewType viewType,
-                VkFormat format,
+createImageView(const VkDevice device, const VkImage image,
+                const VkImageViewType viewType, const VkFormat format,
                 const VkImageSubresourceRange &subresourceRange) {
   VkImageView imageView{VK_NULL_HANDLE};
   const VkImageViewCreateInfo createInfo{
@@ -104,7 +104,8 @@ createImageView(VkDevice device, VkImage image, VkImageViewType viewType,
   return imageView;
 }
 
-[[nodiscard]] auto toVk(ImageUsage usage, VkImageAspectFlags aspectMask) {
+[[nodiscard]] auto toVk(const ImageUsage usage,
+                        const VkImageAspectFlags aspectMask) {
   VkImageUsageFlags out{0};
   if (bool(usage & ImageUsage::TransferSrc))
     out |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
@@ -206,7 +207,7 @@ Texture::operator bool() const {
          !std::holds_alternative<std::monostate>(m_image);
 }
 
-void Texture::setSampler(VkSampler sampler) { m_sampler = sampler; }
+void Texture::setSampler(const VkSampler sampler) { m_sampler = sampler; }
 
 TextureType Texture::getType() const { return m_type; }
 Extent2D Texture::getExtent() const { return m_extent; }
@@ -217,30 +218,31 @@ PixelFormat Texture::getPixelFormat() const { return m_format; }
 ImageUsage Texture::getUsageFlags() const { return m_usageFlags; }
 
 VkImage Texture::getImageHandle() const {
-  return std::visit(Overload{
-                      [](std::monostate) -> VkImage { return VK_NULL_HANDLE; },
-                      [](VkImage image) { return image; },
-                      [](const AllocatedImage &allocatedImage) {
-                        return allocatedImage.handle;
-                      },
-                    },
-                    m_image);
+  return std::visit(
+    Overload{
+      [](const std::monostate) -> VkImage { return VK_NULL_HANDLE; },
+      [](const VkImage image) { return image; },
+      [](const AllocatedImage &allocatedImage) {
+        return allocatedImage.handle;
+      },
+    },
+    m_image);
 }
 ImageLayout Texture::getImageLayout() const { return m_layout; }
 
 VkImageView Texture::getImageView() const { return m_imageView; }
 
-VkImageView Texture::getMipLevel(uint32_t i) const {
-  const auto safeIndex = glm::clamp(i, 0u, m_numMipLevels - 1);
-  assert(i == safeIndex);
+VkImageView Texture::getMipLevel(const uint32_t index) const {
+  const auto safeIndex = glm::clamp(index, 0u, m_numMipLevels - 1);
+  assert(index == safeIndex);
   return m_mipLevels[safeIndex];
 }
 std::span<const VkImageView> Texture::getMipLevels() const {
   return m_mipLevels;
 }
 std::span<const VkImageView> Texture::getLayers() const { return m_layers; }
-VkImageView Texture::getLayer(uint32_t layer,
-                              std::optional<CubeFace> face) const {
+VkImageView Texture::getLayer(const uint32_t layer,
+                              const std::optional<CubeFace> face) const {
   const auto i = face ? (layer * 6) + uint32_t(*face) : layer;
   const auto safeIndex = glm::clamp(i, 0u, m_layerFaces - 1);
   assert(i == safeIndex);
@@ -253,7 +255,7 @@ VkSampler Texture::getSampler() const { return m_sampler; }
 // (private):
 //
 
-Texture::Texture(VmaAllocator memoryAllocator, CreateInfo &&ci)
+Texture::Texture(const VmaAllocator memoryAllocator, CreateInfo &&ci)
     : m_deviceOrAllocator{memoryAllocator} {
   assert(ci.extent &&
          (ci.numFaces != 6 || ci.extent.width == ci.extent.height));
@@ -355,8 +357,8 @@ Texture::Texture(VmaAllocator memoryAllocator, CreateInfo &&ci)
   }
 }
 
-Texture::Texture(VkDevice device, VkImage handle, Extent2D extent,
-                 PixelFormat pixelFormat)
+Texture::Texture(const VkDevice device, const VkImage handle,
+                 const Extent2D extent, const PixelFormat pixelFormat)
     : m_deviceOrAllocator{device}, m_image{handle},
       m_type{TextureType::Texture2D}, m_extent{extent}, m_format{pixelFormat},
       m_usageFlags{kSwapchainDefaultUsageFlags} {
@@ -376,17 +378,17 @@ void Texture::_destroy() noexcept {
 
   m_sampler = VK_NULL_HANDLE;
 
-  const auto device =
-    std::visit(Overload{
-                 [](std::monostate) -> VkDevice { return VK_NULL_HANDLE; },
-                 [](VkDevice device) { return device; },
-                 [](VmaAllocator allocator) {
-                   VmaAllocatorInfo allocatorInfo;
-                   vmaGetAllocatorInfo(allocator, &allocatorInfo);
-                   return allocatorInfo.device;
-                 },
-               },
-               m_deviceOrAllocator);
+  const auto device = std::visit(
+    Overload{
+      [](const std::monostate) -> VkDevice { return VK_NULL_HANDLE; },
+      [](const VkDevice device) { return device; },
+      [](const VmaAllocator allocator) {
+        VmaAllocatorInfo allocatorInfo;
+        vmaGetAllocatorInfo(allocator, &allocatorInfo);
+        return allocatorInfo.device;
+      },
+    },
+    m_deviceOrAllocator);
   assert(device != VK_NULL_HANDLE);
 
   for (auto layer : m_layers) {
@@ -403,7 +405,7 @@ void Texture::_destroy() noexcept {
     m_imageView = VK_NULL_HANDLE;
   }
 
-  if (auto allocatedImage = std::get_if<AllocatedImage>(&m_image);
+  if (const auto allocatedImage = std::get_if<AllocatedImage>(&m_image);
       allocatedImage) {
     vmaDestroyImage(std::get<VmaAllocator>(m_deviceOrAllocator),
                     allocatedImage->handle, allocatedImage->allocation);
@@ -429,34 +431,34 @@ void Texture::_destroy() noexcept {
 
 using Builder = Texture::Builder;
 
-Builder &Builder::setExtent(rhi::Extent2D extent, uint32_t depth) {
+Builder &Builder::setExtent(const Extent2D extent, const uint32_t depth) {
   m_extent = extent;
   m_depth = depth;
   return *this;
 }
-Builder &Builder::setPixelFormat(rhi::PixelFormat pixelFormat) {
+Builder &Builder::setPixelFormat(const PixelFormat pixelFormat) {
   m_pixelFormat = pixelFormat;
   return *this;
 }
-Builder &Builder::setNumMipLevels(std::optional<uint32_t> i) {
+Builder &Builder::setNumMipLevels(const std::optional<uint32_t> i) {
   assert(!i || *i > 0);
   m_numMipLevels = i;
   return *this;
 }
-Builder &Builder::setNumLayers(std::optional<uint32_t> i) {
+Builder &Builder::setNumLayers(const std::optional<uint32_t> i) {
   assert(!i || *i > 0);
   m_numLayers = i;
   return *this;
 }
-Builder &Builder::setCubemap(bool b) {
+Builder &Builder::setCubemap(const bool b) {
   m_isCubemap = b;
   return *this;
 }
-Builder &Builder::setUsageFlags(ImageUsage flags) {
+Builder &Builder::setUsageFlags(const ImageUsage flags) {
   m_usageFlags = flags;
   return *this;
 }
-Builder &Builder::setupOptimalSampler(bool enabled) {
+Builder &Builder::setupOptimalSampler(const bool enabled) {
   m_setupOptimalSampler = enabled;
   return *this;
 }
@@ -487,10 +489,10 @@ Texture Builder::build(RenderDevice &rd) {
     const auto numMipLevels = texture.getNumMipLevels();
     rd.setupSampler(texture,
                     {
-                      .magFilter = rhi::TexelFilter::Linear,
-                      .minFilter = rhi::TexelFilter::Linear,
-                      .mipmapMode = numMipLevels > 1 ? rhi::MipmapMode::Linear
-                                                     : rhi::MipmapMode::Nearest,
+                      .magFilter = TexelFilter::Linear,
+                      .minFilter = TexelFilter::Linear,
+                      .mipmapMode = numMipLevels > 1 ? MipmapMode::Linear
+                                                     : MipmapMode::Nearest,
                       .maxAnisotropy = 16.0f,
                       .maxLod = float(numMipLevels),
                     });
@@ -503,8 +505,8 @@ Texture Builder::build(RenderDevice &rd) {
 // Utility:
 //
 
-bool isFormatSupported(const RenderDevice &rd, PixelFormat pixelFormat,
-                       ImageUsage usageFlags) {
+bool isFormatSupported(const RenderDevice &rd, const PixelFormat pixelFormat,
+                       const ImageUsage usageFlags) {
   VkFormatFeatureFlags requiredFeatureFlags{0};
   if (bool(usageFlags & ImageUsage::TransferSrc)) {
     requiredFeatureFlags |= VK_FORMAT_FEATURE_TRANSFER_SRC_BIT;
@@ -540,13 +542,13 @@ VkImageAspectFlags getAspectMask(const Texture &texture) {
   return getAspectMask(texture.getPixelFormat());
 }
 
-uint32_t calcMipLevels(Extent2D extent) {
+uint32_t calcMipLevels(const Extent2D extent) {
   return calcMipLevels(glm::max(extent.width, extent.height));
 }
-uint32_t calcMipLevels(uint32_t size) {
+uint32_t calcMipLevels(const uint32_t size) {
   return uint32_t(glm::floor(glm::log2(float(size)))) + 1u;
 }
-glm::uvec3 calcMipSize(const glm::uvec3 &baseSize, uint32_t level) {
+glm::uvec3 calcMipSize(const glm::uvec3 &baseSize, const uint32_t level) {
   return glm::vec3{baseSize} * glm::pow(0.5f, float(level));
 }
 
@@ -554,32 +556,13 @@ bool isCubemap(const Texture &texture) {
   assert(texture);
 
   switch (texture.getType()) {
-    using enum rhi::TextureType;
+    using enum TextureType;
 
   case TextureCube:
   case TextureCubeArray:
     return true;
   }
   return false;
-}
-
-std::string toString(ImageUsage flags) {
-  std::vector<const char *> values;
-  constexpr auto kMaxNumFlags = 5;
-  values.reserve(kMaxNumFlags);
-
-#define CHECK_FLAG(Value)                                                      \
-  if (bool(flags & ImageUsage::Value)) values.push_back(#Value)
-
-  CHECK_FLAG(TransferSrc);
-  CHECK_FLAG(TransferDst);
-  CHECK_FLAG(Storage);
-  CHECK_FLAG(RenderTarget);
-  CHECK_FLAG(Sampled);
-
-#undef CHECK_FLAG
-
-  return join(values, ", ");
 }
 
 } // namespace rhi

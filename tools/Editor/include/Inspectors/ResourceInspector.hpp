@@ -1,5 +1,5 @@
 #pragma once
 
-#include "Resource.hpp"
+class Resource;
 
 void print(const Resource *);

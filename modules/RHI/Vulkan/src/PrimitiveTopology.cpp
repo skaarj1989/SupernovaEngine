@@ -3,7 +3,7 @@
 
 namespace rhi {
 
-const char *toString(PrimitiveTopology primitiveTopology) {
+const char *toString(const PrimitiveTopology primitiveTopology) {
 #define CASE(Value)                                                            \
   case Value:                                                                  \
     return #Value

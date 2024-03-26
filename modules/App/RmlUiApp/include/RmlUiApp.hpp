@@ -10,8 +10,8 @@ public:
   RmlUiApp(std::span<char *> args, const Config &);
   ~RmlUiApp() override;
 
-  void drawGui(rhi::CommandBuffer &, rhi::RenderTargetView,
-               std::optional<glm::vec4> clearColor);
+  void drawGui(rhi::CommandBuffer &, const rhi::RenderTargetView,
+               const std::optional<glm::vec4> clearColor);
 
   Rml::Context &getUiContext() { return *m_context; }
 
@@ -19,9 +19,10 @@ protected:
   void _onResizeWindow(const os::ResizeWindowEvent &) override;
   void _onInput(const os::InputEvent &) override;
 
-  void _onUpdate(fsec) override;
+  void _onUpdate(const fsec) override;
 
-  void _onRender(rhi::CommandBuffer &, rhi::RenderTargetView, fsec dt) override;
+  void _onRender(rhi::CommandBuffer &, const rhi::RenderTargetView,
+                 const fsec dt) override;
 
 private:
   Rml::Context *m_context{nullptr};

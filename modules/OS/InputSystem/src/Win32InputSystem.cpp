@@ -27,7 +27,7 @@ void hideCursor() {
 
 InputSystem::InputSystem() : m_cursorVisible{os::isCursorVisible()} {}
 
-void InputSystem::setMousePosition(glm::ivec2 v) {
+void InputSystem::setMousePosition(const glm::ivec2 v) {
   ::SetCursorPos(v.x, v.y);
   m_lastMousePosition = v;
 }
@@ -38,7 +38,7 @@ glm::ivec2 InputSystem::getMousePosition() const {
   return {p.x, p.y};
 }
 
-void InputSystem::showCursor(bool show) {
+void InputSystem::showCursor(const bool show) {
   if (os::isCursorVisible() != show) {
     show ? os::showCursor() : os::hideCursor();
     m_cursorVisible = os::isCursorVisible();

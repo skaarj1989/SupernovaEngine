@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RmlUiRenderer.hpp"
+#include "rhi/Rect2D.hpp"
 #include "RmlUi/Core/RenderInterface.h"
 
 struct RmlUiRenderData {

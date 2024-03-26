@@ -1,5 +1,6 @@
 #include "renderer/TextureLoader.hpp"
 #include "os/FileSystem.hpp"
+#include "rhi/RenderDevice.hpp"
 #include "STBImageLoader.hpp"
 #include "KTXLoader.hpp"
 

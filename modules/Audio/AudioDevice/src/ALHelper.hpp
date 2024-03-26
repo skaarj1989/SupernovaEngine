@@ -1,9 +1,10 @@
 #pragma once
 
 #include "AL/al.h"
-#include "ClipInfo.hpp"
 
 namespace audio {
+
+struct ClipInfo;
 
 [[nodiscard]] ALenum pickFormat(const ClipInfo &);
 

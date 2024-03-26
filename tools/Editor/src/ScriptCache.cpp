@@ -7,7 +7,7 @@ void show(const char *name, bool *open, ScriptCache &cache) {
     defaultMenuBar(cache);
     view(
       cache,
-      [](auto id) {
+      [](const auto id) {
         onDragSource(kImGuiPayloadTypeScript, id,
                      [] { ImGui::TextUnformatted("Script inside ..."); });
       },

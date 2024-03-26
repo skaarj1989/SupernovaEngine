@@ -9,7 +9,7 @@
 #include "CollisionLayer.hpp"
 #include "Events.hpp"
 
-#include "glm/gtc/quaternion.hpp"
+#include "glm/ext/quaternion_float.hpp"
 
 class CharacterVirtual : private entt::emitter<CharacterVirtual> {
   friend class PhysicsWorld;

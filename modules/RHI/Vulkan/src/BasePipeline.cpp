@@ -27,16 +27,17 @@ BasePipeline::operator bool() const { return m_handle != VK_NULL_HANDLE; }
 VkPipeline BasePipeline::getHandle() const { return m_handle; }
 
 const PipelineLayout &BasePipeline::getLayout() const { return m_layout; }
-VkDescriptorSetLayout BasePipeline::getDescriptorSetLayout(uint32_t set) const {
-  return m_layout.getDescriptorSet(set);
+VkDescriptorSetLayout
+BasePipeline::getDescriptorSetLayout(const DescriptorSetIndex index) const {
+  return m_layout.getDescriptorSet(index);
 }
 
 //
 // (private):
 //
 
-BasePipeline::BasePipeline(VkDevice device, PipelineLayout &&layout,
-                           VkPipeline pipeline)
+BasePipeline::BasePipeline(const VkDevice device, PipelineLayout &&layout,
+                           const VkPipeline pipeline)
     : m_device{device}, m_layout{std::move(layout)}, m_handle{pipeline} {
   assert(m_device != VK_NULL_HANDLE);
 }

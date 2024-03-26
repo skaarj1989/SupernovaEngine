@@ -68,14 +68,13 @@ set(FG_SOURCES
 set(PASS_SOURCES
   "include/renderer/Technique.hpp"
 
-  "include/renderer/BaseGeometryPassInfo.hpp"
+  "src/BaseGeometryPassInfo.hpp"
   "src/BaseGeometryPassInfo.cpp"
-  "include/renderer/ForwardPassInfo.hpp"
+  "src/ForwardPassInfo.hpp"
   "src/ForwardPassInfo.cpp"
-  "include/renderer/LightingPassFeatures.hpp"
+  "src/LightingPassFeatures.hpp"
   "src/LightingPassFeatures.cpp"
-
-  "include/renderer/LightingSettings.hpp"
+  "src/LightingSettings.hpp"
 
   "include/renderer/Blit.hpp"
   "src/Blit.cpp"
@@ -208,6 +207,9 @@ set(SOURCES
   "src/Material.cpp"
   "include/renderer/jsonMaterial.hpp"
 
+  "include/renderer/TextureResources.hpp"
+  "src/TextureResources.cpp"
+
   ${RESOURCE_SOURCES}
 
   "include/renderer/MeshInstance.hpp"
@@ -257,6 +259,9 @@ set(SOURCES
   "src/ShadowCascadesBuilder.cpp"
 
   "src/GPUInstance.hpp"
+
+  "include/renderer/SceneView.hpp"
+  "include/renderer/WorldView.hpp"
 
   "include/renderer/SkyLight.hpp"
   "src/SkyLight.cpp"

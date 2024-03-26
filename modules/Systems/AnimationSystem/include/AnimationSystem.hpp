@@ -3,9 +3,10 @@
 #include "animation/SkeletonComponent.hpp"
 #include "animation/AnimationComponent.hpp"
 #include "animation/PlaybackController.hpp"
-#include "DebugDraw.hpp"
 
 #include "SystemCommons.hpp"
+
+class DebugDraw;
 
 /*
   Context variables:
@@ -21,6 +22,6 @@ public:
   INTRODUCE_COMPONENTS(SkeletonComponent, AnimationComponent,
                        PlaybackController)
 
-  static void update(entt::registry &, float dt);
+  static void update(entt::registry &, const float dt);
   static void debugDraw(entt::registry &, DebugDraw &);
 };

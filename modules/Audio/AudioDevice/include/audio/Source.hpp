@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Buffer.hpp"
 #include "SourceBase.hpp"
+#include "Buffer.hpp"
 
 namespace audio {
 

@@ -10,17 +10,19 @@
 
 namespace gfx {
 
+// clang-format off
 NLOHMANN_JSON_SERIALIZE_ENUM(AttributeLocation, {
-                                                  MAKE_PAIR(Position),
-                                                  MAKE_PAIR(Color_0),
-                                                  MAKE_PAIR(Normal),
-                                                  MAKE_PAIR(TexCoord_0),
-                                                  MAKE_PAIR(TexCoord_1),
-                                                  MAKE_PAIR(Tangent),
-                                                  MAKE_PAIR(Bitangent),
-                                                  MAKE_PAIR(Joints),
-                                                  MAKE_PAIR(Weights),
-                                                });
+  MAKE_PAIR(Position),
+  MAKE_PAIR(Color_0),
+  MAKE_PAIR(Normal),
+  MAKE_PAIR(TexCoord_0),
+  MAKE_PAIR(TexCoord_1),
+  MAKE_PAIR(Tangent),
+  MAKE_PAIR(Bitangent),
+  MAKE_PAIR(Joints),
+  MAKE_PAIR(Weights),
+});
+// clang-format on
 
 } // namespace gfx
 

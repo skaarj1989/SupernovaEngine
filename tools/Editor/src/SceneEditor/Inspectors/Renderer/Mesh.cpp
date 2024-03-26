@@ -12,7 +12,7 @@
 
 namespace {
 
-void onInspect(int32_t index, gfx::SubMeshInstance &subMeshInstance) {
+void onInspect(const int32_t index, gfx::SubMeshInstance &subMeshInstance) {
   const auto &material = subMeshInstance.material;
   const auto materialResource =
     std::dynamic_pointer_cast<Resource>(material.getPrototype());

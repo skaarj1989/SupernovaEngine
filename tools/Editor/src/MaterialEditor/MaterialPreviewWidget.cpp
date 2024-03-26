@@ -3,6 +3,7 @@
 
 #include "os/InputSystem.hpp"
 #include "renderer/WorldRenderer.hpp"
+#include "renderer/WorldView.hpp"
 
 #include "IconsFontAwesome6.h"
 #include "ImGuiHelper.hpp"
@@ -13,6 +14,8 @@
 #include "Inspectors/LightInspector.hpp"
 #include "Inspectors/MaterialInstanceInspector.hpp"
 #include "RenderSettings.hpp"
+
+#include "tracy/Tracy.hpp"
 
 namespace {
 
@@ -33,7 +36,7 @@ namespace {
   };
 }
 
-[[nodiscard]] auto getMesh(entt::id_type meshId) {
+[[nodiscard]] auto getMesh(const entt::id_type meshId) {
   auto &meshes = Services::Resources::Meshes::value();
   return meshes[meshId].handle();
 }
@@ -85,7 +88,7 @@ gfx::WorldRenderer &MaterialPreviewWidget::getRenderer() const {
   return m_renderer;
 }
 
-void MaterialPreviewWidget::setMesh(entt::id_type meshId) {
+void MaterialPreviewWidget::setMesh(const entt::id_type meshId) {
   std::shared_ptr<gfx::Material> previousMaterial;
   if (m_meshInstance)
     previousMaterial = m_meshInstance.getMaterial(0).getPrototype();
@@ -111,9 +114,9 @@ void MaterialPreviewWidget::updateMaterial(std::shared_ptr<gfx::Material> m) {
   }
 }
 
-void MaterialPreviewWidget::onRender(rhi::CommandBuffer &cb, float dt) {
-  ZoneScopedN("MaterialPreview::OnRender");
+void MaterialPreviewWidget::onRender(rhi::CommandBuffer &cb, const float dt) {
   RenderTargetPreview::render(cb, [this, &cb, dt](auto &texture) {
+    ZoneScopedN("MaterialPreview::OnRender");
     std::array<const gfx::Light *, 1> lights{&m_light};
     std::array<const gfx::MeshInstance *, 2> meshes{
       &m_meshInstance,

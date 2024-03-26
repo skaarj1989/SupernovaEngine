@@ -1,4 +1,5 @@
 #include "GPUWidget.hpp"
+#include "rhi/RenderDevice.hpp"
 #include "imgui.h"
 #include "IconsFontAwesome6.h"
 #include <fstream>

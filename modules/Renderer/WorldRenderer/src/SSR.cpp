@@ -1,17 +1,18 @@
 #include "renderer/SSR.hpp"
+#include "rhi/CommandBuffer.hpp"
 
+#include "renderer/CommonSamplers.hpp"
+#include "renderer/PostProcess.hpp"
+
+#include "FrameGraphResourceAccess.hpp"
 #include "FrameGraphCommon.hpp"
 #include "renderer/FrameGraphTexture.hpp"
-#include "FrameGraphResourceAccess.hpp"
 
 #include "FrameGraphData/Camera.hpp"
 #include "FrameGraphData/GBuffer.hpp"
 #include "FrameGraphData/SceneColor.hpp"
 #include "FrameGraphData/Reflections.hpp"
 
-#include "renderer/CommonSamplers.hpp"
-
-#include "renderer/PostProcess.hpp"
 #include "RenderContext.hpp"
 
 namespace gfx {
@@ -19,10 +20,10 @@ namespace gfx {
 SSR::SSR(rhi::RenderDevice &rd, const CommonSamplers &commonSamplers)
     : rhi::RenderPass<SSR>{rd}, m_samplers{commonSamplers} {}
 
-uint32_t SSR::count(PipelineGroups flags) const {
+uint32_t SSR::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::BuiltIn) ? BasePass::count() : 0;
 }
-void SSR::clear(PipelineGroups flags) {
+void SSR::clear(const PipelineGroups flags) {
   if (bool(flags & PipelineGroups::BuiltIn)) BasePass::clear();
 }
 
@@ -85,7 +86,8 @@ FrameGraphResource SSR::addPass(FrameGraph &fg,
 // (private):
 //
 
-rhi::GraphicsPipeline SSR::_createPipeline(rhi::PixelFormat colorFormat) const {
+rhi::GraphicsPipeline
+SSR::_createPipeline(const rhi::PixelFormat colorFormat) const {
   return createPostProcessPipelineFromFile(getRenderDevice(), colorFormat,
                                            "SSR.frag");
 }

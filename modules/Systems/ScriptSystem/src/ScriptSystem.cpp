@@ -1,4 +1,5 @@
 #include "ScriptSystem.hpp"
+#include "ScriptContext.hpp"
 #include "tracy/Tracy.hpp"
 #include "spdlog/spdlog.h"
 
@@ -14,7 +15,7 @@ void ScriptSystem::onInput(entt::registry &r, const os::InputEvent &evt) {
     c.m_scriptNode.input(evt);
   }
 }
-void ScriptSystem::onUpdate(entt::registry &r, float dt) {
+void ScriptSystem::onUpdate(entt::registry &r, const float dt) {
   ZoneScopedN("ScriptSystem::Update");
   for (auto [_, c] : r.view<ScriptComponent>().each()) {
     c.m_scriptNode.update(dt);
@@ -24,7 +25,7 @@ void ScriptSystem::onUpdate(entt::registry &r, float dt) {
     getScriptContext(r).lua->collect_garbage();
   }
 }
-void ScriptSystem::onPhysicsStep(entt::registry &r, float dt) {
+void ScriptSystem::onPhysicsStep(entt::registry &r, const float dt) {
   ZoneScopedN("ScriptSystem::OnPhysicsStep");
   for (auto [_, c] : r.view<ScriptComponent>().each()) {
     c.m_scriptNode.physicsStep(dt);
@@ -35,7 +36,8 @@ void ScriptSystem::onPhysicsStep(entt::registry &r, float dt) {
 // (private):
 //
 
-void ScriptSystem::_initScriptComponent(entt::registry &r, entt::entity e) {
+void ScriptSystem::_initScriptComponent(entt::registry &r,
+                                        const entt::entity e) {
   auto &c = r.get<ScriptComponent>(e);
   if (!c.m_resource) return;
 
@@ -56,7 +58,8 @@ void ScriptSystem::_initScriptComponent(entt::registry &r, entt::entity e) {
   self["entity"] = entt::handle{r, e};
   c.m_scriptNode = ScriptNode{std::move(self)};
 }
-void ScriptSystem::_cleanupScriptComponent(entt::registry &r, entt::entity e) {
+void ScriptSystem::_cleanupScriptComponent(entt::registry &r,
+                                           const entt::entity e) {
   auto &c = r.get<ScriptComponent>(e);
   c.m_scriptNode.destroy();
 }

@@ -1,5 +1,7 @@
 #include "UISystem.hpp"
+#include "rhi/RenderDevice.hpp"
 #include "RmlUi/Core/Core.h"
+#include "RmlUi/Core/Context.h"
 #include "CameraComponent.hpp"
 
 #include <format>
@@ -14,7 +16,7 @@ auto &getRenderDevice(entt::registry &r) {
   return r.ctx().get<RmlUiRenderInterface *>()->GetRenderer().getRenderDevice();
 }
 
-void initUIComponent(entt::registry &r, entt::entity e) {
+void initUIComponent(entt::registry &r, const entt::entity e) {
   const auto *renderInterface = r.ctx().get<RmlUiRenderInterface *>();
   auto &ui = r.get<UIComponent>(e);
   ui.renderData = renderInterface->CreateRenderData(2);
@@ -25,7 +27,7 @@ void initUIComponent(entt::registry &r, entt::entity e) {
   ui.context =
     Rml::CreateContext(name, cc ? to_Rml(cc->extent) : Rml::Vector2i{0, 0});
 }
-void cleanupUIComponent(entt::registry &r, entt::entity e) {
+void cleanupUIComponent(entt::registry &r, const entt::entity e) {
   if (auto &ui = r.get<UIComponent>(e); ui.context) {
     auto &rd = getRenderDevice(r);
     for (auto &resources : ui.renderData.frameResources) {

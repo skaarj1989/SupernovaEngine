@@ -1,4 +1,5 @@
 #include "KTXLoader.hpp"
+#include "rhi/RenderDevice.hpp"
 #include "rhi/TextureUtility.hpp"
 #include "os/FileSystem.hpp"
 

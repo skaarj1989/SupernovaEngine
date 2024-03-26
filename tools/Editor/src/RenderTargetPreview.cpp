@@ -1,4 +1,6 @@
 #include "RenderTargetPreview.hpp"
+#include "rhi/Extent2D.hpp"
+#include "rhi/RenderDevice.hpp"
 #include "TexturePreview.hpp"
 
 RenderTargetPreview::RenderTargetPreview(rhi::RenderDevice &rd)
@@ -13,13 +15,13 @@ rhi::Extent2D RenderTargetPreview::getExtent() const {
 // (private):
 //
 
-bool RenderTargetPreview::_isAreaValid(glm::uvec2 area) const {
+bool RenderTargetPreview::_isAreaValid(const glm::uvec2 area) const {
   const auto maxSize = m_renderDevice.getDeviceLimits().maxImageDimension2D;
   return glm::all(glm::greaterThan(area, glm::uvec2{0})) &&
          glm::all(glm::lessThan(area, glm::uvec2{maxSize}));
 }
 
-void RenderTargetPreview::_resize(glm::uvec2 contentSize) {
+void RenderTargetPreview::_resize(const glm::uvec2 contentSize) {
   m_renderDevice.pushGarbage(m_target);
 
   using enum rhi::ImageUsage;
@@ -34,7 +36,7 @@ void RenderTargetPreview::_resize(glm::uvec2 contentSize) {
       .build(m_renderDevice);
 }
 
-void RenderTargetPreview::_present(glm::vec2 size) {
+void RenderTargetPreview::_present(const glm::vec2 size) {
   m_position = glm::vec2{ImGui::GetWindowPos()};
   ::preview(&m_target, size);
 }

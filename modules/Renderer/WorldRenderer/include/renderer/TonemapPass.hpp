@@ -16,16 +16,17 @@ class TonemapPass final : public rhi::RenderPass<TonemapPass>,
 public:
   TonemapPass(rhi::RenderDevice &, const CommonSamplers &);
 
-  uint32_t count(PipelineGroups) const override;
-  void clear(PipelineGroups) override;
+  uint32_t count(const PipelineGroups) const override;
+  void clear(const PipelineGroups) override;
 
   [[nodiscard]] FrameGraphResource addPass(FrameGraph &, FrameGraphBlackboard &,
-                                           Tonemap, float exposure,
-                                           float bloomStrength);
+                                           const Tonemap, const float exposure,
+                                           const float bloomStrength);
 
 private:
-  rhi::GraphicsPipeline _createPipeline(rhi::PixelFormat colorFormat,
-                                        bool autoExposure, bool bloom) const;
+  rhi::GraphicsPipeline _createPipeline(const rhi::PixelFormat colorFormat,
+                                        const bool autoExposure,
+                                        const bool bloom) const;
 
 private:
   const CommonSamplers &m_samplers;

@@ -1,9 +1,11 @@
 #pragma once
 
 #include "ScopedEnumFlags.hpp"
-#include "Transform.hpp"
 #include "ClippingPlanes.hpp"
 #include "math/Frustum.hpp"
+#include "glm/ext/quaternion_float.hpp"
+
+class Transform;
 
 namespace gfx {
 
@@ -17,13 +19,13 @@ public:
   PerspectiveCamera &operator=(const PerspectiveCamera &) = default;
   PerspectiveCamera &operator=(PerspectiveCamera &&) noexcept = default;
 
-  PerspectiveCamera &freezeFrustum(bool);
+  PerspectiveCamera &freezeFrustum(const bool);
 
-  PerspectiveCamera &setPerspective(float fov, float aspectRatio,
+  PerspectiveCamera &setPerspective(const float fov, const float aspectRatio,
                                     const ClippingPlanes &);
 
-  PerspectiveCamera &setFov(float);
-  PerspectiveCamera &setAspectRatio(float);
+  PerspectiveCamera &setFov(const float);
+  PerspectiveCamera &setAspectRatio(const float);
   PerspectiveCamera &setClippingPlanes(const ClippingPlanes &);
 
   PerspectiveCamera &setPosition(const glm::vec3 &);

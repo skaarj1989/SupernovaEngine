@@ -1,4 +1,5 @@
 #include "NuklearRenderer.hpp"
+#include "rhi/RenderDevice.hpp"
 #include "ShaderCodeBuilder.hpp"
 
 #define USE_PROJECTION_MATRIX 0
@@ -213,7 +214,7 @@ NuklearRenderer::FrameResources NuklearRenderer::createFrameResources() const {
 }
 
 void NuklearRenderer::draw(rhi::CommandBuffer &cb, FrameResources &resources,
-                           rhi::Extent2D extent, glm::vec2 scale) {
+                           const rhi::Extent2D extent, const glm::vec2 scale) {
   nk_buffer_clear(&m_vertices);
   nk_buffer_clear(&m_indices);
   nk_buffer_clear(&m_commands);
@@ -290,7 +291,7 @@ void NuklearRenderer::_uploadGeometry(FrameResources &resources) const {
   indexBuffer.flush();
 }
 void NuklearRenderer::_setupRenderState(rhi::CommandBuffer &cb,
-                                        rhi::Extent2D extent) const {
+                                        const rhi::Extent2D extent) const {
 #if USE_PROJECTION_MATRIX
   const auto projectionMatrix = buildProjectionMatrix(extent);
 #else

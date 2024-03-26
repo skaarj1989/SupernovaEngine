@@ -1,8 +1,8 @@
 #pragma once
 
-#include "rhi/Buffer.hpp"
-#include "rhi/Texture.hpp"
-#include "rhi/FrameIndex.hpp"
+#include "Buffer.hpp"
+#include "Texture.hpp"
+#include "FrameIndex.hpp"
 
 namespace rhi {
 

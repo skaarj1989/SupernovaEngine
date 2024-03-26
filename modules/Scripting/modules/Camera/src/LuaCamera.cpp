@@ -2,6 +2,7 @@
 #include "sol/state.hpp"
 
 #include "PerspectiveCamera.hpp"
+#include "Transform.hpp"
 #include "Sol2HelperMacros.hpp"
 
 #include <format>

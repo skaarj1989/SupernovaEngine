@@ -21,7 +21,7 @@ enum class DebugFlags : int32_t {
   IrradianceOnly = 1 << 7,
 };
 
-[[nodiscard]] std::string toString(DebugFlags);
+[[nodiscard]] std::string toString(const DebugFlags);
 
 } // namespace gfx
 

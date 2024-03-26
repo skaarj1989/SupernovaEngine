@@ -35,8 +35,8 @@ bool isLightInFrustum(const Light &light, const Frustum &frustum) {
 }
 
 RawCamera buildSpotLightMatrix(const glm::vec3 &position,
-                               const glm::vec3 &direction, float fov,
-                               float range) {
+                               const glm::vec3 &direction, const float fov,
+                               const float range) {
   ZoneScopedN("BuildSpotLightMatrix");
 
   RawCamera out{
@@ -53,8 +53,8 @@ RawCamera buildSpotLightMatrix(const gfx::Light &spotLight) {
                               spotLight.outerConeAngle * 2.0f, spotLight.range);
 }
 
-RawCamera buildPointLightMatrix(rhi::CubeFace face, const glm::vec3 &position,
-                                float far) {
+RawCamera buildPointLightMatrix(const rhi::CubeFace face,
+                                const glm::vec3 &position, const float far) {
   ZoneScopedN("BuildPointLightMatrix");
 
   const auto faceIndex = std::to_underlying(face);

@@ -8,7 +8,7 @@
 #include "CollisionLayer.hpp"
 #include "Events.hpp"
 
-#include "glm/gtc/quaternion.hpp"
+#include "glm/ext/quaternion_float.hpp"
 
 enum class MotionType { Dynamic, Static, Kinematic };
 

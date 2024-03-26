@@ -1,25 +1,31 @@
 #pragma once
 
-#include "math/AABB.hpp"
+#include "glm/ext/vector_float3.hpp"
+#include "glm/ext/matrix_float4x4.hpp"
 #include <vector>
 #include <span>
 
+struct AABB;
+
 class DebugDraw {
 public:
-  DebugDraw &addPoint(const glm::vec3 &position, float size,
+  DebugDraw &addPoint(const glm::vec3 &position, const float size,
                       const glm::vec3 &color = glm::vec3{1.0f});
-  DebugDraw &addPoint(const glm::vec3 &position, float size, uint32_t color);
+  DebugDraw &addPoint(const glm::vec3 &position, const float size,
+                      const uint32_t color);
 
   DebugDraw &addLine(const glm::vec3 &origin, const glm::vec3 &end,
                      const glm::vec3 &color = glm::vec3{1.0f});
   DebugDraw &addLine(const glm::vec3 &origin, const glm::vec3 &end,
-                     uint32_t color);
+                     const uint32_t color);
 
   /** Circle on XY plane. */
-  DebugDraw &addCircle(float radius, const glm::vec3 &color = glm::vec3{1.0f},
+  DebugDraw &addCircle(const float radius,
+                       const glm::vec3 &color = glm::vec3{1.0f},
                        const glm::mat4 & = glm::mat4{1.0f});
   /** Sphere as 3 circles. */
-  DebugDraw &addSphere(float radius, const glm::vec3 &color = glm::vec3{1.0f},
+  DebugDraw &addSphere(const float radius,
+                       const glm::vec3 &color = glm::vec3{1.0f},
                        const glm::mat4 & = glm::mat4{1.0f});
   DebugDraw &addAABB(const AABB &, const glm::vec3 &color = glm::vec3{1.0f});
   DebugDraw &addFrustum(const glm::mat4 &inversedViewProj,
@@ -52,7 +58,7 @@ public:
 
     [[nodiscard]] uint32_t create(std::span<const Vertex>,
                                   std::span<const uint32_t> indices = {});
-    const TriangleMesh &getTriangleMesh(uint32_t index) const;
+    const TriangleMesh &getTriangleMesh(const uint32_t index) const;
 
     const VertexList &getVertexList() const;
     const IndexList &getIndexList() const;

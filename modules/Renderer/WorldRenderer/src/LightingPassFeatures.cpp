@@ -1,6 +1,6 @@
-#include "renderer/LightingPassFeatures.hpp"
-#include "ShaderCodeBuilder.hpp"
+#include "LightingPassFeatures.hpp"
 #include "math/Hash.hpp"
+#include "ShaderCodeBuilder.hpp"
 #include <cassert>
 
 namespace gfx {

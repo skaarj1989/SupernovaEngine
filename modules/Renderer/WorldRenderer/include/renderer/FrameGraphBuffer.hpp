@@ -1,7 +1,10 @@
 #pragma once
 
-#include "rhi/Buffer.hpp"
 #include <string>
+
+namespace rhi {
+class Buffer;
+}
 
 namespace gfx {
 

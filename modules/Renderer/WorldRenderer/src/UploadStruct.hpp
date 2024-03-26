@@ -4,6 +4,7 @@
 #include "TransientBuffer.hpp"
 #include "FrameGraphResourceAccess.hpp"
 #include "RenderContext.hpp"
+#include "rhi/CommandBuffer.hpp"
 
 namespace gfx {
 

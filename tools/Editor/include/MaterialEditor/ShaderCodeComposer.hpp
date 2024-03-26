@@ -10,7 +10,7 @@ public:
 
   ShaderCodeComposer &addVariable(const std::string_view name,
                                   const ValueVariant &);
-  ShaderCodeComposer &addVariable(DataType, const std::string_view name,
+  ShaderCodeComposer &addVariable(const DataType, const std::string_view name,
                                   const std::string_view value);
   ShaderCodeComposer &addExpression(const std::string_view expr);
 

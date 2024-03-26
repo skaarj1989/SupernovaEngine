@@ -1,4 +1,8 @@
 #include "SceneEditor/GizmoController.hpp"
+#include "PerspectiveCamera.hpp"
+#include "Transform.hpp"
+#include "entt/entity/registry.hpp"
+#include "entt/entity/handle.hpp"
 #include "IconsFontAwesome6.h"
 #include <optional>
 
@@ -112,7 +116,7 @@ void showBar(GizmoController::Settings &settings) {
   }
   ImGui::Separator();
 
-  const auto toggle = [&settings](int32_t op) {
+  const auto toggle = [&settings](const int32_t op) {
     settings.operation = settings.operation == op ? ImGuizmoOperation_None : op;
   };
   if (auto b = settings.operation == ImGuizmoOperation_Translate;

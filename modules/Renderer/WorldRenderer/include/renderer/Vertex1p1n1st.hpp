@@ -1,10 +1,12 @@
 #pragma once
 
-#include "VertexFormat.hpp"
 #include "glm/ext/vector_float2.hpp"
 #include "glm/ext/vector_float3.hpp"
+#include <memory>
 
 namespace gfx {
+
+class VertexFormat;
 
 struct Vertex1p1n1st {
   glm::vec3 position;

@@ -1,8 +1,14 @@
 #pragma once
 
-#include "MeshInstance.hpp"
+#include <unordered_map>
+#include <span>
 
 namespace gfx {
+
+class Mesh;
+struct SubMeshInstance;
+
+class Material;
 
 struct Renderable {
   const Mesh *mesh{nullptr};

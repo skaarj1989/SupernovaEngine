@@ -1,12 +1,13 @@
 #include "renderer/TransparencyCompositionPass.hpp"
+#include "rhi/CommandBuffer.hpp"
 
 #include "fg/FrameGraph.hpp"
 #include "FrameGraphResourceAccess.hpp"
 
 #include "FrameGraphData/WeightedBlended.hpp"
 
-#include "ShaderCodeBuilder.hpp"
 #include "RenderContext.hpp"
+#include "ShaderCodeBuilder.hpp"
 
 namespace gfx {
 
@@ -66,7 +67,7 @@ TransparencyCompositionPass::addPass(FrameGraph &fg,
 //
 
 rhi::GraphicsPipeline TransparencyCompositionPass::_createPipeline(
-  rhi::PixelFormat colorFormat) const {
+  const rhi::PixelFormat colorFormat) const {
   ShaderCodeBuilder shaderCodeBuilder;
 
   return rhi::GraphicsPipeline::Builder{}

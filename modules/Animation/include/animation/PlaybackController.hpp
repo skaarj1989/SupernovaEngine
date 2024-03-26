@@ -1,7 +1,10 @@
 #pragma once
 
 #include "entt/core/type_info.hpp"
-#include "ozz/animation/runtime/animation.h"
+
+namespace ozz::animation {
+class Animation;
+}
 
 class PlaybackController {
 public:

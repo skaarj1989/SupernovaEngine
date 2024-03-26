@@ -13,6 +13,6 @@ enum class PrimitiveTopology {
   TriangleFan = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN,
 };
 
-[[nodiscard]] const char *toString(PrimitiveTopology);
+[[nodiscard]] const char *toString(const PrimitiveTopology);
 
 } // namespace rhi

@@ -1,9 +1,12 @@
 #pragma once
 
-#include "rhi/RenderDevice.hpp"
-#include "rhi/RenderTargetView.hpp"
+#include "CommandBuffer.hpp"
+#include "RenderTargetView.hpp"
 
 namespace rhi {
+
+class RenderDevice;
+class Swapchain;
 
 // Simplifies usage of frames in flight.
 class FrameController final {

@@ -6,7 +6,7 @@ namespace gfx {
 namespace {
 
 [[nodiscard]] auto findProperty(const std::string_view name,
-                                std::optional<std::size_t> alternative,
+                                const std::optional<std::size_t> alternative,
                                 auto &properties) {
   return std::find_if(
     properties.begin(), properties.end(), [name, &alternative](const auto &p) {
@@ -69,7 +69,7 @@ MaterialInstance::setTexture(const std::string_view alias,
   return *this;
 }
 
-MaterialInstance &MaterialInstance::setFlags(MaterialFlags f) {
+MaterialInstance &MaterialInstance::setFlags(const MaterialFlags f) {
   m_flags = f;
   return *this;
 }
@@ -78,16 +78,16 @@ MaterialInstance &MaterialInstance::setFlags(MaterialFlags f) {
   enabled ? (m_flags |= MaterialFlags::EnumValue)                              \
           : (m_flags &= ~MaterialFlags::EnumValue)
 
-MaterialInstance &MaterialInstance::setCastShadow(bool enabled) {
+MaterialInstance &MaterialInstance::setCastShadow(const bool enabled) {
   SET_FLAG(CastShadow, enabled);
   return *this;
 }
-MaterialInstance &MaterialInstance::setReceiveShadow(bool enabled) {
+MaterialInstance &MaterialInstance::setReceiveShadow(const bool enabled) {
   SET_FLAG(ReceiveShadow, enabled);
   return *this;
 }
 
-MaterialInstance &MaterialInstance::enable(bool enabled) {
+MaterialInstance &MaterialInstance::enable(const bool enabled) {
   SET_FLAG(Enabled, enabled);
   return *this;
 }

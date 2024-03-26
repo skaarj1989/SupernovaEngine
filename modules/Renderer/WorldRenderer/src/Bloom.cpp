@@ -6,17 +6,19 @@
 #include "FrameGraphData/SceneColor.hpp"
 #include "FrameGraphData/BrightColor.hpp"
 
+#include "tracy/Tracy.hpp"
+
 namespace gfx {
 
 Bloom::Bloom(rhi::RenderDevice &rd, const CommonSamplers &commonSamplers)
     : m_downsampler{rd, commonSamplers}, m_upsampler{rd, commonSamplers} {}
 
-uint32_t Bloom::count(PipelineGroups groups) const {
+uint32_t Bloom::count(const PipelineGroups groups) const {
   return bool(groups & PipelineGroups::BuiltIn)
            ? m_downsampler.count() + m_upsampler.count()
            : 0;
 }
-void Bloom::clear(PipelineGroups groups) {
+void Bloom::clear(const PipelineGroups groups) {
   if (bool(groups & PipelineGroups::BuiltIn)) {
     m_downsampler.clear();
     m_upsampler.clear();
@@ -24,7 +26,7 @@ void Bloom::clear(PipelineGroups groups) {
 }
 
 void Bloom::resample(FrameGraph &fg, FrameGraphBlackboard &blackboard,
-                     float radius) {
+                     const float radius) {
   ZoneScopedN("Bloom::Resample");
 
   auto color = blackboard.get<SceneColorData>().HDR;

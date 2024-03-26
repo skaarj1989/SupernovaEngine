@@ -1,7 +1,6 @@
 #include "ResourceDockSpace.hpp"
 #include "Services.hpp"
-#include "ImGuiHelper.hpp"
-#include "imgui_internal.h" // DockSpace
+
 #include "MeshCache.hpp"
 #include "MaterialCache.hpp"
 #include "TextureCache.hpp"
@@ -10,6 +9,11 @@
 #include "ColliderCache.hpp"
 #include "AudioClipCache.hpp"
 #include "ScriptCache.hpp"
+
+#include "ImGuiHelper.hpp"
+#include "imgui_internal.h" // DockSpace
+
+#include "tracy/Tracy.hpp"
 
 ResourcesWidget::ResourcesWidget() {
 #define ADD_CACHE(Name)                                                        \

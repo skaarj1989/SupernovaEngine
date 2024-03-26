@@ -1,6 +1,14 @@
 #pragma once
 
 #include "rhi/RenderPass.hpp"
+#include "rhi/FrameIndex.hpp"
+#include "rhi/VertexBuffer.hpp"
+#include "rhi/IndexBuffer.hpp"
+#include "rhi/Texture.hpp"
+
+namespace rhi {
+class CommandBuffer;
+}
 
 struct ImDrawData;
 
@@ -24,12 +32,12 @@ public:
   createResources(const rhi::FrameIndex::ValueType numFrames) const;
   [[nodiscard]] FrameResources createFrameResources() const;
 
-  void draw(rhi::CommandBuffer &, rhi::PixelFormat colorFormat,
+  void draw(rhi::CommandBuffer &, const rhi::PixelFormat colorFormat,
             FrameResources &, const ImDrawData *);
 
 private:
   [[nodiscard]] rhi::GraphicsPipeline
-  _createPipeline(rhi::PixelFormat colorFormat, bool cubemap) const;
+  _createPipeline(const rhi::PixelFormat colorFormat, const bool cubemap) const;
 
 private:
   rhi::Texture m_font;

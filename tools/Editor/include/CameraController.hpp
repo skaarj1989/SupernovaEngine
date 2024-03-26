@@ -1,7 +1,12 @@
 #pragma once
 
-#include "PerspectiveCamera.hpp"
+#include "glm/ext/vector_float2.hpp"
+#include "glm/ext/vector_float3.hpp"
 #include <optional>
+
+namespace gfx {
+class PerspectiveCamera;
+}
 
 class CameraController final {
 public:
@@ -22,5 +27,6 @@ public:
     bool dirty{false};
   };
   static Result update(gfx::PerspectiveCamera &, const Settings &,
-                       glm::vec2 mouseDelta, std::optional<ArcBallConfig>);
+                       const glm::vec2 mouseDelta,
+                       const std::optional<ArcBallConfig>);
 };

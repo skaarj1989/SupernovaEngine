@@ -23,7 +23,7 @@ ShaderModule &ShaderModule::operator=(ShaderModule &&rhs) noexcept {
 ShaderModule::operator bool() const { return m_handle != VK_NULL_HANDLE; }
 ShaderModule::operator VkShaderModule() const { return m_handle; }
 
-ShaderModule::ShaderModule(VkDevice device, const SPIRV &spv)
+ShaderModule::ShaderModule(const VkDevice device, const SPIRV &spv)
     : m_device{device} {
   assert(device != VK_NULL_HANDLE && !spv.empty());
 

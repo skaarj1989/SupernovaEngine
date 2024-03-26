@@ -1,10 +1,12 @@
 #include "WorldRendererWidget.hpp"
+#include "rhi/RenderDevice.hpp"
+#include "renderer/WorldRenderer.hpp"
 #include "IconsFontAwesome6.h"
 #include "imgui.h"
 
 namespace {
 
-[[nodiscard]] auto toString(gfx::PipelineGroups groups) {
+[[nodiscard]] auto toString(const gfx::PipelineGroups groups) {
   switch (groups) {
     using enum gfx::PipelineGroups;
 
@@ -23,8 +25,8 @@ namespace {
 
 void showWorldRendererWindow(const char *name, bool *open,
                              gfx::WorldRenderer &renderer) {
-  ZoneScopedN("WorldRendererWindow");
   if (ImGui::Begin(name, open)) {
+    ZoneScopedN("WorldRendererWindow");
     if (ImGui::CollapsingHeader("Pipelines", ImGuiTreeNodeFlags_DefaultOpen)) {
       constexpr auto kTableFlags =
         ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH |

@@ -1,4 +1,9 @@
 #include "math/Frustum.hpp"
+#include "math/AABB.hpp"
+#include "math/Sphere.hpp"
+#include "math/Cone.hpp"
+#include "glm/ext/matrix_float4x4.hpp"
+#include "glm/geometric.hpp" // cross
 #include "tracy/Tracy.hpp"
 
 // https://www.lighthouse3d.com/tutorials/view-frustum-culling/

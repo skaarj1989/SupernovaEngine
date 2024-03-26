@@ -2,8 +2,8 @@
 
 #if __has_include("nlohmann/json.hpp")
 
-#  include "Material.hpp"
 #  include "VisitorHelper.hpp"
+#  include "Material.hpp"
 #  include "math/json.hpp"
 
 namespace gfx {
@@ -11,55 +11,51 @@ namespace gfx {
 #  define MAKE_PAIR(Enum, Value)                                               \
     { Enum::Value, #Value }
 
-NLOHMANN_JSON_SERIALIZE_ENUM(MaterialDomain,
-                             {
-                               MAKE_PAIR(MaterialDomain, Surface),
-                               MAKE_PAIR(MaterialDomain, PostProcess),
-                             });
+// clang-format off
+NLOHMANN_JSON_SERIALIZE_ENUM(MaterialDomain, {
+  MAKE_PAIR(MaterialDomain, Surface),
+  MAKE_PAIR(MaterialDomain, PostProcess),
+});
 NLOHMANN_JSON_SERIALIZE_ENUM(ShadingModel, {
-                                             MAKE_PAIR(ShadingModel, Unlit),
-                                             MAKE_PAIR(ShadingModel, Lit),
-                                           });
+  MAKE_PAIR(ShadingModel, Unlit),
+  MAKE_PAIR(ShadingModel, Lit),
+});
 NLOHMANN_JSON_SERIALIZE_ENUM(BlendMode, {
-                                          MAKE_PAIR(BlendMode, Opaque),
-                                          MAKE_PAIR(BlendMode, Masked),
-                                          MAKE_PAIR(BlendMode, Transparent),
-                                          MAKE_PAIR(BlendMode, Add),
-                                          MAKE_PAIR(BlendMode, Modulate),
-                                        });
+  MAKE_PAIR(BlendMode, Opaque),
+  MAKE_PAIR(BlendMode, Masked),
+  MAKE_PAIR(BlendMode, Transparent),
+  MAKE_PAIR(BlendMode, Add),
+  MAKE_PAIR(BlendMode, Modulate),
+});
 NLOHMANN_JSON_SERIALIZE_ENUM(BlendOp, {
-                                        MAKE_PAIR(BlendOp, Keep),
-                                        MAKE_PAIR(BlendOp, Replace),
-                                        MAKE_PAIR(BlendOp, Blend),
-                                      });
-NLOHMANN_JSON_SERIALIZE_ENUM(LightingMode,
-                             {
-                               MAKE_PAIR(LightingMode, Default),
-                               MAKE_PAIR(LightingMode, Transmission),
-                             });
+  MAKE_PAIR(BlendOp, Keep),
+  MAKE_PAIR(BlendOp, Replace),
+  MAKE_PAIR(BlendOp, Blend),
+});
+NLOHMANN_JSON_SERIALIZE_ENUM(LightingMode, {
+  MAKE_PAIR(LightingMode, Default),
+  MAKE_PAIR(LightingMode, Transmission),
+});
+// clang-format on
 
 #  undef MAKE_PAIR
 
 static void from_json(const nlohmann::json &j, DecalBlendMode &out) {
 #  define GET_VALUE(Member) j.at(#Member).get_to(out.Member)
-
   GET_VALUE(normal);
   GET_VALUE(emissive);
   GET_VALUE(albedo);
   GET_VALUE(metallicRoughnessAO);
-
 #  undef GET_VALUE
 }
 static void to_json(nlohmann::ordered_json &j, const DecalBlendMode &in) {
 #  define STORE_VALUE(Member) {#Member, in.Member}
-
   j = nlohmann::ordered_json{
     STORE_VALUE(normal),
     STORE_VALUE(emissive),
     STORE_VALUE(albedo),
     STORE_VALUE(metallicRoughnessAO),
   };
-
 #  undef STORE_VALUE
 }
 
@@ -93,10 +89,10 @@ template <> struct nlohmann::adl_serializer<gfx::Property::Value> {
     j["value"] = __VA_ARGS__
 
     std::visit(Overload{
-                 [&j](uint32_t v) { STORE(uint, v); },
-                 [&j](int32_t v) { STORE(int, v); },
-                 [&j](float v) { STORE(float, v); },
-                 [&j](glm::vec2 v) {
+                 [&j](const uint32_t v) { STORE(uint, v); },
+                 [&j](const int32_t v) { STORE(int, v); },
+                 [&j](const float v) { STORE(float, v); },
+                 [&j](const glm::vec2 v) {
                    STORE(vec2, {v.x, v.y});
                  },
                  [&j](const glm::vec4 &v) {

@@ -1,30 +1,22 @@
 #pragma once
 
-#include "rhi/Extent2D.hpp"
-#include "rhi/TextureType.hpp"
-#include "rhi/CubeFace.hpp"
-#include "rhi/PixelFormat.hpp"
-#include "rhi/ImageLayout.hpp"
-#include "rhi/BarrierScope.hpp"
+#include "Extent2D.hpp"
+#include "ImageUsage.hpp"
+#include "TextureType.hpp"
+#include "CubeFace.hpp"
+#include "PixelFormat.hpp"
+#include "ImageLayout.hpp"
+#include "BarrierScope.hpp"
+
 #include "glm/ext/vector_uint3.hpp"
 #include "vk_mem_alloc.h"
 
-#include <string>
 #include <vector>
 #include <variant>
 #include <optional>
 #include <span>
 
 namespace rhi {
-
-enum class ImageUsage {
-  TransferSrc = 1 << 0,
-  TransferDst = 1 << 1,
-  Transfer = TransferSrc | TransferDst,
-  Storage = 1 << 2,
-  RenderTarget = 1 << 3,
-  Sampled = 1 << 4,
-};
 
 class RenderDevice;
 class Swapchain;
@@ -52,7 +44,7 @@ public:
 
   // ---
 
-  void setSampler(VkSampler);
+  void setSampler(const VkSampler);
 
   // ---
 
@@ -69,10 +61,11 @@ public:
 
   [[nodiscard]] VkImageView getImageView() const;
 
-  [[nodiscard]] VkImageView getMipLevel(uint32_t) const;
+  [[nodiscard]] VkImageView getMipLevel(const uint32_t) const;
   [[nodiscard]] std::span<const VkImageView> getMipLevels() const;
   [[nodiscard]] std::span<const VkImageView> getLayers() const;
-  [[nodiscard]] VkImageView getLayer(uint32_t, std::optional<CubeFace>) const;
+  [[nodiscard]] VkImageView getLayer(const uint32_t,
+                                     const std::optional<CubeFace>) const;
 
   [[nodiscard]] VkSampler getSampler() const;
 
@@ -86,13 +79,13 @@ public:
     Builder &operator=(const Builder &) = delete;
     Builder &operator=(Builder &&) noexcept = delete;
 
-    Builder &setExtent(rhi::Extent2D, uint32_t depth = 0);
-    Builder &setPixelFormat(PixelFormat);
-    Builder &setNumMipLevels(std::optional<uint32_t>);
-    Builder &setNumLayers(std::optional<uint32_t>);
-    Builder &setCubemap(bool);
-    Builder &setUsageFlags(ImageUsage);
-    Builder &setupOptimalSampler(bool);
+    Builder &setExtent(const Extent2D, const uint32_t depth = 0);
+    Builder &setPixelFormat(const PixelFormat);
+    Builder &setNumMipLevels(const std::optional<uint32_t>);
+    Builder &setNumLayers(const std::optional<uint32_t>);
+    Builder &setCubemap(const bool);
+    Builder &setUsageFlags(const ImageUsage);
+    Builder &setupOptimalSampler(const bool);
 
     [[nodiscard]] Texture build(RenderDevice &);
 
@@ -118,9 +111,9 @@ private:
     uint32_t numFaces{1u};
     ImageUsage usageFlags{ImageUsage::Sampled};
   };
-  Texture(VmaAllocator, CreateInfo &&);
+  Texture(const VmaAllocator, CreateInfo &&);
   // "Import" image (from a Swapchain).
-  Texture(VkDevice, VkImage, Extent2D, PixelFormat);
+  Texture(const VkDevice, const VkImage, const Extent2D, const PixelFormat);
 
   void _destroy() noexcept;
 
@@ -156,19 +149,15 @@ private:
   ImageUsage m_usageFlags{ImageUsage::Sampled};
 };
 
-[[nodiscard]] bool isFormatSupported(const RenderDevice &, PixelFormat,
-                                     ImageUsage);
+[[nodiscard]] bool isFormatSupported(const RenderDevice &, const PixelFormat,
+                                     const ImageUsage);
 [[nodiscard]] VkImageAspectFlags getAspectMask(const Texture &);
 
-[[nodiscard]] uint32_t calcMipLevels(Extent2D);
-[[nodiscard]] uint32_t calcMipLevels(uint32_t size);
+[[nodiscard]] uint32_t calcMipLevels(const Extent2D);
+[[nodiscard]] uint32_t calcMipLevels(const uint32_t size);
 [[nodiscard]] glm::uvec3 calcMipSize(const glm::uvec3 &baseSize,
-                                     uint32_t level);
+                                     const uint32_t level);
 
 [[nodiscard]] bool isCubemap(const Texture &);
 
-[[nodiscard]] std::string toString(ImageUsage);
-
 } // namespace rhi
-
-template <> struct has_flags<rhi::ImageUsage> : std::true_type {};

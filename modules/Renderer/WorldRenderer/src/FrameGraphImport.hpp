@@ -4,10 +4,8 @@
 #include <string>
 
 namespace rhi {
-
 class Texture;
-
-} // namespace rhi
+}
 
 namespace gfx {
 

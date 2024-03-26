@@ -1,4 +1,5 @@
 #include "renderer/MeshInstance.hpp"
+#include "Transform.hpp"
 #include "spdlog/spdlog.h"
 
 namespace gfx {
@@ -19,7 +20,7 @@ const std::shared_ptr<Mesh> &MeshInstance::getPrototype() const {
   return m_prototype;
 }
 
-MeshInstance &MeshInstance::show(bool b) {
+MeshInstance &MeshInstance::show(const bool b) {
   for (auto &sm : each()) {
     sm.visible = b;
   }
@@ -35,7 +36,7 @@ MeshInstance &MeshInstance::setTransform(const Transform &xf) {
   _updateAABB(m_modelMatrix);
   return *this;
 }
-MeshInstance &MeshInstance::setMaterial(int32_t index,
+MeshInstance &MeshInstance::setMaterial(const int32_t index,
                                         std::shared_ptr<Material> material) {
   if (index >= m_subMeshes.size()) {
     SPDLOG_WARN("Invalid material index");
@@ -57,7 +58,7 @@ MeshInstance &MeshInstance::setSkinMatrices(Joints skin) {
 const glm::mat4 &MeshInstance::getModelMatrix() const { return m_modelMatrix; }
 const AABB &MeshInstance::getAABB() const { return m_aabb; }
 
-MaterialInstance &MeshInstance::getMaterial(uint32_t index) {
+MaterialInstance &MeshInstance::getMaterial(const uint32_t index) {
   assert(index < m_subMeshes.size());
   return m_subMeshes[index].material;
 }

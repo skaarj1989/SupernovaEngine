@@ -112,7 +112,8 @@ ShaderCodeComposer &ShaderCodeComposer::addVariable(const std::string_view name,
   return addVariable(getDataType(v), name, toGLSL(v));
 }
 ShaderCodeComposer &
-ShaderCodeComposer::addVariable(DataType dataType, const std::string_view name,
+ShaderCodeComposer::addVariable(const DataType dataType,
+                                const std::string_view name,
                                 const std::string_view value) {
   if (!m_variables.contains(name.data())) {
     addExpression(

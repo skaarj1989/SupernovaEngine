@@ -1,6 +1,10 @@
 #include "AudioWorld.hpp"
 #include "os/FileSystem.hpp"
+#include "Transform.hpp"
+#include "SoundSourceComponent.hpp"
+#include "AudioPlayerComponent.hpp"
 #include "AudioClipLoader.hpp"
+
 #include "spdlog/spdlog.h"
 
 namespace {

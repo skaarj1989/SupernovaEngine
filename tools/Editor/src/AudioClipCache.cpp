@@ -49,9 +49,9 @@ void show(const char *name, bool *open, AudioClipCache &cache) {
     defaultMenuBar(cache);
     view(
       cache,
-      [](auto id) {
+      [](const auto id) {
         onDragSource(kImGuiPayloadTypeAudioClip, id,
-                     [] { ImGui::Text("AudioClip inside ..."); });
+                     [] { ImGui::TextUnformatted("AudioClip inside ..."); });
       },
       [](const auto &r) { print(r.getInfo()); }, std::nullopt);
   }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rhi/SPIRV.hpp"
+#include "SPIRV.hpp"
 #include "glad/vulkan.h"
 
 namespace rhi {
@@ -23,7 +23,7 @@ public:
 
 private:
   ShaderModule() = default;
-  ShaderModule(VkDevice, const SPIRV &);
+  ShaderModule(const VkDevice, const SPIRV &);
 
   void _destroy() noexcept;
 

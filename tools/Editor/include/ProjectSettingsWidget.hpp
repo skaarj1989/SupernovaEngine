@@ -1,5 +1,5 @@
 #pragma once
 
-#include "ProjectSettings.hpp"
+struct ProjectSettings;
 
 void showProjectSettings(const char *name, ProjectSettings &);

@@ -45,19 +45,19 @@ protected:
 
   // ---
 
-  bool _onGui(entt::id_type componentId, entt::handle h) {
+  bool _onGui(const entt::id_type componentId, const entt::handle h) {
     assert(h);
     auto metaType = entt::resolve(componentId);
     return metaType ? _onGui(metaType, h) : false;
   }
-  bool _onGui(entt::meta_type metaType, entt::handle h) {
+  bool _onGui(entt::meta_type metaType, const entt::handle h) {
     assert(h);
     auto component = invokeMetaFunc(metaType, MetaComponent::Functions::Get, h);
     return _onGui(metaType, h, component.data());
   }
 
 private:
-  bool _onGui(entt::meta_type metaType, entt::handle h, void *component) {
+  bool _onGui(entt::meta_type metaType, const entt::handle h, void *component) {
     assert(component); // MetaComponent::registerMetaComponents
     if (auto metaFunction = metaType.func(Functions::Inspect); metaFunction) {
       metaFunction.invoke({}, static_cast<Derived *>(this), h, component);
@@ -68,7 +68,7 @@ private:
 
 private:
   template <class Component>
-  static void _onInspect(Derived *app, entt::handle h, void *component) {
+  static void _onInspect(Derived *app, const entt::handle h, void *component) {
     assert(app && h && component);
     app->_onInspect(h, *static_cast<Component *>(component));
   }

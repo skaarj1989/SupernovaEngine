@@ -1,10 +1,19 @@
 #pragma once
 
 #include "rhi/RenderPass.hpp"
+#include "rhi/FrameIndex.hpp"
+#include "rhi/VertexBuffer.hpp"
+#include "rhi/IndexBuffer.hpp"
+
 #include "RmlUi/Core/Vertex.h"
 
-#include "glm/detail/type_mat4x4.hpp"
-#include "glm/detail/type_vec2.hpp"
+#include "glm/ext/vector_float2.hpp"
+#include "glm/ext/matrix_float4x4.hpp"
+
+namespace rhi {
+class Texture;
+class CommandBuffer;
+} // namespace rhi
 
 class RmlUiRenderer : public rhi::RenderPass<RmlUiRenderer> {
   friend class BasePass;
@@ -42,5 +51,6 @@ public:
 
 private:
   [[nodiscard]] rhi::GraphicsPipeline
-  _createPipeline(rhi::PixelFormat colorFormat, bool textured) const;
+  _createPipeline(const rhi::PixelFormat colorFormat,
+                  const bool textured) const;
 };

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "entt/core/type_info.hpp"
 #include "math/Sphere.hpp"
 #include "math/Cone.hpp"
 #include "rhi/CubeFace.hpp"
 #include "RawCamera.hpp"
+#include "entt/core/type_info.hpp"
 #include <vector>
 #include <span>
 
@@ -48,11 +48,13 @@ getVisibleLights(std::span<const Light *>, const Frustum &);
 
 [[nodiscard]] RawCamera buildSpotLightMatrix(const glm::vec3 &position,
                                              const glm::vec3 &direction,
-                                             float fov, float range);
+                                             const float fov,
+                                             const float range);
 [[nodiscard]] RawCamera buildSpotLightMatrix(const Light &);
 
-[[nodiscard]] RawCamera
-buildPointLightMatrix(rhi::CubeFace, const glm::vec3 &position, float radius);
+[[nodiscard]] RawCamera buildPointLightMatrix(const rhi::CubeFace,
+                                              const glm::vec3 &position,
+                                              const float radius);
 
 [[nodiscard]] Sphere toSphere(const Light &);
 [[nodiscard]] Cone toCone(const Light &);

@@ -134,13 +134,13 @@ Transform &Transform::rotate(const glm::quat &q) {
   m_dirty = true;
   return *this;
 }
-Transform &Transform::pitch(float angle) {
+Transform &Transform::pitch(const float angle) {
   return rotate(glm::quat{glm::vec3{angle, 0.0f, 0.0f}});
 }
-Transform &Transform::yaw(float angle) {
+Transform &Transform::yaw(const float angle) {
   return rotate(glm::quat{glm::vec3{0.0f, angle, 0.0f}});
 }
-Transform &Transform::roll(float angle) {
+Transform &Transform::roll(const float angle) {
   return rotate(glm::quat{glm::vec3{0.0f, 0.0f, angle}});
 }
 

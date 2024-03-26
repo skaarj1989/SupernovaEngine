@@ -12,10 +12,10 @@ class Bloom final : public Technique {
 public:
   Bloom(rhi::RenderDevice &, const CommonSamplers &);
 
-  uint32_t count(PipelineGroups) const override;
-  void clear(PipelineGroups) override;
+  uint32_t count(const PipelineGroups) const override;
+  void clear(const PipelineGroups) override;
 
-  void resample(FrameGraph &, FrameGraphBlackboard &, float radius);
+  void resample(FrameGraph &, FrameGraphBlackboard &, const float radius);
 
 private:
   Downsampler m_downsampler;

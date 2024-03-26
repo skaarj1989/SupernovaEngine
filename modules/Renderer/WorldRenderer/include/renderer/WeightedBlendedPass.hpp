@@ -1,15 +1,21 @@
 #pragma once
 
 #include "Technique.hpp"
-#include "ForwardPassInfo.hpp"
-#include "ViewInfo.hpp"
-#include "LightingSettings.hpp"
-#include "CodePair.hpp"
 #include "TransparencyCompositionPass.hpp"
+#include "Renderable.hpp"
+#include "CodePair.hpp"
 
 namespace gfx {
 
 struct CommonSamplers;
+
+struct ViewInfo;
+struct ForwardPassInfo;
+struct LightingPassFeatures;
+struct LightingSettings;
+
+class VertexFormat;
+class Material;
 
 class WeightedBlendedPass final : public rhi::RenderPass<WeightedBlendedPass>,
                                   public Technique {
@@ -18,12 +24,12 @@ class WeightedBlendedPass final : public rhi::RenderPass<WeightedBlendedPass>,
 public:
   WeightedBlendedPass(rhi::RenderDevice &, const CommonSamplers &);
 
-  uint32_t count(PipelineGroups) const override;
-  void clear(PipelineGroups) override;
+  uint32_t count(const PipelineGroups) const override;
+  void clear(const PipelineGroups) override;
 
   void addGeometryPass(FrameGraph &, FrameGraphBlackboard &, const ViewInfo &,
                        const PropertyGroupOffsets &, const LightingSettings &,
-                       bool softShadows);
+                       const bool softShadows);
   void compose(FrameGraph &, FrameGraphBlackboard &);
 
   [[nodiscard]] static CodePair buildShaderCode(const rhi::RenderDevice &,

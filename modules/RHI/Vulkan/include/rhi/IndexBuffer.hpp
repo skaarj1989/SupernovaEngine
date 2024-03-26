@@ -13,10 +13,11 @@ public:
   IndexBuffer() = default;
 
   [[nodiscard]] IndexType getIndexType() const;
+  [[nodiscard]] Stride getStride() const;
   [[nodiscard]] VkDeviceSize getCapacity() const;
 
 private:
-  IndexBuffer(Buffer &&, IndexType);
+  IndexBuffer(Buffer &&, const IndexType);
 
 private:
   IndexType m_indexType{IndexType::Undefined};

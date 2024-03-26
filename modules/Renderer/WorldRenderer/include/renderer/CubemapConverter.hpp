@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rhi/ComputePass.hpp"
+#include "rhi/Texture.hpp"
 #include "Technique.hpp"
 
 namespace gfx {
@@ -12,15 +13,15 @@ class CubemapConverter final : public rhi::ComputePass<CubemapConverter>,
 public:
   explicit CubemapConverter(rhi::RenderDevice &);
 
-  uint32_t count(PipelineGroups) const override;
-  void clear(PipelineGroups) override;
+  uint32_t count(const PipelineGroups) const override;
+  void clear(const PipelineGroups) override;
 
   [[nodiscard]] rhi::Texture equirectangularToCubemap(rhi::CommandBuffer &,
                                                       const rhi::Texture &);
 
 private:
   [[nodiscard]] rhi::ComputePipeline
-  _createPipeline(rhi::PixelFormat colorFormat) const;
+  _createPipeline(const rhi::PixelFormat colorFormat) const;
 };
 
 } // namespace gfx

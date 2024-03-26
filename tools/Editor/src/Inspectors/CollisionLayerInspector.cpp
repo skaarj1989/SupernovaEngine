@@ -1,4 +1,5 @@
 #include "Inspectors/CollisionLayerInspector.hpp"
+#include "physics/CollisionLayer.hpp"
 #include "ImGuiPopups.hpp"
 #include "imgui_internal.h" // {Push/Pop}ItemFlag
 #include <bitset>

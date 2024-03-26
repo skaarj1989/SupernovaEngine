@@ -1,6 +1,8 @@
 #include "Inspectors/MaterialInstanceInspector.hpp"
 #include "Inspectors/PropertyInspector.hpp"
 
+#include "renderer/MaterialInstance.hpp"
+
 #include "Services.hpp"
 
 #include "TexturePreview.hpp"

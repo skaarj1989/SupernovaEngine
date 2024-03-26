@@ -1,23 +1,26 @@
 #include "renderer/PostProcessor.hpp"
+#include "rhi/RenderDevice.hpp"
 
+#include "renderer/CommonSamplers.hpp"
+#include "renderer/PostProcess.hpp"
+
+#include "renderer/MaterialInstance.hpp"
+
+#include "FrameGraphResourceAccess.hpp"
 #include "FrameGraphCommon.hpp"
 #include "renderer/FrameGraphTexture.hpp"
-#include "FrameGraphResourceAccess.hpp"
+#include "UploadMaterialProperties.hpp"
 
 #include "FrameGraphData/Frame.hpp"
 #include "FrameGraphData/Camera.hpp"
 #include "FrameGraphData/MaterialProperties.hpp"
 #include "FrameGraphData/GBuffer.hpp"
 
-#include "UploadMaterialProperties.hpp"
-
-#include "renderer/CommonSamplers.hpp"
-
 #include "MaterialShader.hpp"
 #include "BuildPropertyBuffer.hpp"
 
-#include "renderer/PostProcess.hpp"
 #include "RenderContext.hpp"
+#include "ShaderCodeBuilder.hpp"
 
 namespace std {
 
@@ -64,17 +67,17 @@ PostProcessor::PostProcessor(rhi::RenderDevice &rd,
                              const CommonSamplers &commonSamplers)
     : rhi::RenderPass<PostProcessor>{rd}, m_samplers{commonSamplers} {}
 
-uint32_t PostProcessor::count(PipelineGroups flags) const {
+uint32_t PostProcessor::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::PostProcessMaterial) ? BasePass::count()
                                                            : 0;
 }
-void PostProcessor::clear(PipelineGroups flags) {
+void PostProcessor::clear(const PipelineGroups flags) {
   if (bool(flags & PipelineGroups::PostProcessMaterial)) BasePass::clear();
 }
 
 FrameGraphResource
 PostProcessor::addPass(FrameGraph &fg, const FrameGraphBlackboard &blackboard,
-                       FrameGraphResource sceneColor,
+                       const FrameGraphResource sceneColor,
                        const MaterialInstance &material) {
   if (!material) return sceneColor;
 

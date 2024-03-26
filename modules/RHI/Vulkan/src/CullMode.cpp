@@ -3,7 +3,7 @@
 
 namespace rhi {
 
-const char *toString(CullMode cullMode) {
+const char *toString(const CullMode cullMode) {
 #define CASE(Value)                                                            \
   case Value:                                                                  \
     return #Value

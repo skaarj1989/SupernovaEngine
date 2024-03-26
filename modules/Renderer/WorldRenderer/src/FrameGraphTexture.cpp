@@ -1,9 +1,9 @@
 #include "renderer/FrameGraphTexture.hpp"
 #include "MapOptional.hpp"
+#include "rhi/CommandBuffer.hpp"
 
 #include "renderer/TransientResources.hpp"
 #include "FrameGraphResourceAccess.hpp"
-
 #include "RenderContext.hpp"
 
 #include <format>
@@ -18,7 +18,7 @@ template <class Target> struct StaticCast {
   }
 };
 
-[[nodiscard]] rhi::ClearValue convert(ClearValue in) {
+[[nodiscard]] rhi::ClearValue convert(const ClearValue in) {
   switch (in) {
     using enum ClearValue;
 

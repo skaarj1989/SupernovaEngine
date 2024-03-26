@@ -1,4 +1,5 @@
 #include "ALHelper.hpp"
+#include "ClipInfo.hpp"
 #include <cassert>
 
 namespace audio {

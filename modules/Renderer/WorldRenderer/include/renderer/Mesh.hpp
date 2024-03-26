@@ -1,13 +1,20 @@
 #pragma once
 
-#include "rhi/VertexBuffer.hpp"
-#include "rhi/IndexBuffer.hpp"
 #include "rhi/GeometryInfo.hpp"
-#include "VertexFormat.hpp"
-#include "Material.hpp"
 #include "math/AABB.hpp"
+#include "glm/ext/matrix_float4x4.hpp"
+
+#include <memory>
+#include <vector>
+
+namespace rhi {
+class VertexBuffer;
+class IndexBuffer;
+} // namespace rhi
 
 namespace gfx {
+
+class Material;
 
 struct SubMesh {
   rhi::PrimitiveTopology topology{rhi::PrimitiveTopology::TriangleList};
@@ -23,6 +30,8 @@ struct SubMesh {
 };
 
 using Joints = std::vector<glm::mat4>;
+
+class VertexFormat;
 
 class Mesh {
 public:
@@ -60,10 +69,11 @@ public:
 
     Builder &setInverseBindPose(Joints);
 
-    Builder &setTopology(rhi::PrimitiveTopology);
-    Builder &beginSubMesh(uint32_t vertexOffset, uint32_t numVertices,
-                          std::shared_ptr<Material>, AABB);
-    Builder &addLOD(uint32_t indexOffset, uint32_t numIndices);
+    Builder &setTopology(const rhi::PrimitiveTopology);
+    Builder &beginSubMesh(const uint32_t vertexOffset,
+                          const uint32_t numVertices, std::shared_ptr<Material>,
+                          AABB);
+    Builder &addLOD(const uint32_t indexOffset, const uint32_t numIndices);
 
     Builder &setAABB(AABB);
 

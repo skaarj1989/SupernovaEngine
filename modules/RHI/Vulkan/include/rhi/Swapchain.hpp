@@ -1,8 +1,11 @@
 #pragma once
 
-#include "rhi/Rect2D.hpp"
-#include "rhi/Texture.hpp"
-#include "os/Window.hpp"
+#include "Rect2D.hpp"
+#include "Texture.hpp"
+
+namespace os {
+class Window;
+}
 
 namespace rhi {
 
@@ -30,25 +33,25 @@ public:
   [[nodiscard]] std::size_t getNumBuffers() const;
 
   [[nodiscard]] const std::vector<Texture> &getBuffers() const;
-  [[nodiscard]] const Texture &getBuffer(uint32_t i) const;
+  [[nodiscard]] const Texture &getBuffer(const uint32_t) const;
 
   [[nodiscard]] uint32_t getCurrentBufferIndex() const;
   [[nodiscard]] Texture &getCurrentBuffer();
 
   // ---
 
-  void recreate(std::optional<VerticalSync> = std::nullopt);
+  void recreate(const std::optional<VerticalSync> = std::nullopt);
 
-  bool acquireNextImage(VkSemaphore imageAcquired = VK_NULL_HANDLE);
+  bool acquireNextImage(const VkSemaphore imageAcquired = VK_NULL_HANDLE);
 
 private:
-  Swapchain(VkInstance, VkPhysicalDevice, VkDevice, const os::Window &, Format,
-            VerticalSync);
+  Swapchain(const VkInstance, const VkPhysicalDevice, const VkDevice,
+            const os::Window &, const Format, const VerticalSync);
 
   void _createSurface(const os::Window &);
 
-  void _create(Format, VerticalSync);
-  void _buildBuffers(Extent2D, PixelFormat);
+  void _create(const Format, const VerticalSync);
+  void _buildBuffers(const Extent2D, const PixelFormat);
   void _destroy();
 
 private:

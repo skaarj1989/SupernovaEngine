@@ -1,5 +1,6 @@
 #include "STBImageLoader.hpp"
 #include "os/FileSystem.hpp"
+#include "rhi/RenderDevice.hpp"
 #include "rhi/TextureUtility.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION

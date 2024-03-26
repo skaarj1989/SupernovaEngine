@@ -1,9 +1,12 @@
 #pragma once
 
-#include "RenderDevice.hpp"
+#include "BasePipeline.hpp"
 #include "math/Hash.hpp"
+#include "robin_hood.h"
 
 namespace rhi {
+
+class RenderDevice;
 
 template <class TargetPass, class PipelineType>
   requires std::is_base_of_v<BasePipeline, PipelineType>

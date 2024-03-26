@@ -1,9 +1,9 @@
 #pragma once
 
 #include "entt/core/fwd.hpp" // id_type
-#include "imgui.h"
-#include <bit>        // bit_cast
-#include <filesystem> // path
+#include "imgui.h"           // ImGuiPayload->Data
+#include <bit>               // bit_cast
+#include <filesystem>        // path
 
 namespace ImGui {
 

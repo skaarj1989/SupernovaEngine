@@ -1,6 +1,12 @@
 #pragma once
 
-#include "rhi/Texture.hpp"
+#include "rhi/Extent2D.hpp"
+#include "rhi/PixelFormat.hpp"
+#include "rhi/ImageUsage.hpp"
+
+namespace rhi {
+class Texture;
+}
 
 namespace gfx {
 

@@ -11,6 +11,6 @@ class Texture;
 
 void upload(RenderDevice &, const Buffer &srcStagingBuffer,
             std::span<const VkBufferImageCopy> copyRegions, Texture &dst,
-            bool generateMipmaps = false);
+            const bool generateMipmaps = false);
 
 } // namespace rhi

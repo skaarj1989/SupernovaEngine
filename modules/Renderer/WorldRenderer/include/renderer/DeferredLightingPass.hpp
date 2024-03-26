@@ -3,12 +3,13 @@
 #include "fg/Fwd.hpp"
 #include "rhi/RenderPass.hpp"
 #include "Technique.hpp"
-#include "LightingSettings.hpp"
-#include "LightingPassFeatures.hpp"
 
 namespace gfx {
 
 struct CommonSamplers;
+
+struct LightingSettings;
+struct LightingPassFeatures;
 
 class DeferredLightingPass final : public rhi::RenderPass<DeferredLightingPass>,
                                    public Technique {
@@ -17,20 +18,16 @@ class DeferredLightingPass final : public rhi::RenderPass<DeferredLightingPass>,
 public:
   DeferredLightingPass(rhi::RenderDevice &, const CommonSamplers &);
 
-  uint32_t count(PipelineGroups) const override;
-  void clear(PipelineGroups) override;
+  uint32_t count(const PipelineGroups) const override;
+  void clear(const PipelineGroups) override;
 
   [[nodiscard]] FrameGraphResource
   addPass(FrameGraph &, const FrameGraphBlackboard &, const LightingSettings &,
-          bool softShadows, bool irradianceOnly);
-
-  struct PassInfo {
-    rhi::PixelFormat colorFormat;
-    LightingPassFeatures features;
-  };
+          const bool softShadows, const bool irradianceOnly);
 
 private:
-  rhi::GraphicsPipeline _createPipeline(const PassInfo &) const;
+  rhi::GraphicsPipeline _createPipeline(const rhi::PixelFormat colorFormat,
+                                        const LightingPassFeatures &) const;
 
 private:
   const CommonSamplers &m_samplers;

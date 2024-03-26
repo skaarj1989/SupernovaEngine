@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rhi/BarrierScope.hpp"
+#include "BarrierScope.hpp"
 #include "vk_mem_alloc.h"
 
 namespace rhi {
@@ -23,17 +23,20 @@ public:
 
   [[nodiscard]] explicit operator bool() const;
 
+  using Stride = uint32_t;
+
   [[nodiscard]] VkBuffer getHandle() const;
   [[nodiscard]] VkDeviceSize getSize() const;
 
   void *map();
   Buffer &unmap();
 
-  Buffer &flush(VkDeviceSize offset = 0, VkDeviceSize size = VK_WHOLE_SIZE);
+  Buffer &flush(const VkDeviceSize offset = 0,
+                const VkDeviceSize size = VK_WHOLE_SIZE);
 
 private:
-  Buffer(VmaAllocator, VkDeviceSize size, VkBufferUsageFlags,
-         VmaAllocationCreateFlags, VmaMemoryUsage);
+  Buffer(const VmaAllocator, const VkDeviceSize size, const VkBufferUsageFlags,
+         const VmaAllocationCreateFlags, const VmaMemoryUsage);
 
   void _destroy() noexcept;
 

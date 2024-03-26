@@ -1,7 +1,15 @@
 #include "renderer/DecalPass.hpp"
+#include "rhi/RenderDevice.hpp"
 
-#include "FrameGraphCommon.hpp"
+#include "renderer/CommonSamplers.hpp"
+
+#include "renderer/ViewInfo.hpp"
+#include "renderer/VertexFormat.hpp"
+#include "renderer/Material.hpp"
+
 #include "FrameGraphResourceAccess.hpp"
+#include "FrameGraphCommon.hpp"
+#include "UploadInstances.hpp"
 
 #include "FrameGraphData/Frame.hpp"
 #include "FrameGraphData/Camera.hpp"
@@ -10,13 +18,11 @@
 #include "FrameGraphData/GBuffer.hpp"
 #include "FrameGraphData/DummyResources.hpp"
 
-#include "renderer/CommonSamplers.hpp"
-
 #include "MaterialShader.hpp"
 #include "BatchBuilder.hpp"
-#include "UploadInstances.hpp"
 
 #include "RenderContext.hpp"
+#include "ShaderCodeBuilder.hpp"
 
 namespace gfx {
 
@@ -47,10 +53,10 @@ DecalPass::DecalPass(rhi::RenderDevice &rd,
                      const CommonSamplers &commonSamplers)
     : rhi::RenderPass<DecalPass>{rd}, m_samplers{commonSamplers} {}
 
-uint32_t DecalPass::count(PipelineGroups flags) const {
+uint32_t DecalPass::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::SurfaceMaterial) ? BasePass::count() : 0;
 }
-void DecalPass::clear(PipelineGroups flags) {
+void DecalPass::clear(const PipelineGroups flags) {
   if (bool(flags & PipelineGroups::SurfaceMaterial)) BasePass::clear();
 }
 

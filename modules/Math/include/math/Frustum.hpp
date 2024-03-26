@@ -1,10 +1,12 @@
 #pragma once
 
 #include "Plane.hpp"
-#include "AABB.hpp"
-#include "Sphere.hpp"
-#include "Cone.hpp"
+#include "glm/fwd.hpp"
 #include <array>
+
+struct AABB;
+struct Sphere;
+struct Cone;
 
 class Frustum {
 public:

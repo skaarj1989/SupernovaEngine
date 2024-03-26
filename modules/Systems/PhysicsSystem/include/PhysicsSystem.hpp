@@ -22,11 +22,11 @@ struct PhysicsSystem {
   static void setup(entt::registry &);
 
   // Simulate and update global Transform (Jolt -> Transform).
-  static void simulate(entt::registry &, float timeStep);
+  static void simulate(entt::registry &, const float timeStep);
   static void debugDraw(entt::registry &, DebugDraw &);
 
   // Update position and rotation of a body (Transform -> Jolt).
-  static void updateTransform(entt::registry &, entt::entity);
+  static void updateTransform(entt::registry &, const entt::entity);
 
   template <class Archive> static void save(Archive &archive) {
     auto &[registry, _] = cereal::get_user_data<OutputContext>(archive);

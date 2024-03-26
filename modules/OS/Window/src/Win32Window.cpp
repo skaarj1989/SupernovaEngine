@@ -11,7 +11,7 @@ namespace os {
 
 namespace {
 
-void setUserData(HWND hWnd, Window *window) {
+void setUserData(HWND hWnd, const Window *window) {
   assert(::IsWindow(hWnd) && window);
   ::SetWindowLongPtr(hWnd, GWLP_USERDATA, std::bit_cast<LONG_PTR>(window));
 }
@@ -142,7 +142,7 @@ Window &Window::setExtent(const Extent extent) {
                  SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE);
   return *this;
 }
-Window &Window::setAlpha(float a) {
+Window &Window::setAlpha(const float a) {
   assert(isOpen());
   if (m_alpha != a) {
     ::SetLayeredWindowAttributes(m_native.hWnd, 0, BYTE(255 * a), LWA_ALPHA);

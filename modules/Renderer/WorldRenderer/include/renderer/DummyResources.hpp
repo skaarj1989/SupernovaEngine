@@ -1,7 +1,9 @@
 #pragma once
 
 #include "fg/Fwd.hpp"
-#include "rhi/RenderDevice.hpp"
+#include "rhi/UniformBuffer.hpp"
+#include "rhi/StorageBuffer.hpp"
+#include "rhi/Texture.hpp"
 
 namespace gfx {
 

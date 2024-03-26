@@ -87,8 +87,8 @@ ImGuiApp::~ImGuiApp() {
   ImGui::DestroyContext();
 }
 
-void ImGuiApp::drawGui(rhi::CommandBuffer &cb, rhi::RenderTargetView rtv,
-                       std::optional<glm::vec4> clearColor) {
+void ImGuiApp::drawGui(rhi::CommandBuffer &cb, const rhi::RenderTargetView rtv,
+                       const std::optional<glm::vec4> clearColor) {
   RHI_GPU_ZONE(cb, "ImGui::Main");
   auto &[frameIndex, target] = rtv;
   rhi::prepareForAttachment(cb, target, false);
@@ -171,8 +171,8 @@ void ImGuiApp::_onPostUpdate(fsec dt) {
   }
 #endif
 }
-void ImGuiApp::_onRender(rhi::CommandBuffer &cb, rhi::RenderTargetView rtv,
-                         fsec dt) {
+void ImGuiApp::_onRender(rhi::CommandBuffer &cb,
+                         const rhi::RenderTargetView rtv, const fsec dt) {
   constexpr auto kClearColor = glm::vec3{0.0f};
   drawGui(cb, rtv, glm::vec4{kClearColor, 1.0f});
 }

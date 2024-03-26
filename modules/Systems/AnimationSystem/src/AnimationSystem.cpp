@@ -35,7 +35,7 @@ void drawSkeleton(DebugDraw &debugDraw,
                   const gfx::MeshInstance &meshInstance) {
   if (!meshInstance.hasSkin()) return;
 
-  drawSkeleton(debugDraw, skeleton, [&meshInstance](uint32_t idx) {
+  drawSkeleton(debugDraw, skeleton, [&meshInstance](const uint32_t idx) {
     const auto &skin = meshInstance.getSkinMatrices();
     const auto &inversedBindPose = meshInstance->getInverseBindPose();
     if (skin.size() != inversedBindPose.size()) return glm::mat4{1.0f};
@@ -47,7 +47,7 @@ void drawSkeleton(DebugDraw &debugDraw,
 
 } // namespace
 
-void AnimationSystem::update(entt::registry &r, float dt) {
+void AnimationSystem::update(entt::registry &r, const float dt) {
   ZoneScopedN("AnimationSystem::Update");
   for (auto [_, meshInstance, skeleton, animation, controller] :
        r.view<gfx::MeshInstance, const SkeletonComponent,

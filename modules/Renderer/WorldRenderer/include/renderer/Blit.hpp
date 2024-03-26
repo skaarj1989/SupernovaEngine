@@ -14,16 +14,17 @@ class Blit final : public rhi::RenderPass<Blit>, public Technique {
 public:
   Blit(rhi::RenderDevice &, const CommonSamplers &);
 
-  uint32_t count(PipelineGroups) const override;
-  void clear(PipelineGroups) override;
+  uint32_t count(const PipelineGroups) const override;
+  void clear(const PipelineGroups) override;
 
   // Mixes a and b (by alpha of b).
-  [[nodiscard]] FrameGraphResource mix(FrameGraph &, FrameGraphResource a,
-                                       FrameGraphResource b);
+  [[nodiscard]] FrameGraphResource mix(FrameGraph &, const FrameGraphResource a,
+                                       const FrameGraphResource b);
 
   // Adds a given source color to the target texture (additive blending).
-  [[nodiscard]] FrameGraphResource
-  addColor(FrameGraph &, FrameGraphResource target, FrameGraphResource source);
+  [[nodiscard]] FrameGraphResource addColor(FrameGraph &,
+                                            const FrameGraphResource target,
+                                            const FrameGraphResource source);
 
   // Same as addColor, but for multiple sources (in a single pass).
   [[nodiscard]] FrameGraphResource

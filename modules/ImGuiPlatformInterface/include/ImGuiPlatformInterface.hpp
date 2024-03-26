@@ -1,8 +1,14 @@
 #pragma once
 
-#include "os/Window.hpp"
-#include "imgui.h"
+#include <optional>
 
-[[nodiscard]] std::optional<ImGuiKey> remapKeyCode(os::KeyCode);
-[[nodiscard]] std::optional<ImGuiKey> getKeyModifier(os::KeyCode);
+namespace os {
+class Window;
+enum class KeyCode;
+} // namespace os
+
+enum ImGuiKey;
+
+[[nodiscard]] std::optional<ImGuiKey> remapKeyCode(const os::KeyCode);
+[[nodiscard]] std::optional<ImGuiKey> getKeyModifier(const os::KeyCode);
 void setupPlatformInterface(os::Window &mainWindow);

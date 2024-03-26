@@ -18,6 +18,7 @@
 #include "imgui_stdlib.h"   // InputText(WithHint)
 
 #include "spdlog/spdlog.h"
+#include "tracy/Tracy.hpp"
 
 #include <ranges>
 #include <algorithm>
@@ -524,7 +525,7 @@ void MaterialEditor::show(const char *name, bool *open) {
   }
 }
 
-void MaterialEditor::onRender(rhi::CommandBuffer &cb, float dt) {
+void MaterialEditor::onRender(rhi::CommandBuffer &cb, const float dt) {
   ZoneScopedN("MaterialEditor::OnRender");
   m_previewWidget.onRender(cb, dt);
 }

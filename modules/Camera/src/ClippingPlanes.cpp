@@ -1,4 +1,5 @@
 #include "ClippingPlanes.hpp"
+#include "glm/ext/matrix_float4x4.hpp"
 
 namespace gfx {
 

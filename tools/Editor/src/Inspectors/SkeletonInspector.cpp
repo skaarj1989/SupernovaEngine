@@ -1,4 +1,5 @@
 #include "Inspectors/SkeletonInspector.hpp"
+#include "ozz/animation/runtime/skeleton.h"
 #include "imgui.h"
 #include <algorithm>
 #include <format>

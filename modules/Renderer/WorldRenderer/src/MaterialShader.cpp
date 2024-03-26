@@ -1,9 +1,11 @@
 #include "MaterialShader.hpp"
+#include "ShaderCodeBuilder.hpp"
+#include "renderer/Material.hpp"
 #include <format>
 
 namespace gfx {
 
-uint32_t adjustStride(uint32_t stride, uint32_t minOffsetAlignment);
+uint32_t adjustStride(const uint32_t stride, const uint32_t minOffsetAlignment);
 
 namespace {
 
@@ -18,7 +20,7 @@ constexpr auto kUserCodeRegion = DECLARE_REGION(USER_CODE);
 
 [[nodiscard]] auto buildPropertiesChunk(const PropertyLayout &layout,
                                         const std::vector<Property> &properties,
-                                        std::size_t minAlignment) {
+                                        const std::size_t minAlignment) {
   std::ostringstream oss;
   for (const auto &p : properties) {
     std::ostream_iterator<std::string>{oss, "\n"} =
@@ -32,7 +34,7 @@ constexpr auto kUserCodeRegion = DECLARE_REGION(USER_CODE);
   return oss.str();
 }
 
-[[nodiscard]] auto getSamplerType(rhi::TextureType textureType) {
+[[nodiscard]] auto getSamplerType(const rhi::TextureType textureType) {
   switch (textureType) {
     using enum rhi::TextureType;
 
@@ -45,8 +47,8 @@ constexpr auto kUserCodeRegion = DECLARE_REGION(USER_CODE);
   return "";
 }
 [[nodiscard]] std::string buildSamplersChunk(const TextureResources &textures,
-                                             uint32_t set,
-                                             uint32_t firstBinding = 0) {
+                                             const uint32_t set,
+                                             const uint32_t firstBinding = 0) {
   assert(!textures.empty());
 
   std::ostringstream oss;
@@ -74,7 +76,7 @@ void addSamplers(ShaderCodeBuilder &builder, const TextureResources &textures) {
                     : "/* no samplers */");
 }
 void addProperties(ShaderCodeBuilder &builder, const Material &material,
-                   VkDeviceSize minOffsetAlignment) {
+                   const VkDeviceSize minOffsetAlignment) {
   if (const auto &properties = material.getBlueprint().properties;
       !properties.empty()) {
     builder.addDefine("HAS_PROPERTIES", 1)
@@ -118,7 +120,7 @@ void noMaterial(ShaderCodeBuilder &builder) {
     .replace(kUserCodeRegion, "/* no user code */");
 }
 
-void setReferenceFrames(ShaderCodeBuilder &builder, ReferenceFrames in) {
+void setReferenceFrames(ShaderCodeBuilder &builder, const ReferenceFrames in) {
   using enum ReferenceFrame;
 
   switch (in.position) {
@@ -150,7 +152,8 @@ void setReferenceFrames(ShaderCodeBuilder &builder, ReferenceFrames in) {
 }
 
 void addMaterial(ShaderCodeBuilder &builder, const Material &material,
-                 rhi::ShaderType shaderType, VkDeviceSize minOffsetAlignment) {
+                 const rhi::ShaderType shaderType,
+                 const VkDeviceSize minOffsetAlignment) {
   const auto &blueprint = material.getBlueprint();
 
   if (isSurface(material)) addSurface(builder, *blueprint.surface);

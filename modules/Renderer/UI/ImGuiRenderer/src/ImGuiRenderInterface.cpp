@@ -1,4 +1,6 @@
 #include "ImGuiRenderInterface.hpp"
+#include "os/Window.hpp"
+#include "rhi/RenderDevice.hpp"
 #include "rhi/FrameController.hpp"
 #include "ImGuiRenderer.hpp"
 #include "imgui.h"

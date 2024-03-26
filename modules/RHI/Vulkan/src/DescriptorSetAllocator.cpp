@@ -8,7 +8,7 @@ const uint32_t DescriptorPool::kSetsPerPool = 100u;
 
 namespace {
 
-[[nodiscard]] auto createDescriptorPool(VkDevice device) {
+[[nodiscard]] auto createDescriptorPool(const VkDevice device) {
 #define POOL_SIZE(Type, Multiplier)                                            \
   VkDescriptorPoolSize {                                                       \
     VK_DESCRIPTOR_TYPE_##Type,                                                 \
@@ -67,8 +67,8 @@ DescriptorSetAllocator::operator=(DescriptorSetAllocator &&rhs) noexcept {
   return *this;
 }
 
-VkDescriptorSet
-DescriptorSetAllocator::allocate(VkDescriptorSetLayout descriptorSetLayout) {
+VkDescriptorSet DescriptorSetAllocator::allocate(
+  const VkDescriptorSetLayout descriptorSetLayout) {
   assert(m_device != VK_NULL_HANDLE && descriptorSetLayout != VK_NULL_HANDLE);
   auto descriptorSet = _allocate(_getPool(), descriptorSetLayout);
   if (descriptorSet == VK_NULL_HANDLE) {
@@ -95,7 +95,7 @@ void DescriptorSetAllocator::reset() {
 // (private):
 //
 
-DescriptorSetAllocator::DescriptorSetAllocator(VkDevice device)
+DescriptorSetAllocator::DescriptorSetAllocator(const VkDevice device)
     : m_device{device} {
   assert(m_device != VK_NULL_HANDLE);
 }
@@ -129,7 +129,7 @@ DescriptorPool &DescriptorSetAllocator::_getPool() {
 }
 VkDescriptorSet DescriptorSetAllocator::_allocate(
   DescriptorPool &descriptorPool,
-  VkDescriptorSetLayout descriptorSetLayout) const {
+  const VkDescriptorSetLayout descriptorSetLayout) const {
   VkDescriptorSetAllocateInfo allocateInfo{
     .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
     .descriptorPool = descriptorPool.handle,

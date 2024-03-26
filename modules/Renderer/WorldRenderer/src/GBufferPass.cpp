@@ -1,8 +1,14 @@
 #include "renderer/GBufferPass.hpp"
+#include "rhi/RenderDevice.hpp"
 
+#include "renderer/ViewInfo.hpp"
+#include "renderer/VertexFormat.hpp"
+#include "renderer/MeshInstance.hpp"
+
+#include "FrameGraphResourceAccess.hpp"
 #include "FrameGraphCommon.hpp"
 #include "renderer/FrameGraphTexture.hpp"
-#include "FrameGraphResourceAccess.hpp"
+#include "UploadInstances.hpp"
 
 #include "FrameGraphData/DummyResources.hpp"
 #include "FrameGraphData/Frame.hpp"
@@ -14,9 +20,9 @@
 
 #include "MaterialShader.hpp"
 #include "BatchBuilder.hpp"
-#include "UploadInstances.hpp"
 
 #include "RenderContext.hpp"
+#include "ShaderCodeBuilder.hpp"
 
 namespace gfx {
 
@@ -42,16 +48,17 @@ namespace {
 GBufferPass::GBufferPass(rhi::RenderDevice &rd)
     : rhi::RenderPass<GBufferPass>{rd} {}
 
-uint32_t GBufferPass::count(PipelineGroups flags) const {
+uint32_t GBufferPass::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::SurfaceMaterial) ? BasePass::count() : 0;
 }
-void GBufferPass::clear(PipelineGroups flags) {
+void GBufferPass::clear(const PipelineGroups flags) {
   if (bool(flags & PipelineGroups::SurfaceMaterial)) BasePass::clear();
 }
 
 void GBufferPass::addGeometryPass(
-  FrameGraph &fg, FrameGraphBlackboard &blackboard, rhi::Extent2D resolution,
-  const ViewInfo &viewData, const PropertyGroupOffsets &propertyGroupOffsets) {
+  FrameGraph &fg, FrameGraphBlackboard &blackboard,
+  const rhi::Extent2D resolution, const ViewInfo &viewData,
+  const PropertyGroupOffsets &propertyGroupOffsets) {
   constexpr auto kPassName = "GBufferPass";
   ZoneScopedN(kPassName);
 

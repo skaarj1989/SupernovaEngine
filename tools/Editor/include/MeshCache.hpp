@@ -1,5 +1,7 @@
 #pragma once
 
-#include "renderer/MeshManager.hpp"
+namespace gfx {
+class MeshManager;
+}
 
 void show(const char *name, bool *open, gfx::MeshManager &);

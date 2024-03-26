@@ -8,13 +8,13 @@
 #include "CommandInvoker.hpp"
 #include "NodePatcherVisitor.hpp"
 #include "PathMap.hpp"
-#include "renderer/Material.hpp"
 
 #include "TextEditor.h"
 
 namespace gfx {
 class WorldRenderer;
-};
+class Material;
+}; // namespace gfx
 
 struct MaterialProjectInitializedEvent {};
 struct BeforeMaterialProjectUnloadEvent {};

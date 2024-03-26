@@ -1,14 +1,15 @@
 #include "renderer/FXAA.hpp"
+#include "rhi/CommandBuffer.hpp"
 
+#include "renderer/CommonSamplers.hpp"
+#include "renderer/PostProcess.hpp"
+
+#include "FrameGraphResourceAccess.hpp"
 #include "FrameGraphCommon.hpp"
 #include "renderer/FrameGraphTexture.hpp"
-#include "FrameGraphResourceAccess.hpp"
 
 #include "FrameGraphData/Camera.hpp"
 
-#include "renderer/CommonSamplers.hpp"
-
-#include "renderer/PostProcess.hpp"
 #include "RenderContext.hpp"
 
 namespace gfx {
@@ -16,16 +17,16 @@ namespace gfx {
 FXAA::FXAA(rhi::RenderDevice &rd, const CommonSamplers &commonSamplers)
     : rhi::RenderPass<FXAA>{rd}, m_samplers{commonSamplers} {}
 
-uint32_t FXAA::count(PipelineGroups flags) const {
+uint32_t FXAA::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::BuiltIn) ? BasePass::count() : 0;
 }
-void FXAA::clear(PipelineGroups flags) {
+void FXAA::clear(const PipelineGroups flags) {
   if (bool(flags & PipelineGroups::BuiltIn)) BasePass::clear();
 }
 
 FrameGraphResource FXAA::addPass(FrameGraph &fg,
                                  const FrameGraphBlackboard &blackboard,
-                                 FrameGraphResource input) {
+                                 const FrameGraphResource input) {
   constexpr auto kPassName = "FXAA";
   ZoneScopedN(kPassName);
 
@@ -73,7 +74,7 @@ FrameGraphResource FXAA::addPass(FrameGraph &fg,
 //
 
 rhi::GraphicsPipeline
-FXAA::_createPipeline(rhi::PixelFormat colorFormat) const {
+FXAA::_createPipeline(const rhi::PixelFormat colorFormat) const {
   return createPostProcessPipelineFromFile(getRenderDevice(), colorFormat,
                                            "FXAA.frag");
 }

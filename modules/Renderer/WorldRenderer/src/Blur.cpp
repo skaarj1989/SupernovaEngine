@@ -1,12 +1,13 @@
 #include "renderer/Blur.hpp"
-
-#include "fg/FrameGraph.hpp"
-#include "renderer/FrameGraphTexture.hpp"
-#include "FrameGraphResourceAccess.hpp"
+#include "rhi/CommandBuffer.hpp"
 
 #include "renderer/CommonSamplers.hpp"
-
 #include "renderer/PostProcess.hpp"
+
+#include "fg/FrameGraph.hpp"
+#include "FrameGraphResourceAccess.hpp"
+#include "renderer/FrameGraphTexture.hpp"
+
 #include "RenderContext.hpp"
 
 #include <format>
@@ -20,16 +21,17 @@ Blur::Blur(rhi::RenderDevice &rd, const CommonSamplers &commonSamplers)
   _getPipeline(rhi::PixelFormat::RGBA8_UNorm); // Everything else.
 }
 
-uint32_t Blur::count(PipelineGroups flags) const {
+uint32_t Blur::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::BuiltIn) ? BasePass::count() : 0;
 }
-void Blur::clear(PipelineGroups flags) {
+void Blur::clear(const PipelineGroups flags) {
   if (bool(flags & PipelineGroups::BuiltIn)) BasePass::clear();
 }
 
 FrameGraphResource Blur::addGaussianBlur(FrameGraph &fg,
                                          FrameGraphResource input,
-                                         int32_t iterations, float scale) {
+                                         const int32_t iterations,
+                                         const float scale) {
   ZoneScopedN("GaussianBlur");
   for (auto i = 0; i < iterations; ++i) {
     const auto radius = float(iterations - i - 1) * scale;
@@ -39,7 +41,7 @@ FrameGraphResource Blur::addGaussianBlur(FrameGraph &fg,
 }
 FrameGraphResource Blur::addTwoPassGaussianBlur(FrameGraph &fg,
                                                 FrameGraphResource input,
-                                                float radius) {
+                                                const float radius) {
   input = _addPass(fg, input, {radius, 0.0f});
   return _addPass(fg, input, {0.0f, radius});
 }
@@ -49,13 +51,14 @@ FrameGraphResource Blur::addTwoPassGaussianBlur(FrameGraph &fg,
 //
 
 rhi::GraphicsPipeline
-Blur::_createPipeline(rhi::PixelFormat colorFormat) const {
+Blur::_createPipeline(const rhi::PixelFormat colorFormat) const {
   return createPostProcessPipelineFromFile(getRenderDevice(), colorFormat,
                                            "Blur.frag");
 }
 
-FrameGraphResource Blur::_addPass(FrameGraph &fg, FrameGraphResource input,
-                                  glm::vec2 direction) {
+FrameGraphResource Blur::_addPass(FrameGraph &fg,
+                                  const FrameGraphResource input,
+                                  const glm::vec2 direction) {
   const auto passName =
     std::format("Blur [x={}, y={}]", direction.x, direction.y);
   ZoneTransientN(__tracy_zone, passName.c_str(), true);

@@ -1,4 +1,4 @@
-#include "renderer/ForwardPassInfo.hpp"
+#include "ForwardPassInfo.hpp"
 #include "math/Hash.hpp"
 
 namespace std {

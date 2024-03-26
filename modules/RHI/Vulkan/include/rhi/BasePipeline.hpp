@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rhi/PipelineLayout.hpp"
+#include "PipelineLayout.hpp"
 
 namespace rhi {
 
@@ -21,10 +21,10 @@ public:
 
   [[nodiscard]] const PipelineLayout &getLayout() const;
   [[nodiscard]] VkDescriptorSetLayout
-  getDescriptorSetLayout(uint32_t set) const;
+  getDescriptorSetLayout(const DescriptorSetIndex) const;
 
 protected:
-  BasePipeline(VkDevice, PipelineLayout &&, VkPipeline);
+  BasePipeline(const VkDevice, PipelineLayout &&, const VkPipeline);
 
 private:
   void _destroy() noexcept;

@@ -499,7 +499,7 @@ std::string buildFunctionCall(const std::string_view functionName,
 }
 
 std::optional<std::string> assure(const ShaderToken &token,
-                                  DataType requiredType) {
+                                  const DataType requiredType) {
   assert(requiredType != DataType::Undefined);
   if (token.isValid()) {
     if (token.dataType == requiredType) {
@@ -541,7 +541,7 @@ ShaderToken extractTop(std::stack<ShaderToken> &tokens) {
 }
 
 std::vector<ShaderToken> extractN(std::stack<ShaderToken> &tokens,
-                                  std::size_t count) {
+                                  const std::size_t count) {
   std::vector<ShaderToken> args(count);
   extractN(tokens, count, args);
   return args;

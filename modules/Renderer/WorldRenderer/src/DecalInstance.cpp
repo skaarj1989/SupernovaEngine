@@ -1,4 +1,5 @@
 #include "renderer/DecalInstance.hpp"
+#include "Transform.hpp"
 
 namespace gfx {
 

@@ -1,5 +1,7 @@
 #include "FrameGraphCommon.hpp"
+
 #include "FrameGraphResourceAccess.hpp"
+#include "LightingPassFeatures.hpp"
 
 #include "FrameGraphData/DummyResources.hpp"
 #include "FrameGraphData/Frame.hpp"
@@ -16,7 +18,7 @@
 #include "FrameGraphData/SSAO.hpp"
 #include "FrameGraphData/GlobalIllumination.hpp"
 
-#include <utility>
+#include <utility> // to_underlying
 
 namespace gfx {
 
@@ -31,14 +33,14 @@ void getLightingPassFeatures(LightingPassFeatures &features,
 }
 
 void read(FrameGraph::Builder &builder, const FrameData &data,
-          PipelineStage pipelineStage) {
+          const PipelineStage pipelineStage) {
   builder.read(data.frameBlock, BindingInfo{
                                   .location = {.set = 0, .binding = 0},
                                   .pipelineStage = pipelineStage,
                                 });
 }
 void read(FrameGraph::Builder &builder, const CameraData &data,
-          PipelineStage pipelineStage) {
+          const PipelineStage pipelineStage) {
   builder.read(data.cameraBlock, BindingInfo{
                                    .location = {.set = 1, .binding = 0},
                                    .pipelineStage = pipelineStage,
@@ -46,7 +48,7 @@ void read(FrameGraph::Builder &builder, const CameraData &data,
 }
 
 void readInstances(FrameGraph::Builder &builder,
-                   std::optional<FrameGraphResource> instances,
+                   const std::optional<FrameGraphResource> instances,
                    const DummyResourcesData &dummyResources) {
   builder.read(instances.value_or(dummyResources.storageBuffer),
                BindingInfo{
@@ -81,7 +83,7 @@ void read(FrameGraph::Builder &builder, const MaterialPropertiesData &data) {
 }
 
 void read(FrameGraph::Builder &builder, const GBufferData &data,
-          GBufferFlags flags) {
+          const GBufferFlags flags) {
   if (bool(flags & GBufferFlags::Depth)) {
     builder.read(data.depth,
                  TextureRead{
@@ -182,7 +184,7 @@ void read(FrameGraph::Builder &builder, const SkyLightData &data) {
 }
 
 void read(FrameGraph::Builder &builder, const LightsData &data,
-          PipelineStage pipelineStage) {
+          const PipelineStage pipelineStage) {
   builder.read(data.lights, BindingInfo{
                               .location = {.set = 1, .binding = 3},
                               .pipelineStage = pipelineStage,
@@ -240,7 +242,7 @@ void read(FrameGraph::Builder &builder, const ShadowMapData &data,
                });
 }
 void readShadowBlock(FrameGraph::Builder &builder,
-                     FrameGraphResource shadowBlock) {
+                     const FrameGraphResource shadowBlock) {
   builder.read(shadowBlock, BindingInfo{
                               .location = {.set = 1, .binding = 4},
                               .pipelineStage = PipelineStage::FragmentShader,
@@ -286,8 +288,8 @@ void read(FrameGraph::Builder &builder, const GlobalIlluminationData &data) {
                            });
 }
 void readSceneGrid(FrameGraph::Builder &builder,
-                   FrameGraphResource sceneGridBlock,
-                   PipelineStage pipelineStage) {
+                   const FrameGraphResource sceneGridBlock,
+                   const PipelineStage pipelineStage) {
   builder.read(sceneGridBlock, BindingInfo{
                                  .location = {.set = 2, .binding = 9},
                                  .pipelineStage = pipelineStage,
@@ -295,7 +297,7 @@ void readSceneGrid(FrameGraph::Builder &builder,
 }
 
 void readSceneColor(FrameGraph::Builder &builder,
-                    FrameGraphResource sceneColor) {
+                    const FrameGraphResource sceneColor) {
   builder.read(sceneColor, TextureRead{
                              .binding =
                                {
@@ -305,8 +307,9 @@ void readSceneColor(FrameGraph::Builder &builder,
                              .type = TextureRead::Type::CombinedImageSampler,
                            });
 }
-void readSceneDepth(FrameGraph::Builder &builder, FrameGraphResource sceneDepth,
-                    ReadFlags readFlags) {
+void readSceneDepth(FrameGraph::Builder &builder,
+                    const FrameGraphResource sceneDepth,
+                    const ReadFlags readFlags) {
   assert(std::to_underlying(readFlags) > 0);
 
   // The order is important!

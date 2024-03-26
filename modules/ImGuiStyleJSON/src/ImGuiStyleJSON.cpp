@@ -1,81 +1,87 @@
 #include "ImGuiStyleJSON.hpp"
 #include "ImVecJSON.hpp"
+#include "nlohmann/json.hpp"
+#include "imgui.h"
+
 #include <fstream>
 
 #define MAKE_PAIR(Prefix, Value)                                               \
   { Prefix##_##Value, #Value }
 
+// clang-format off
 #define MAKE_COLOR_PAIR(Value) MAKE_PAIR(ImGuiCol, Value)
-NLOHMANN_JSON_SERIALIZE_ENUM(ImGuiCol_,
-                             {
-                               MAKE_COLOR_PAIR(Text),
-                               MAKE_COLOR_PAIR(TextDisabled),
-                               MAKE_COLOR_PAIR(WindowBg),
-                               MAKE_COLOR_PAIR(ChildBg),
-                               MAKE_COLOR_PAIR(PopupBg),
-                               MAKE_COLOR_PAIR(Border),
-                               MAKE_COLOR_PAIR(BorderShadow),
-                               MAKE_COLOR_PAIR(FrameBg),
-                               MAKE_COLOR_PAIR(FrameBgHovered),
-                               MAKE_COLOR_PAIR(FrameBgActive),
-                               MAKE_COLOR_PAIR(TitleBg),
-                               MAKE_COLOR_PAIR(TitleBgActive),
-                               MAKE_COLOR_PAIR(TitleBgCollapsed),
-                               MAKE_COLOR_PAIR(MenuBarBg),
-                               MAKE_COLOR_PAIR(ScrollbarBg),
-                               MAKE_COLOR_PAIR(ScrollbarGrab),
-                               MAKE_COLOR_PAIR(ScrollbarGrabHovered),
-                               MAKE_COLOR_PAIR(ScrollbarGrabActive),
-                               MAKE_COLOR_PAIR(CheckMark),
-                               MAKE_COLOR_PAIR(SliderGrab),
-                               MAKE_COLOR_PAIR(SliderGrabActive),
-                               MAKE_COLOR_PAIR(Button),
-                               MAKE_COLOR_PAIR(ButtonHovered),
-                               MAKE_COLOR_PAIR(ButtonActive),
-                               MAKE_COLOR_PAIR(Header),
-                               MAKE_COLOR_PAIR(HeaderHovered),
-                               MAKE_COLOR_PAIR(HeaderActive),
-                               MAKE_COLOR_PAIR(Separator),
-                               MAKE_COLOR_PAIR(SeparatorHovered),
-                               MAKE_COLOR_PAIR(SeparatorActive),
-                               MAKE_COLOR_PAIR(ResizeGrip),
-                               MAKE_COLOR_PAIR(ResizeGripHovered),
-                               MAKE_COLOR_PAIR(ResizeGripActive),
-                               MAKE_COLOR_PAIR(Tab),
-                               MAKE_COLOR_PAIR(TabHovered),
-                               MAKE_COLOR_PAIR(TabActive),
-                               MAKE_COLOR_PAIR(TabUnfocused),
-                               MAKE_COLOR_PAIR(TabUnfocusedActive),
-                               MAKE_COLOR_PAIR(DockingPreview),
-                               MAKE_COLOR_PAIR(DockingEmptyBg),
-                               MAKE_COLOR_PAIR(PlotLines),
-                               MAKE_COLOR_PAIR(PlotLinesHovered),
-                               MAKE_COLOR_PAIR(PlotHistogram),
-                               MAKE_COLOR_PAIR(PlotHistogramHovered),
-                               MAKE_COLOR_PAIR(TableHeaderBg),
-                               MAKE_COLOR_PAIR(TableBorderStrong),
-                               MAKE_COLOR_PAIR(TableBorderLight),
-                               MAKE_COLOR_PAIR(TableRowBg),
-                               MAKE_COLOR_PAIR(TableRowBgAlt),
-                               MAKE_COLOR_PAIR(TextSelectedBg),
-                               MAKE_COLOR_PAIR(DragDropTarget),
-                               MAKE_COLOR_PAIR(NavHighlight),
-                               MAKE_COLOR_PAIR(NavWindowingHighlight),
-                               MAKE_COLOR_PAIR(NavWindowingDimBg),
-                               MAKE_COLOR_PAIR(ModalWindowDimBg),
-                             });
+NLOHMANN_JSON_SERIALIZE_ENUM(ImGuiCol_, {
+  MAKE_COLOR_PAIR(Text),
+  MAKE_COLOR_PAIR(TextDisabled),
+  MAKE_COLOR_PAIR(WindowBg),
+  MAKE_COLOR_PAIR(ChildBg),
+  MAKE_COLOR_PAIR(PopupBg),
+  MAKE_COLOR_PAIR(Border),
+  MAKE_COLOR_PAIR(BorderShadow),
+  MAKE_COLOR_PAIR(FrameBg),
+  MAKE_COLOR_PAIR(FrameBgHovered),
+  MAKE_COLOR_PAIR(FrameBgActive),
+  MAKE_COLOR_PAIR(TitleBg),
+  MAKE_COLOR_PAIR(TitleBgActive),
+  MAKE_COLOR_PAIR(TitleBgCollapsed),
+  MAKE_COLOR_PAIR(MenuBarBg),
+  MAKE_COLOR_PAIR(ScrollbarBg),
+  MAKE_COLOR_PAIR(ScrollbarGrab),
+  MAKE_COLOR_PAIR(ScrollbarGrabHovered),
+  MAKE_COLOR_PAIR(ScrollbarGrabActive),
+  MAKE_COLOR_PAIR(CheckMark),
+  MAKE_COLOR_PAIR(SliderGrab),
+  MAKE_COLOR_PAIR(SliderGrabActive),
+  MAKE_COLOR_PAIR(Button),
+  MAKE_COLOR_PAIR(ButtonHovered),
+  MAKE_COLOR_PAIR(ButtonActive),
+  MAKE_COLOR_PAIR(Header),
+  MAKE_COLOR_PAIR(HeaderHovered),
+  MAKE_COLOR_PAIR(HeaderActive),
+  MAKE_COLOR_PAIR(Separator),
+  MAKE_COLOR_PAIR(SeparatorHovered),
+  MAKE_COLOR_PAIR(SeparatorActive),
+  MAKE_COLOR_PAIR(ResizeGrip),
+  MAKE_COLOR_PAIR(ResizeGripHovered),
+  MAKE_COLOR_PAIR(ResizeGripActive),
+  MAKE_COLOR_PAIR(Tab),
+  MAKE_COLOR_PAIR(TabHovered),
+  MAKE_COLOR_PAIR(TabActive),
+  MAKE_COLOR_PAIR(TabUnfocused),
+  MAKE_COLOR_PAIR(TabUnfocusedActive),
+  MAKE_COLOR_PAIR(DockingPreview),
+  MAKE_COLOR_PAIR(DockingEmptyBg),
+  MAKE_COLOR_PAIR(PlotLines),
+  MAKE_COLOR_PAIR(PlotLinesHovered),
+  MAKE_COLOR_PAIR(PlotHistogram),
+  MAKE_COLOR_PAIR(PlotHistogramHovered),
+  MAKE_COLOR_PAIR(TableHeaderBg),
+  MAKE_COLOR_PAIR(TableBorderStrong),
+  MAKE_COLOR_PAIR(TableBorderLight),
+  MAKE_COLOR_PAIR(TableRowBg),
+  MAKE_COLOR_PAIR(TableRowBgAlt),
+  MAKE_COLOR_PAIR(TextSelectedBg),
+  MAKE_COLOR_PAIR(DragDropTarget),
+  MAKE_COLOR_PAIR(NavHighlight),
+  MAKE_COLOR_PAIR(NavWindowingHighlight),
+  MAKE_COLOR_PAIR(NavWindowingDimBg),
+  MAKE_COLOR_PAIR(ModalWindowDimBg),
+});
 #undef MAKE_COLOR_PAIR
+// clang-format on
 static_assert(ImGuiCol_COUNT == 55);
 
+// clang-format off
 #define MAKE_DIR_PAIR(Value) MAKE_PAIR(ImGuiDir, Value)
 NLOHMANN_JSON_SERIALIZE_ENUM(ImGuiDir_, {
-                                          MAKE_DIR_PAIR(None),
-                                          MAKE_DIR_PAIR(Left),
-                                          MAKE_DIR_PAIR(Right),
-                                          MAKE_DIR_PAIR(Up),
-                                          MAKE_DIR_PAIR(Down),
-                                        });
+  MAKE_DIR_PAIR(None),
+  MAKE_DIR_PAIR(Left),
+  MAKE_DIR_PAIR(Right),
+  MAKE_DIR_PAIR(Up),
+  MAKE_DIR_PAIR(Down),
+});
 #undef MAKE_DIR_PAIR
+// clang-format on
 static_assert(ImGuiDir_COUNT == 4);
 
 #undef MAKE_PAIR

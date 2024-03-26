@@ -1,4 +1,6 @@
 #include "MeshCache.hpp"
+#include "renderer/VertexFormat.hpp"
+#include "renderer/MeshManager.hpp"
 #include "ImGuiDragAndDrop.hpp"
 #include "CacheInspector.hpp"
 
@@ -51,12 +53,12 @@ void show(const char *name, bool *open, gfx::MeshManager &cache) {
     defaultMenuBar(cache);
     view(
       cache,
-      [](auto id) {
+      [](const auto id) {
         onDragSource(kImGuiPayloadTypeMesh, id,
                      [] { ImGui::TextUnformatted("Mesh inside ..."); });
       },
       [](const auto &r) { print(r); },
-      [&cache](auto id) { return !cache.isBuiltIn(id); });
+      [&cache](const auto id) { return !cache.isBuiltIn(id); });
   }
   ImGui::End();
 }

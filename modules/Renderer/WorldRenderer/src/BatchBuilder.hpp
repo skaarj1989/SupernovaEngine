@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Batch.hpp"
+#include "renderer/Renderable.hpp"
 #include "GPUInstance.hpp"
 
 namespace gfx {

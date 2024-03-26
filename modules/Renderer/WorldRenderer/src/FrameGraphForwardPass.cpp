@@ -1,4 +1,5 @@
 #include "FrameGraphForwardPass.hpp"
+#include "FrameGraphCommon.hpp"
 
 #include "FrameGraphData/DummyResources.hpp"
 #include "FrameGraphData/Frame.hpp"
@@ -17,7 +18,7 @@
 namespace gfx {
 
 void read(FrameGraph::Builder &builder, const FrameGraphBlackboard &blackboard,
-          FrameGraphResource instances) {
+          const FrameGraphResource instances) {
   // Vert+Frag.
 
   read(builder, blackboard.get<FrameData>());

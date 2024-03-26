@@ -579,7 +579,7 @@ void NodeUIVisitor::visit(MatrixTransformNode &node) {
                                  ImGuiComboFlags_NoArrowButton);
 
   ImGui::SameLine();
-  ImGui::Text(ICON_FA_ARROW_RIGHT_LONG);
+  ImGui::TextUnformatted(ICON_FA_ARROW_RIGHT_LONG);
 
   ImGui::SameLine();
   changed |= changeEnumCombo(IM_UNIQUE_ID, node.target, toString,

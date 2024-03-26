@@ -1,6 +1,8 @@
 #pragma once
 
-#include "renderer/WorldRenderer.hpp"
+#include "renderer/SceneView.hpp"
+#include "renderer/Light.hpp"
+#include "renderer/DecalInstance.hpp"
 #include "CameraComponent.hpp"
 
 #include "SystemCommons.hpp"
@@ -8,6 +10,11 @@
 struct MainCamera {
   entt::entity e{entt::null};
 };
+
+namespace gfx {
+class WorldRenderer;
+struct DebugOutput;
+} // namespace gfx
 
 /*
   Context variables:
@@ -27,7 +34,7 @@ public:
 
   static void setup(entt::registry &r, gfx::WorldRenderer &);
 
-  static void update(entt::registry &r, rhi::CommandBuffer &, float dt,
+  static void update(entt::registry &r, rhi::CommandBuffer &, const float dt,
                      const gfx::SceneView *mainSceneView = nullptr,
                      gfx::DebugOutput * = nullptr);
 

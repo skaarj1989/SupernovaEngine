@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rhi/SPIRV.hpp"
+#include "rhi/ResourceIndices.hpp"
 #include "glad/vulkan.h"
 #include "glm/ext/vector_uint3.hpp"
 
@@ -22,7 +23,7 @@ struct ShaderReflection {
   };
   // Key = binding
   // layout(binding = index)
-  using DescriptorSet = std::unordered_map<uint32_t, Descriptor>;
+  using DescriptorSet = std::unordered_map<BindingIndex, Descriptor>;
   std::array<DescriptorSet, 4> descriptorSets;
   std::vector<VkPushConstantRange> pushConstantRanges;
 };

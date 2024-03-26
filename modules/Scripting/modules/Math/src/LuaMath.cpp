@@ -2,6 +2,9 @@
 #include "sol/state.hpp"
 
 #include "math/Frustum.hpp"
+#include "math/AABB.hpp"
+#include "math/Sphere.hpp"
+#include "math/Cone.hpp"
 
 #include "glm/gtc/constants.hpp"  // pi, half_pi, epsilon
 #include "glm/gtc/quaternion.hpp" // quat

@@ -3,8 +3,7 @@
 #include "rhi/ShaderType.hpp"
 #include "rhi/CullMode.hpp"
 #include "MaterialProperty.hpp"
-#include "TextureManager.hpp"
-#include <map>
+#include "TextureResources.hpp"
 
 namespace gfx {
 
@@ -45,35 +44,6 @@ enum class MaterialFlags {
 
   Enabled = 1 << 2,
 };
-
-struct TextureInfo {
-  rhi::TextureType type{rhi::TextureType::Undefined};
-  std::shared_ptr<rhi::Texture> texture;
-
-  [[nodiscard]] auto isValid() const {
-    return type != rhi::TextureType::Undefined && texture && *texture;
-  }
-
-  friend bool operator==(const TextureInfo &a, const TextureInfo &b) {
-    return a.texture == b.texture;
-  }
-
-  template <class Archive> void save(Archive &archive) const {
-    archive(serialize(texture));
-  }
-  template <class Archive> void load(Archive &archive) {
-    std::optional<std::string> path;
-    archive(path);
-    if (path) {
-      texture = loadResource<TextureManager>(*path);
-      if (texture) type = texture->getType();
-    }
-  }
-};
-using TextureResources = std::map<std::string, TextureInfo, std::less<>>;
-
-[[nodiscard]] bool operator==(const TextureResources &,
-                              const TextureResources &);
 
 struct PropertyLayout {
   struct MemberInfo {
@@ -119,8 +89,10 @@ public:
 
   bool friend operator<(const Material &, const Material &);
 
+  using Hash = std::size_t;
+
   [[nodiscard]] std::string_view getName() const;
-  [[nodiscard]] std::size_t getHash() const;
+  [[nodiscard]] Hash getHash() const;
   [[nodiscard]] const Blueprint &getBlueprint() const;
   [[nodiscard]] const PropertyLayout &getPropertyLayout() const;
 
@@ -138,17 +110,17 @@ public:
 
     Builder &setBlueprint(Blueprint);
 
-    Builder &setDomain(MaterialDomain);
+    Builder &setDomain(const MaterialDomain);
     Builder &setSurface(Surface);
     Builder &setPostProcess();
 
     Builder &addProperty(const Property &);
-    Builder &addSampler(rhi::TextureType, const std::string &alias,
+    Builder &addSampler(const rhi::TextureType, const std::string &alias,
                         std::shared_ptr<rhi::Texture>);
 
-    Builder &setUserCode(rhi::ShaderType, Blueprint::Code);
+    Builder &setUserCode(const rhi::ShaderType, Blueprint::Code);
 
-    Builder &setFlags(MaterialFlags);
+    Builder &setFlags(const MaterialFlags);
 
     [[nodiscard]] Material build();
 
@@ -158,11 +130,11 @@ public:
   };
 
 private:
-  Material(std::string &&name, std::size_t hash, const Blueprint &);
+  Material(std::string &&name, const Hash, const Blueprint &);
 
 private:
   std::string m_name;
-  const std::size_t m_hash{0u};
+  const Hash m_hash{0u};
 
   Blueprint m_blueprint;
   PropertyLayout m_propertyLayout;
@@ -178,13 +150,13 @@ private:
 
 [[nodiscard]] bool hasProperties(const Material &);
 
-[[nodiscard]] const char *toString(MaterialDomain);
-[[nodiscard]] const char *toString(ShadingModel);
-[[nodiscard]] const char *toString(BlendMode);
-[[nodiscard]] const char *toString(LightingMode);
+[[nodiscard]] const char *toString(const MaterialDomain);
+[[nodiscard]] const char *toString(const ShadingModel);
+[[nodiscard]] const char *toString(const BlendMode);
+[[nodiscard]] const char *toString(const LightingMode);
 
-[[nodiscard]] std::string toString(MaterialFlags);
-[[nodiscard]] std::vector<const char *> getValues(MaterialFlags);
+[[nodiscard]] std::string toString(const MaterialFlags);
+[[nodiscard]] std::vector<const char *> getValues(const MaterialFlags);
 
 } // namespace gfx
 

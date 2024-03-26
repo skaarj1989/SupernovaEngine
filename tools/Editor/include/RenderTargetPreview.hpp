@@ -1,8 +1,15 @@
 #pragma once
 
-#include "rhi/RenderDevice.hpp"
+#include "rhi/Texture.hpp"
 #include "imgui.h"
+#include "glm/ext/vector_int2.hpp"
+#include "glm/ext/vector_uint2.hpp"
+#include "glm/ext/vector_float2.hpp"
 #include "glm/vector_relational.hpp" // any, notEqual
+
+namespace rhi {
+void prepareForReading(CommandBuffer &, const Texture &);
+}
 
 class RenderTargetPreview {
 public:
@@ -46,10 +53,10 @@ public:
   [[nodiscard]] rhi::Extent2D getExtent() const;
 
 private:
-  [[nodiscard]] bool _isAreaValid(glm::uvec2) const;
-  void _resize(glm::uvec2);
+  [[nodiscard]] bool _isAreaValid(const glm::uvec2) const;
+  void _resize(const glm::uvec2);
 
-  void _present(glm::vec2 size);
+  void _present(const glm::vec2 size);
 
 protected:
   rhi::RenderDevice &m_renderDevice;

@@ -1,4 +1,8 @@
 #include "math/CollisionDetection.hpp"
+#include "math/AABB.hpp"
+#include "math/Sphere.hpp"
+#include "glm/vector_relational.hpp" // all
+#include "glm/geometric.hpp"         // distance
 
 // https://courses.cs.duke.edu//cps124/spring04/notes/12_collisions/collision_detection.pdf
 // https://developer.mozilla.org/en-US/docs/Games/Techniques/3D_collision_detection

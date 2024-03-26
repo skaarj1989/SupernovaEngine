@@ -2,6 +2,7 @@
 
 #include "WidgetWindow.hpp"
 #include "imgui.h"
+#include <memory>
 #include <typeindex>
 
 template <typename Config> class WidgetCache {

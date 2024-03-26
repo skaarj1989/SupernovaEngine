@@ -1,9 +1,13 @@
 #pragma once
 
-#include "PerspectiveCamera.hpp"
 #include "ImGuizmo.hpp"
-#include "entt/entity/registry.hpp"
-#include "entt/entity/handle.hpp"
+#include "entt/entity/fwd.hpp"
+
+class Transform;
+
+namespace gfx {
+class PerspectiveCamera;
+}
 
 class GizmoController final {
 public:
@@ -16,7 +20,7 @@ public:
     struct Snap {
       using Value = std::pair<float, bool>;
       Value translate{0.1f, false};
-      Value rotate{glm::radians(1.0f), false};
+      Value rotate{0.01745f /*1deg*/, false};
       Value scale{0.1f, false};
     };
     Snap snap;
