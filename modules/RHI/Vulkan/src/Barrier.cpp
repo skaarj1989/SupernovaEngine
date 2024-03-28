@@ -54,10 +54,10 @@ Builder &Builder::memoryBarrier(const BarrierScope &src,
                                 const BarrierScope &dst) {
   m_dependencies.memory.emplace_back(VkMemoryBarrier2{
     .sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2,
-    .srcStageMask = uint64_t(src.stageMask),
-    .srcAccessMask = uint64_t(src.accessMask),
-    .dstStageMask = uint64_t(dst.stageMask),
-    .dstAccessMask = uint64_t(dst.accessMask),
+    .srcStageMask = std::to_underlying(src.stageMask),
+    .srcAccessMask = std::to_underlying(src.accessMask),
+    .dstStageMask = std::to_underlying(dst.stageMask),
+    .dstAccessMask = std::to_underlying(dst.accessMask),
   });
   return *this;
 }
@@ -66,10 +66,10 @@ Builder &Builder::bufferBarrier(const BufferInfo &info,
   if (auto &lastScope = info.buffer.m_lastScope; lastScope != dst) {
     m_dependencies.buffer.emplace_back(VkBufferMemoryBarrier2{
       .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2,
-      .srcStageMask = uint64_t(lastScope.stageMask),
-      .srcAccessMask = uint64_t(lastScope.accessMask),
-      .dstStageMask = uint64_t(dst.stageMask),
-      .dstAccessMask = uint64_t(dst.accessMask),
+      .srcStageMask = std::to_underlying(lastScope.stageMask),
+      .srcAccessMask = std::to_underlying(lastScope.accessMask),
+      .dstStageMask = std::to_underlying(dst.stageMask),
+      .dstAccessMask = std::to_underlying(dst.accessMask),
       .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
       .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
       .buffer = info.buffer.getHandle(),
@@ -106,19 +106,25 @@ Builder::_imageBarrier(const VkImage image, const BarrierScope &src,
                        const ImageLayout newLayout,
                        const VkImageSubresourceRange &subresourceRange) {
   assert(newLayout != ImageLayout::Undefined);
-  m_dependencies.image.emplace_back(VkImageMemoryBarrier2{
-    .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
-    .srcStageMask = uint64_t(src.stageMask),
-    .srcAccessMask = uint64_t(src.accessMask),
-    .dstStageMask = uint64_t(dst.stageMask),
-    .dstAccessMask = uint64_t(dst.accessMask),
-    .oldLayout = VkImageLayout(oldLayout),
-    .newLayout = VkImageLayout(newLayout),
-    .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-    .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-    .image = image,
-    .subresourceRange = subresourceRange,
-  });
+
+  auto &images = m_dependencies.image;
+  auto &entry = (!images.empty() && images.back().image == image)
+                  ? images.back()
+                  : images.emplace_back(VkImageMemoryBarrier2{
+                      .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
+                      .srcStageMask = std::to_underlying(src.stageMask),
+                      .srcAccessMask = std::to_underlying(src.accessMask),
+                      .oldLayout = VkImageLayout(oldLayout),
+                      .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                      .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+                      .image = image,
+                      .subresourceRange = subresourceRange,
+                    });
+
+  entry.dstStageMask |= std::to_underlying(dst.stageMask);
+  entry.dstAccessMask |= std::to_underlying(dst.accessMask);
+  entry.newLayout = VkImageLayout(newLayout);
+
   return *this;
 }
 

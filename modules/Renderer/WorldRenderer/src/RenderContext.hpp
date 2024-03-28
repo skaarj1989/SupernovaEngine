@@ -3,6 +3,7 @@
 #include "rhi/DescriptorSetBuilder.hpp"
 #include "rhi/FramebufferInfo.hpp"
 #include "renderer/Material.hpp"
+#include "PipelineStage.hpp"
 #include "BaseGeometryPassInfo.hpp"
 
 namespace rhi {
@@ -19,6 +20,8 @@ using ResourceSet =
   robin_hood::unordered_map<rhi::DescriptorSetIndex, ResourceBindings>;
 
 [[nodiscard]] std::string toString(const ResourceSet &);
+
+[[nodiscard]] rhi::PipelineStages convert(const PipelineStage);
 
 struct RenderContext {
   explicit RenderContext(rhi::CommandBuffer &);

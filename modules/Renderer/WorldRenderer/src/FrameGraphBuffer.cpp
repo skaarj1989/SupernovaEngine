@@ -10,7 +10,8 @@
 
 #include <format>
 
-// https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VkAccessFlagBits.html
+// https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkPipelineStageFlagBits2.html#_description
+// https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkAccessFlagBits2.html#_description
 
 namespace gfx {
 
@@ -30,57 +31,46 @@ void FrameGraphBuffer::preRead(const Desc &desc, uint32_t bits, void *ctx) {
                PipelineStage::Transfer)); // GPU->CPU readback not supported.
 
   rhi::BarrierScope dst{};
-  if (bool(pipelineStage & PipelineStage::VertexShader)) {
-    switch (desc.type) {
-    case BufferType::IndexBuffer:
-      dst.stageMask |= rhi::PipelineStages::VertexInput;
-      dst.accessMask = rhi::Access::IndexRead;
-      break;
-    case BufferType::VertexBuffer:
-      dst.stageMask |= rhi::PipelineStages::VertexInput;
-      dst.accessMask = rhi::Access::VertexAttributeRead;
-      break;
-    case BufferType::UniformBuffer:
-      dst.stageMask |= rhi::PipelineStages::VertexShader;
-      dst.accessMask = rhi::Access::UniformRead;
-      break;
-    case BufferType::StorageBuffer:
-      dst.stageMask |= rhi::PipelineStages::VertexShader;
-      dst.accessMask = rhi::Access::ShaderStorageRead;
-      break;
-    }
+  switch (desc.type) {
+  case BufferType::IndexBuffer:
+    dst = {
+      .stageMask = rhi::PipelineStages::VertexInput,
+      .accessMask = rhi::Access::IndexRead,
+    };
+    break;
+  case BufferType::VertexBuffer:
+    dst = {
+      .stageMask = rhi::PipelineStages::VertexInput,
+      .accessMask = rhi::Access::VertexAttributeRead,
+    };
+    break;
+  case BufferType::UniformBuffer:
+    dst.accessMask = rhi::Access::UniformRead;
+    break;
+  case BufferType::StorageBuffer:
+    dst.accessMask = rhi::Access::ShaderStorageRead;
+    break;
   }
-  if (bool(pipelineStage & PipelineStage::GeometryShader)) {
-    dst.stageMask |= rhi::PipelineStages::GeometryShader;
-    dst.accessMask |= rhi::Access::ShaderRead;
-  }
-  if (bool(pipelineStage & PipelineStage::FragmentShader)) {
-    dst.stageMask |= rhi::PipelineStages::FragmentShader;
-    dst.accessMask |= rhi::Access::ShaderRead;
-  }
-  if (bool(pipelineStage & PipelineStage::ComputeShader)) {
-    dst.stageMask |= rhi::PipelineStages::ComputeShader;
-    dst.accessMask |= rhi::Access::ShaderRead;
-  }
+  dst.stageMask |= convert(pipelineStage);
 
-  auto &[cb, _, sets] = *static_cast<RenderContext *>(ctx);
-
+  auto &rc = *static_cast<RenderContext *>(ctx);
   const auto [set, binding] = location;
   switch (desc.type) {
   case BufferType::UniformBuffer:
-    sets[set][binding] = rhi::bindings::UniformBuffer{.buffer = buffer};
+    rc.resourceSet[set][binding] =
+      rhi::bindings::UniformBuffer{.buffer = buffer};
     break;
   case BufferType::StorageBuffer:
-    sets[set][binding] = rhi::bindings::StorageBuffer{.buffer = buffer};
+    rc.resourceSet[set][binding] =
+      rhi::bindings::StorageBuffer{.buffer = buffer};
     break;
   }
-
-  cb.getBarrierBuilder().bufferBarrier({.buffer = *buffer}, dst);
+  rc.commandBuffer.getBarrierBuilder().bufferBarrier({.buffer = *buffer}, dst);
 }
 void FrameGraphBuffer::preWrite(const Desc &desc, uint32_t bits, void *ctx) {
   ZoneScopedN("+B");
 
-  auto &[cb, _, sets] = *static_cast<RenderContext *>(ctx);
+  auto &rc = *static_cast<RenderContext *>(ctx);
   const auto [location, pipelineStage] = decodeBindingInfo(bits);
 
   rhi::BarrierScope dst{};
@@ -91,24 +81,15 @@ void FrameGraphBuffer::preWrite(const Desc &desc, uint32_t bits, void *ctx) {
     };
   } else {
     assert(desc.type == BufferType::StorageBuffer);
-
-    if (bool(pipelineStage & PipelineStage::VertexShader))
-      dst.stageMask |= rhi::PipelineStages::VertexShader;
-    if (bool(pipelineStage & PipelineStage::GeometryShader))
-      dst.stageMask |= rhi::PipelineStages::GeometryShader;
-    if (bool(pipelineStage & PipelineStage::FragmentShader))
-      dst.stageMask |= rhi::PipelineStages::FragmentShader;
-    if (bool(pipelineStage & PipelineStage::ComputeShader))
-      dst.stageMask |= rhi::PipelineStages::ComputeShader;
-
+    dst.stageMask |= convert(pipelineStage);
     dst.accessMask =
       rhi::Access::ShaderStorageRead | rhi::Access::ShaderStorageWrite;
 
     const auto [set, binding] = location;
-    sets[set][binding] = rhi::bindings::StorageBuffer{.buffer = buffer};
+    rc.resourceSet[set][binding] =
+      rhi::bindings::StorageBuffer{.buffer = buffer};
   }
-
-  cb.getBarrierBuilder().bufferBarrier({.buffer = *buffer}, dst);
+  rc.commandBuffer.getBarrierBuilder().bufferBarrier({.buffer = *buffer}, dst);
 }
 
 std::string FrameGraphBuffer::toString(const Desc &desc) {

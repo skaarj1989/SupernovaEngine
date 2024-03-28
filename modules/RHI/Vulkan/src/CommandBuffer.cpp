@@ -49,6 +49,7 @@ constexpr VkDeviceSize kMaxDataSize{65536};
 [[nodiscard]] VkRenderingAttachmentInfo toVk(const AttachmentInfo &attachment,
                                              const bool readOnly) {
   auto &[target, layer, face, clearValue] = attachment;
+  assert(!readOnly || !clearValue.has_value());
   return {
     .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR,
     .imageView =
@@ -61,7 +62,7 @@ constexpr VkDeviceSize kMaxDataSize{65536};
       readOnly ? VK_ATTACHMENT_STORE_OP_NONE : VK_ATTACHMENT_STORE_OP_STORE,
     .clearValue = clearValue ? toVk(*clearValue) : VkClearValue{},
   };
-};
+}
 
 } // namespace
 
@@ -245,13 +246,13 @@ CommandBuffer::beginRendering(const FramebufferInfo &framebufferInfo) {
   _TRACY_GPU_ZONE2("BeginRendering");
   VkRenderingAttachmentInfo depthAttachment{};
   if (framebufferInfo.depthAttachment) {
-    const auto &attachment = *framebufferInfo.depthAttachment;
-    depthAttachment = toVk(attachment, framebufferInfo.depthReadOnly);
+    depthAttachment =
+      toVk(*framebufferInfo.depthAttachment, framebufferInfo.depthReadOnly);
   }
   VkRenderingAttachmentInfo stencilAttachment{};
   if (framebufferInfo.stencilAttachment) {
-    const auto &attachment = *framebufferInfo.stencilAttachment;
-    stencilAttachment = toVk(attachment, framebufferInfo.stencilReadOnly);
+    stencilAttachment =
+      toVk(*framebufferInfo.stencilAttachment, framebufferInfo.stencilReadOnly);
   }
   std::vector<VkRenderingAttachmentInfo> colorAttachments;
   colorAttachments.reserve(framebufferInfo.colorAttachments.size());
@@ -331,6 +332,8 @@ CommandBuffer &CommandBuffer::draw(const GeometryInfo &gi,
   return *this;
 }
 CommandBuffer &CommandBuffer::drawFullScreenTriangle() {
+  // Triggers the following VVL Warning:
+  // BestPractices-DrawState-VtxIndexOutOfBounds
   return draw({.numVertices = 3});
 }
 CommandBuffer &CommandBuffer::drawCube() { return draw({.numVertices = 36}); }
@@ -772,7 +775,7 @@ void prepareForAttachment(CommandBuffer &cb, const Texture &texture,
 
   if (aspectMask & VK_IMAGE_ASPECT_COLOR_BIT) {
     dst.stageMask = PipelineStages::ColorAttachmentOutput;
-    dst.accessMask = Access::ColorAttachmentWrite;
+    dst.accessMask = Access::ColorAttachmentRead | Access::ColorAttachmentWrite;
     newLayout = ImageLayout::ColorAttachment;
   } else {
     dst.stageMask = PipelineStages::FragmentTests;

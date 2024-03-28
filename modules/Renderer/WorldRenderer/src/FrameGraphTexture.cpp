@@ -53,6 +53,10 @@ template <class Target> struct StaticCast {
 
 } // namespace
 
+//
+// FrameGraphTexture class:
+//
+
 void FrameGraphTexture::create(const Desc &desc, void *allocator) {
   texture = static_cast<TransientResources *>(allocator)->acquireTexture(desc);
 }
@@ -66,16 +70,11 @@ void FrameGraphTexture::preRead(const Desc &, uint32_t bits, void *ctx) {
 
   auto &[cb, framebufferInfo, sets] = *static_cast<RenderContext *>(ctx);
 
-  rhi::BarrierScope dst{};
   if (holdsAttachment(bits)) {
-    const auto attachment = decodeAttachment(bits);
     if (!framebufferInfo)
-      framebufferInfo.emplace().area = {0, 0, texture->getExtent()};
+      framebufferInfo.emplace().area = {.extent = texture->getExtent()};
 
-    framebufferInfo->depthAttachment = rhi::AttachmentInfo{
-      .target = texture,
-      .clearValue = map(attachment.clearValue, convert),
-    };
+    framebufferInfo->depthAttachment = rhi::AttachmentInfo{.target = texture};
     framebufferInfo->depthReadOnly = true;
 
     rhi::prepareForAttachment(cb, *texture, true);
@@ -84,17 +83,6 @@ void FrameGraphTexture::preRead(const Desc &, uint32_t bits, void *ctx) {
     const auto [location, pipelineStage] = bindingInfo;
 
     assert(!bool(pipelineStage & PipelineStage::Transfer));
-
-    if (bool(pipelineStage & PipelineStage::VertexShader))
-      dst.stageMask |= rhi::PipelineStages::VertexShader;
-    if (bool(pipelineStage & PipelineStage::GeometryShader))
-      dst.stageMask |= rhi::PipelineStages::GeometryShader;
-    if (bool(pipelineStage & PipelineStage::FragmentShader))
-      dst.stageMask |= rhi::PipelineStages::FragmentShader;
-    if (bool(pipelineStage & PipelineStage::ComputeShader))
-      dst.stageMask |= rhi::PipelineStages::ComputeShader;
-
-    dst.accessMask = rhi::Access::ShaderRead;
 
     auto imageLayout = rhi::ImageLayout::Undefined;
 
@@ -119,18 +107,6 @@ void FrameGraphTexture::preRead(const Desc &, uint32_t bits, void *ctx) {
     }
     assert(imageLayout != rhi::ImageLayout::Undefined);
 
-    if (imageLayout == rhi::ImageLayout::ShaderReadOnly) {
-      const auto mask = rhi::getAspectMask(*texture);
-      if (mask == VK_IMAGE_ASPECT_DEPTH_BIT) {
-        imageLayout = rhi::ImageLayout::DepthReadOnly;
-      } else if (mask == VK_IMAGE_ASPECT_STENCIL_BIT) {
-        imageLayout = rhi::ImageLayout::StencilReadOnly;
-      } else if (mask ==
-                 (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT)) {
-        imageLayout = rhi::ImageLayout::DepthStencilReadOnly;
-      }
-    }
-
     cb.getBarrierBuilder().imageBarrier(
       {
         .image = *texture,
@@ -141,7 +117,10 @@ void FrameGraphTexture::preRead(const Desc &, uint32_t bits, void *ctx) {
             .layerCount = VK_REMAINING_ARRAY_LAYERS,
           },
       },
-      dst);
+      {
+        .stageMask = convert(pipelineStage),
+        .accessMask = rhi::Access::ShaderRead,
+      });
   }
 }
 
@@ -151,16 +130,15 @@ void FrameGraphTexture::preWrite(const Desc &, uint32_t bits, void *ctx) {
   auto &[cb, framebufferInfo, sets] = *static_cast<RenderContext *>(ctx);
 
   if (holdsAttachment(bits)) {
-    const auto attachment = decodeAttachment(bits);
     if (!framebufferInfo)
-      framebufferInfo.emplace().area = {0, 0, texture->getExtent()};
+      framebufferInfo.emplace().area = {.extent = texture->getExtent()};
 
+    const auto attachment = decodeAttachment(bits);
     const auto aspectMask = rhi::getAspectMask(*texture);
     if (aspectMask & VK_IMAGE_ASPECT_DEPTH_BIT) {
       framebufferInfo->depthAttachment = makeAttachment(attachment, texture);
       framebufferInfo->depthReadOnly = false;
-    }
-    if (aspectMask & VK_IMAGE_ASPECT_COLOR_BIT) {
+    } else if (aspectMask & VK_IMAGE_ASPECT_COLOR_BIT) {
       auto &v = framebufferInfo->colorAttachments;
       v.resize(attachment.index + 1);
       v[attachment.index] = makeAttachment(attachment, texture);
@@ -169,19 +147,6 @@ void FrameGraphTexture::preWrite(const Desc &, uint32_t bits, void *ctx) {
     rhi::prepareForAttachment(cb, *texture, false);
   } else {
     const auto [location, pipelineStage] = decodeBindingInfo(bits);
-
-    rhi::BarrierScope dst{};
-    if (bool(pipelineStage & PipelineStage::VertexShader))
-      dst.stageMask |= rhi::PipelineStages::VertexShader;
-    if (bool(pipelineStage & PipelineStage::GeometryShader))
-      dst.stageMask |= rhi::PipelineStages::GeometryShader;
-    if (bool(pipelineStage & PipelineStage::FragmentShader))
-      dst.stageMask |= rhi::PipelineStages::FragmentShader;
-    if (bool(pipelineStage & PipelineStage::ComputeShader))
-      dst.stageMask |= rhi::PipelineStages::ComputeShader;
-
-    dst.accessMask = rhi::Access::ShaderWrite;
-
     const auto [set, binding] = location;
     sets[set][binding] = rhi::bindings::StorageImage{
       .texture = texture,
@@ -194,7 +159,10 @@ void FrameGraphTexture::preWrite(const Desc &, uint32_t bits, void *ctx) {
         .newLayout = rhi::ImageLayout::General,
         .subresourceRange = {.levelCount = 1, .layerCount = 1},
       },
-      dst);
+      {
+        .stageMask = convert(pipelineStage),
+        .accessMask = rhi::Access::ShaderStorageWrite,
+      });
   }
 }
 

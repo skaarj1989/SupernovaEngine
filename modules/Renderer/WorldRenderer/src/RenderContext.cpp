@@ -58,6 +58,23 @@ std::string toString(const ResourceSet &sets) {
   return oss.str();
 }
 
+rhi::PipelineStages convert(const PipelineStage pipelineStage) {
+  rhi::PipelineStages stageMask{rhi::PipelineStages::None};
+  if (bool(pipelineStage & PipelineStage::VertexShader)) {
+    stageMask |= rhi::PipelineStages::VertexShader;
+  }
+  if (bool(pipelineStage & PipelineStage::GeometryShader)) {
+    stageMask |= rhi::PipelineStages::GeometryShader;
+  }
+  if (bool(pipelineStage & PipelineStage::FragmentShader)) {
+    stageMask |= rhi::PipelineStages::FragmentShader;
+  }
+  if (bool(pipelineStage & PipelineStage::ComputeShader)) {
+    stageMask |= rhi::PipelineStages::ComputeShader;
+  }
+  return stageMask;
+}
+
 void overrideSampler(rhi::ResourceBinding &v, VkSampler sampler) {
   assert(sampler != VK_NULL_HANDLE);
   std::get<rhi::bindings::CombinedImageSampler>(v).sampler = sampler;

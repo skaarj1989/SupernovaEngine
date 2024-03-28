@@ -312,12 +312,6 @@ void readSceneDepth(FrameGraph::Builder &builder,
                     const ReadFlags readFlags) {
   assert(std::to_underlying(readFlags) > 0);
 
-  // The order is important!
-  // Texture sampling is placed lower in pipeline stage (effective barrier).
-
-  if (bool(readFlags & ReadFlags::Attachment)) {
-    builder.read(sceneDepth, Attachment{});
-  }
   if (bool(readFlags & ReadFlags::Sampling)) {
     builder.read(sceneDepth,
                  TextureRead{
@@ -328,6 +322,9 @@ void readSceneDepth(FrameGraph::Builder &builder,
                      },
                    .type = TextureRead::Type::CombinedImageSampler,
                  });
+    if (bool(readFlags & ReadFlags::Attachment)) {
+      builder.read(sceneDepth, Attachment{});
+    }
   }
 }
 
