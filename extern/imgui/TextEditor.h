@@ -9,7 +9,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <map>
-#include <math.h>
+#include <cmath>
 #include <boost/regex.hpp>
 #include "imgui.h"
 

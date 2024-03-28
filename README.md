@@ -133,7 +133,7 @@ Linux packages:
 - [The Boost Graph Library](https://www.boost.org/doc/libs/1_83_0/libs/graph/doc/index.html)
 - [Dear ImGui](https://github.com/ocornut/imgui)
 - [imnodes](https://github.com/Nelarius/imnodes)
-- [ImGuiColorTextEdit](https://github.com/BalazsJako/ImGuiColorTextEdit)
+- [ImGuiColorTextEdit](https://github.com/santaclose/ImGuiColorTextEdit)
 - [Nuklear](https://github.com/Immediate-Mode-UI/Nuklear)
 - [IconFontCppHeaders](https://github.com/juliettef/IconFontCppHeaders)
 - [RmlUi](https://github.com/mikke89/RmlUi)

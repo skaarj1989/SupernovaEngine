@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <string>
-#include <cmath>
 #include <set>
 
 #include "TextEditor.h"
@@ -349,42 +348,13 @@ void TextEditor::SetText(const std::string& aText)
 	Colorize();
 }
 
-std::string TextEditor::GetText(const Coordinates& aStart, const Coordinates& aEnd) const
+std::string TextEditor::GetText() const
 {
-	//assert(aEnd > aStart);
-	std::string result;
-
-	auto lstart = aStart.mLine;
-	auto lend = aEnd.mLine;
-	auto istart = GetCharacterIndexR(aStart);
-	auto iend = GetCharacterIndexR(aEnd);
-	size_t s = 0;
-
-	for (size_t i = lstart; i < lend; i++)
-		s += mLines[i].size();
-
-	result.reserve(s + s / 8);
-
-	while (istart < iend || lstart < lend)
-	{
-		if (lstart >= (int)mLines.size())
-			break;
-
-		auto& line = mLines[lstart];
-		if (istart < (int)line.size())
-		{
-			result += line[istart].mChar;
-			istart++;
-		}
-		else
-		{
-			istart = 0;
-			++lstart;
-			result += '\n';
-		}
-	}
-
-	return result;
+	auto lastLine = (int)mLines.size() - 1;
+	auto lastLineLength = GetLineMaxColumn(lastLine);
+	Coordinates startCoords = Coordinates();
+	Coordinates endCoords = Coordinates(lastLine, lastLineLength);
+	return startCoords < endCoords ? GetText(startCoords, endCoords) : "";
 }
 
 void TextEditor::SetTextLines(const std::vector<std::string>& aLines)
@@ -635,11 +605,42 @@ void TextEditor::UndoRecord::Redo(TextEditor* aEditor)
 
 // ---------- Text editor internal functions --------- //
 
-std::string TextEditor::GetText() const
+std::string TextEditor::GetText(const Coordinates& aStart, const Coordinates& aEnd) const
 {
-	auto lastLine = (int)mLines.size() - 1;
-	auto lastLineLength = GetLineMaxColumn(lastLine);
-	return GetText(Coordinates(), Coordinates(lastLine, lastLineLength));
+	assert(aStart < aEnd);
+
+	std::string result;
+	auto lstart = aStart.mLine;
+	auto lend = aEnd.mLine;
+	auto istart = GetCharacterIndexR(aStart);
+	auto iend = GetCharacterIndexR(aEnd);
+	size_t s = 0;
+
+	for (size_t i = lstart; i < lend; i++)
+		s += mLines[i].size();
+
+	result.reserve(s + s / 8);
+
+	while (istart < iend || lstart < lend)
+	{
+		if (lstart >= (int)mLines.size())
+			break;
+
+		auto& line = mLines[lstart];
+		if (istart < (int)line.size())
+		{
+			result += line[istart].mChar;
+			istart++;
+		}
+		else
+		{
+			istart = 0;
+			++lstart;
+			result += '\n';
+		}
+	}
+
+	return result;
 }
 
 std::string TextEditor::GetClipboardText() const
