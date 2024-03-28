@@ -10,7 +10,7 @@ public:
   ~ImGuiApp() override;
 
   void drawGui(rhi::CommandBuffer &, const rhi::RenderTargetView,
-               const std::optional<glm::vec4> clearColor = std::nullopt);
+               std::optional<glm::vec4> clearColor = std::nullopt);
 
 protected:
   void _onResizeWindow(const os::ResizeWindowEvent &) override;

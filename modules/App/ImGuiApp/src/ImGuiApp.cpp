@@ -88,7 +88,7 @@ ImGuiApp::~ImGuiApp() {
 }
 
 void ImGuiApp::drawGui(rhi::CommandBuffer &cb, const rhi::RenderTargetView rtv,
-                       const std::optional<glm::vec4> clearColor) {
+                       std::optional<glm::vec4> clearColor) {
   RHI_GPU_ZONE(cb, "ImGui::Main");
   auto &[frameIndex, target] = rtv;
   rhi::prepareForAttachment(cb, target, false);

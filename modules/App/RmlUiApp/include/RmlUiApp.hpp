@@ -11,7 +11,7 @@ public:
   ~RmlUiApp() override;
 
   void drawGui(rhi::CommandBuffer &, const rhi::RenderTargetView,
-               const std::optional<glm::vec4> clearColor);
+               std::optional<glm::vec4> clearColor);
 
   Rml::Context &getUiContext() { return *m_context; }
 

@@ -9,7 +9,7 @@ public:
   [[nodiscard]] nk_context *getNuklearContext() const;
 
   void drawGui(rhi::CommandBuffer &, const rhi::RenderTargetView,
-               const std::optional<glm::vec4> clearColor);
+               std::optional<glm::vec4> clearColor);
 
 protected:
   void _onPreUpdate(const fsec dt) override;
