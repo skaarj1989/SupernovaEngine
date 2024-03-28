@@ -1,6 +1,7 @@
 #include "rhi/Barrier.hpp"
 #include "rhi/Buffer.hpp"
 #include "rhi/Texture.hpp"
+#include <utility> // to_underlying
 
 // https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VkAccessFlagBits.html
 
