@@ -12,25 +12,28 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
   VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
   [[maybe_unused]] VkDebugUtilsMessageTypeFlagsEXT,
   const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *) {
-#if 1
   constexpr auto kIgnoredIds = std::array{
-    // UNASSIGNED-BestPractices-
+    0,
+    // BestPractices-
+    141128897,   // vkCreateCommandPool-command-buffer-reset
+    2011355468,  // CreatePipelineLayout-SeparateSampler
+    -2036050732, // DrawState-VtxIndexOutOfBounds
+    -567953719,  // BindMemory-NoPriority
+    597400213,   // CreateImage-Depth32Format
+    -492529551,  // CreatePipelinesLayout-KeepLayoutSmall
+    1829508205,  // Pipeline-SortAndBind
 
-    -2027362524, // vkCreateCommandPool-command-buffer-reset
-    1413273847,  // BindMemory-NoPriority
-    2076578180,  // SpirvDeprecated_WorkgroupSize
-    887288624,   // ClearAttachment-ClearImage
-    1835555994,  // Pipeline-SortAndBind
-    411464045,   // BindPipeline-SwitchTessGeometryMesh
+    227182348,   // SpirvDeprecated_WorkgroupSize
+    1035616080,  // ClearAttachment-ClearImage
+    -1442629603, // Submission-ReduceNumberOfSubmissions
   };
-  constexpr auto equals = [](const auto v) {
-    return [v](const auto e) { return e == v; };
+  constexpr auto equals = [](const auto in) {
+    return [in](const auto ignored) { return in == ignored; };
   };
   if (std::ranges::any_of(kIgnoredIds,
                           equals(pCallbackData->messageIdNumber))) {
     return VK_FALSE;
   }
-#endif
 
   static constexpr auto kMessageFormat = "{}";
   if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
