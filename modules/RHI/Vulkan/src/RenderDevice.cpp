@@ -665,20 +665,32 @@ RenderDevice &RenderDevice::execute(CommandBuffer &cb, const JobInfo &jobInfo) {
   cb.flushBarriers().end();
   assert(cb._invariant(CommandBuffer::State::Executable));
 
-  const VkSubmitInfo submitInfo{
-    .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-
-    .waitSemaphoreCount = jobInfo.wait != VK_NULL_HANDLE ? 1u : 0u,
-    .pWaitSemaphores = jobInfo.wait ? &jobInfo.wait : VK_NULL_HANDLE,
-    .pWaitDstStageMask = &jobInfo.waitStage,
-
-    .commandBufferCount = 1,
-    .pCommandBuffers = &cb.m_handle,
-
-    .signalSemaphoreCount = jobInfo.signal != VK_NULL_HANDLE ? 1u : 0u,
-    .pSignalSemaphores = jobInfo.signal ? &jobInfo.signal : VK_NULL_HANDLE,
+  const VkCommandBufferSubmitInfo commandBufferInfo{
+    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO,
+    .commandBuffer = cb.m_handle,
   };
-  VK_CHECK(vkQueueSubmit(m_genericQueue, 1, &submitInfo, cb.m_fence));
+  const VkSemaphoreSubmitInfo waitSemaphoreInfo{
+    .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+    .semaphore = jobInfo.wait,
+    .stageMask = jobInfo.waitStage,
+  };
+  const VkSemaphoreSubmitInfo signalSemaphoreInfo{
+    .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+    .semaphore = jobInfo.signal,
+  };
+  const VkSubmitInfo2 submitInfo{
+    .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
+
+    .waitSemaphoreInfoCount = jobInfo.wait != VK_NULL_HANDLE ? 1u : 0u,
+    .pWaitSemaphoreInfos = jobInfo.wait ? &waitSemaphoreInfo : nullptr,
+
+    .commandBufferInfoCount = 1,
+    .pCommandBufferInfos = &commandBufferInfo,
+
+    .signalSemaphoreInfoCount = jobInfo.signal != VK_NULL_HANDLE ? 1u : 0u,
+    .pSignalSemaphoreInfos = jobInfo.signal ? &signalSemaphoreInfo : nullptr,
+  };
+  VK_CHECK(vkQueueSubmit2(m_genericQueue, 1, &submitInfo, cb.m_fence));
 
   cb.m_state = CommandBuffer::State::Pending;
   return *this;
