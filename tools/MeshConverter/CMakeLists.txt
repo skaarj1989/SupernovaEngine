@@ -90,4 +90,6 @@ target_link_libraries(MeshConverter
   nlohmann_json::nlohmann_json
 )
 set_target_properties(MeshConverter PROPERTIES FOLDER "Tools")
+set_warning_level(MeshConverter)
+
 set_debugger_working_directory(MeshConverter)

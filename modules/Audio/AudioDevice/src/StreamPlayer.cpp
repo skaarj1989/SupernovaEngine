@@ -15,7 +15,8 @@ StreamPlayer::StreamPlayer(const int32_t numBuffers) {
 StreamPlayer::~StreamPlayer() {
   stop();
   alSourcei(m_id, AL_BUFFER, AL_NONE);
-  AL_CHECK(alDeleteBuffers(m_buffers.size(), m_buffers.data()));
+  AL_CHECK(
+    alDeleteBuffers(static_cast<ALsizei>(m_buffers.size()), m_buffers.data()));
 }
 
 void StreamPlayer::setStream(std::unique_ptr<Decoder> &&decoder,
@@ -111,12 +112,11 @@ void StreamPlayer::_start() {
   }
   AL_CHECK(alSourceQueueBuffers(m_id, numFilledBuffers, m_buffers.data()));
 }
-int32_t StreamPlayer::_read() {
+uint32_t StreamPlayer::_read() {
   assert(m_decoder);
-
   const auto decodedSize =
     m_decoder->read(m_stagingBuffer.data(), m_stagingBuffer.size());
-  return align(decodedSize, m_decoder->getInfo());
+  return static_cast<uint32_t>(align(decodedSize, m_decoder->getInfo()));
 }
 
 } // namespace audio

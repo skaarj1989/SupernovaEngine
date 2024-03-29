@@ -1,7 +1,9 @@
 #pragma once
 
 #include "WidgetWindow.hpp"
+#pragma warning(push, 0)
 #include "TextEditor.h"
+#pragma warning(pop)
 #include "entt/signal/emitter.hpp"
 #include <filesystem>
 

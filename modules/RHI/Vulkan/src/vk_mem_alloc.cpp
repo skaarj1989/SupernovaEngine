@@ -31,4 +31,6 @@ void _printf(Logger logger, spdlog::level::level_enum level,
 #define VMA_DYNAMIC_VULKAN_FUNCTIONS 0
 #define VMA_IMPLEMENTATION
 
+#pragma warning(push, 0)
 #include "vk_mem_alloc.h"
+#pragma warning(pop)

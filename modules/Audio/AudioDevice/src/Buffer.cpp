@@ -27,7 +27,8 @@ const ClipInfo &Buffer::getInfo() const { return m_info; }
 
 Buffer::Buffer(const ClipInfo &info, const void *data) : m_info{info} {
   alGenBuffers(1, &m_id);
-  AL_CHECK(alBufferData(m_id, pickFormat(info), data, info.dataSize(),
+  AL_CHECK(alBufferData(m_id, pickFormat(info), data,
+                        static_cast<ALsizei>(info.dataSize()),
                         info.sampleRate));
 }
 

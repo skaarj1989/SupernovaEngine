@@ -5,6 +5,7 @@ target_link_libraries(ImGuiApp
   PUBLIC BaseApp ImGuiRenderer
 )
 set_target_properties(ImGuiApp PROPERTIES FOLDER "Framework/App")
+set_warning_level(ImGuiApp)
 
 add_resources(
   TARGET Fonts

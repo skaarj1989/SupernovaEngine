@@ -27,8 +27,10 @@
 #include "ProjectSettingsWidget.hpp"
 #include "imgui_internal.h" // DockBuilder
 
+#pragma warning(push, 0)
 #include "tracy/Tracy.hpp"
 #include "tracy/TracyLua.hpp"
+#pragma warning(pop)
 
 namespace {
 
@@ -262,7 +264,7 @@ void App::_onGUI() {
           showMessageBox(kDebugBuildWarningId,
                          "You are running the editor with the DEBUG option.\n"
                          "This option results in slower execution.");
-        button && *button == ModalButton::Ok) {
+        button == ModalButton::Ok) {
       debugBuildWarning = false;
     }
   }
@@ -275,7 +277,7 @@ void App::_onGUI() {
   if (const auto button =
         showMessageBox<ModalButtons::Yes | ModalButtons::Cancel>(
           GUI::Modals::kCloseEditorId, "Close the editor?");
-      button && *button == ModalButton::Yes) {
+      button == ModalButton::Yes) {
     close();
   }
 
@@ -350,7 +352,7 @@ void App::_onGUI() {
   if (const auto button =
         showMessageBox<ModalButtons::Yes | ModalButtons::Cancel>(
           GUI::Modals::kCloseProjectId, "Close the project?");
-      button && *button == ModalButton::Yes) {
+      button == ModalButton::Yes) {
     m_projectSettings = std::nullopt;
     cleanupLastProject();
   }

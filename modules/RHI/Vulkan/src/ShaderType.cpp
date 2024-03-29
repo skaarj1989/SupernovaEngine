@@ -40,9 +40,9 @@ ShaderStages getStage(const ShaderType shaderType) {
   assert(false);
   return ShaderStages{0};
 }
-uint32_t countStages(const ShaderStages flags) {
-  return std::bitset<sizeof(ShaderStages) * 8>{std::to_underlying(flags)}
-    .count();
+uint8_t countStages(const ShaderStages flags) {
+  return static_cast<uint8_t>(
+    std::bitset<sizeof(ShaderStages) * 8>{std::to_underlying(flags)}.count());
 }
 
 } // namespace rhi

@@ -162,7 +162,8 @@ struct BlendState {
 
 // Assign to VertexAttribute::offset in GraphicsPipeline::setInputAssembly
 // to silence "Vertex attribute at location x not consumed by vertex shader".
-constexpr uint32_t kIgnoreVertexAttribute = ~0;
+constexpr uint32_t kIgnoreVertexAttribute =
+  std::numeric_limits<uint32_t>::max();
 
 class GraphicsPipeline final : public BasePipeline {
   friend class RenderDevice;

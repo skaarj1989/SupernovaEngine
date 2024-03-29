@@ -571,7 +571,7 @@ void SceneEditor::show(const char *name, bool *open) {
           showMessageBox<ModalButtons::Yes | ModalButtons::Cancel>(
             GUI::Modals::kCloseSceneId,
             "Do you really want to close the current scene?");
-        button && *button == ModalButton::Yes) {
+        button == ModalButton::Yes) {
       m_scenes.erase(m_scenes.begin() + *m_activeSceneId);
       m_activeSceneId = std::nullopt;
     }
@@ -797,7 +797,7 @@ void SceneEditor::_scenesWidget() {
   ZoneScopedN("SceneEditor::ScenesWidget");
   ImGui::BeginTabBar(IM_UNIQUE_ID, ImGuiTabBarFlags_AutoSelectNewTabs);
 
-  for (auto [i, entry] : std::views::enumerate(m_scenes)) {
+  for (auto [i, entry] : m_scenes | std::views::enumerate) {
     auto open = true;
     const auto label = std::format(
       "{}##{}",
@@ -810,9 +810,8 @@ void SceneEditor::_scenesWidget() {
 
     if (visible) {
       const auto last = std::exchange(m_activeSceneId, i);
-      const auto changed = !last || last.value() != i;
       auto activeEntry = getActiveSceneEntry();
-      if (changed) {
+      if (last != i) {
         activeEntry->viewport.camera.setAspectRatio(
           m_renderTargetPreview.getExtent().getAspectRatio());
       }
@@ -821,8 +820,6 @@ void SceneEditor::_scenesWidget() {
 
       ImGui::EndTabItem();
     }
-
-    ++i;
   }
 
   if (junk) ImGui::OpenPopup(GUI::Modals::kCloseSceneId);
@@ -907,7 +904,7 @@ void SceneEditor::_showEntitiesWidget(Entry &entry) {
       if (const auto button =
             showMessageBox<ModalButtons::Yes | ModalButtons::Cancel>(
               kDestroyEntityPopupId, "Destroy selected entity?");
-          button && *button == ModalButton::Yes) {
+          button == ModalButton::Yes) {
         selectedEntity.destroy();
       }
     }
@@ -1057,7 +1054,7 @@ void SceneEditor::_inspectorWidget(entt::handle &h) {
               "Remove the following component? This cannot be undone.\n- {}",
               componentName)
               .c_str());
-        button && *button == ModalButton::Yes) {
+        button == ModalButton::Yes) {
       const auto removed =
         invokeMetaFunc(metaType, MetaComponent::Functions::Remove, h);
       treeOpened = removed.cast<std::size_t>() == 0;

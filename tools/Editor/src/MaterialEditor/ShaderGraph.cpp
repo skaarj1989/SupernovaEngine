@@ -375,7 +375,7 @@ ShaderGraph &ShaderGraph::load(std::istream &is) {
   for (const auto &[i, ed] : edges() | std::views::enumerate) {
     getProperty(ed).id = static_cast<EdgeID>(i);
   }
-  m_nextEdgeId = countEdges();
+  m_nextEdgeId = static_cast<EdgeID>(countEdges());
 
   return *this;
 }
@@ -390,8 +390,8 @@ std::string ShaderGraph::makeSnapshot(const VertexDescriptor vd) const {
     cereal::BinaryOutputArchive archive{oss};
 
     archive(hierarchy.size());
-    for (const auto vd : hierarchy) {
-      auto &node = (*m_graph)[vd];
+    for (const auto vd_ : hierarchy) {
+      auto &node = (*m_graph)[vd_];
       archive(node);
     }
   }
@@ -468,7 +468,7 @@ bool ShaderGraph::_isAcyclic() const {
 
   class CycleDetector final : public boost::default_dfs_visitor {
   public:
-    void back_edge(const EdgeDescriptor &ed, const Graph &g) {
+    void back_edge(const EdgeDescriptor &, const Graph &) {
       throw std::runtime_error{"Cycle detected."};
     }
   };

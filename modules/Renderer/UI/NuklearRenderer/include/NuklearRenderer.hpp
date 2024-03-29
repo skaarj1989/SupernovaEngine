@@ -6,7 +6,9 @@
 #include "rhi/Texture.hpp"
 #include "rhi/GraphicsPipeline.hpp"
 
+#pragma warning(push, 0)
 #include "Nuklear/nuklear.h"
+#pragma warning(pop)
 #include "glm/ext/vector_float2.hpp"
 
 // https://immediate-mode-ui.github.io/Nuklear/doc/nuklear.html

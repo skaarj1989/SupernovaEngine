@@ -20,8 +20,8 @@ constexpr auto kMaxNumSpotLightShadows = 4;
 // shaders/resources/ShadowBlock.glsl
 struct GPUShadowBlock {
   explicit GPUShadowBlock(const ShadowBlock &shadowBlock) {
-    for (auto [i, src] : std::views::enumerate(shadowBlock.cascades)) {
-      cascades.splitDepth[i] = src.splitDepth;
+    for (auto [i, src] : shadowBlock.cascades | std::views::enumerate) {
+      cascades.splitDepth[static_cast<glm::length_t>(i)] = src.splitDepth;
       cascades.viewProjMatrices[i] =
         kBiasMatrix * src.lightView.viewProjection();
     }

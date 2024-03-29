@@ -154,7 +154,7 @@ ShaderCompiler::compile(const ShaderType shaderType,
   // https://github.com/KhronosGroup/glslang/blob/4386679bcdb5c90833b5e46ea76d58d4fc2493f1/glslang/MachineIndependent/Versions.cpp#L388
   shader.setPreamble("#define DEPTH_ZERO_TO_ONE 1\n");
   const auto strings = std::array{code.data()};
-  shader.setStrings(strings.data(), strings.size());
+  shader.setStrings(strings.data(), static_cast<int32_t>(strings.size()));
   shader.setOverrideVersion(460);
   shader.setEntryPoint("main");
 

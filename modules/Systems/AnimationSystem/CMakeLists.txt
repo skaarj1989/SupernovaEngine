@@ -7,3 +7,4 @@ target_link_libraries(AnimationSystem
   PUBLIC SystemCommon Animation WorldRenderer
 )
 set_target_properties(AnimationSystem PROPERTIES FOLDER "Framework/Systems")
+set_warning_level(AnimationSystem)

@@ -12,9 +12,13 @@
 #include "meshoptimizer.h"      // meshopt_simplify
 #include "glm/gtc/type_ptr.hpp" // value_ptr
 
+#pragma warning(push)
+// unreferenced function with internal linkage has been removed
+#pragma warning(disable : 4505)
 #include "math/json.hpp"
 #include "rhi/json.hpp"
 #include "renderer/jsonVertexFormat.hpp"
+#pragma warning(pop)
 
 #include <fstream> // ofstream
 #include <numeric> // accumulate

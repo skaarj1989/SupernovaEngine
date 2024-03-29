@@ -23,8 +23,7 @@ PostProcessMasterNode::PostProcessMasterNode(ShaderGraph &g,
   }
 }
 
-std::unique_ptr<NodeBase>
-PostProcessMasterNode::clone(const IDPair cloned) const {
+std::unique_ptr<NodeBase> PostProcessMasterNode::clone(const IDPair) const {
   throw std::logic_error("Forbidden operation.");
 }
 

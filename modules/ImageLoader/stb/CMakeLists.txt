@@ -10,3 +10,4 @@ target_include_directories(STBImageLoader
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 set_target_properties(STBImageLoader PROPERTIES FOLDER "Framework")
+set_warning_level(STBImageLoader)

@@ -12,3 +12,4 @@ target_link_libraries(ImGuiStyleJSON
   PUBLIC imgui::imgui
 )
 set_target_properties(ImGuiStyleJSON PROPERTIES FOLDER "Framework/GUI")
+set_warning_level(ImGuiStyleJSON)

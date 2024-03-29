@@ -25,7 +25,7 @@ void updateMonitors() {
   const auto src = os::getMonitors();
   auto &dst = ImGui::GetPlatformIO().Monitors;
   dst.clear();
-  dst.reserve(src.size());
+  dst.reserve(static_cast<int32_t>(src.size()));
   std::ranges::transform(src, std::back_inserter(dst), convert);
 }
 #endif

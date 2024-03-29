@@ -7,5 +7,6 @@ target_link_libraries(LuaDispatcher
   PUBLIC MetaHelper ScriptTypeInfo EnTT::EnTT sol2::sol2
 )
 set_target_properties(LuaDispatcher PROPERTIES FOLDER "Framework/ScriptingModules")
+set_warning_level(LuaDispatcher)
 
 add_binding("LuaDispatcher.hpp" "registerDispatcher")

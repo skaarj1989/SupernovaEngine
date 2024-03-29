@@ -88,7 +88,7 @@ void serialize(const entt::registry &r, std::ostream &os) {
       saveComponents<UnderlyingArchive>(archive, kCoreTypes);
     }
     saveSystems<UnderlyingArchive>(archive, kSystemTypes);
-  } catch (const std::exception &e) {
+  } catch (const std::exception &) {
     os.setstate(std::ios_base::badbit);
   }
 }
@@ -118,7 +118,7 @@ void deserialize(std::istream &is, entt::registry &r) {
     loadSystems<UnderlyingArchive>(archive, kSystemTypes);
 
     snapshotLoader.orphans();
-  } catch (const std::exception &e) {
+  } catch (const std::exception &) {
     is.setstate(std::ios::badbit);
   }
 }

@@ -4,3 +4,4 @@ add_library(Resource "include/Resource.hpp" "src/Resource.cpp" "include/LoaderHe
 target_include_directories(Resource PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(Resource PUBLIC EnTT::EnTT FileSystem)
 set_target_properties(Resource PROPERTIES FOLDER "Framework")
+set_warning_level(Resource)

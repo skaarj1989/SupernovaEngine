@@ -67,5 +67,5 @@ target_link_libraries(JoltPhysics
   PUBLIC Common Math Resource Transform DebugDraw Jolt
 )
 set_target_properties(JoltPhysics PROPERTIES FOLDER "Framework")
-
+set_warning_level(JoltPhysics)
 enable_profiler(JoltPhysics PRIVATE)

@@ -1,7 +1,9 @@
 #pragma once
 
 #include "UserFunction.hpp"
+#pragma warning(push, 0)
 #include "TextEditor.h"
+#pragma warning(pop)
 
 class MaterialProject;
 

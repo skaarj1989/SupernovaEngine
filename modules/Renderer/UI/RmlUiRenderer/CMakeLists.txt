@@ -12,6 +12,7 @@ target_link_libraries(RmlUiRenderer
   PUBLIC RmlCore VulkanRHI
 )
 set_target_properties(RmlUiRenderer PROPERTIES FOLDER "Framework/Renderer/")
+set_warning_level(RmlUiRenderer)
 
 add_resources(
   TARGET RmlUIShaders

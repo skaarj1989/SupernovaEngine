@@ -65,14 +65,15 @@ void setupRenderInterface(ImGuiRenderer &renderer) {
     }
     viewport->RendererUserData = nullptr;
   };
-  platformIo.Renderer_SetWindowSize = [](ImGuiViewport *viewport, ImVec2) {
+  platformIo.Renderer_SetWindowSize =
+    []([[maybe_unused]] ImGuiViewport *viewport, ImVec2) {
 #  if 0
     // Ugly blink, swapchain is recreated in:
     // - RenderDevice::present
     // - Swapchain::acquireNextImage
     getViewportData(viewport).swapchain.recreate();
 #  endif
-  };
+    };
   platformIo.Renderer_RenderWindow = [](ImGuiViewport *viewport, void *) {
     auto &[resources, _, frameController] = getViewportData(viewport);
 

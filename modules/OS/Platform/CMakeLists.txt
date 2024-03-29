@@ -23,3 +23,4 @@ elseif(LINUX)
 endif()
 
 set_target_properties(Platform PROPERTIES FOLDER "Framework/OS")
+set_warning_level(Platform)

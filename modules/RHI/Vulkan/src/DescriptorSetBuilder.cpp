@@ -109,7 +109,7 @@ DescriptorSetBuilder::bind(const BindingIndex index,
     .count = numImages,
     .descriptorId = int32_t(m_descriptors.size()),
   };
-  for (auto i = 0; i < numImages; ++i) {
+  for (auto i = 0u; i < numImages; ++i) {
     _addImage(info.texture->getMipLevel(i),
               static_cast<VkImageLayout>(imageLayout));
   }
@@ -125,7 +125,6 @@ DescriptorSetBuilder::bind(const BindingIndex index,
                        .offset = info.offset,
                        .range = info.range.value_or(VK_WHOLE_SIZE),
                      });
-  return *this;
 }
 DescriptorSetBuilder &
 DescriptorSetBuilder::bind(const BindingIndex index,
@@ -137,7 +136,6 @@ DescriptorSetBuilder::bind(const BindingIndex index,
                        .offset = info.offset,
                        .range = info.range.value_or(VK_WHOLE_SIZE),
                      });
-  return *this;
 }
 
 VkDescriptorSet

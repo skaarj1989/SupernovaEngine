@@ -38,6 +38,7 @@ target_link_libraries(LuaRmlUi
   PUBLIC EnTT::EnTT ScriptTypeInfo Math RmlCore
 )
 set_target_properties(LuaRmlUi PROPERTIES FOLDER "Framework/ScriptingModules")
+set_warning_level(LuaRmlUi)
 
 if(MSVC)
   target_compile_options(LuaRmlUi PRIVATE /bigobj)

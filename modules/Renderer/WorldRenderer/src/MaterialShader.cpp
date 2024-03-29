@@ -5,7 +5,8 @@
 
 namespace gfx {
 
-uint32_t adjustStride(const uint32_t stride, const uint32_t minOffsetAlignment);
+VkDeviceSize adjustStride(const VkDeviceSize stride,
+                          const VkDeviceSize minOffsetAlignment);
 
 namespace {
 
@@ -20,7 +21,7 @@ constexpr auto kUserCodeRegion = DECLARE_REGION(USER_CODE);
 
 [[nodiscard]] auto buildPropertiesChunk(const PropertyLayout &layout,
                                         const std::vector<Property> &properties,
-                                        const std::size_t minAlignment) {
+                                        const VkDeviceSize minAlignment) {
   std::ostringstream oss;
   for (const auto &p : properties) {
     std::ostream_iterator<std::string>{oss, "\n"} =

@@ -35,7 +35,7 @@ public:
         if (cmd->canUndo()) {
           m_history.resize(m_historyIndex + 1);
           m_history.push_back(std::move(cmd));
-          m_historyIndex = m_history.size() - 1;
+          m_historyIndex = static_cast<int32_t>(m_history.size()) - 1;
         }
         ++count;
       }

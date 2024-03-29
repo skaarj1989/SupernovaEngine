@@ -3,8 +3,9 @@
 
 namespace gfx {
 
-std::size_t getSize(const Property::Value &v) {
-  return std::visit([](const auto &in) { return sizeof(in); }, v);
+uint32_t getSize(const Property::Value &v) {
+  return std::visit(
+    [](const auto &in) { return static_cast<uint32_t>(sizeof(in)); }, v);
 }
 const char *toString(const Property::Value &v) {
   return std::visit(Overload{

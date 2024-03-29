@@ -27,6 +27,7 @@ target_link_libraries(AudioDevice
   PUBLIC glm::glm OpenAL::OpenAL AudioDecoder
 )
 set_target_properties(AudioDevice PROPERTIES FOLDER "Framework/Audio")
+set_warning_level(AudioDevice)
 
 enable_profiler(AudioDevice PUBLIC)
 

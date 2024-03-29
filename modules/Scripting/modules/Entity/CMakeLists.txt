@@ -7,5 +7,6 @@ target_link_libraries(LuaEntity
   PUBLIC EnTT::EnTT MetaHelper MetaComponent ScriptTypeInfo HierarchySystem
 )
 set_target_properties(LuaEntity PROPERTIES FOLDER "Framework/ScriptingModules")
+set_warning_level(LuaEntity)
 
 add_binding("LuaEntity.hpp" "registerEntityHandle")

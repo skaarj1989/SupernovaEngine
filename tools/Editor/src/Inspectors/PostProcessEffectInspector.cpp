@@ -13,11 +13,11 @@
 namespace {
 
 struct Reorder {
-  std::size_t from;
-  std::size_t to;
+  uint32_t from;
+  uint32_t to;
 };
 struct Remove {
-  std::size_t index;
+  uint32_t index;
 };
 using Request = std::variant<Reorder, Remove>;
 
@@ -41,8 +41,8 @@ void inspectPostProcessEffects(
 
   constexpr auto kRemoveEffectModalId = MAKE_WARNING("Remove effect");
 
-  for (auto [i, effect] : std::views::enumerate(postProcessEffects)) {
-    ImGui::PushID(i);
+  for (auto [i, effect] : postProcessEffects | std::views::enumerate) {
+    ImGui::PushID(static_cast<int32_t>(i));
 
     const auto name = effect ? effect->getName() : "";
     const auto label = !name.empty() ? std::string{name} : "(no name)";
@@ -61,8 +61,8 @@ void inspectPostProcessEffects(
               "Remove the following effect? (this cannot be undone)\n- {}",
               label)
               .c_str());
-        button && *button == ModalButton::Yes) {
-      request = Remove{.index = std::size_t(i)};
+        button == ModalButton::Yes) {
+      request = Remove{.index = static_cast<uint32_t>(i)};
       treeOpened = false;
     }
 
@@ -70,7 +70,7 @@ void inspectPostProcessEffects(
       constexpr auto kDragDropType = "POSTPROCESS";
       if (ImGui::BeginDragDropSource(
             ImGuiDragDropFlags_SourceNoHoldToOpenOthers)) {
-        ImGui::SetDragDropPayload(kDragDropType, &i, sizeof(std::size_t));
+        ImGui::SetDragDropPayload(kDragDropType, &i, sizeof(uint32_t));
         ImGui::SetTooltip("Effect: %s", label.c_str());
         ImGui::EndDragDropSource();
       }
@@ -78,8 +78,8 @@ void inspectPostProcessEffects(
         if (const auto *payload = ImGui::AcceptDragDropPayload(
               kDragDropType, ImGuiDragDropFlags_SourceNoHoldToOpenOthers)) {
           request = Reorder{
-            .from = *static_cast<const std::size_t *>(payload->Data),
-            .to = std::size_t(i),
+            .from = *static_cast<const uint32_t *>(payload->Data),
+            .to = static_cast<uint32_t>(i),
           };
         }
         ImGui::EndDragDropTarget();
@@ -90,8 +90,12 @@ void inspectPostProcessEffects(
         const auto next =
           i +
           (ImGui::GetMouseDragDelta(ImGuiMouseButton_Left).y < 0.0f ? -1 : 1);
-        if (next >= 0 && next < postProcessEffects.size()) {
-          request = Reorder{.from = std::size_t(i), .to = std::size_t(next)};
+        if (next >= 0 &&
+            next < static_cast<decltype(next)>(postProcessEffects.size())) {
+          request = Reorder{
+            .from = static_cast<uint32_t>(i),
+            .to = static_cast<uint32_t>(next),
+          };
           ImGui::ResetMouseDragDelta();
         }
       }
@@ -117,8 +121,6 @@ void inspectPostProcessEffects(
       inspect(effect);
     }
     ImGui::PopID();
-
-    ++i;
   }
 
   if (request) {

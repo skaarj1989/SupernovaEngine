@@ -30,7 +30,7 @@ namespace {
     .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
     .flags = 0,
     .maxSets = DescriptorPool::kSetsPerPool,
-    .poolSizeCount = kPoolSizes.size(),
+    .poolSizeCount = static_cast<uint32_t>(kPoolSizes.size()),
     .pPoolSizes = kPoolSizes.data(),
   };
   VkDescriptorPool descriptorPool{VK_NULL_HANDLE};
@@ -115,7 +115,7 @@ void DescriptorSetAllocator::_destroy() noexcept {
 }
 
 DescriptorPool &DescriptorSetAllocator::_createPool() {
-  m_lastPoolIndex = m_descriptorPools.size();
+  m_lastPoolIndex = static_cast<int32_t>(m_descriptorPools.size());
   const auto descriptorPool = createDescriptorPool(m_device);
   return m_descriptorPools.emplace_back(descriptorPool);
 }

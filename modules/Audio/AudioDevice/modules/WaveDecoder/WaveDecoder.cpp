@@ -81,7 +81,10 @@ fsec WaveDecoder::tell() {
   return fsec{isOpen() ? _getSampleOffset() / m_info.byteRate() : 0.0f};
 }
 void WaveDecoder::seek(const fsec offset) {
-  if (isOpen()) _setSampleOffset(offset.count() * m_info.byteRate());
+  if (isOpen()) {
+    _setSampleOffset(
+      static_cast<std::size_t>(offset.count() * m_info.byteRate()));
+  }
 }
 
 std::size_t WaveDecoder::read(std::byte *buffer, const std::size_t length) {

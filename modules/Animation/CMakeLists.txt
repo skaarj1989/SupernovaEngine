@@ -76,5 +76,6 @@ target_link_libraries(Animation
   PUBLIC Resource ozz_geometry ozz_animation
 )
 set_target_properties(Animation PROPERTIES FOLDER "Framework")
+set_warning_level(Animation)
 
 add_subdirectory(modules)

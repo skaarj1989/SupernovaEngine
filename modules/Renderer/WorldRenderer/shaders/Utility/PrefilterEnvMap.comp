@@ -8,7 +8,7 @@ layout(binding = 1,
        rgba16f) uniform writeonly imageCube i_Output[NUM_MIP_LEVELS];
 
 layout(push_constant) uniform _PushConstants {
-  int mipLevel;
+  uint mipLevel;
   float roughness;
   float lodBias;
 }

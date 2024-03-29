@@ -48,6 +48,14 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release;Distribution")
 set(CMAKE_CXX_FLAGS_DISTRIBUTION "/GS- /Gy /O2 /Oi /Ot")
 set(CMAKE_EXE_LINKER_FLAGS_DISTRIBUTION "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
 
+function(SET_WARNING_LEVEL)
+  if(MSVC)
+    target_compile_options(${ARGV0} PRIVATE /W4)
+  else()
+    # TODO ...
+  endif()
+endfunction()
+
 function(SET_DEBUGGER_WORKING_DIRECTORY)
   set_target_properties(${ARGV0} PROPERTIES
     VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/")

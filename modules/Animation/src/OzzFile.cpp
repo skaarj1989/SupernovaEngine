@@ -33,7 +33,7 @@ size_t OzzFileWrapper::Read(void *buffer, size_t size) {
 }
 size_t OzzFileWrapper::Write(const void *, size_t) {
   assert(false); // Readonly.
-  return -1;
+  return 0;
 }
 
 int OzzFileWrapper::Seek(int offset, Origin origin) {

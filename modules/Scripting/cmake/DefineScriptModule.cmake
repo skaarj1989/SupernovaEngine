@@ -12,6 +12,7 @@ function(DEFINE_SCRIPT_MODULE)
       PUBLIC ${ARGS_TARGET} ${ARGS_LIBRARIES} MetaHelper sol2::sol2
     )
     set_target_properties(${TARGET_NAME} PROPERTIES FOLDER "Framework/ScriptingModules")
+    set_warning_level(${TARGET_NAME})
   endif()
 endfunction()
 

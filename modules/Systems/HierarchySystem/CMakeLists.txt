@@ -10,3 +10,4 @@ target_link_libraries(HierarchySystem
   PUBLIC RelationshipComponents
 )
 set_target_properties(HierarchySystem PROPERTIES FOLDER "Framework/Systems")
+set_warning_level(HierarchySystem)

@@ -34,7 +34,7 @@ bool inspect(const char *label, uint8_t &mask) {
   }
   attachPopup(nullptr, ImGuiMouseButton_Right, [&mask, &dirty] {
     if (ImGui::MenuItem("Select all")) {
-      mask = ~0;
+      mask = std::numeric_limits<decltype(CollisionLayer::mask)>::max();
       dirty = true;
     }
     if (ImGui::MenuItem("Clear")) {

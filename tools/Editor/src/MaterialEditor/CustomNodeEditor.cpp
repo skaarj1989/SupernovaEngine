@@ -167,9 +167,11 @@ showDependencyConfig(std::vector<UserFunction::ID> &dependencies,
     return "FS";
   case Vertex | Fragment:
     return "VS|FS";
+
+  default:
+    assert(false);
+    return "-";
   }
-  assert(false);
-  return "-";
 }
 
 void sanitize(std::vector<UserFunction::ID> &dependencies,
@@ -512,7 +514,7 @@ void CustomNodeEditor::_setData(UserFunction::ID id, UserFunction::Data *data) {
   _load(data ? data->code : "");
   m_functionId = data ? std::make_optional(id) : std::nullopt;
 }
-void CustomNodeEditor::_reset() { _setData(-1, nullptr); }
+void CustomNodeEditor::_reset() { _setData(0, nullptr); }
 
 //
 // CustomNodeWidget class:

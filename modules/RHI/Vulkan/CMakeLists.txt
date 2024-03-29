@@ -156,7 +156,7 @@ target_link_libraries(VulkanRHI
   spdlog::spdlog
 )
 set_target_properties(VulkanMemoryAllocator VulkanRHI PROPERTIES FOLDER "Framework/RHI/Vulkan")
-
+set_warning_level(VulkanRHI)
 enable_profiler(VulkanRHI PUBLIC)
 
 add_subdirectory(example)

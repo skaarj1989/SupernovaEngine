@@ -335,7 +335,7 @@ std::vector<Cascade> ShadowRenderer::_buildCascadedShadowMaps(
                   settings.lambda, settings.shadowMapSize);
   auto &shadowMaps = blackboard.get<ShadowMapData>().cascadedShadowMaps;
 
-  for (auto [i, cascade] : std::views::enumerate(cascades)) {
+  for (auto [i, cascade] : cascades | std::views::enumerate) {
     auto visibleShadowCasters = getVisibleShadowCasters(
       renderables, [frustum = Frustum{cascade.lightView.viewProjection()}](
                      const AABB &aabb) { return frustum.testAABB(aabb); });
@@ -344,7 +344,7 @@ std::vector<Cascade> ShadowRenderer::_buildCascadedShadowMaps(
     // The first iteration is responsible for creation of the shadowmap.
     // (Texture2DArray)
     shadowMaps = _addCascadePass(
-      fg, blackboard, i, shadowMaps, cascade.lightView,
+      fg, blackboard, static_cast<uint32_t>(i), shadowMaps, cascade.lightView,
       std::move(visibleShadowCasters), propertyGroupOffsets, settings);
   }
   assert(shadowMaps);
@@ -421,7 +421,7 @@ std::vector<glm::mat4> ShadowRenderer::_buildSpotLightShadowMaps(
   auto &shadowMaps = blackboard.get<ShadowMapData>().spotLightShadowMaps;
   std::vector<glm::mat4> shadowMatrices;
 
-  for (auto [i, spotLight] : std::views::enumerate(lights)) {
+  for (auto [i, spotLight] : lights | std::views::enumerate) {
     assert(spotLight && spotLight->type == LightType::Spot);
     if (i >= settings.maxNumShadows) break;
 
@@ -435,13 +435,11 @@ std::vector<glm::mat4> ShadowRenderer::_buildSpotLightShadowMaps(
 
     sortByMaterial(visibleShadowCasters);
 
-    shadowMaps = _addSpotLightPass(fg, blackboard, i, shadowMaps, lightView,
-                                   std::move(visibleShadowCasters),
-                                   propertyGroupOffsets, settings);
+    shadowMaps = _addSpotLightPass(
+      fg, blackboard, static_cast<uint32_t>(i), shadowMaps, lightView,
+      std::move(visibleShadowCasters), propertyGroupOffsets, settings);
     shadowMatrices.emplace_back(std::move(lightViewProjection));
     shadowIndices.emplace_back(spotLight, i);
-
-    ++i;
   }
   return shadowMatrices;
 }
@@ -510,7 +508,7 @@ void ShadowRenderer::_buildOmniLightShadowMaps(
   ZoneScopedN("BuildOmniShadowMaps");
 
   auto &shadowMaps = blackboard.get<ShadowMapData>().omniShadowMaps;
-  for (auto [i, pointLight] : std::views::enumerate(visibleLights)) {
+  for (auto [i, pointLight] : visibleLights | std::views::enumerate) {
     assert(pointLight && pointLight->type == LightType::Point);
     if (i >= settings.maxNumShadows) break;
 
@@ -520,14 +518,13 @@ void ShadowRenderer::_buildOmniLightShadowMaps(
       });
     if (shadowCastersInRange.empty()) continue;
 
-    for (auto face = 0; face < 6; ++face) {
+    for (auto face = 0u; face < 6; ++face) {
       shadowMaps = _addOmniLightPass(
-        fg, blackboard, i, static_cast<rhi::CubeFace>(face), shadowMaps,
-        *pointLight, shadowCastersInRange, propertyGroupOffsets, settings);
+        fg, blackboard, static_cast<uint32_t>(i),
+        static_cast<rhi::CubeFace>(face), shadowMaps, *pointLight,
+        shadowCastersInRange, propertyGroupOffsets, settings);
     }
     indices.emplace_back(pointLight, i);
-
-    ++i;
   }
 }
 

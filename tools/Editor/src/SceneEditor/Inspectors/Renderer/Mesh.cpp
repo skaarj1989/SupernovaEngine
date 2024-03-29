@@ -12,7 +12,7 @@
 
 namespace {
 
-void onInspect(const int32_t index, gfx::SubMeshInstance &subMeshInstance) {
+void onInspect(const uint32_t index, gfx::SubMeshInstance &subMeshInstance) {
   const auto &material = subMeshInstance.material;
   const auto materialResource =
     std::dynamic_pointer_cast<Resource>(material.getPrototype());
@@ -21,7 +21,7 @@ void onInspect(const int32_t index, gfx::SubMeshInstance &subMeshInstance) {
   ImGui::SameLine();
 
   const auto treeOpened = ImGui::TreeNode(
-    &subMeshInstance, ICON_FA_FILE " [%d] %s", index,
+    &subMeshInstance, ICON_FA_FILE " [%u] %s", index,
     materialResource ? toString(*materialResource).c_str() : "(none)");
 
   if (ImGui::BeginDragDropTarget()) {
@@ -55,7 +55,7 @@ void onInspect(const int32_t index, gfx::SubMeshInstance &subMeshInstance) {
   }
 }
 
-template <class T> void onInspect(entt::handle h, T &instance) {
+template <class T> void onInspect(const entt::handle h, T &instance) {
   const auto meshResource =
     std::dynamic_pointer_cast<Resource>(instance.getPrototype());
 
@@ -87,11 +87,10 @@ template <class T> void onInspect(entt::handle h, T &instance) {
     ImGui::Separator();
     ImGui::Spacing();
 
-    for (auto [i, subMesh] : std::views::enumerate(instance.each())) {
-      ImGui::PushID(i);
-      onInspect(i, subMesh);
+    for (auto [i, subMesh] : instance.each() | std::views::enumerate) {
+      ImGui::PushID(static_cast<int32_t>(i));
+      onInspect(static_cast<uint32_t>(i), subMesh);
       ImGui::PopID();
-      ++i;
     }
   }
 }

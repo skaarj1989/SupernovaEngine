@@ -22,7 +22,7 @@ enum class ShaderStages : VkShaderStageFlags {
 };
 
 [[nodiscard]] ShaderStages getStage(const ShaderType);
-[[nodiscard]] uint32_t countStages(const ShaderStages);
+[[nodiscard]] uint8_t countStages(const ShaderStages);
 
 } // namespace rhi
 

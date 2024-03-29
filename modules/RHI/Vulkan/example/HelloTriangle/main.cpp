@@ -5,7 +5,7 @@
 #include "glm/ext/vector_float3.hpp"
 #include "spdlog/spdlog.h"
 
-int main(int argc, char *argv[]) {
+int main(int, char *[]) {
 #if WIN32 && _DEBUG
   _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
   _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
@@ -151,7 +151,7 @@ void main() {
         .bindPipeline(graphicsPipeline)
         .draw({
           .vertexBuffer = &vertexBuffer,
-          .numVertices = kTriangle.size(),
+          .numVertices = static_cast<uint32_t>(kTriangle.size()),
         })
         .endRendering()
         .getBarrierBuilder()

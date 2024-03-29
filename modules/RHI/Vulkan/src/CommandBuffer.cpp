@@ -710,12 +710,13 @@ void CommandBuffer::_destroy() noexcept {
 void CommandBuffer::_chunkedUpdate(const VkBuffer bufferHandle,
                                    VkDeviceSize offset, VkDeviceSize size,
                                    const void *data) {
-  const auto numChunks = uint32_t(std::ceil(float(size) / float(kMaxDataSize)));
+  const auto numChunks =
+    static_cast<VkDeviceSize>(std::ceil(float(size) / float(kMaxDataSize)));
   assert(numChunks > 1);
 
   auto *bytes = static_cast<const std::byte *>(data);
-  for (auto i = 0; i < numChunks; ++i) {
-    const auto chunkSize = uint32_t(std::min(size, kMaxDataSize));
+  for (auto i = 0u; i < numChunks; ++i) {
+    const auto chunkSize = std::min(size, kMaxDataSize);
     vkCmdUpdateBuffer(m_handle, bufferHandle, offset, chunkSize, bytes);
 
     bytes += chunkSize;

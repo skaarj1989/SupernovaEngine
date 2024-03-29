@@ -10,5 +10,6 @@ target_link_libraries(ImGuiRenderer
   PUBLIC VulkanRHI imgui::imgui
 )
 set_target_properties(ImGuiRenderer PROPERTIES FOLDER "Framework/Renderer/")
+set_warning_level(ImGuiRenderer)
 
 add_dependencies(ImGuiRenderer Copy-UIShaders)

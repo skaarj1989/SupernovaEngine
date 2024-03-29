@@ -344,6 +344,8 @@ set_target_properties(Editor PROPERTIES
   FOLDER "Tools"
   VS_DEBUGGER_COMMAND_ARGUMENTS "../../projects/Samples/Samples.project"
 )
+set_warning_level(Editor)
+
 group_msvc_project(TARGET Editor)
 set_debugger_working_directory(Editor)
 

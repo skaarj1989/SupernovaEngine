@@ -22,5 +22,5 @@ target_compile_definitions(Math PUBLIC GLM_FORCE_RADIANS GLM_FORCE_DEPTH_ZERO_TO
 target_include_directories(Math PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(Math PUBLIC glm::glm)
 set_target_properties(Math PROPERTIES FOLDER "Framework")
-
+set_warning_level(Math)
 enable_profiler(Math PRIVATE)

@@ -22,7 +22,9 @@ public:
 
   RenderDevice &getRenderDevice() const { return m_renderDevice; }
 
-  [[nodiscard]] uint32_t count() const { return m_pipelines.size(); }
+  [[nodiscard]] auto count() const {
+    return static_cast<uint32_t>(m_pipelines.size());
+  }
   void clear() { m_pipelines.clear(); }
 
 protected:

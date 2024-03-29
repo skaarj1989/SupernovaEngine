@@ -7,5 +7,6 @@ target_link_libraries(NuklearRenderer
   PUBLIC VulkanRHI Nuklear
 )
 set_target_properties(NuklearRenderer PROPERTIES FOLDER "Framework/Renderer/")
+set_warning_level(NuklearRenderer)
 
 add_dependencies(NuklearRenderer Copy-UIShaders)

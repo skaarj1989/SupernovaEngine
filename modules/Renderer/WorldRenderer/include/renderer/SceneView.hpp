@@ -10,7 +10,7 @@ class Texture;
 
 namespace gfx {
 class PerspectiveCamera;
-class RenderSettings;
+struct RenderSettings;
 struct SkyLight;
 
 struct SceneView {

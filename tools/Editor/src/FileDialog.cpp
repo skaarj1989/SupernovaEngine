@@ -252,7 +252,7 @@ showFileDialog(const char *name, const FileDialogSettings &settings) {
       if (const auto button =
             showMessageBox<ModalButtons::Yes | ModalButtons::Cancel>(
               kConfirmOverwrite, "Overwrite this file?");
-          button && *button == ModalButton::Yes) {
+          button == ModalButton::Yes) {
         assert(!label.empty());
         result.emplace(settings.dir / label);
       }

@@ -7,3 +7,4 @@ target_link_libraries(PhysicsSystem
   PUBLIC SystemCommon JoltPhysics
 )
 set_target_properties(PhysicsSystem PROPERTIES FOLDER "Framework/Systems")
+set_warning_level(PhysicsSystem)

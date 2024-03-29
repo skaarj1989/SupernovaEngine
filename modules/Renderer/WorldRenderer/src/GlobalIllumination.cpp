@@ -286,7 +286,7 @@ void GlobalIllumination::update(
 
   std::optional<LightPropagationVolumesData> LPV;
   numPropagations = glm::clamp(numPropagations, 1u, kMaxNumPropagations);
-  for (auto i = 0; i < numPropagations; ++i) {
+  for (auto i = 0u; i < numPropagations; ++i) {
     LPV = _addRadiancePropagationPass(fg, sceneGridBlock,
                                       LPV.value_or(radiance), grid.size, i);
   }

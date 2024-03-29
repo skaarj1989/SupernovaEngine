@@ -25,16 +25,16 @@ struct ClipInfo {
   uint32_t sampleRate{0}; // = Frequency in Hz, samples per second.
   std::size_t numSamples{0};
 
-  [[nodiscard]] constexpr auto blockAlign() const {
-    return std::to_underlying(numChannels) * bitsPerSample / 8;
+  [[nodiscard]] constexpr uint32_t blockAlign() const {
+    return std::to_underlying(numChannels) * bitsPerSample / 8u;
   }
   // @return Stride.
-  [[nodiscard]] constexpr auto byteRate() const {
+  [[nodiscard]] constexpr uint32_t byteRate() const {
     return sampleRate * blockAlign();
   }
 
   // @returns Value in bytes.
-  [[nodiscard]] constexpr auto dataSize() const {
+  [[nodiscard]] constexpr std::size_t dataSize() const {
     return numSamples * blockAlign();
   }
   [[nodiscard]] constexpr auto duration() const {
@@ -43,12 +43,13 @@ struct ClipInfo {
   }
 };
 
-[[nodiscard]] constexpr auto align(const int32_t size, const ClipInfo &info) {
+[[nodiscard]] constexpr auto align(const std::size_t size,
+                                   const ClipInfo &info) {
   return size - (size % info.blockAlign());
 }
 [[nodiscard]] constexpr auto calcBufferSize(const fsec duration,
                                             const ClipInfo &info) {
-  return align(duration.count() * info.byteRate(), info);
+  return align(static_cast<uint32_t>(duration.count() * info.byteRate()), info);
 }
 
 } // namespace audio

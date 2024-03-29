@@ -146,7 +146,7 @@ void LoggerWidget::show(const char *name, bool *open) {
 
 #if USE_CLIPPER
     ImGuiListClipper clipper;
-    clipper.Begin(m_entries.size());
+    clipper.Begin(static_cast<int32_t>(m_entries.size()));
     while (clipper.Step()) {
       std::optional<float> lastCursorPosX;
       for (auto i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {

@@ -23,3 +23,4 @@ target_link_libraries(Scene
   ScriptSystem
 )
 set_target_properties(Scene PROPERTIES FOLDER "Framework")
+set_warning_level(Scene)

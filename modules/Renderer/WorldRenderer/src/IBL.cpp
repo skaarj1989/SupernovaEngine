@@ -276,9 +276,9 @@ rhi::Texture IBL::PrefilterGenerator::generate(rhi::CommandBuffer &cb,
 
   cb.bindPipeline(*pipeline).bindDescriptorSet(kDescriptorSetId, descriptors);
 
-  for (int32_t level{0}; level < numMipLevels; ++level) {
+  for (auto level = 0u; level < numMipLevels; ++level) {
     struct Uniforms {
-      int32_t mipLevel;
+      uint32_t mipLevel;
       float roughness;
       float lodBias{kLodBias};
     };

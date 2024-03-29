@@ -10,6 +10,7 @@ add_library(Window
 target_include_directories(Window PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(Window PUBLIC EnTT::EnTT Platform InputEvents)
 set_target_properties(Window PROPERTIES FOLDER "Framework/OS")
+set_warning_level(Window)
 
 if(WIN32)
   target_sources(Window PRIVATE "src/Win32Window.cpp" "src/Win32Monitor.cpp")

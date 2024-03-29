@@ -7,7 +7,7 @@
 
 class ScriptComponent {
   // Initializes m_scriptNode (when emplaced to a registry).
-  friend class ScriptSystem;
+  friend struct ScriptSystem;
 
   // Access to m_scriptNode.self inside a lua script.
   friend void registerScriptComponent(sol::state &);

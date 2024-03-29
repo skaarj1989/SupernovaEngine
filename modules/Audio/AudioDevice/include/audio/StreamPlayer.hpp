@@ -39,7 +39,7 @@ public:
 
 private:
   void _start();
-  [[nodiscard]] int32_t _read();
+  [[nodiscard]] uint32_t _read();
 
 private:
   std::vector<ALuint> m_buffers;

@@ -2,7 +2,7 @@
 
 #include "glm/fwd.hpp"
 
-class AABB;
+struct AABB;
 class Transform;
 
 namespace JPH {

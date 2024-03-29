@@ -7,3 +7,4 @@ target_link_libraries(UISystem
     PUBLIC SystemCommon UIComponent
 )
 set_target_properties(UISystem PROPERTIES FOLDER "Framework/Systems")
+set_warning_level(UISystem)

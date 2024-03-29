@@ -26,8 +26,9 @@ void setupIcons(ImFontAtlas &fonts, const std::filesystem::path &dir,
 
   for (const auto fontName : filenames) {
     if (auto buffer = os::FileSystem::readBuffer(dir / fontName); buffer) {
-      fonts.AddFontFromMemoryTTF(buffer->data.release(), buffer->size,
-                                 kFontSize, &iconsConfig, kGlyphRanges.data());
+      fonts.AddFontFromMemoryTTF(buffer->data.release(),
+                                 static_cast<int32_t>(buffer->size), kFontSize,
+                                 &iconsConfig, kGlyphRanges.data());
     }
   }
   fonts.Build();
@@ -126,7 +127,7 @@ void ImGuiApp::_onInput(const os::InputEvent &evt) {
     evt);
 }
 
-void ImGuiApp::_onMouseMove(const os::MouseMoveEvent &evt) {
+void ImGuiApp::_onMouseMove([[maybe_unused]] const os::MouseMoveEvent &evt) {
 #if !defined(IMGUI_HAS_VIEWPORT)
   if (getWindow().hasFocus()) {
     auto &io = ImGui::GetIO();
@@ -172,7 +173,7 @@ void ImGuiApp::_onPostUpdate(fsec dt) {
 #endif
 }
 void ImGuiApp::_onRender(rhi::CommandBuffer &cb,
-                         const rhi::RenderTargetView rtv, const fsec dt) {
+                         const rhi::RenderTargetView rtv, const fsec) {
   constexpr auto kClearColor = glm::vec3{0.0f};
   drawGui(cb, rtv, glm::vec4{kClearColor, 1.0f});
 }

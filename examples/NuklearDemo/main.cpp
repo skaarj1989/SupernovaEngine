@@ -48,7 +48,7 @@ private:
   }
 
   void _onRender(rhi::CommandBuffer &cb, const rhi::RenderTargetView rtv,
-                 const fsec dt) override {
+                 const fsec) override {
     drawGui(cb, rtv, m_clearColor);
   }
 

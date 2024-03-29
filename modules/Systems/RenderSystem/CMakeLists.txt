@@ -7,3 +7,4 @@ target_link_libraries(RenderSystem
   PUBLIC SystemCommon CameraComponent
 )
 set_target_properties(RenderSystem PROPERTIES FOLDER "Framework/Systems")
+set_warning_level(RenderSystem)

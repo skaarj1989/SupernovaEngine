@@ -62,8 +62,8 @@ VorbisDecoder::VorbisDecoder(std::unique_ptr<os::DataStream> &&dataStream)
   m_info = {
     .numChannels = static_cast<NumChannels>(vi->channels),
     .bitsPerSample = 16,
-    .sampleRate = uint32_t(vi->rate),
-    .numSamples = std::size_t(ov_pcm_total(&m_vf, -1)),
+    .sampleRate = static_cast<uint32_t>(vi->rate),
+    .numSamples = static_cast<std::size_t>(ov_pcm_total(&m_vf, -1)),
   };
 }
 VorbisDecoder::~VorbisDecoder() { ov_clear(&m_vf); }

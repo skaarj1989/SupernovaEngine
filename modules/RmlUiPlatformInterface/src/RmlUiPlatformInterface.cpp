@@ -295,7 +295,7 @@ void processEvent(Rml::Context &ctx, const os::InputEvent &evt) {
                  }
                },
                [&ctx](const os::InputCharacterEvent &evt_) {
-                 ctx.ProcessTextInput(evt_.c);
+                 ctx.ProcessTextInput(static_cast<Rml::Character>(evt_.c));
                },
              },
              evt);

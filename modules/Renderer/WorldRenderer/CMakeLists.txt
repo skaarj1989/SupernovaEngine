@@ -306,6 +306,8 @@ target_link_libraries(WorldRenderer
   fg::FrameGraph
 )
 set_target_properties(WorldRenderer PROPERTIES FOLDER "Framework/Renderer")
+set_warning_level(WorldRenderer)
+
 group_msvc_project(TARGET WorldRenderer)
 
 add_resources(

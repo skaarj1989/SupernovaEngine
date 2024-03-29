@@ -1,9 +1,15 @@
 #include "renderer/MeshLoader.hpp"
 #include "rhi/RenderDevice.hpp"
 #include "os/FileSystem.hpp"
+
+#pragma warning(push)
+// unreferenced function with internal linkage has been removed
+#pragma warning(disable : 4505)
 #include "rhi/json.hpp"
 #include "renderer/jsonVertexFormat.hpp"
 #include "renderer/jsonMaterial.hpp"
+#pragma warning(pop)
+
 #include "spdlog/spdlog.h"
 
 using namespace nlohmann;
@@ -26,7 +32,7 @@ struct BufferMeta {
   struct Info {
     std::size_t byteOffset{0};
     std::size_t count{0};
-    std::size_t stride{0};
+    rhi::Buffer::Stride stride{0};
     [[nodiscard]] constexpr auto dataSize() const { return stride * count; }
 
     [[nodiscard]] rhi::Buffer createStagingBuffer(rhi::RenderDevice &rd,

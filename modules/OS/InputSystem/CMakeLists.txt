@@ -12,3 +12,4 @@ elseif(LINUX)
 endif()
 
 set_target_properties(InputSystem PROPERTIES FOLDER "Framework/OS")
+set_warning_level(InputSystem)

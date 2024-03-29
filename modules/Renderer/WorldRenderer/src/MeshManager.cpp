@@ -29,18 +29,19 @@ MeshManager::MeshManager(rhi::RenderDevice &rd,
 
   // -- Fill staging VertexBuffer:
 
+  using VertexT = Vertex1p1n1st;
+
   const auto numVertices = planeVertices.size() +
                            subdividedPlane.vertices.size() +
                            cubeVertices.size() + sphere.vertices.size();
-  const auto vertexDataSize = sizeof(Vertex1p1n1st) * numVertices;
+  const auto vertexDataSize = sizeof(VertexT) * numVertices;
   auto stagingVertexBuffer = rd.createStagingBuffer(vertexDataSize);
-  auto vertices = static_cast<Vertex1p1n1st *>(stagingVertexBuffer.map());
+  auto *vertices = static_cast<VertexT *>(stagingVertexBuffer.map());
 
-  auto vertexOffset = 0;
-  const auto copyVertices = [&](const auto &src) {
-    memcpy(vertices + vertexOffset, src.data(),
-           src.size() * sizeof(Vertex1p1n1st));
-    vertexOffset += src.size();
+  uint32_t vertexOffset{0};
+  const auto copyVertices = [&](const std::span<const VertexT> src) {
+    memcpy(vertices + vertexOffset, src.data(), src.size() * sizeof(VertexT));
+    vertexOffset += static_cast<uint32_t>(src.size());
     return vertexOffset;
   };
 
@@ -53,16 +54,18 @@ MeshManager::MeshManager(rhi::RenderDevice &rd,
 
   // -- Fill staging IndexBuffer:
 
+  using IndexT = uint16_t;
+
   const auto numIndices =
     subdividedPlane.indices.size() + sphere.indices.size();
-  const auto indexDataSize = sizeof(uint16_t) * numIndices;
+  const auto indexDataSize = sizeof(IndexT) * numIndices;
   auto stagingIndexBuffer = rd.createStagingBuffer(indexDataSize);
-  auto indices = static_cast<uint16_t *>(stagingIndexBuffer.map());
+  auto *indices = static_cast<IndexT *>(stagingIndexBuffer.map());
 
-  auto indexOffset = 0;
+  uint32_t indexOffset{0};
   const auto copyIndices = [&](const auto &src) {
-    memcpy(indices + indexOffset, src.data(), src.size() * sizeof(uint16_t));
-    indexOffset += src.size();
+    memcpy(indices + indexOffset, src.data(), src.size() * sizeof(IndexT));
+    indexOffset += static_cast<uint32_t>(src.size());
     return indexOffset;
   };
 
@@ -74,7 +77,7 @@ MeshManager::MeshManager(rhi::RenderDevice &rd,
   // -- Copy data to GPU:
 
   auto vertexBuffer = std::make_shared<rhi::VertexBuffer>(
-    rd.createVertexBuffer(sizeof(Vertex1p1n1st), numVertices));
+    rd.createVertexBuffer(sizeof(VertexT), numVertices));
   auto indexBuffer = std::make_shared<rhi::IndexBuffer>(
     rd.createIndexBuffer(rhi::IndexType::UInt16, numIndices));
 
@@ -85,7 +88,7 @@ MeshManager::MeshManager(rhi::RenderDevice &rd,
 
   // ---
 
-  auto vertexFormat = Vertex1p1n1st::getVertexFormat();
+  auto vertexFormat = VertexT::getVertexFormat();
 
   auto defaultMaterial = m_materialManager[MaterialManager::kDefault].handle();
 
@@ -93,7 +96,8 @@ MeshManager::MeshManager(rhi::RenderDevice &rd,
          Mesh::Builder{}
            .setVertexFormat(vertexFormat)
            .setVertexBuffer(vertexBuffer)
-           .beginSubMesh(0, planeVertices.size(), defaultMaterial,
+           .beginSubMesh(0, static_cast<uint32_t>(planeVertices.size()),
+                         defaultMaterial,
                          {
                            .min = {-kPlaneSize, 0.0f, -kPlaneSize},
                            .max = {kPlaneSize, 0.0f, kPlaneSize},
@@ -107,38 +111,43 @@ MeshManager::MeshManager(rhi::RenderDevice &rd,
            .setIndexBuffer(indexBuffer)
            .setTopology(rhi::PrimitiveTopology::TriangleStrip)
            .beginSubMesh(subdividedPlaneVertexOffset,
-                         subdividedPlane.vertices.size(), defaultMaterial,
+                         static_cast<uint32_t>(subdividedPlane.vertices.size()),
+                         defaultMaterial,
                          {
                            .min = {-kPlaneSize, 0.0f, -kPlaneSize},
                            .max = {kPlaneSize, 0.0f, kPlaneSize},
                          })
-           .addLOD(0, subdividedPlane.indices.size())
+           .addLOD(0, static_cast<uint32_t>(subdividedPlane.indices.size()))
            .build());
 
   import(BasicShapes::Cube.data(),
          Mesh::Builder{}
            .setVertexFormat(vertexFormat)
            .setVertexBuffer(vertexBuffer)
-           .beginSubMesh(cubeVertexOffset, cubeVertices.size(), defaultMaterial,
+           .beginSubMesh(cubeVertexOffset,
+                         static_cast<uint32_t>(cubeVertices.size()),
+                         defaultMaterial,
                          {
                            .min = glm::vec3{-kCubeSize},
                            .max = glm::vec3{kCubeSize},
                          })
            .build());
 
-  import(BasicShapes::Sphere.data(),
-         Mesh::Builder{}
-           .setVertexFormat(vertexFormat)
-           .setVertexBuffer(vertexBuffer)
-           .setIndexBuffer(indexBuffer)
-           .beginSubMesh(sphereVertexOffset, uint32_t(sphere.vertices.size()),
-                         defaultMaterial,
-                         {
-                           .min = glm::vec3{-kSphereRadius},
-                           .max = glm::vec3{kSphereRadius},
-                         })
-           .addLOD(sphereIndexOffset, uint32_t(sphere.indices.size()))
-           .build());
+  import(
+    BasicShapes::Sphere.data(),
+    Mesh::Builder{}
+      .setVertexFormat(vertexFormat)
+      .setVertexBuffer(vertexBuffer)
+      .setIndexBuffer(indexBuffer)
+      .beginSubMesh(sphereVertexOffset,
+                    static_cast<uint32_t>(sphere.vertices.size()),
+                    defaultMaterial,
+                    {
+                      .min = glm::vec3{-kSphereRadius},
+                      .max = glm::vec3{kSphereRadius},
+                    })
+      .addLOD(sphereIndexOffset, static_cast<uint32_t>(sphere.indices.size()))
+      .build());
 }
 
 bool MeshManager::isBuiltIn(const std::filesystem::path &p) const {

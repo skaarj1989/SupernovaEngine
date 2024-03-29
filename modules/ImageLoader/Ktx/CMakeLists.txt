@@ -7,3 +7,4 @@ target_link_libraries(KTXLoader
   PUBLIC VulkanRHI
 )
 set_target_properties(KTXLoader PROPERTIES FOLDER "Framework")
+set_warning_level(KTXLoader)

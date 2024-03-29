@@ -65,7 +65,7 @@ void view(gfx::TextureCache &cache, const float windowWidth,
           showMessageBox<ModalButtons::Yes | ModalButtons::Cancel>(
             kConfirmDestructionId,
             "Do you really want to remove the resource?");
-        button && *button == ModalButton::Yes) {
+        button == ModalButton::Yes) {
       junk = id;
     }
 

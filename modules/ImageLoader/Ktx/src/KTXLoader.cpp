@@ -93,7 +93,7 @@ KTX_error_code optimalTilingPadCallback(int miplevel, int face, int width,
 
     rowPitch = width * ud->elementSize;
     const auto paddedRowPitch = _KTX_PAD_UNPACK_ALIGN(rowPitch);
-    for (auto image = 0; image < imageIterations; ++image) {
+    for (auto image = 0u; image < imageIterations; ++image) {
       for (auto row = 0; row < height; ++row) {
         std::memcpy(ud->dest + ud->offset, pixels, rowPitch);
         ud->offset += rowPitch;

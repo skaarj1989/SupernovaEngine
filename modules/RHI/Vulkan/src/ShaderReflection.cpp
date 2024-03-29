@@ -78,7 +78,8 @@ void ShaderReflection::accumulate(SPIRV &&spv) {
     VkPushConstantRange range{.stageFlags = stageFlag, .offset = 0, .size = 0};
     for (auto i = 0u; i < type.member_types.size(); ++i) {
       if (i == 0) range.offset = compiler.type_struct_member_offset(type, i);
-      range.size += compiler.get_declared_struct_member_size(type, i);
+      range.size += static_cast<uint32_t>(
+        compiler.get_declared_struct_member_size(type, i));
     }
     pushConstantRanges.emplace_back(range);
   }

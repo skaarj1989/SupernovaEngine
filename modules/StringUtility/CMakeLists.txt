@@ -5,3 +5,4 @@ add_library(StringUtility
 )
 target_include_directories(StringUtility PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set_target_properties(StringUtility PROPERTIES FOLDER "Framework/")
+set_warning_level(StringUtility)

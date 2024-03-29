@@ -429,7 +429,7 @@ RenderDevice::createPipelineLayout(const PipelineLayoutInfo &layoutInfo) {
     kMinNumDescriptorSets);
 
   for (auto [set, bindings] :
-       std::views::enumerate(layoutInfo.descriptorSets)) {
+       layoutInfo.descriptorSets | std::views::enumerate) {
     for (const auto &binding : bindings) {
       hashCombine(hash, set, binding);
     }

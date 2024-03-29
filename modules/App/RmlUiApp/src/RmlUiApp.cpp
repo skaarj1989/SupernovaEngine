@@ -73,7 +73,7 @@ void RmlUiApp::_onInput(const os::InputEvent &evt) {
 void RmlUiApp::_onUpdate(fsec) { m_context->Update(); }
 
 void RmlUiApp::_onRender(rhi::CommandBuffer &cb,
-                         const rhi::RenderTargetView rtv, const fsec dt) {
+                         const rhi::RenderTargetView rtv, const fsec) {
   constexpr auto kClearColor = glm::vec3{0.0f};
   drawGui(cb, rtv, glm::vec4{kClearColor, 1.0f});
 }

@@ -155,7 +155,7 @@ void ScriptEditor::show(const char *name, bool *popen) {
         }
       }
     }
-    for (auto [i, entry] : std::views::enumerate(m_scripts)) {
+    for (auto [i, entry] : m_scripts | std::views::enumerate) {
       const auto label = std::format("{}##{}", makeLabel(entry.path), i);
       auto open = true;
       ImGuiTabItemFlags flags = entry.isChanged()

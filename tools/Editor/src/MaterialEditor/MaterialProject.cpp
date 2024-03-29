@@ -533,10 +533,10 @@ MaterialProject::_getReverseDependencyList(const UserFunction::ID id) const {
     stack.pop();
 
     out.insert(currentFunctionId);
-    for (const auto &[id, data] : m_userFunctions) {
+    for (const auto &[id_, data] : m_userFunctions) {
       if (std::ranges::find(data->dependencies, currentFunctionId) !=
           data->dependencies.cend()) {
-        stack.push(id);
+        stack.push(id_);
       }
     }
   }

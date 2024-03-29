@@ -27,16 +27,15 @@ const rhi::VertexAttributes &VertexFormat::getAttributes() const {
   return m_attributes;
 }
 bool VertexFormat::contains(const AttributeLocation location) const {
-  return m_attributes.contains(rhi::LocationIndex(location));
+  return m_attributes.contains(static_cast<rhi::LocationIndex>(location));
 }
 bool VertexFormat::contains(
   std::initializer_list<AttributeLocation> locations) const {
-  return std::ranges::all_of(
-    std::cbegin(locations), std::cend(locations), [this](auto location) {
-      return std::ranges::any_of(
-        m_attributes.cbegin(), m_attributes.cend(),
-        [v = int32_t(location)](const auto &p) { return p.first == v; });
+  return std::ranges::all_of(locations, [this](const auto required) {
+    return std::ranges::any_of(m_attributes, [required](const auto &p) {
+      return p.first == static_cast<rhi::LocationIndex>(required);
     });
+  });
 }
 
 VertexFormat::VertexStride VertexFormat::getStride() const { return m_stride; }

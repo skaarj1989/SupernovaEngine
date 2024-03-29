@@ -124,14 +124,12 @@ public:
 
   uint32_t GetNumBroadPhaseLayers() const override { return 1; }
 
-  JPH::BroadPhaseLayer
-  GetBroadPhaseLayer(JPH::ObjectLayer layer) const override {
+  JPH::BroadPhaseLayer GetBroadPhaseLayer(JPH::ObjectLayer) const override {
     return JPH::BroadPhaseLayer{};
   }
 
 #if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
-  const char *
-  GetBroadPhaseLayerName(JPH::BroadPhaseLayer layer) const override {
+  const char *GetBroadPhaseLayerName(JPH::BroadPhaseLayer) const override {
     return "Default";
   }
 #endif
@@ -446,12 +444,11 @@ void PhysicsWorld::OnContactRemoved(const JPH::SubShapeIDPair &subShapeIDPair) {
       },
   });
 }
-void PhysicsWorld::OnContactAdded(const JPH::CharacterVirtual *character,
-                                  const JPH::BodyID &body2,
-                                  const JPH::SubShapeID &subShape2,
-                                  JPH::RVec3Arg contactPosition,
-                                  JPH::Vec3Arg contactNormal,
-                                  JPH::CharacterContactSettings &) {
+void PhysicsWorld::OnContactAdded(
+  const JPH::CharacterVirtual *character, const JPH::BodyID &body2,
+  [[maybe_unused]] const JPH::SubShapeID &subShape2,
+  JPH::RVec3Arg contactPosition, JPH::Vec3Arg contactNormal,
+  JPH::CharacterContactSettings &) {
   if (!isNewContact(character->GetActiveContacts(), body2)) return;
 
   ZoneScoped;

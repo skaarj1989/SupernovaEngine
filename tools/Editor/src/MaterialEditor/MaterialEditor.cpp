@@ -602,7 +602,7 @@ void MaterialEditor::_connectProject() {
     });
 
   m_project.on<ShaderComposedEvent>(
-    [this](const ShaderComposedEvent &evt, MaterialProject &project) {
+    [this](const auto &, MaterialProject &project) {
       m_logger->trace("[Event] ShaderComposed");
       if (!project.hasDirtyStages()) {
         m_logger->trace("No dirty stages, building ...");
@@ -612,7 +612,7 @@ void MaterialEditor::_connectProject() {
     });
 
   m_project.on<MaterialBuiltEvent>(
-    [this](MaterialBuiltEvent &evt, MaterialProject &project) {
+    [this](MaterialBuiltEvent &evt, const auto &) {
       m_logger->trace("[Event] MaterialBuilt");
       m_previewWidget.updateMaterial(std::move(evt.material));
     });

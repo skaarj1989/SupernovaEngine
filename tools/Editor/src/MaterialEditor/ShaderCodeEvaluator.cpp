@@ -358,7 +358,8 @@ void ShaderCodeEvaluator::visit(const SwizzleNode &node) {
   const auto baseType = getBaseDataType(arg.dataType);
   m_tokens.push({
     .name = std::format("{}.{}", arg.name, node.mask),
-    .dataType = constructVectorType(baseType, node.mask.length()),
+    .dataType =
+      constructVectorType(baseType, static_cast<uint32_t>(node.mask.length())),
   });
 }
 void ShaderCodeEvaluator::visit(const MatrixTransformNode &node) {

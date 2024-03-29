@@ -8,3 +8,4 @@ target_link_libraries(ImGuiPlatformInterface
   PUBLIC Window
 )
 set_target_properties(ImGuiPlatformInterface PROPERTIES FOLDER "Framework/GUI")
+set_warning_level(ImGuiPlatformInterface)

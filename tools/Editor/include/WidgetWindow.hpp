@@ -14,9 +14,10 @@ public:
   virtual void show(const char *name, bool *open) = 0;
 
   virtual void onInput(const os::InputEvent &) {}
-  virtual void onUpdate(const float dt) {}
-  virtual void onPhysicsUpdate(const float dt) {}
-  virtual void onRender(rhi::CommandBuffer &, const float dt) {}
+  virtual void onUpdate([[maybe_unused]] const float dt) {}
+  virtual void onPhysicsUpdate([[maybe_unused]] const float dt) {}
+  virtual void onRender(rhi::CommandBuffer &, [[maybe_unused]] const float dt) {
+  }
 };
 
 class SimpleWidgetWindow final : public WidgetWindow {

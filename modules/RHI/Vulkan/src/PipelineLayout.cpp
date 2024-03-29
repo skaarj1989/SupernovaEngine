@@ -138,14 +138,15 @@ PipelineLayout reflectPipelineLayout(RenderDevice &rd,
   PipelineLayout::Builder builder{};
 
   for (auto [set, bindings] :
-       std::views::enumerate(reflection.descriptorSets)) {
-    for (const auto &[index, resource] : reflection.descriptorSets[set]) {
-      builder.addResource(set, {
-                                 .binding = index,
-                                 .descriptorType = resource.type,
-                                 .descriptorCount = resource.count,
-                                 .stageFlags = resource.stageFlags,
-                               });
+       reflection.descriptorSets | std::views::enumerate) {
+    for (const auto &[index, resource] : bindings) {
+      builder.addResource(static_cast<DescriptorSetIndex>(set),
+                          {
+                            .binding = index,
+                            .descriptorType = resource.type,
+                            .descriptorCount = resource.count,
+                            .stageFlags = resource.stageFlags,
+                          });
     }
   }
   for (const auto &range : reflection.pushConstantRanges) {

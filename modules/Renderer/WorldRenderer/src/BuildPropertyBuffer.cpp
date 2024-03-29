@@ -6,11 +6,12 @@
 
 namespace gfx {
 
-uint32_t adjustStride(const uint32_t stride,
-                      const uint32_t minOffsetAlignment) {
+VkDeviceSize adjustStride(const VkDeviceSize stride,
+                          const VkDeviceSize minOffsetAlignment) {
   assert(stride > 0 && minOffsetAlignment > 0);
-  return uint32_t(glm::ceil(float(glm::max(stride, minOffsetAlignment)) /
-                            float(minOffsetAlignment))) *
+  return static_cast<VkDeviceSize>(
+           glm::ceil(float(glm::max(stride, minOffsetAlignment)) /
+                     float(minOffsetAlignment))) *
          minOffsetAlignment;
 }
 

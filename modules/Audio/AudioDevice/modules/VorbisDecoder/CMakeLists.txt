@@ -8,3 +8,4 @@ target_link_libraries(VorbisDecoder
   PRIVATE Ogg::ogg Vorbis::vorbis Vorbis::vorbisenc Vorbis::vorbisfile
 )
 set_target_properties(VorbisDecoder PROPERTIES FOLDER "Framework/Audio/Decoders")
+set_warning_level(VorbisDecoder)

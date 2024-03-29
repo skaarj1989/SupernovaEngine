@@ -86,15 +86,16 @@ JPH::DebugRenderer::Batch DebugRenderer::CreateTriangleBatch(
   return new BatchImpl{m_meshes.create(
     vertices, std::span{inIndices, static_cast<std::size_t>(numIndices)})};
 }
-void DebugRenderer::DrawGeometry(JPH::Mat44Arg modelMatrix,
-                                 const JPH::AABox &box, float LODScaleSq,
+void DebugRenderer::DrawGeometry(JPH::Mat44Arg modelMatrix, const JPH::AABox &,
+                                 [[maybe_unused]] float LODScaleSq,
                                  JPH::ColorArg color,
                                  const GeometryRef &geometry, ECullMode,
                                  ECastShadow, EDrawMode) {
   m_instanceMap[geometry].emplace_back(to_glm(modelMatrix),
                                        to_glm(color.ToVec4()));
 }
-void DebugRenderer::DrawText3D(JPH::Vec3Arg position, const std::string_view &,
-                               JPH::ColorArg, float height) {
+void DebugRenderer::DrawText3D([[maybe_unused]] JPH::Vec3Arg position,
+                               const std::string_view &, JPH::ColorArg,
+                               [[maybe_unused]] float height) {
   // ...
 }

@@ -31,6 +31,7 @@ target_link_libraries(Scripting
   PUBLIC Resource InputEvents sol2::sol2
 )
 set_target_properties(Scripting PROPERTIES FOLDER "Framework")
+set_warning_level(Scripting)
 
 add_resources(
   TARGET ScriptLibrary

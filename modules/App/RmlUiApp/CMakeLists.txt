@@ -5,3 +5,4 @@ target_link_libraries(RmlUiApp
   PUBLIC BaseApp RmlUiPlatformInterface RmlUiRenderer
 )
 set_target_properties(RmlUiApp PROPERTIES FOLDER "Framework/App")
+set_warning_level(RmlUiApp)

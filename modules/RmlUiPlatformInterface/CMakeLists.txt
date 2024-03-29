@@ -23,3 +23,4 @@ target_link_libraries(RmlUiPlatformInterface
   PUBLIC InputEvents RmlCore RmlDebugger
 )
 set_target_properties(RmlUiPlatformInterface PROPERTIES FOLDER "Framework/GUI")
+set_warning_level(RmlUiPlatformInterface)

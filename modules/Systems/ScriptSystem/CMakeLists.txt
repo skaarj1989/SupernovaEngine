@@ -7,3 +7,4 @@ target_link_libraries(ScriptSystem
   PUBLIC SystemCommon ScriptComponent
 )
 set_target_properties(ScriptSystem PROPERTIES FOLDER "Framework/Systems")
+set_warning_level(ScriptSystem)

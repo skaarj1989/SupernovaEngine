@@ -7,5 +7,6 @@ target_link_libraries(LuaUtility
   PUBLIC EnTT::EnTT sol2::sol2
 )
 set_target_properties(LuaUtility PROPERTIES FOLDER "Framework/ScriptingModules")
+set_warning_level(LuaUtility)
 
 add_binding("LuaUtility.hpp" "registerUtility")

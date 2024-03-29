@@ -174,10 +174,9 @@ template <typename T> constexpr ImGuiDataType getImGuiDataType() {
     return ImGuiDataType_Float;
   } else if constexpr (std::is_same_v<T, double>) {
     return ImGuiDataType_Double;
+  } else {
+    static_assert(always_false_v<T>);
   }
-
-  assert(false);
-  return ImGuiDataType_COUNT;
 }
 
 bool inspect(ValueVariant &value) {
@@ -508,7 +507,7 @@ void NodeUIVisitor::visit(MatrixSplitterNode &node) {
 void NodeUIVisitor::visit(SwizzleNode &node) {
   ZoneScopedN("SwizzleNode");
 
-  auto nodeWidth = defaultTitleBar(node);
+  defaultTitleBar(node);
   _addSimpleInputPin("in", node.inputs.front());
   ImGui::SameLine();
   ImNodes::AddOutputAttribute(

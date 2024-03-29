@@ -19,7 +19,7 @@ struct Property {
 };
 
 // @return sizeof internal type
-[[nodiscard]] std::size_t getSize(const Property::Value &);
+[[nodiscard]] uint32_t getSize(const Property::Value &);
 [[nodiscard]] const char *toString(const Property::Value &);
 
 } // namespace gfx

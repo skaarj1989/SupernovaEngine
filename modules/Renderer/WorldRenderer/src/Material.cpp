@@ -61,10 +61,10 @@ buildPropertyLayout(const std::vector<Property> &properties) {
   PropertyLayout layout;
   if (properties.empty()) return layout;
 
-  std::size_t offset{0};
-  std::size_t size{0};
+  uint32_t offset{0};
+  uint32_t size{0};
 
-  std::size_t alignment{0};
+  uint32_t alignment{0};
 
   for (const auto &p : properties) {
     size = getSize(p.value);
@@ -73,7 +73,8 @@ buildPropertyLayout(const std::vector<Property> &properties) {
     const auto leftOver = offset % size;
     offset = leftOver > 0 ? offset + (size - leftOver) : offset;
 
-    layout.members.emplace_back(uint8_t(offset), uint8_t(size));
+    layout.members.emplace_back(static_cast<uint8_t>(offset),
+                                static_cast<uint8_t>(size));
     offset += size;
 
     alignment = glm::max(alignment, size);
@@ -81,7 +82,8 @@ buildPropertyLayout(const std::vector<Property> &properties) {
   assert(offset > 0);
 
   layout.stride =
-    std::size_t(glm::ceil(float(offset) / float(alignment))) * alignment;
+    static_cast<uint32_t>(glm::ceil(float(offset) / float(alignment))) *
+    alignment;
 
   return layout;
 }

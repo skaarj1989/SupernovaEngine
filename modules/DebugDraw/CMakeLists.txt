@@ -5,5 +5,5 @@ target_link_libraries(DebugDraw
     PUBLIC Math
 )
 set_target_properties(DebugDraw PROPERTIES FOLDER "Framework")
-
+set_warning_level(DebugDraw)
 enable_profiler(DebugDraw PRIVATE)

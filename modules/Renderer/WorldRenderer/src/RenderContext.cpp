@@ -17,9 +17,10 @@ void bindTextures(ResourceBindings &bindings, const uint32_t firstBinding,
 
   for (auto [i, textureInfo] :
        textures | std::views::values | std::views::enumerate) {
-    bindings[firstBinding + i] = rhi::bindings::CombinedImageSampler{
-      .texture = textureInfo.texture.get(),
-    };
+    bindings[firstBinding + static_cast<uint32_t>(i)] =
+      rhi::bindings::CombinedImageSampler{
+        .texture = textureInfo.texture.get(),
+      };
   }
 }
 void changeOffset(rhi::ResourceBinding &v, const uint32_t offset) {

@@ -1,5 +1,6 @@
 #include "physics/ShapeBuilder.hpp"
 #include "TypeTraits.hpp"
+#include "os/FileSystem.hpp"
 
 #include "Jolt/Physics/Collision/Shape/SphereShape.h"
 #include "Jolt/Physics/Collision/Shape/BoxShape.h"
@@ -12,8 +13,7 @@
 
 #include "physics/Conversion.hpp"
 
-#include "math/json.hpp"
-#include "os/FileSystem.hpp"
+#include "nlohmann/json.hpp"
 
 using namespace nlohmann;
 

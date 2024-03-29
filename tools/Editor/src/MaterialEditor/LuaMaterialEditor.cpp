@@ -245,12 +245,11 @@ template <typename T>
   } else if (auto c = t["constant"]; c.valid()) {
     out = tryGet<BuiltInConstant>(c);
   } else if (auto s = t["sampler"]; s.valid()) {
-    if (auto temp = s.get<sol::optional<BuiltInSampler>>(); temp) {
-      out = !isOutOfRange(*temp)
-              ? *temp
-              : Result{std::unexpected{"Enum out of range."}};
-    } else if (auto temp = s.get<sol::optional<TextureParam>>(); temp) {
-      out = *temp;
+    if (auto e = s.get<sol::optional<BuiltInSampler>>(); e) {
+      out =
+        !isOutOfRange(*e) ? *e : Result{std::unexpected{"Enum out of range."}};
+    } else if (auto tp = s.get<sol::optional<TextureParam>>(); tp) {
+      out = *tp;
     } else {
       out = std::unexpected{
         "Invalid value, expected: BuiltInSampler/TextureParam."};
@@ -309,7 +308,7 @@ void registerFunctionInfo(sol::state &lua) {
                     auto result = std::invoke(*f, surface, shaderType);
                     return result.valid() ? result.get<bool>() : false;
                   }
-                } catch (const std::exception &e) {
+                } catch (const std::exception &) {
                   // ...
                 }
                 return true;
@@ -323,7 +322,7 @@ void registerFunctionInfo(sol::state &lua) {
                     return result.valid() ? result.get<DataType>()
                                           : DataType::Undefined;
                   }
-                } catch (const std::exception &e) {
+                } catch (const std::exception &) {
                   // ...
                 }
                 return DataType::Undefined;

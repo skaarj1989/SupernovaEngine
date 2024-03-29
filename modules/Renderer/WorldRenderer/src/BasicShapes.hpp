@@ -39,8 +39,8 @@ template <uint8_t _Width, uint8_t _Height>
   std::vector<Vertex1p1n1st> vertices(kNumVertices);
 
   auto i = 0;
-  for (auto row = 0; row < _Height; ++row) {
-    for (auto col = 0; col < _Width; ++col) {
+  for (decltype(_Height) row = 0; row < _Height; ++row) {
+    for (decltype(_Width) col = 0; col < _Width; ++col) {
       constexpr auto kUp = glm::vec3{0.0f, 1.0f, 0.0f};
       vertices[i++] = Vertex1p1n1st{
         .position = offset + glm::vec3{col, 0.0f, row},
@@ -55,16 +55,16 @@ template <uint8_t _Width, uint8_t _Height>
   std::vector<uint16_t> indices(kNumIndices);
 
   i = 0;
-  for (auto row = 0; row < _Height - 1; ++row) {
+  for (decltype(_Height) row = 0; row < _Height - 1; ++row) {
     if ((row & 1) == 0) {
       // Even rows.
-      for (auto col = 0; col < _Width; ++col) {
+      for (decltype(_Width) col = 0; col < _Width; ++col) {
         indices[i++] = col + row * _Width;
         indices[i++] = col + (row + 1) * _Width;
       }
     } else {
       // Odd rows.
-      for (auto col = _Width - 1; col > 0; --col) {
+      for (decltype(_Width) col = _Width - 1; col > 0; --col) {
         indices[i++] = col + (row + 1) * _Width;
         indices[i++] = col - 1 + +row * _Width;
       }
@@ -155,7 +155,7 @@ template <uint8_t _NumSectors = 36, uint8_t _NumStacks = 18>
   auto i = 0;
 
   Vertex1p1n1st vertex{};
-  for (uint8_t stack{0}; stack <= _NumStacks; ++stack) {
+  for (decltype(_NumStacks) stack = 0; stack <= _NumStacks; ++stack) {
     // Starting from pi / 2 to - pi / 2
 
     const float stackAngle{kPI / 2.0f - stack * kStackStep};
@@ -165,7 +165,7 @@ template <uint8_t _NumSectors = 36, uint8_t _NumStacks = 18>
     // Add (sectorCount + 1) vertices per stack.
     // The first and last vertices have same position and normal, but different
     // texCoords.
-    for (uint8_t sector{0}; sector <= _NumSectors; ++sector) {
+    for (decltype(_NumSectors) sector = 0; sector <= _NumSectors; ++sector) {
       const float sectorAngle = sector * kSectorStep; // Starting from 0 to 2pi.
 
       vertex.position.x = xy * glm::cos(sectorAngle); // r * cos(u) * cos(v)
@@ -189,11 +189,12 @@ template <uint8_t _NumSectors = 36, uint8_t _NumStacks = 18>
   //  |  / |
   //  | /  |
   //  k2--k2+1
-  for (uint8_t stack{0}; stack < _NumStacks; ++stack) {
+  for (decltype(_NumStacks) stack = 0; stack < _NumStacks; ++stack) {
     uint16_t k1{stack * (_NumSectors + 1u)}; // Beginning of current stack.
     uint16_t k2{k1 + _NumSectors + 1u};      // Beginning of next stack.
 
-    for (uint8_t sector{0}; sector < _NumSectors; ++sector, ++k1, ++k2) {
+    for (decltype(_NumSectors) sector = 0; sector < _NumSectors;
+         ++sector, ++k1, ++k2) {
       // 2 triangles per sector excluding 1st and last stacks.
       if (stack != 0) {
         indices[i++] = k1;

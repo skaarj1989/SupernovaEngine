@@ -115,8 +115,9 @@ template <typename T> auto forceType(const gfx::Property::Value &v) {
       using U = std::decay_t<decltype(arg)>;
       if constexpr (is_any_v<U, uint32_t, int32_t, float>) {
         return gfx::Property::Value{static_cast<T>(arg)};
+      } else {
+        return gfx::Property::Value{arg};
       }
-      return gfx::Property::Value{arg};
     },
     v);
 }

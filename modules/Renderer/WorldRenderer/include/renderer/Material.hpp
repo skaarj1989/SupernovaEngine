@@ -51,7 +51,7 @@ struct PropertyLayout {
     uint8_t size;
   };
   std::vector<MemberInfo> members;
-  std::size_t stride{0};
+  uint32_t stride{0};
 };
 
 class Material {

@@ -10,3 +10,4 @@ target_link_libraries(AudioSystem
   PRIVATE spdlog::spdlog
 )
 set_target_properties(AudioSystem PROPERTIES FOLDER "Framework/Systems")
+set_warning_level(AudioSystem)
