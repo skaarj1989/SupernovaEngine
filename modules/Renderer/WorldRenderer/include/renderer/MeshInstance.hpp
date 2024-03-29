@@ -43,7 +43,7 @@ public:
   [[nodiscard]] std::size_t countVisible() const;
 
   virtual MeshInstance &setTransform(const Transform &);
-  MeshInstance &setMaterial(const int32_t index, std::shared_ptr<Material>);
+  MeshInstance &setMaterial(const uint32_t index, std::shared_ptr<Material>);
 
   MeshInstance &setSkinMatrices(Joints);
 

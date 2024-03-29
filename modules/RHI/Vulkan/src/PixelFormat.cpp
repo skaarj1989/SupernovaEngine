@@ -148,10 +148,11 @@ const char *toString(const PixelFormat pixelFormat) {
     CASE(Depth16_Stencil8);
     CASE(Depth24_Stencil8);
     CASE(Depth32F_Stencil8);
-  }
 
-  assert(false);
-  return "Undefined";
+  default:
+    assert(false);
+    return "Undefined";
+  }
 }
 
 } // namespace rhi

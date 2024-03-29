@@ -1,10 +1,17 @@
 #include "physics/PhysicsWorld.hpp"
 
+#ifdef __GNUC__
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 #include "Jolt/Core/JobSystemThreadPool.h"
 #include "Jolt/Physics/Body/BodyCreationSettings.h"
 #include "Jolt/Physics/Collision/RayCast.h"
 #include "Jolt/Physics/Collision/CastResult.h"
 #include "Jolt/Physics/Collision/CollisionCollectorImpl.h"
+#ifdef __GNUC__
+#  pragma GCC diagnostic pop
+#endif
 
 #include "physics/JoltPhysics.hpp"
 #include "physics/DebugRenderer.hpp"

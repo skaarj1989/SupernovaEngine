@@ -18,9 +18,11 @@ toVk(const spv::ExecutionModel executionModel) {
     return VK_SHADER_STAGE_FRAGMENT_BIT;
   case spv::ExecutionModelGLCompute:
     return VK_SHADER_STAGE_COMPUTE_BIT;
+
+  default:
+    assert(false);
+    return spv::ExecutionModelMax;
   }
-  assert(false);
-  return spv::ExecutionModelMax;
 }
 
 [[nodiscard]] auto getLocalSize(const spirv_cross::CompilerGLSL &compiler) {

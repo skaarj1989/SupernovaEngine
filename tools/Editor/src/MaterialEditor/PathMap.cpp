@@ -11,7 +11,6 @@ void PathMap::add(const rhi::ShaderType shaderType, const VertexID vertexId,
     idx = m_storage.paths.size();
     m_storage.paths.emplace_back(p);
   }
-  assert(idx >= 0);
   m_storage.ids[{shaderType, vertexId}] = idx;
 }
 bool PathMap::remove(const rhi::ShaderType shaderType,

@@ -52,7 +52,7 @@ function(SET_WARNING_LEVEL)
   if(MSVC)
     target_compile_options(${ARGV0} PRIVATE /W4)
   else()
-    # TODO ...
+    target_compile_options(${ARGV0} PRIVATE -Wall -Wextra -Wpedantic -Wno-missing-field-initializers)
   endif()
 endfunction()
 

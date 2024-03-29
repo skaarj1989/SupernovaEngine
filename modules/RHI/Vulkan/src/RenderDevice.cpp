@@ -64,6 +64,7 @@ namespace {
 #define _TARGET_VERSION VK_API_VERSION_1_3
 constexpr auto kTargetVersion = _TARGET_VERSION;
 
+#if _USE_VALIDATION_LAYERS
 [[nodiscard]] auto enumerateInstanceLayers() {
   uint32_t count{0};
   VK_CHECK(vkEnumerateInstanceLayerProperties(&count, nullptr));
@@ -79,6 +80,7 @@ queryInstanceLayer(std::span<const VkLayerProperties> layers,
   }
   return nullptr;
 }
+#endif
 
 [[nodiscard]] auto enumerateInstanceExtensions() {
   uint32_t count{0};
@@ -288,6 +290,11 @@ Swapchain RenderDevice::createSwapchain(const os::Window &window,
 }
 
 VkFence RenderDevice::createFence(const bool signaled) {
+#ifdef __GNUC__
+#  pragma GCC diagnostic push
+// warning: enumerated and non-enumerated type in conditional expression
+#  pragma GCC diagnostic ignored "-Wextra"
+#endif
   assert(m_logicalDevice != VK_NULL_HANDLE);
   const VkFenceCreateInfo createInfo{
     .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
@@ -296,6 +303,9 @@ VkFence RenderDevice::createFence(const bool signaled) {
   VkFence fence{VK_NULL_HANDLE};
   VK_CHECK(vkCreateFence(m_logicalDevice, &createInfo, nullptr, &fence));
   return fence;
+#ifdef __GNUC__
+#  pragma GCC diagnostic pop
+#endif
 }
 VkSemaphore RenderDevice::createSemaphore() {
   assert(m_logicalDevice != VK_NULL_HANDLE);

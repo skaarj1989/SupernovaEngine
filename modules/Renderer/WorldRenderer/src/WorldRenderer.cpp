@@ -281,6 +281,9 @@ SkyLight WorldRenderer::createSkyLight(TextureResourceHandle source) {
     case rhi::TextureType::TextureCube:
       skyLight.environment = source.handle();
       break;
+
+    default:
+      assert(false);
     }
 
     skyLight.specular = rhi::makeShared<rhi::Texture>(

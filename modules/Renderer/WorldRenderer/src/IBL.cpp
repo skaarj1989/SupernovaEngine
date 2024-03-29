@@ -4,7 +4,9 @@
 
 #include "glm/common.hpp" // max
 
-#pragma warning(disable : 26812) // Silence unscoped enum
+#if defined(_MSC_VER)
+#  pragma warning(disable : 26812) // Silence unscoped enum
+#endif
 
 namespace gfx {
 

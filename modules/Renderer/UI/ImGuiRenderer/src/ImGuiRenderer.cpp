@@ -11,7 +11,9 @@
 
 #define USE_MONOCHROMATIC_FONT 0
 
-#pragma warning(disable : 26812) // Silence unscoped enum
+#if defined(_MSC_VER)
+#  pragma warning(disable : 26812) // Silence unscoped enum
+#endif
 
 namespace {
 

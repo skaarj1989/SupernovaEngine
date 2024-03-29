@@ -39,9 +39,10 @@ const char *toString(const ArithmeticNode::Operation op) {
     CASE(Subtract);
     CASE(Multiply);
     CASE(Divide);
+
+  default:
+    assert(false);
+    return "Undefined";
   }
 #undef CASE
-
-  assert(false);
-  return "Undefined";
 }

@@ -65,6 +65,9 @@ void InputSystem::notify(const KeyboardEvent &evt) {
   case RMenu:
     m_keys[Menu] = pressed;
     break;
+
+  default:
+    break;
   }
 }
 

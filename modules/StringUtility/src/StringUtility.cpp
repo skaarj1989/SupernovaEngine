@@ -23,7 +23,7 @@ bool contains(const std::string_view s, const std::string_view pattern) {
 std::string formatBytes(std::size_t bytes) {
   static constexpr std::array kUnits{"B", "KiB", "MiB", "GiB"};
 
-  auto i = 0;
+  std::size_t i{0};
   auto size = static_cast<double>(bytes);
 
   // https://gist.github.com/dgoguerra/7194777

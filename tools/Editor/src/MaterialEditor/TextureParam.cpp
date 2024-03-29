@@ -11,6 +11,9 @@ DataType getDataType(const TextureParam &param) {
       return Sampler2D;
     case TextureCube:
       return SamplerCube;
+
+    default:
+      break;
     }
   }
   return Undefined;

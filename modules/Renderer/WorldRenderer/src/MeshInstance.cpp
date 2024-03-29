@@ -38,7 +38,7 @@ MeshInstance &MeshInstance::setTransform(const Transform &xf) {
   _updateAABB(m_modelMatrix);
   return *this;
 }
-MeshInstance &MeshInstance::setMaterial(const int32_t index,
+MeshInstance &MeshInstance::setMaterial(const uint32_t index,
                                         std::shared_ptr<Material> material) {
   if (index >= m_subMeshes.size()) {
     SPDLOG_WARN("Invalid material index");

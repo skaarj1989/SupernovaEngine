@@ -72,8 +72,10 @@ enum class EntryAction {
     return ICON_FA_FOLDER;
   case regular:
     return ICON_FA_FILE;
+
+  default:
+    return ICON_FA_QUESTION;
   }
-  return ICON_FA_QUESTION;
 }
 [[nodiscard]] auto makeLabel(const std::filesystem::directory_entry &entry) {
   return std::format("{} {}", pickIcon(entry),
@@ -194,6 +196,9 @@ showFileDialog(const char *name, const FileDialogSettings &settings) {
           break;
         case EntryAction::Click:
           label = entry.path().filename().string();
+          break;
+
+        default:
           break;
         }
         ++numEntries;

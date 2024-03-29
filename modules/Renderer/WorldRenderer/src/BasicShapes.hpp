@@ -190,8 +190,10 @@ template <uint8_t _NumSectors = 36, uint8_t _NumStacks = 18>
   //  | /  |
   //  k2--k2+1
   for (decltype(_NumStacks) stack = 0; stack < _NumStacks; ++stack) {
-    uint16_t k1{stack * (_NumSectors + 1u)}; // Beginning of current stack.
-    uint16_t k2{k1 + _NumSectors + 1u};      // Beginning of next stack.
+    // Beginning of current stack.
+    auto k1 = static_cast<uint16_t>(stack * (_NumSectors + 1u));
+    // Beginning of next stack.
+    auto k2 = static_cast<uint16_t>(k1 + _NumSectors + 1u);
 
     for (decltype(_NumSectors) sector = 0; sector < _NumSectors;
          ++sector, ++k1, ++k2) {

@@ -195,7 +195,7 @@ std::istream &operator>>(std::istream &is, entt::registry &r) {
     }
     if (pool.contains(in)) {
       const auto it = pool.push(out, pool.value(in));
-      const auto emplaced = it != pool.cend();
+      [[maybe_unused]] const auto emplaced = it != pool.cend();
       // A component has to be copy constructible.
       assert(emplaced);
     }

@@ -145,10 +145,11 @@ bool Swapchain::acquireNextImage(const VkSemaphore imageAcquired) {
   case VK_SUBOPTIMAL_KHR:
   case VK_SUCCESS:
     return true;
-  }
 
-  assert(false);
-  return false;
+  default:
+    assert(false);
+    return false;
+  }
 }
 
 //

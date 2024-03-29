@@ -12,13 +12,9 @@
 #include "meshoptimizer.h"      // meshopt_simplify
 #include "glm/gtc/type_ptr.hpp" // value_ptr
 
-#pragma warning(push)
-// unreferenced function with internal linkage has been removed
-#pragma warning(disable : 4505)
 #include "math/json.hpp"
 #include "rhi/json.hpp"
 #include "renderer/jsonVertexFormat.hpp"
-#pragma warning(pop)
 
 #include <fstream> // ofstream
 #include <numeric> // accumulate
@@ -290,7 +286,7 @@ void MeshExporter::_buildBufferOffsets() {
          m_mesh.vertices.getNumVertices());
 
   const auto numIndices = m_mesh.indices.size();
-  const auto &lastLOD = lastSubMesh.LODs.back();
+  [[maybe_unused]] const auto &lastLOD = lastSubMesh.LODs.back();
   assert((lastLOD.indexOffset + lastLOD.numIndices) == numIndices);
 
   const auto vertexBufferByteSize = m_mesh.vertices.buffer.size();

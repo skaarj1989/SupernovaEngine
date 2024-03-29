@@ -27,10 +27,19 @@
 #include "ProjectSettingsWidget.hpp"
 #include "imgui_internal.h" // DockBuilder
 
-#pragma warning(push, 0)
+#if defined(_MSC_VER)
+#  pragma warning(push, 0)
+#elif defined(__GNUC__)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 #include "tracy/Tracy.hpp"
 #include "tracy/TracyLua.hpp"
-#pragma warning(pop)
+#if defined(_MSC_VER)
+#  pragma warning(pop)
+#elif defined(__GNUC__)
+#  pragma GCC diagnostic pop
+#endif
 
 namespace {
 

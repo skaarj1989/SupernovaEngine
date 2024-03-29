@@ -1,15 +1,9 @@
 #include "renderer/MeshLoader.hpp"
 #include "rhi/RenderDevice.hpp"
 #include "os/FileSystem.hpp"
-
-#pragma warning(push)
-// unreferenced function with internal linkage has been removed
-#pragma warning(disable : 4505)
 #include "rhi/json.hpp"
 #include "renderer/jsonVertexFormat.hpp"
 #include "renderer/jsonMaterial.hpp"
-#pragma warning(pop)
-
 #include "spdlog/spdlog.h"
 
 using namespace nlohmann;

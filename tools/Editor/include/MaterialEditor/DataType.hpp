@@ -35,8 +35,10 @@ enum class DataType {
   case Float:
   case Double:
     return true;
+
+  default:
+    return false;
   }
-  return false;
 }
 [[nodiscard]] constexpr auto isVector(const DataType type) {
   switch (type) {
@@ -62,8 +64,10 @@ enum class DataType {
   case DVec3:
   case DVec4:
     return true;
+
+  default:
+    return false;
   }
-  return false;
 }
 [[nodiscard]] constexpr auto isMatrix(const DataType type) {
   switch (type) {
@@ -73,8 +77,10 @@ enum class DataType {
   case Mat3:
   case Mat4:
     return true;
+
+  default:
+    return false;
   }
-  return false;
 }
 [[nodiscard]] constexpr auto isSampler(const DataType type) {
   switch (type) {
@@ -83,8 +89,10 @@ enum class DataType {
   case Sampler2D:
   case SamplerCube:
     return true;
+
+  default:
+    return false;
   }
-  return false;
 }
 
 [[nodiscard]] constexpr auto getBaseDataType(const DataType type) {
@@ -122,8 +130,10 @@ enum class DataType {
   case Mat3:
   case Mat4:
     return Float;
+
+  default:
+    return Undefined;
   }
-  return Undefined;
 }
 
 [[nodiscard]] constexpr auto countChannels(const DataType type) {
@@ -157,8 +167,10 @@ enum class DataType {
   case Vec4:
   case DVec4:
     return 4;
+
+  default:
+    return 0;
   }
-  return 0;
 }
 [[nodiscard]] constexpr auto countColumns(const DataType type) {
   switch (type) {
@@ -170,8 +182,10 @@ enum class DataType {
     return 3;
   case Mat4:
     return 4;
+
+  default:
+    return 0;
   }
-  return 0;
 }
 
 [[nodiscard]] float calcOptimalInspectorWidth(const DataType);

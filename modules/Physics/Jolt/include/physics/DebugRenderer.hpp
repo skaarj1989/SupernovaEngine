@@ -1,7 +1,14 @@
 #pragma once
 
+#ifdef __GNUC__
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 #include "Jolt/Jolt.h"
 #include "Jolt/Renderer/DebugRenderer.h"
+#ifdef __GNUC__
+#  pragma GCC diagnostic pop
+#endif
 
 #include "DebugDraw.hpp"
 

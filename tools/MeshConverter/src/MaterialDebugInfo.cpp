@@ -43,7 +43,6 @@ get(const aiMaterial &material, const aiMaterialProperty *p) {
   case aiPTI_Integer:
     GET(int) break;
   }
-
 #undef GET
 
   return std::nullopt;
@@ -75,12 +74,12 @@ get(const aiMaterial &material, const aiMaterialProperty *p) {
     CASE(String);
     CASE(Integer);
     CASE(Buffer);
+
+  default:
+    assert(false);
+    return "Undefined";
   }
-
 #undef CASE
-
-  assert(false);
-  return "Undefined";
 }
 
 } // namespace

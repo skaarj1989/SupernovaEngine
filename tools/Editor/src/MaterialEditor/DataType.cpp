@@ -37,8 +37,10 @@ namespace {
   case DVec4:
   case Mat4:
     return 4;
+
+  default:
+    return 0;
   }
-  return 0;
 }
 [[nodiscard]] auto calcWidthPerWidget(const DataType dataType) {
   switch (dataType) {
@@ -53,8 +55,10 @@ namespace {
     return 10.0f * (2 + 3);
   case Double:
     return 10.0f * (2 + 6);
+
+  default:
+    return 0.0f;
   }
-  return 0.0f;
 }
 
 } // namespace
@@ -101,11 +105,12 @@ const char *toString(const DataType type) {
 
   case Sampler2D: return "sampler2D";
   case SamplerCube: return "samplerCube";
+
+  default:
+    assert(false);
+    return "Undefined";
   }
   // clang-format on
-
-  assert(false);
-  return "Undefined";
 }
 
 DataType constructVectorType(const DataType baseType,

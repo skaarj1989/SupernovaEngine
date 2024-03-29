@@ -18,10 +18,11 @@ DataType getDataType(const CameraBlockMember e) {
   case Near:
   case Far:
     return Float;
-  }
 
-  assert(false);
-  return Undefined;
+  default:
+    assert(false);
+    return Undefined;
+  }
 }
 const char *toString(const CameraBlockMember e) {
 #define CASE(Value)                                                            \
@@ -40,8 +41,9 @@ const char *toString(const CameraBlockMember e) {
     CASE(Resolution);
     CASE(Near);
     CASE(Far);
-  }
 
-  assert(false);
-  return "Undefined";
+  default:
+    assert(false);
+    return "Undefined";
+  }
 }

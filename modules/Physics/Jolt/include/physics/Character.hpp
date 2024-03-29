@@ -2,9 +2,16 @@
 
 #include "entt/signal/emitter.hpp"
 
+#ifdef __GNUC__
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 #include "Jolt/Jolt.h"
 #include "Jolt/Physics/Collision/ObjectLayer.h"
 #include "Jolt/Physics/Character/Character.h"
+#ifdef __GNUC__
+#  pragma GCC diagnostic pop
+#endif
 
 #include "CollisionLayer.hpp"
 #include "Events.hpp"

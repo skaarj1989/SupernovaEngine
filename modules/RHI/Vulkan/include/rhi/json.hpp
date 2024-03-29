@@ -7,6 +7,15 @@
 #  include "VertexAttributes.hpp"
 #  include "nlohmann/json.hpp"
 
+#  if defined(_MSC_VER)
+#    pragma warning(push)
+#    pragma warning(disable : 4505) // unreferenced function with internal
+                                    // linkage has been removed
+#  elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-function"
+#  endif
+
 namespace rhi {
 
 #  define _MAKE_PAIR(Enum, Value)                                              \
@@ -56,5 +65,11 @@ static void to_json(nlohmann::ordered_json &j, const VertexAttribute &in) {
 }
 
 } // namespace rhi
+
+#  if defined(_MSC_VER)
+#    pragma warning(pop)
+#  elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#  endif
 
 #endif

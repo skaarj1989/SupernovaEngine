@@ -16,9 +16,11 @@ namespace {
     return "PostProcess";
   case BuiltIn:
     return "BuiltIn";
+
+  default:
+    assert(false);
+    return "";
   }
-  assert(false);
-  return "";
 }
 
 } // namespace

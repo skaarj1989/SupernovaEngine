@@ -8,6 +8,13 @@
 #include <algorithm> // copy
 #include <format>
 
+#ifdef __GNUC__
+// warning: enumerated and non-enumerated type in conditional expression
+#  pragma GCC diagnostic ignored "-Wextra"
+#  pragma GCC diagnostic ignored "-Wswitch"
+#  pragma GCC diagnostic ignored "-Wparentheses"
+#endif
+
 namespace os {
 
 namespace {

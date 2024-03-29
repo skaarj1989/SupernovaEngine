@@ -1,8 +1,15 @@
 #include "physics/ShapeSerialization.hpp"
 #include "os/FileSystem.hpp"
 
+#ifdef __GNUC__
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 #include "Jolt/Physics/Collision/PhysicsMaterial.h"
 #include "Jolt/Core/StreamWrapper.h"
+#ifdef __GNUC__
+#  pragma GCC diagnostic pop
+#endif
 
 #include "tracy/Tracy.hpp"
 

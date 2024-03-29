@@ -91,7 +91,7 @@ Mesh Builder::build() {
   m.m_vertexBuffer = m_vertexBuffer;
   m.m_indexBuffer = m_indexBuffer;
 
-  static const auto withoutLOD = [](const gfx::SubMesh &sm) {
+  [[maybe_unused]] static const auto withoutLOD = [](const gfx::SubMesh &sm) {
     return sm.lod.empty();
   };
   assert(m_indexBuffer || std::ranges::all_of(m_subMeshes, withoutLOD));

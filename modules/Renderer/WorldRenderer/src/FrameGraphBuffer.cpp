@@ -13,6 +13,10 @@
 // https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkPipelineStageFlagBits2.html#_description
 // https://registry.khronos.org/vulkan/specs/1.3-extensions/man/html/VkAccessFlagBits2.html#_description
 
+#ifdef __GNUC__
+#  pragma GCC diagnostic ignored "-Wswitch"
+#endif
+
 namespace gfx {
 
 void FrameGraphBuffer::create(const Desc &desc, void *allocator) {
@@ -67,7 +71,8 @@ void FrameGraphBuffer::preRead(const Desc &desc, uint32_t bits, void *ctx) {
   }
   rc.commandBuffer.getBarrierBuilder().bufferBarrier({.buffer = *buffer}, dst);
 }
-void FrameGraphBuffer::preWrite(const Desc &desc, uint32_t bits, void *ctx) {
+void FrameGraphBuffer::preWrite([[maybe_unused]] const Desc &desc,
+                                uint32_t bits, void *ctx) {
   ZoneScopedN("+B");
 
   auto &rc = *static_cast<RenderContext *>(ctx);

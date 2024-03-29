@@ -282,13 +282,13 @@ bool inspect(TextureParam &value) {
 }
 
 template <typename E>
-  requires std::is_scoped_enum_v<E>
+requires std::is_scoped_enum_v<E>
 void displayEnum(const E value) {
   static const ImColor kTypeColor{184, 215, 163};
   ImGui::TextColored(kTypeColor, "[%s]", toString(value));
 }
 template <typename E>
-  requires std::is_scoped_enum_v<E>
+requires std::is_scoped_enum_v<E>
 bool inspect(E &value) {
   ImGui::BeginGroup();
   const auto changed =
@@ -370,9 +370,11 @@ void inspect(const char *name, EmbeddedNode<T> &node,
     return "Clip";
   case NDC:
     return "NDC";
+
+  default:
+    assert(false);
+    return "Undefined";
   }
-  assert(false);
-  return "Undefined";
 }
 
 } // namespace

@@ -2,6 +2,10 @@
 #include "TypeTraits.hpp"
 #include "os/FileSystem.hpp"
 
+#ifdef __GNUC__
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 #include "Jolt/Physics/Collision/Shape/SphereShape.h"
 #include "Jolt/Physics/Collision/Shape/BoxShape.h"
 #include "Jolt/Physics/Collision/Shape/CapsuleShape.h"
@@ -10,6 +14,9 @@
 #include "Jolt/Physics/Collision/Shape/StaticCompoundShape.h"
 #include "Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h"
 #include "Jolt/Physics/Collision/Shape/ScaledShape.h"
+#ifdef __GNUC__
+#  pragma GCC diagnostic pop
+#endif
 
 #include "physics/Conversion.hpp"
 
@@ -68,7 +75,7 @@ readTriangleMesh(const std::filesystem::path &p) {
 namespace {
 
 template <typename T>
-  requires is_any_v<T, uint16_t, uint32_t>
+requires is_any_v<T, uint16_t, uint32_t>
 [[nodiscard]] JPH::IndexedTriangle
 makeIndexedTriangle(const std::byte *buffer) {
   return {

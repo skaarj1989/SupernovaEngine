@@ -6,6 +6,15 @@
 #  include "Material.hpp"
 #  include "math/json.hpp"
 
+#  if defined(_MSC_VER)
+#    pragma warning(push)
+#    pragma warning(disable : 4505) // unreferenced function with internal
+                                    // linkage has been removed
+#  elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-function"
+#  endif
+
 namespace gfx {
 
 #  define MAKE_PAIR(Enum, Value)                                               \
@@ -103,5 +112,11 @@ template <> struct nlohmann::adl_serializer<gfx::Property::Value> {
 #  undef STORE
   }
 };
+
+#  if defined(_MSC_VER)
+#    pragma warning(pop)
+#  elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#  endif
 
 #endif

@@ -101,7 +101,7 @@ std::size_t VorbisDecoder::read(std::byte *buffer, const std::size_t length) {
   // WAVEFORMATEXTENSIBLE, however 6-Channels files need to be re-ordered.
   if (m_info.numChannels == NumChannels::Surround5_1) {
     auto *samples = std::bit_cast<int16_t *>(buffer);
-    for (auto i = 0; i < (length / 2); i += 6) {
+    for (auto i = 0u; i < (length / 2); i += 6) {
       //                             [0] [1] [2]  [3] [4] [5]
       // WAVEFORMATEXTENSIBLE Order : FL, FR,  C, LFE, RL, RR
       // OggVorbis Order            : FL,  C, FR,  RL, RR, LFE

@@ -38,8 +38,10 @@ namespace {
   case Add:
   case Modulate:
     return true;
+
+  default:
+    return false;
   }
-  return false;
 };
 
 [[nodiscard]] auto batchCompatible(const Batch &b, const Renderable &r) {
@@ -79,9 +81,10 @@ namespace {
       .dstAlpha = rhi::BlendFactor::Zero,
       .alphaOp = rhi::BlendOp::Add,
     };
-  }
 
-  return {.enabled = false};
+  default:
+    return {.enabled = false};
+  }
 }
 
 } // namespace

@@ -1,12 +1,6 @@
 #include "MaterialExporter.hpp"
-
-#pragma warning(push)
-// unreferenced function with internal linkage has been removed
-#pragma warning(disable : 4505)
 #include "rhi/json.hpp"
 #include "renderer/jsonMaterial.hpp"
-#pragma warning(pop)
-
 #include <fstream> // ofstream
 #include <format>
 
@@ -85,9 +79,11 @@ const char *makeKey(const rhi::ShaderType type) {
     return "vertexShader";
   case Fragment:
     return "fragmentShader";
+
+  default:
+    assert(false);
+    return "unknown";
   }
-  assert(false);
-  return "unknown";
 }
 
 } // namespace

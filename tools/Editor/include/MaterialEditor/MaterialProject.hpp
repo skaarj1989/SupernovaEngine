@@ -8,9 +8,13 @@
 #include "CommandInvoker.hpp"
 #include "NodePatcherVisitor.hpp"
 #include "PathMap.hpp"
-#pragma warning(push, 0)
+#if defined(_MSC_VER)
+#  pragma warning(push, 0)
+#endif
 #include "TextEditor.h"
-#pragma warning(pop)
+#if defined(_MSC_VER)
+#  pragma warning(pop)
+#endif
 
 namespace gfx {
 class WorldRenderer;

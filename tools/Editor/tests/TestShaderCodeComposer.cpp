@@ -1,5 +1,3 @@
-#pragma once
-
 #include "catch.hpp"
 
 #include "MaterialEditor/ShaderCodeComposer.hpp"

@@ -18,7 +18,7 @@ Device::Device(const Config &config) {
   // clang-format on
   m_context = alcCreateContext(m_device, attributes);
   assert(m_context != nullptr);
-  const auto result = alcMakeContextCurrent(m_context);
+  [[maybe_unused]] const auto result = alcMakeContextCurrent(m_context);
   assert(result == ALC_TRUE);
 }
 Device::~Device() {

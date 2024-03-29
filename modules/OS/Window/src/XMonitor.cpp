@@ -11,7 +11,8 @@ namespace {
 [[nodiscard]] auto convert(const xcb_randr_monitor_info_t &in) {
   constexpr auto kMillimetersPerInch = 25.4f;
   const auto xdpi = kMillimetersPerInch * in.width / in.width_in_millimeters;
-  const auto ydpi = kMillimetersPerInch * in.height / in.height_in_millimeters;
+  [[maybe_unused]] const auto ydpi =
+    kMillimetersPerInch * in.height / in.height_in_millimeters;
   assert(xdpi == ydpi);
 
   MonitorInfo out{

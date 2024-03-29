@@ -55,6 +55,9 @@ void inspect(gfx::Light &light, const bool inspectTransform) {
     ImGui::DragFloat("radius", &light.range, 0.1f, 0.01f, kMaxRange, "%.3f",
                      ImGuiSliderFlags_AlwaysClamp);
     break;
+
+  default:
+    break;
   }
 
   ImGui::Checkbox("debugVolume", &light.debugVolume);

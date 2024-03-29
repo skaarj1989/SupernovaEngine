@@ -18,8 +18,10 @@ const char *toString(const TextureType textureType) {
     CASE(Texture3D);
     CASE(TextureCube);
     CASE(TextureCubeArray);
+
+  default:
+    return "Undefined";
   }
-  return "Undefined";
 }
 
 } // namespace rhi

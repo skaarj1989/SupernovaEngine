@@ -53,7 +53,8 @@ void setupRenderInterface(ImGuiRenderer &renderer) {
 
   auto &platformIo = ImGui::GetPlatformIO();
   platformIo.Renderer_CreateWindow = [](ImGuiViewport *viewport) {
-    auto parentViewport = ImGui::FindViewportByID(viewport->ParentViewportId);
+    [[maybe_unused]] auto parentViewport =
+      ImGui::FindViewportByID(viewport->ParentViewportId);
     assert(parentViewport);
     viewport->RendererUserData =
       new ImGuiViewportData{getRenderer(), *getWindow(viewport)};

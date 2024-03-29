@@ -23,7 +23,7 @@ PixelFormat getDepthFormat(const FramebufferInfo &info) {
 }
 PixelFormat getColorFormat(const FramebufferInfo &info,
                            const AttachmentIndex index) {
-  assert(index >= 0 && index < info.colorAttachments.size());
+  assert(index < info.colorAttachments.size());
   return info.colorAttachments[index].target->getPixelFormat();
 }
 

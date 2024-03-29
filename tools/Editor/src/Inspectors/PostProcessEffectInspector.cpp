@@ -91,7 +91,8 @@ void inspectPostProcessEffects(
           i +
           (ImGui::GetMouseDragDelta(ImGuiMouseButton_Left).y < 0.0f ? -1 : 1);
         if (next >= 0 &&
-            next < static_cast<decltype(next)>(postProcessEffects.size())) {
+            next < static_cast<std::remove_const_t<decltype(next)>>(
+                     postProcessEffects.size())) {
           request = Reorder{
             .from = static_cast<uint32_t>(i),
             .to = static_cast<uint32_t>(next),

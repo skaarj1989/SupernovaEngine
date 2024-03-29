@@ -118,8 +118,10 @@ const char *getPostfix(const SplitVector e) {
     return Vec2;
   case SamplerCube:
     return Vec3;
+
+  default:
+    return Undefined;
   }
-  return Undefined;
 }
 
 [[nodiscard]] constexpr auto makeHash(const MatrixTransformNode::Space lhs,
@@ -196,7 +198,8 @@ std::string emplaceWithFallback(
     } else if (map.contains(key)) {
       return key;
     } else {
-      auto [_, emplaced] = map.try_emplace(key, std::forward<V>(v));
+      [[maybe_unused]] auto [_, emplaced] =
+        map.try_emplace(key, std::forward<V>(v));
       assert(emplaced);
       return key;
     }
@@ -483,10 +486,11 @@ NodeEvaluationException::NodeEvaluationException(const NodeBase &node,
     return "vs";
   case Fragment:
     return "fs";
-  }
 
-  assert(false);
-  return "_";
+  default:
+    assert(false);
+    return "_";
+  }
 }
 
 std::string nodeIdToString(const VertexID id) {

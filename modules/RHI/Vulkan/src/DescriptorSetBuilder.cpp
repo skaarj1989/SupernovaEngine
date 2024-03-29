@@ -10,6 +10,7 @@
 
 namespace rhi {
 
+#if _DEBUG
 namespace {
 
 [[nodiscard]] auto validRange(const Buffer &buffer, const VkDeviceSize offset,
@@ -21,6 +22,7 @@ namespace {
 }
 
 } // namespace
+#endif
 
 //
 // DescriptorSetBuilder class:

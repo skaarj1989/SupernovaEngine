@@ -16,10 +16,11 @@ DataType getDataType(const Attribute e) {
     return Vec3;
   case Color:
     return Vec4;
-  }
 
-  assert(false);
-  return Undefined;
+  default:
+    assert(false);
+    return Undefined;
+  }
 }
 const char *toString(const Attribute e) {
 #define CASE(Value)                                                            \
@@ -34,8 +35,9 @@ const char *toString(const Attribute e) {
     CASE(TexCoord1);
     CASE(Normal);
     CASE(Color);
-  }
 
-  assert(false);
-  return "Undefined";
+  default:
+    assert(false);
+    return "Undefined";
+  }
 }

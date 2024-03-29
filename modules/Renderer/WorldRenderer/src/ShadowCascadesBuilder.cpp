@@ -30,7 +30,7 @@ using Splits = std::vector<float>;
   // Calculate split depths based on view camera frustum.
   // Based on method presented in:
   // https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html
-  for (auto i = 0; i < cascadeSplits.size(); ++i) {
+  for (auto i = 0u; i < cascadeSplits.size(); ++i) {
     const auto p = float(i + 1) / float(cascadeSplits.size());
     const auto log = minZ * std::pow(ratio, p);
     const auto uniform = minZ + range * p;
@@ -137,7 +137,7 @@ std::vector<Cascade> buildCascades(const PerspectiveCamera &camera,
 
   std::vector<Cascade> cascades(numCascades);
   auto lastSplitDist = 0.0f;
-  for (auto i = 0; i < cascades.size(); ++i) {
+  for (auto i = 0u; i < cascades.size(); ++i) {
     const auto splitDist = cascadeSplits[i];
 
     auto &[splitDepth, aabb, lightView] = cascades[i];

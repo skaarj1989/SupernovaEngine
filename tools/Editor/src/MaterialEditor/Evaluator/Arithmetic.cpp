@@ -25,7 +25,7 @@ namespace {
                                  const std::pair<DataType, DataType> p,
                                  const DataType rv) {
     const auto h = makeHash(p.first, op, p.second);
-    auto [_, inserted] = m.try_emplace(h, rv);
+    [[maybe_unused]] auto [_, inserted] = m.try_emplace(h, rv);
     assert(inserted);
   };
   const auto addOperations =
@@ -292,9 +292,11 @@ getOperationToken(const ArithmeticNode::Operation op) {
     return "*";
   case Divide:
     return "/";
+
+  default:
+    assert(false);
+    return "?";
   }
-  assert(false);
-  return "?";
 }
 
 } // namespace

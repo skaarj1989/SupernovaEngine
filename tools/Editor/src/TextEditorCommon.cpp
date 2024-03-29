@@ -3,9 +3,13 @@
 
 #include "ImGuiTitleBarMacro.hpp"
 #include "IconsFontAwesome6.h"
-#pragma warning(push, 0)
+#if defined(_MSC_VER)
+#  pragma warning(push, 0)
+#endif
 #include "TextEditor.h"
-#pragma warning(pop)
+#if defined(_MSC_VER)
+#  pragma warning(pop)
+#endif
 #include "ImGuiModal.hpp"
 #include "ImGuiDragAndDrop.hpp"
 #include "imgui_internal.h" // ClosePopupsExceptModals

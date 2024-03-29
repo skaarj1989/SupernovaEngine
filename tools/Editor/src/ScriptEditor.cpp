@@ -262,8 +262,8 @@ ScriptEditor::Entry *ScriptEditor::_getActiveEntry() {
 void ScriptEditor::_runScript(const Entry &e) {
   publish(RunScriptRequest{e.textEditor.GetText()});
 }
-void ScriptEditor::_removeScriptAt(std::size_t index) {
-  assert(index >= 0 && index < m_scripts.size());
+void ScriptEditor::_removeScriptAt(const std::size_t index) {
+  assert(index < m_scripts.size());
   m_scripts.erase(m_scripts.begin() + index);
 
   if (m_activeScriptId && *m_activeScriptId == index)

@@ -155,11 +155,12 @@ KTX_error_code optimalTilingPadCallback(int miplevel, int face, int width,
     CASE(KTX_UNSUPPORTED_TEXTURE_TYPE);
     CASE(KTX_UNSUPPORTED_FEATURE);
     CASE(KTX_LIBRARY_NOT_LINKED);
+
+  default:
+    assert(false);
+    return "UNKNOWN";
   }
 #undef CASE
-
-  assert(false);
-  return "UNKNOWN";
 }
 
 [[nodiscard]] auto upload(rhi::RenderDevice &rd, rhi::Texture &texture,

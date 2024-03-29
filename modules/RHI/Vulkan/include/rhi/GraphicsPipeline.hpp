@@ -8,6 +8,7 @@
 #include "PrimitiveTopology.hpp"
 #include "VertexAttributes.hpp"
 
+#include <limits> // numeric_limits<>
 #include <string>
 #include <unordered_map>
 #include <optional>
@@ -86,7 +87,7 @@ struct DepthBias {
   // Scalar factor controlling the constant depth value added to each fragment.
   float constantFactor{0.0f};
   // The maximum (or minimum) depth bias of a fragment.
-  // Scalar factor applied to a fragment’s slope in depth bias calculations.
+  // Scalar factor applied to a fragmentï¿½s slope in depth bias calculations.
   float slopeFactor{0.0f};
 };
 
@@ -96,7 +97,7 @@ struct RasterizerState {
   // Specify whether front- or back-facing facets can be culled.
   CullMode cullMode{CullMode::None};
   std::optional<DepthBias> depthBias;
-  // Controls whether to clamp the fragment’s depth values as described in Depth
+  // Controls whether to clamp the fragmentï¿½s depth values as described in Depth
   // Test. Enabling depth clamp will also disable clipping primitives to the z
   // planes of the frustrum as described in Primitive Clipping.
   bool depthClampEnable{false};
@@ -139,7 +140,7 @@ enum class BlendFactor {
 // dst = Values already present in a framebuffer.
 struct BlendState {
   // Controls whether blending is enabled for the corresponding color
-  // attachment. If blending is not enabled, the source fragment’s color for
+  // attachment. If blending is not enabled, the source fragmentï¿½s color for
   // that attachment is passed through unmodified.
   bool enabled{false};
 
@@ -162,8 +163,7 @@ struct BlendState {
 
 // Assign to VertexAttribute::offset in GraphicsPipeline::setInputAssembly
 // to silence "Vertex attribute at location x not consumed by vertex shader".
-constexpr uint32_t kIgnoreVertexAttribute =
-  std::numeric_limits<uint32_t>::max();
+constexpr auto kIgnoreVertexAttribute = std::numeric_limits<uint32_t>::max();
 
 class GraphicsPipeline final : public BasePipeline {
   friend class RenderDevice;

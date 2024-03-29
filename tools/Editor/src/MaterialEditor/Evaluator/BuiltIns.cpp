@@ -24,8 +24,10 @@ namespace {
     break;
   case Color:
     return "getColor()";
-  }
 
+  default:
+    break;
+  }
   assert(false);
   return "";
 }
@@ -49,10 +51,11 @@ namespace {
 
   case ViewDir:
     return "getViewDir()";
-  }
 
-  assert(false);
-  return "Undefined";
+  default:
+    assert(false);
+    return "Undefined";
+  }
 }
 [[nodiscard]] auto toGLSL(const BuiltInSampler e) {
   switch (e) {
@@ -62,10 +65,11 @@ namespace {
     return "t_SceneDepth";
   case SceneColor:
     return "t_SceneColor";
-  }
 
-  assert(false);
-  return "Undefined";
+  default:
+    assert(false);
+    return "Undefined";
+  }
 }
 
 [[nodiscard]] auto toGLSL(const FrameBlockMember e) {
@@ -76,10 +80,11 @@ namespace {
     return "time";
   case DeltaTime:
     return "deltaTime";
-  }
 
-  assert(false);
-  return "";
+  default:
+    assert(false);
+    return "";
+  }
 }
 [[nodiscard]] auto toGLSL(const CameraBlockMember e) {
   switch (e) {
@@ -103,10 +108,11 @@ namespace {
     return "near";
   case Far:
     return "far";
-  }
 
-  assert(false);
-  return "";
+  default:
+    assert(false);
+    return "";
+  }
 }
 
 template <typename E, typename... Args>

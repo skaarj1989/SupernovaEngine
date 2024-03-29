@@ -70,10 +70,11 @@ constexpr auto kSwapchainDefaultUsageFlags =
     return VK_IMAGE_VIEW_TYPE_CUBE;
   case TextureCubeArray:
     return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
-  }
 
-  assert(false);
-  return VkImageViewType(~0);
+  default:
+    assert(false);
+    return VkImageViewType(~0);
+  }
 }
 
 [[nodiscard]] auto isLayered(const TextureType textureType) {
@@ -84,8 +85,10 @@ constexpr auto kSwapchainDefaultUsageFlags =
   case TextureCube:
   case TextureCubeArray:
     return true;
+
+  default:
+    return false;
   }
-  return false;
 }
 
 [[nodiscard]] auto
@@ -123,7 +126,7 @@ createImageView(const VkDevice device, const VkImage image,
   if (bool(usage & ImageUsage::Sampled)) out |= VK_IMAGE_USAGE_SAMPLED_BIT;
 
   // UNASSIGNED-BestPractices-vkImage-DontUseStorageRenderTargets
-  constexpr auto kForbiddenSet =
+  [[maybe_unused]] constexpr auto kForbiddenSet =
     VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_STORAGE_BIT;
   assert((out & kForbiddenSet) != kForbiddenSet);
   return out;
@@ -561,8 +564,10 @@ bool isCubemap(const Texture &texture) {
   case TextureCube:
   case TextureCubeArray:
     return true;
+
+  default:
+    return false;
   }
-  return false;
 }
 
 } // namespace rhi

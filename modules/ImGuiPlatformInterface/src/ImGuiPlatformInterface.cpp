@@ -226,8 +226,10 @@ std::optional<ImGuiKey> remapKeyCode(const os::KeyCode keyCode) {
     return ImGuiKey_F11;
   case os::KeyCode::F12:
     return ImGuiKey_F12;
+
+  default:
+    return std::nullopt;
   }
-  return std::nullopt;
 }
 std::optional<ImGuiKey> getKeyModifier(const os::KeyCode keyCode) {
   switch (keyCode) {
@@ -248,8 +250,10 @@ std::optional<ImGuiKey> getKeyModifier(const os::KeyCode keyCode) {
   case LWin:
   case RWin:
     return ImGuiMod_Super;
+
+  default:
+    return std::nullopt;
   }
-  return std::nullopt;
 }
 
 void setupPlatformInterface(os::Window &mainWindow) {

@@ -5,6 +5,15 @@
 #  include "VertexFormat.hpp"
 #  include "nlohmann/json.hpp"
 
+#  if defined(_MSC_VER)
+#    pragma warning(push)
+#    pragma warning(disable : 4505) // unreferenced function with internal
+                                    // linkage has been removed
+#  elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wunused-function"
+#  endif
+
 #  define MAKE_PAIR(Value)                                                     \
     { AttributeLocation::Value, #Value }
 
@@ -27,5 +36,11 @@ NLOHMANN_JSON_SERIALIZE_ENUM(AttributeLocation, {
 } // namespace gfx
 
 #  undef MAKE_PAIR
+
+#  if defined(_MSC_VER)
+#    pragma warning(pop)
+#  elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#  endif
 
 #endif

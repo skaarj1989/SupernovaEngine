@@ -23,7 +23,7 @@ buildPropertyBuffer(const PropertyLayout &layout,
 
   const auto bufferSize = adjustStride(layout.stride, minOffsetAlignment);
   std::vector<std::byte> buffer(bufferSize);
-  for (auto i = 0; i < layout.members.size(); ++i) {
+  for (auto i = 0u; i < layout.members.size(); ++i) {
     const auto [offset, size] = layout.members[i];
     std::memcpy(&buffer[offset], &properties[i].value, size);
   }

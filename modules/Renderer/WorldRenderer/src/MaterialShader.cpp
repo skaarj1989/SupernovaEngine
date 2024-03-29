@@ -43,9 +43,11 @@ constexpr auto kUserCodeRegion = DECLARE_REGION(USER_CODE);
     return "sampler2D";
   case TextureCube:
     return "samplerCube";
+
+  default:
+    assert(false);
+    return "";
   }
-  assert(false);
-  return "";
 }
 [[nodiscard]] std::string buildSamplersChunk(const TextureResources &textures,
                                              const uint32_t set,

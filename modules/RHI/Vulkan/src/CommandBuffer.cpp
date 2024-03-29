@@ -23,9 +23,11 @@ constexpr VkDeviceSize kMaxDataSize{65536};
     return VK_INDEX_TYPE_UINT16;
   case IndexType::UInt32:
     return VK_INDEX_TYPE_UINT32;
+
+  default:
+    assert(false);
+    return VK_INDEX_TYPE_MAX_ENUM;
   }
-  assert(false);
-  return VK_INDEX_TYPE_MAX_ENUM;
 }
 
 [[nodiscard]] auto toVk(const ClearValue &clearValue) {

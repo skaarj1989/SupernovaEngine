@@ -1,13 +1,7 @@
 #include "renderer/MaterialLoader.hpp"
 #include "os/FileSystem.hpp"
-
-#pragma warning(push)
-// unreferenced function with internal linkage has been removed
-#pragma warning(disable : 4505)
 #include "rhi/json.hpp"
 #include "renderer/jsonMaterial.hpp"
-#pragma warning(pop)
-
 #include "ShaderCodeBuilder.hpp"
 #include "spdlog/spdlog.h"
 

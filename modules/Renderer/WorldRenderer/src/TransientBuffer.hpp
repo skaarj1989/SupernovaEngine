@@ -4,9 +4,11 @@
 
 namespace gfx {
 
-#pragma warning(push)
+#if defined(_MSC_VER)
+#  pragma warning(push)
 // structure was padded due to alignment specifier
-#pragma warning(disable : 4324)
+#  pragma warning(disable : 4324)
+#endif
 
 template <typename T> struct TransientBuffer {
   const std::string_view name;
@@ -14,6 +16,8 @@ template <typename T> struct TransientBuffer {
   T data;
 };
 
-#pragma warning(pop)
+#if defined(_MSC_VER)
+#  pragma warning(pop)
+#endif
 
 } // namespace gfx

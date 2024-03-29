@@ -95,6 +95,10 @@ void listFiles(const std::filesystem::path &dir,
 }
 
 void stageMenuItems(rhi::ShaderType &v, const gfx::MaterialDomain domain) {
+#ifdef __GNUC__
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wrange-loop-construct"
+#endif
   using enum rhi::ShaderType;
   for (const auto [shaderType, shortcut] : {
          std::pair{Vertex, "Ctrl+F1"},
@@ -107,6 +111,9 @@ void stageMenuItems(rhi::ShaderType &v, const gfx::MaterialDomain domain) {
       v = shaderType;
     }
   }
+#ifdef __GNUC__
+#  pragma GCC diagnostic pop
+#endif
 }
 
 bool inspect(gfx::ShadingModel &shadingModel) {

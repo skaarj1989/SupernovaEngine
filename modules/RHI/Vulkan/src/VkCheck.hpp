@@ -4,6 +4,6 @@
 
 #define VK_CHECK(x)                                                            \
   do {                                                                         \
-    VkResult result = x;                                                       \
+    [[maybe_unused]] VkResult result = x;                                      \
     assert(result == VK_SUCCESS);                                              \
   } while (false)

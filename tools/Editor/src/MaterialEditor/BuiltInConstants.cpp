@@ -25,10 +25,11 @@ DataType getDataType(const BuiltInConstant e) {
 
   case ViewDir:
     return Vec3;
-  }
 
-  assert(false);
-  return Undefined;
+  default:
+    assert(false);
+    return Undefined;
+  }
 }
 const char *toString(const BuiltInConstant e) {
   switch (e) {
@@ -43,10 +44,11 @@ const char *toString(const BuiltInConstant e) {
     CASE(FragPosViewSpace);
 
     CASE(ViewDir);
-  }
 
-  assert(false);
-  return "Undefined";
+  default:
+    assert(false);
+    return "Undefined";
+  }
 }
 
 DataType getDataType(const BuiltInSampler) { return DataType::Sampler2D; }
@@ -56,8 +58,9 @@ const char *toString(const BuiltInSampler e) {
 
     CASE(SceneDepth);
     CASE(SceneColor);
-  }
 
-  assert(false);
-  return "Undefined";
+  default:
+    assert(false);
+    return "Undefined";
+  }
 }

@@ -40,6 +40,9 @@ void initCamera(entt::registry &r, const entt::entity e) {
           glm::inverse(buildSpotLightMatrix(light).viewProjection()),
           light.color);
         break;
+
+      default:
+        break;
       }
     }
   }

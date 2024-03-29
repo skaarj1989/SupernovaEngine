@@ -1,5 +1,9 @@
 #include "Inspectors/ColliderInspector.hpp"
 
+#ifdef __GNUC__
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 #include "Jolt/Jolt.h"
 #include "Jolt/Physics/Collision/Shape/Shape.h"
 #include "Jolt/Physics/Collision/Shape/SphereShape.h"
@@ -10,6 +14,9 @@
 #include "Jolt/Physics/Collision/Shape/StaticCompoundShape.h"
 #include "Jolt/Physics/Collision/Shape/ScaledShape.h"
 #include "Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h"
+#ifdef __GNUC__
+#  pragma GCC diagnostic pop
+#endif
 
 #include "imgui.h"
 
@@ -93,5 +100,8 @@ void print(const JPH::Shape *shape) {
 
     CASE(Mesh);
 #undef CASE
+
+  default:
+    ImGui::TextUnformatted("Unknown");
   }
 }

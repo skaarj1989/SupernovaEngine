@@ -35,8 +35,8 @@ namespace {
   using enum LightingMode;
   using enum BlendMode;
 
-  return surface.lightingMode != Transmission && surface.blendMode == Opaque ||
-         surface.blendMode == Masked;
+  return surface.lightingMode != Transmission &&
+         (surface.blendMode == Opaque || surface.blendMode == Masked);
 };
 
 [[nodiscard]] auto batchCompatible(const Batch &b, const Renderable &r) {

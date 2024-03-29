@@ -2,26 +2,6 @@
 #include "Inspectors/CollisionLayerInspector.hpp"
 #include "ImGuiHelper.hpp"
 
-namespace {
-
-[[nodiscard]] auto toString(MotionType motionType) {
-#define CASE(Value)                                                            \
-  case MotionType::Value:                                                      \
-    return #Value;
-
-  switch (motionType) {
-    CASE(Dynamic)
-    CASE(Static)
-    CASE(Kinematic)
-  }
-#undef CASE
-
-  assert(false);
-  return "Undefined";
-}
-
-} // namespace
-
 bool inspect(RigidBody::Settings &settings) {
   auto dirty = false;
 

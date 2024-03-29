@@ -155,7 +155,8 @@ void init() {
   assert(g_screen != nullptr);
 
   const auto cookies = xcb_ewmh_init_atoms(g_connection, &g_EWMH);
-  const auto result = xcb_ewmh_init_atoms_replies(&g_EWMH, cookies, nullptr);
+  [[maybe_unused]] const auto result =
+    xcb_ewmh_init_atoms_replies(&g_EWMH, cookies, nullptr);
   assert(result);
 
   using enum AtomGetterMode;
@@ -204,7 +205,7 @@ void shutdown() {
 xcb_connection_t *getConnection() { return g_connection; }
 
 void check(const xcb_void_cookie_t cookie) {
-  const auto *err = xcb_request_check(g_connection, cookie);
+  [[maybe_unused]] const auto *err = xcb_request_check(g_connection, cookie);
   assert(!err);
 }
 void flush() {
@@ -331,7 +332,7 @@ uintptr_t getUserData(const xcb_window_t window) {
 xcb_window_t getActiveWindow() {
   const auto cookie = xcb_ewmh_get_active_window(&g_EWMH, g_screenNumber);
   xcb_window_t window{XCB_WINDOW_NONE};
-  const auto result =
+  [[maybe_unused]] const auto result =
     xcb_ewmh_get_active_window_reply(&g_EWMH, cookie, &window, nullptr);
   assert(result);
   return window;

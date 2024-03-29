@@ -246,11 +246,17 @@ remapKeyCode(const os::KeyCode keyCode) {
     return KI_F11;
   case os::KeyCode::F12:
     return KI_F12;
+
+  default:
+    return std::nullopt;
   }
-  return std::nullopt;
 }
 
 } // namespace
+
+#ifdef __GNUC__
+#  pragma GCC diagnostic ignored "-Wswitch"
+#endif
 
 void processEvent(Rml::Context &ctx, const os::InputEvent &evt) {
   std::visit(Overload{
@@ -266,7 +272,6 @@ void processEvent(Rml::Context &ctx, const os::InputEvent &evt) {
                  case Pressed:
                    ctx.ProcessMouseButtonDown(btn, 0);
                    break;
-
                  case Released:
                    ctx.ProcessMouseButtonUp(btn, 0);
                    break;

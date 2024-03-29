@@ -9,10 +9,11 @@ DataType getDataType(const FrameBlockMember e) {
   case Time:
   case DeltaTime:
     return Float;
-  }
 
-  assert(false);
-  return Undefined;
+  default:
+    assert(false);
+    return Undefined;
+  }
 }
 const char *toString(const FrameBlockMember e) {
 #define CASE(Value)                                                            \
@@ -24,8 +25,9 @@ const char *toString(const FrameBlockMember e) {
 
     CASE(Time);
     CASE(DeltaTime);
-  }
 
-  assert(false);
-  return "Undefined";
+  default:
+    assert(false);
+    return "Undefined";
+  }
 }

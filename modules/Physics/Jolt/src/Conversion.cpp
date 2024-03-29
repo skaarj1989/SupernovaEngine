@@ -1,11 +1,18 @@
 #include "physics/Conversion.hpp"
 
+#ifdef __GNUC__
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 #include "Jolt/Jolt.h"
 #include "Jolt/Math/Vec3.h"
 #include "Jolt/Math/Vec4.h"
 #include "Jolt/Math/Quat.h"
 #include "Jolt/Math/Mat44.h"
 #include "Jolt/Geometry/AABox.h"
+#ifdef __GNUC__
+#  pragma GCC diagnostic pop
+#endif
 
 #include "math/AABB.hpp"
 #include "glm/gtc/quaternion.hpp"

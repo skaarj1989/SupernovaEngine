@@ -31,6 +31,17 @@ void _printf(Logger logger, spdlog::level::level_enum level,
 #define VMA_DYNAMIC_VULKAN_FUNCTIONS 0
 #define VMA_IMPLEMENTATION
 
-#pragma warning(push, 0)
+#if defined(_MSC_VER)
+#  pragma warning(push, 0)
+#elif defined(__GNUC__)
+#  pragma GCC diagnostic ignored "-Wunused-parameter"
+#  pragma GCC diagnostic ignored "-Wunused-variable"
+#  pragma GCC diagnostic ignored "-Wimplicit-fallthrough="
+#  pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#endif
 #include "vk_mem_alloc.h"
-#pragma warning(pop)
+#if defined(_MSC_VER)
+#  pragma warning(pop)
+#elif defined(__GNUC__)
+#  pragma GCC diagnostic pop
+#endif

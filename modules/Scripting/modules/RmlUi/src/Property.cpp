@@ -5,6 +5,10 @@
 
 #include "Sol2HelperMacros.hpp"
 
+#ifdef __GNUC__
+#  pragma GCC diagnostic ignored "-Wswitch"
+#endif
+
 using namespace Rml;
 
 namespace {

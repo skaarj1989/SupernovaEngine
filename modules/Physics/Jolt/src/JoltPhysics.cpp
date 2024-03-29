@@ -1,9 +1,16 @@
 #include "physics/JoltPhysics.hpp"
 #include "physics/DebugRenderer.hpp"
 
+#ifdef __GNUC__
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 #include "Jolt/Jolt.h"
 #include "Jolt/RegisterTypes.h"
 #include "Jolt/Core/Factory.h"
+#ifdef __GNUC__
+#  pragma GCC diagnostic pop
+#endif
 
 #include <cassert>
 
