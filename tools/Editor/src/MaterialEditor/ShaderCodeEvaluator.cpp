@@ -227,7 +227,6 @@ ShaderCodeEvaluator::evaluate(const ShaderGraph &g) {
       if (!shouldSkip(*node)) node->accept(*this);
     }
   } catch (const std::exception &e) {
-
     return std::unexpected{e.what()};
   }
   return ShaderDefinition{
