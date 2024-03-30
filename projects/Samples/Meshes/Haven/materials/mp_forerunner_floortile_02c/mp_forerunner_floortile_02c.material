@@ -1,0 +1,86 @@
+{
+  "name": "mp_forerunner_floortile_02c",
+  "domain": "Surface",
+  "shadingModel": "Lit",
+  "blendMode": "Opaque",
+  "lightingMode": "Default",
+  "cullMode": "None",
+  "properties": {
+    "baseColorFactor": {
+      "type": "vec4",
+      "value": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "roughnessFactor": {
+      "type": "float",
+      "value": 1.0
+    },
+    "alphaCutOff": {
+      "type": "float",
+      "value": 0.5
+    },
+    "metallicFactor": {
+      "type": "float",
+      "value": 1.0
+    },
+    "emissiveColorFactor": {
+      "type": "vec4",
+      "value": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    }
+  },
+  "samplers": {
+    "t_BaseColor": {
+      "type": "sampler2D",
+      "path": "../textures/mp_forerunner_floortile_02c_diffuse.png"
+    },
+    "t_Normal": {
+      "type": "sampler2D",
+      "path": "../textures/mp_forerunner_floortile_02c_normal.png"
+    }
+  },
+  "fragmentShader": {
+    "defines": [
+      [
+        "HAS_ALPHA_CUT_OFF",
+        1
+      ],
+      [
+        "HAS_BASE_COLOR_FACTOR",
+        1
+      ],
+      [
+        "HAS_BASE_COLOR_TEXTURE",
+        1
+      ],
+      [
+        "HAS_EMISSIVE_COLOR_FACTOR",
+        1
+      ],
+      [
+        "HAS_METALLIC_FACTOR",
+        1
+      ],
+      [
+        "HAS_NORMAL_TEXTURE",
+        1
+      ],
+      [
+        "HAS_ROUGHNESS_FACTOR",
+        1
+      ],
+      [
+        "IS_PBR",
+        1
+      ]
+    ]
+  }
+}

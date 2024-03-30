@@ -1,0 +1,69 @@
+{
+  "name": "mp_forerunner_selfillum_01",
+  "domain": "Surface",
+  "shadingModel": "Lit",
+  "blendMode": "Opaque",
+  "lightingMode": "Default",
+  "cullMode": "None",
+  "properties": {
+    "baseColorFactor": {
+      "type": "vec4",
+      "value": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "roughnessFactor": {
+      "type": "float",
+      "value": 1.0
+    },
+    "alphaCutOff": {
+      "type": "float",
+      "value": 0.5
+    },
+    "metallicFactor": {
+      "type": "float",
+      "value": 1.0
+    },
+    "emissiveColorFactor": {
+      "type": "vec4",
+      "value": [
+        0.24228112399578094,
+        0.06480326503515244,
+        0.0,
+        1.0
+      ]
+    }
+  },
+  "samplers": {},
+  "fragmentShader": {
+    "defines": [
+      [
+        "HAS_ALPHA_CUT_OFF",
+        1
+      ],
+      [
+        "HAS_BASE_COLOR_FACTOR",
+        1
+      ],
+      [
+        "HAS_EMISSIVE_COLOR_FACTOR",
+        1
+      ],
+      [
+        "HAS_METALLIC_FACTOR",
+        1
+      ],
+      [
+        "HAS_ROUGHNESS_FACTOR",
+        1
+      ],
+      [
+        "IS_PBR",
+        1
+      ]
+    ]
+  }
+}

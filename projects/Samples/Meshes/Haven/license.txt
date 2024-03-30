@@ -1,0 +1,11 @@
+Model Information:
+* title:	Halo 4>Multiplayer>Default>Haven
+* source:	https://sketchfab.com/3d-models/halo-4multiplayerdefaulthaven-2b44a727804e404f8fb1e6d249fee9bf
+* author:	jameslucino117 (https://sketchfab.com/jameslucino117)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Halo 4>Multiplayer>Default>Haven" (https://sketchfab.com/3d-models/halo-4multiplayerdefaulthaven-2b44a727804e404f8fb1e6d249fee9bf) by jameslucino117 (https://sketchfab.com/jameslucino117) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

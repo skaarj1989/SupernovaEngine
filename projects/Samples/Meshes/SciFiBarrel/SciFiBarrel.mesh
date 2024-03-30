@@ -1,0 +1,136 @@
+{
+  "buffer": "data.buffer",
+  "meshes": [
+    {
+      "name": "Barrel_low_Barrel_0",
+      "vertexOffset": 0,
+      "numVertices": 1284,
+      "LOD": [
+        {
+          "indexOffset": 0,
+          "numIndices": 3546
+        }
+      ],
+      "aabb": {
+        "min": [
+          -0.2851134240627289,
+          0.00017699599266052246,
+          -0.28511351346969604
+        ],
+        "max": [
+          0.28511354327201843,
+          0.8102908134460449,
+          0.28511348366737366
+        ]
+      },
+      "material": "materials/Barrel/Barrel.material"
+    },
+    {
+      "name": "Bung_low_Barrel_0",
+      "vertexOffset": 1284,
+      "numVertices": 240,
+      "LOD": [
+        {
+          "indexOffset": 3546,
+          "numIndices": 678
+        }
+      ],
+      "aabb": {
+        "min": [
+          -0.057767197489738464,
+          0.744420051574707,
+          -0.057767294347286224
+        ],
+        "max": [
+          0.057767268270254135,
+          0.7611889243125916,
+          0.05776719003915787
+        ]
+      },
+      "material": "materials/Barrel/Barrel.material"
+    },
+    {
+      "name": "Cap_low_Barrel_0",
+      "vertexOffset": 1524,
+      "numVertices": 456,
+      "LOD": [
+        {
+          "indexOffset": 4224,
+          "numIndices": 1344
+        }
+      ],
+      "aabb": {
+        "min": [
+          -0.19181492924690247,
+          0.7611889243125916,
+          -0.19181501865386963
+        ],
+        "max": [
+          0.19181501865386963,
+          0.7917202711105347,
+          0.19181495904922485
+        ]
+      },
+      "material": "materials/Barrel/Barrel.material"
+    }
+  ],
+  "aabb": {
+    "min": [
+      -0.2851134240627289,
+      0.00017699599266052246,
+      -0.28511351346969604
+    ],
+    "max": [
+      0.28511354327201843,
+      0.8102908134460449,
+      0.28511348366737366
+    ]
+  },
+  "vertices": {
+    "byteOffset": 0,
+    "count": 1980,
+    "stride": 56,
+    "attributes": [
+      [
+        "Position",
+        {
+          "type": "Float3",
+          "offset": 0
+        }
+      ],
+      [
+        "Normal",
+        {
+          "type": "Float3",
+          "offset": 12
+        }
+      ],
+      [
+        "TexCoord_0",
+        {
+          "type": "Float2",
+          "offset": 24
+        }
+      ],
+      [
+        "Tangent",
+        {
+          "type": "Float3",
+          "offset": 32
+        }
+      ],
+      [
+        "Bitangent",
+        {
+          "type": "Float3",
+          "offset": 44
+        }
+      ]
+    ]
+  },
+  "indices": {
+    "byteOffset": 110880,
+    "count": 5568,
+    "stride": 2
+  }
+}

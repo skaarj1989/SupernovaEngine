@@ -1,0 +1,11 @@
+Model Information:
+* title:	Sci-fi Container Games
+* source:	https://sketchfab.com/3d-models/sci-fi-container-games-945e5d4830b54d2fb1d0b24022cea8ca
+* author:	Epic_Hard_RU (https://sketchfab.com/Epic_Hard_RU)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Sci-fi Container Games" (https://sketchfab.com/3d-models/sci-fi-container-games-945e5d4830b54d2fb1d0b24022cea8ca) by Epic_Hard_RU (https://sketchfab.com/Epic_Hard_RU) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

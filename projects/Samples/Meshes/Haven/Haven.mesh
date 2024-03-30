@@ -1,0 +1,568 @@
+{
+  "buffer": "data.buffer",
+  "meshes": [
+    {
+      "name": "Object_0",
+      "vertexOffset": 0,
+      "numVertices": 592,
+      "LOD": [
+        {
+          "indexOffset": 0,
+          "numIndices": 1728
+        }
+      ],
+      "aabb": {
+        "min": [
+          -38.05699157714844,
+          7.055751800537109,
+          -87.76524353027344
+        ],
+        "max": [
+          38.05699157714844,
+          7.327027797698975,
+          1.1754943508222875e-38
+        ]
+      },
+      "material": "materials/forerunner_glass_circuit_03/forerunner_glass_circuit_03.material"
+    },
+    {
+      "name": "Object_1",
+      "vertexOffset": 592,
+      "numVertices": 108,
+      "LOD": [
+        {
+          "indexOffset": 1728,
+          "numIndices": 270
+        }
+      ],
+      "aabb": {
+        "min": [
+          12.914205551147461,
+          -0.5794820189476013,
+          -98.10285949707031
+        ],
+        "max": [
+          50.28022766113281,
+          5.973261833190918,
+          1.1754943508222875e-38
+        ]
+      },
+      "material": "materials/forerunner_selfillum_blue_01/forerunner_selfillum_blue_01.material"
+    },
+    {
+      "name": "Object_2",
+      "vertexOffset": 700,
+      "numVertices": 51777,
+      "LOD": [
+        {
+          "indexOffset": 1998,
+          "numIndices": 128601
+        }
+      ],
+      "aabb": {
+        "min": [
+          -75.4740219116211,
+          -693.7551879882813,
+          -122.08478546142578
+        ],
+        "max": [
+          75.47444152832031,
+          1574.0965576171875,
+          17.511146545410156
+        ]
+      },
+      "material": "materials/mp_forerunner_floortile_01/mp_forerunner_floortile_01.material"
+    },
+    {
+      "name": "Object_3",
+      "vertexOffset": 52477,
+      "numVertices": 845,
+      "LOD": [
+        {
+          "indexOffset": 130599,
+          "numIndices": 2280
+        }
+      ],
+      "aabb": {
+        "min": [
+          -55.6875114440918,
+          -0.9589189887046814,
+          -98.47137451171875
+        ],
+        "max": [
+          55.6875114440918,
+          7.340318202972412,
+          1.1754943508222875e-38
+        ]
+      },
+      "material": "materials/mp_forerunner_floortile_02a/mp_forerunner_floortile_02a.material"
+    },
+    {
+      "name": "Object_4",
+      "vertexOffset": 53322,
+      "numVertices": 672,
+      "LOD": [
+        {
+          "indexOffset": 132879,
+          "numIndices": 2034
+        }
+      ],
+      "aabb": {
+        "min": [
+          -47.785423278808594,
+          -0.9589189887046814,
+          -92.94800567626953
+        ],
+        "max": [
+          47.81058883666992,
+          5.305140018463135,
+          1.1754943508222875e-38
+        ]
+      },
+      "material": "materials/mp_forerunner_floortile_02b/mp_forerunner_floortile_02b.material"
+    },
+    {
+      "name": "Object_5",
+      "vertexOffset": 53994,
+      "numVertices": 1979,
+      "LOD": [
+        {
+          "indexOffset": 134913,
+          "numIndices": 5052
+        }
+      ],
+      "aabb": {
+        "min": [
+          -74.91777801513672,
+          -693.7551879882813,
+          -108.45446014404297
+        ],
+        "max": [
+          74.92156219482422,
+          1574.0965576171875,
+          6.296658992767334
+        ]
+      },
+      "material": "materials/mp_forerunner_floortile_02c/mp_forerunner_floortile_02c.material"
+    },
+    {
+      "name": "Object_6",
+      "vertexOffset": 55973,
+      "numVertices": 8149,
+      "LOD": [
+        {
+          "indexOffset": 139965,
+          "numIndices": 19794
+        }
+      ],
+      "aabb": {
+        "min": [
+          -61.580055236816406,
+          -466.4042663574219,
+          -96.01318359375
+        ],
+        "max": [
+          61.580055236816406,
+          69.2571792602539,
+          1.1777149438858032
+        ]
+      },
+      "material": "materials/mp_forerunner_floortile_02d/mp_forerunner_floortile_02d.material"
+    },
+    {
+      "name": "Object_7",
+      "vertexOffset": 64122,
+      "numVertices": 2762,
+      "LOD": [
+        {
+          "indexOffset": 159759,
+          "numIndices": 6921
+        }
+      ],
+      "aabb": {
+        "min": [
+          -58.87272644042969,
+          -9.718854904174805,
+          -108.06902313232422
+        ],
+        "max": [
+          58.87272644042969,
+          14.62679672241211,
+          7.175827980041504
+        ]
+      },
+      "material": "materials/mp_forerunner_glass_pattern_02/mp_forerunner_glass_pattern_02.material"
+    },
+    {
+      "name": "Object_8",
+      "vertexOffset": 66884,
+      "numVertices": 3849,
+      "LOD": [
+        {
+          "indexOffset": 166680,
+          "numIndices": 10251
+        }
+      ],
+      "aabb": {
+        "min": [
+          -69.1534423828125,
+          -5.940739154815674,
+          -118.55720520019531
+        ],
+        "max": [
+          69.1534423828125,
+          10.49681282043457,
+          1.1754943508222875e-38
+        ]
+      },
+      "material": "materials/mp_forerunner_metal_02/mp_forerunner_metal_02.material"
+    },
+    {
+      "name": "Object_9",
+      "vertexOffset": 70733,
+      "numVertices": 5002,
+      "LOD": [
+        {
+          "indexOffset": 176931,
+          "numIndices": 12135
+        }
+      ],
+      "aabb": {
+        "min": [
+          -56.86497497558594,
+          -4.39443302154541,
+          -86.08025360107422
+        ],
+        "max": [
+          56.86497497558594,
+          68.10697937011719,
+          18.164907455444336
+        ]
+      },
+      "material": "materials/mp_forerunner_metal_tile_02/mp_forerunner_metal_tile_02.material"
+    },
+    {
+      "name": "Object_10",
+      "vertexOffset": 75735,
+      "numVertices": 49818,
+      "LOD": [
+        {
+          "indexOffset": 189066,
+          "numIndices": 131604
+        }
+      ],
+      "aabb": {
+        "min": [
+          -75.12798309326172,
+          -693.7551879882813,
+          -124.8536376953125
+        ],
+        "max": [
+          75.1283950805664,
+          1574.0965576171875,
+          15.49664306640625
+        ]
+      },
+      "material": "materials/mp_forerunner_panels_01/mp_forerunner_panels_01.material"
+    },
+    {
+      "name": "Object_11",
+      "vertexOffset": 125553,
+      "numVertices": 10974,
+      "LOD": [
+        {
+          "indexOffset": 320670,
+          "numIndices": 27507
+        }
+      ],
+      "aabb": {
+        "min": [
+          -56.17585372924805,
+          -6.410892009735107,
+          -87.56382751464844
+        ],
+        "max": [
+          56.17615509033203,
+          71.20022583007813,
+          18.089893341064453
+        ]
+      },
+      "material": "materials/mp_forerunner_panels_02/mp_forerunner_panels_02.material"
+    },
+    {
+      "name": "Object_12",
+      "vertexOffset": 136527,
+      "numVertices": 8358,
+      "LOD": [
+        {
+          "indexOffset": 348177,
+          "numIndices": 16587
+        }
+      ],
+      "aabb": {
+        "min": [
+          -72.4486312866211,
+          -3.695233106613159,
+          -116.6959228515625
+        ],
+        "max": [
+          72.45243835449219,
+          1574.0965576171875,
+          18.026575088500977
+        ]
+      },
+      "material": "materials/mp_forerunner_selfillum_01/mp_forerunner_selfillum_01.material"
+    },
+    {
+      "name": "Object_13",
+      "vertexOffset": 144885,
+      "numVertices": 22938,
+      "LOD": [
+        {
+          "indexOffset": 364764,
+          "numIndices": 57225
+        }
+      ],
+      "aabb": {
+        "min": [
+          -125.40702819824219,
+          -694.2037963867188,
+          -113.3017807006836
+        ],
+        "max": [
+          125.40850067138672,
+          124.72449493408203,
+          15.49664306640625
+        ]
+      },
+      "material": "materials/mp_forerunner_tile_002/mp_forerunner_tile_002.material"
+    },
+    {
+      "name": "Object_14",
+      "vertexOffset": 167823,
+      "numVertices": 1655,
+      "LOD": [
+        {
+          "indexOffset": 421989,
+          "numIndices": 3756
+        }
+      ],
+      "aabb": {
+        "min": [
+          -56.19706344604492,
+          -693.7551879882813,
+          -103.70136260986328
+        ],
+        "max": [
+          49.61612319946289,
+          54.44715881347656,
+          18.089893341064453
+        ]
+      },
+      "material": "materials/mp_forerunner_tile_03/mp_forerunner_tile_03.material"
+    },
+    {
+      "name": "Object_15",
+      "vertexOffset": 169478,
+      "numVertices": 2643,
+      "LOD": [
+        {
+          "indexOffset": 425745,
+          "numIndices": 6180
+        }
+      ],
+      "aabb": {
+        "min": [
+          -57.445899963378906,
+          -1.2713350057601929,
+          -84.5666732788086
+        ],
+        "max": [
+          57.44591522216797,
+          8.24992847442627,
+          1.1754943508222875e-38
+        ]
+      },
+      "material": "materials/mp_forerunner_tilesheet_03/mp_forerunner_tilesheet_03.material"
+    },
+    {
+      "name": "Object_16",
+      "vertexOffset": 172121,
+      "numVertices": 17757,
+      "LOD": [
+        {
+          "indexOffset": 431925,
+          "numIndices": 34860
+        }
+      ],
+      "aabb": {
+        "min": [
+          -69.59149932861328,
+          -3.0063159465789795,
+          -106.47618103027344
+        ],
+        "max": [
+          69.59659576416016,
+          16.743865966796875,
+          1.1754943508222875e-38
+        ]
+      },
+      "material": "materials/mp_forerunner_tilesheet_04/mp_forerunner_tilesheet_04.material"
+    },
+    {
+      "name": "Object_17",
+      "vertexOffset": 189878,
+      "numVertices": 5022,
+      "LOD": [
+        {
+          "indexOffset": 466785,
+          "numIndices": 11289
+        }
+      ],
+      "aabb": {
+        "min": [
+          -125.48896789550781,
+          -693.7551879882813,
+          -106.47618103027344
+        ],
+        "max": [
+          125.48896789550781,
+          357.73345947265625,
+          5.23419189453125
+        ]
+      },
+      "material": "materials/mp_forerunner_tilesheet_04b/mp_forerunner_tilesheet_04b.material"
+    },
+    {
+      "name": "Object_18",
+      "vertexOffset": 194900,
+      "numVertices": 30288,
+      "LOD": [
+        {
+          "indexOffset": 478074,
+          "numIndices": 75585
+        }
+      ],
+      "aabb": {
+        "min": [
+          -119.355224609375,
+          -693.7551879882813,
+          -122.4839859008789
+        ],
+        "max": [
+          119.356689453125,
+          1574.0965576171875,
+          17.059988021850586
+        ]
+      },
+      "material": "materials/mp_forerunner_trim_01/mp_forerunner_trim_01.material"
+    },
+    {
+      "name": "Object_19",
+      "vertexOffset": 225188,
+      "numVertices": 65532,
+      "LOD": [
+        {
+          "indexOffset": 553659,
+          "numIndices": 168162
+        }
+      ],
+      "aabb": {
+        "min": [
+          -289.27459716796875,
+          -693.7551879882813,
+          -122.3630142211914
+        ],
+        "max": [
+          289.27459716796875,
+          1574.0965576171875,
+          18.08989906311035
+        ]
+      },
+      "material": "materials/mp_forerunner_trim_02/mp_forerunner_trim_02.material"
+    },
+    {
+      "name": "Object_20",
+      "vertexOffset": 290720,
+      "numVertices": 5253,
+      "LOD": [
+        {
+          "indexOffset": 721821,
+          "numIndices": 12519
+        }
+      ],
+      "aabb": {
+        "min": [
+          -50.808837890625,
+          -12.051840782165527,
+          -90.22550201416016
+        ],
+        "max": [
+          64.5147933959961,
+          68.10697937011719,
+          18.08989906311035
+        ]
+      },
+      "material": "materials/mp_forerunner_trim_02/mp_forerunner_trim_02.material"
+    }
+  ],
+  "aabb": {
+    "min": [
+      -289.27459716796875,
+      -694.2037963867188,
+      -124.8536376953125
+    ],
+    "max": [
+      289.27459716796875,
+      1574.0965576171875,
+      18.164907455444336
+    ]
+  },
+  "vertices": {
+    "byteOffset": 0,
+    "count": 295973,
+    "stride": 56,
+    "attributes": [
+      [
+        "Position",
+        {
+          "type": "Float3",
+          "offset": 0
+        }
+      ],
+      [
+        "Normal",
+        {
+          "type": "Float3",
+          "offset": 12
+        }
+      ],
+      [
+        "TexCoord_0",
+        {
+          "type": "Float2",
+          "offset": 24
+        }
+      ],
+      [
+        "Tangent",
+        {
+          "type": "Float3",
+          "offset": 32
+        }
+      ],
+      [
+        "Bitangent",
+        {
+          "type": "Float3",
+          "offset": 44
+        }
+      ]
+    ]
+  },
+  "indices": {
+    "byteOffset": 16574488,
+    "count": 734340,
+    "stride": 4
+  }
+}

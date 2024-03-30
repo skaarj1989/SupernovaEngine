@@ -9,6 +9,7 @@
 #include "Jolt/Physics/Collision/RayCast.h"
 #include "Jolt/Physics/Collision/CastResult.h"
 #include "Jolt/Physics/Collision/CollisionCollectorImpl.h"
+#include "Jolt/Physics/Collision/Shape/ScaledShape.h"
 #ifdef __GNUC__
 #  pragma GCC diagnostic pop
 #endif
@@ -63,6 +64,12 @@ namespace {
     convert(settings.motionType),
     encode(settings.layer),
   };
+  if (const auto scale = createInfo.transform.getLocalScale();
+      scale != glm::vec3{1.0f}) {
+    out.SetShape(
+      JPH::ScaledShapeSettings{out.GetShape(), to_Jolt(scale)}.Create().Get());
+  }
+
   out.mIsSensor = settings.isSensor;
   out.mFriction = settings.friction;
   out.mRestitution = settings.restitution;

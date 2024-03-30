@@ -2027,20 +2027,20 @@
                     },
                     "value1": [
                         {
-                            "value0": "fs_emissiveFactor",
+                            "value0": "fs_id_14",
                             "value1": {
                                 "index": 4,
                                 "data": {
-                                    "value0": 0.28951382637023928,
-                                    "value1": 0.6548263430595398,
+                                    "value0": 0.28999999165534975,
+                                    "value1": 0.6549999713897705,
                                     "value2": 0.800000011920929,
-                                    "value3": 100.0
+                                    "value3": 10.0
                                 }
                             }
                         }
                     ],
                     "value2": [],
-                    "value3": 1
+                    "value3": 0
                 }
             }
         ]

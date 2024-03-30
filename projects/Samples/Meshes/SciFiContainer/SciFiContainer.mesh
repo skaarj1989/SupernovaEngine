@@ -1,0 +1,88 @@
+{
+  "buffer": "data.buffer",
+  "meshes": [
+    {
+      "name": "Container__0",
+      "vertexOffset": 0,
+      "numVertices": 3370,
+      "LOD": [
+        {
+          "indexOffset": 0,
+          "numIndices": 9978
+        }
+      ],
+      "aabb": {
+        "min": [
+          -0.3126792907714844,
+          0.0030955374240875244,
+          -0.30731824040412903
+        ],
+        "max": [
+          0.3126792907714844,
+          0.6530956029891968,
+          0.3073181211948395
+        ]
+      },
+      "material": "materials/Scene_-_Root/Scene_-_Root.material"
+    }
+  ],
+  "aabb": {
+    "min": [
+      -0.3126792907714844,
+      0.0030955374240875244,
+      -0.30731824040412903
+    ],
+    "max": [
+      0.3126792907714844,
+      0.6530956029891968,
+      0.3073181211948395
+    ]
+  },
+  "vertices": {
+    "byteOffset": 0,
+    "count": 3370,
+    "stride": 56,
+    "attributes": [
+      [
+        "Position",
+        {
+          "type": "Float3",
+          "offset": 0
+        }
+      ],
+      [
+        "Normal",
+        {
+          "type": "Float3",
+          "offset": 12
+        }
+      ],
+      [
+        "TexCoord_0",
+        {
+          "type": "Float2",
+          "offset": 24
+        }
+      ],
+      [
+        "Tangent",
+        {
+          "type": "Float3",
+          "offset": 32
+        }
+      ],
+      [
+        "Bitangent",
+        {
+          "type": "Float3",
+          "offset": 44
+        }
+      ]
+    ]
+  },
+  "indices": {
+    "byteOffset": 188720,
+    "count": 9978,
+    "stride": 2
+  }
+}

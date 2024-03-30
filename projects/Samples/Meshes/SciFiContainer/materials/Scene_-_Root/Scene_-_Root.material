@@ -1,0 +1,94 @@
+{
+  "name": "Scene_-_Root",
+  "domain": "Surface",
+  "shadingModel": "Lit",
+  "blendMode": "Opaque",
+  "lightingMode": "Default",
+  "cullMode": "None",
+  "properties": {
+    "baseColorFactor": {
+      "type": "vec4",
+      "value": [
+        0.396921306848526,
+        0.396921306848526,
+        0.396921306848526,
+        1.0
+      ]
+    },
+    "roughnessFactor": {
+      "type": "float",
+      "value": 0.396921306848526
+    },
+    "alphaCutOff": {
+      "type": "float",
+      "value": 0.5
+    },
+    "metallicFactor": {
+      "type": "float",
+      "value": 1.0
+    },
+    "emissiveColorFactor": {
+      "type": "vec4",
+      "value": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    }
+  },
+  "samplers": {
+    "t_Packed": {
+      "type": "sampler2D",
+      "path": "../textures/Scene_-_Root_metallicRoughness.png"
+    },
+    "t_BaseColor": {
+      "type": "sampler2D",
+      "path": "../textures/Scene_-_Root_baseColor.png"
+    },
+    "t_Normal": {
+      "type": "sampler2D",
+      "path": "../textures/Scene_-_Root_normal.png"
+    }
+  },
+  "fragmentShader": {
+    "defines": [
+      [
+        "HAS_ALPHA_CUT_OFF",
+        1
+      ],
+      [
+        "HAS_BASE_COLOR_FACTOR",
+        1
+      ],
+      [
+        "HAS_BASE_COLOR_TEXTURE",
+        1
+      ],
+      [
+        "HAS_EMISSIVE_COLOR_FACTOR",
+        1
+      ],
+      [
+        "HAS_METALLIC_FACTOR",
+        1
+      ],
+      [
+        "HAS_NORMAL_TEXTURE",
+        1
+      ],
+      [
+        "HAS_ROUGHNESS_FACTOR",
+        1
+      ],
+      [
+        "IS_PBR",
+        1
+      ],
+      [
+        "PACKED_TEXTURE",
+        99328
+      ]
+    ]
+  }
+}

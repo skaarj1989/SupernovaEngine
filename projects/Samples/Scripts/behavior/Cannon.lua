@@ -46,8 +46,8 @@ function Cannon:fire(bullet, position, direction)
   local materialInstance = meshInstance:getMaterial(0)
   materialInstance.receivesShadow = false
   materialInstance.castsShadow = true
-  local intensity <const> = 500
-  materialInstance:setProperty("fs_emissiveFactor", math.vec4(color, intensity))
+  local intensity <const> = 15
+  materialInstance:setProperty("fs_id_14", math.vec4(color, intensity))
 
   table.insert(self.spawns, bullet)
 end
