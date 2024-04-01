@@ -6,6 +6,12 @@
 An experimental game engine.
 
 <p align="center">
+  <a href="https://www.youtube.com/watch?v=fiBuw6h64BQ">
+    <img width="49%" src="https://img.youtube.com/vi/fiBuw6h64BQ/0.jpg" alt="video"/>
+  </a>
+</p>
+
+<p align="center">
     <img width="49%" src="media/se01.png" alt="Scene Editor"/>
 &nbsp;
     <img width="49%" src="media/se02.png" alt="Scene Editor"/>
