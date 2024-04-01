@@ -2,7 +2,7 @@
 
 #include "RmlUiRenderer.hpp"
 #include "rhi/Rect2D.hpp"
-#include "RmlUi/Core/RenderInterface.h"
+#include "RmlUi/Core/RenderInterfaceCompatibility.h"
 
 struct RmlUiRenderData {
   RmlUiRenderData() = default;
@@ -34,7 +34,7 @@ struct RmlUiRenderData {
   bool isUseScissorSpecified{false};
 };
 
-class RmlUiRenderInterface : public Rml::RenderInterface {
+class RmlUiRenderInterface : public Rml::RenderInterfaceCompatibility {
 public:
   explicit RmlUiRenderInterface(rhi::RenderDevice &);
 

@@ -22,7 +22,7 @@ RmlUiApp::RmlUiApp(std::span<char *> args, const Config &config)
 
   m_uiRenderInterface =
     std::make_unique<RmlUiRenderInterface>(getRenderDevice());
-  Rml::SetRenderInterface(m_uiRenderInterface.get());
+  Rml::SetRenderInterface(m_uiRenderInterface->GetAdaptedInterface());
 
   m_uiRenderData =
     m_uiRenderInterface->CreateRenderData(config.numFramesInFlight);

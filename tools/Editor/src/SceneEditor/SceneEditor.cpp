@@ -483,7 +483,7 @@ SceneEditor::SceneEditor(os::InputSystem &is, gfx::WorldRenderer &renderer,
 
   m_gameUiRenderInterface =
     std::make_unique<RmlUiRenderInterface>(m_worldRenderer.getRenderDevice());
-  Rml::SetRenderInterface(m_gameUiRenderInterface.get());
+  Rml::SetRenderInterface(m_gameUiRenderInterface->GetAdaptedInterface());
 
   Rml::Initialise();
 

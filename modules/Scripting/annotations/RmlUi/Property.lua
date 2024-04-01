@@ -126,7 +126,7 @@ ui.Unit = {
   DECORATOR = 1 << 23,     ---decorator; fetch as <DecoratorsPtr>
   FONTEFFECT = 1 << 24,    ---font-effect; fetch as <FontEffectsPtr>
   COLORSTOPLIST = 1 << 25, ---color stop list; fetch as <ColorStopList>
-  SHADOWLIST = 1 << 26,    ---shadow list; fetch as <ShadowList>
+  BOXSHADOWLIST = 1 << 26, ---shadow list; fetch as <ShadowList>
 
   LENGTH = ui.Unit.PX | ui.Unit.DP | ui.Unit.VW | ui.Unit.VH | ui.Unit.EM | ui.Unit.REM | ui.Unit.PPI_UNIT,
   LENGTH_PERCENT = ui.Unit.LENGTH | ui.Unit.PERCENT,
