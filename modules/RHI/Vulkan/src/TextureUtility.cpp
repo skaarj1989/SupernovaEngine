@@ -37,7 +37,7 @@ void upload(RenderDevice &rd, const Buffer &srcStagingBuffer,
     cb.getBarrierBuilder().imageBarrier(
       {
         .image = texture,
-        .newLayout = ImageLayout::ShaderReadOnly,
+        .newLayout = ImageLayout::ReadOnly,
         .subresourceRange =
           {
             .levelCount = VK_REMAINING_MIP_LEVELS,

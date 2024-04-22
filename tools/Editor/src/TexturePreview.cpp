@@ -21,8 +21,7 @@ namespace {
 }
 
 [[nodiscard]] bool canPreview(const rhi::Texture &texture) {
-  return texture &&
-         texture.getImageLayout() == rhi::ImageLayout::ShaderReadOnly;
+  return texture && texture.getImageLayout() == rhi::ImageLayout::ReadOnly;
 }
 
 } // namespace

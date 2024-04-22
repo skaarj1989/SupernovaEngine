@@ -89,12 +89,12 @@ void FrameGraphTexture::preRead(const Desc &, uint32_t bits, void *ctx) {
     const auto [set, binding] = location;
     switch (type) {
     case TextureRead::Type::CombinedImageSampler:
-      imageLayout = rhi::ImageLayout::ShaderReadOnly;
+      imageLayout = rhi::ImageLayout::ReadOnly;
       sets[set][binding] =
         rhi::bindings::CombinedImageSampler{.texture = texture};
       break;
     case TextureRead::Type::SampledImage:
-      imageLayout = rhi::ImageLayout::ShaderReadOnly;
+      imageLayout = rhi::ImageLayout::ReadOnly;
       sets[set][binding] = rhi::bindings::SampledImage{.texture = texture};
       break;
     case TextureRead::Type::StorageImage:

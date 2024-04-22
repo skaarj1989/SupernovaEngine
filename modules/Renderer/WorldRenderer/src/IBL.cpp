@@ -95,7 +95,7 @@ rhi::Texture IBL::generateBRDF(rhi::CommandBuffer &cb) {
   cb.getBarrierBuilder().imageBarrier(
     {
       .image = brdf,
-      .newLayout = rhi::ImageLayout::ShaderReadOnly,
+      .newLayout = rhi::ImageLayout::ReadOnly,
       .subresourceRange = {.levelCount = 1, .layerCount = 1},
     },
     {
@@ -299,7 +299,7 @@ rhi::Texture IBL::PrefilterGenerator::generate(rhi::CommandBuffer &cb,
   cb.getBarrierBuilder().imageBarrier(
     {
       .image = prefilteredEnvMap,
-      .newLayout = rhi::ImageLayout::ShaderReadOnly,
+      .newLayout = rhi::ImageLayout::ReadOnly,
     },
     {
       .stageMask = rhi::PipelineStages::FragmentShader |

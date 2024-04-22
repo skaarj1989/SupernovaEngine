@@ -779,25 +779,12 @@ void prepareForAttachment(CommandBuffer &cb, const Texture &texture,
   if (aspectMask & VK_IMAGE_ASPECT_COLOR_BIT) {
     dst.stageMask = PipelineStages::ColorAttachmentOutput;
     dst.accessMask = Access::ColorAttachmentRead | Access::ColorAttachmentWrite;
-    newLayout = ImageLayout::ColorAttachment;
+    newLayout = ImageLayout::Attachment;
   } else {
     dst.stageMask = PipelineStages::FragmentTests;
     dst.accessMask = readOnly ? Access::DepthStencilAttachmentRead
                               : Access::DepthStencilAttachmentWrite;
-
-    if (aspectMask == VK_IMAGE_ASPECT_DEPTH_BIT) {
-      newLayout =
-        readOnly ? ImageLayout::DepthReadOnly : ImageLayout::DepthAttachment;
-    } else if (aspectMask == VK_IMAGE_ASPECT_STENCIL_BIT) {
-      newLayout = readOnly ? ImageLayout::StencilReadOnly
-                           : ImageLayout::StencilAttachment;
-    } else if (aspectMask ==
-               (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT)) {
-      newLayout = readOnly ? ImageLayout::DepthStencilReadOnly
-                           : ImageLayout::DepthStencilAttachment;
-    } else {
-      assert(false);
-    }
+    newLayout = readOnly ? ImageLayout::ReadOnly : ImageLayout::Attachment;
   }
 
   cb.getBarrierBuilder().imageBarrier(
@@ -818,7 +805,7 @@ void prepareForReading(CommandBuffer &cb, const Texture &texture) {
   cb.getBarrierBuilder().imageBarrier(
     {
       .image = texture,
-      .newLayout = ImageLayout::ShaderReadOnly,
+      .newLayout = ImageLayout::ReadOnly,
       .subresourceRange =
         {
           .levelCount = VK_REMAINING_MIP_LEVELS,
