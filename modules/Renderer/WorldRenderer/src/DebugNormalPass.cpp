@@ -35,7 +35,7 @@ void DebugNormalPass::clear(const PipelineGroups flags) {
 FrameGraphResource DebugNormalPass::addGeometryPass(
   FrameGraph &fg, const FrameGraphBlackboard &blackboard,
   FrameGraphResource target, const ViewInfo &viewData) {
-  constexpr auto kPassName = "DebugNormalPass";
+  static constexpr auto kPassName = "DebugNormalPass";
   ZoneScopedN(kPassName);
 
   std::vector<GPUInstance> gpuInstances;

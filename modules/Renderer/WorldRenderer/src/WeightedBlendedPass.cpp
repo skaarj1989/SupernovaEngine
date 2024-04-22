@@ -70,7 +70,7 @@ void WeightedBlendedPass::addGeometryPass(
   FrameGraph &fg, FrameGraphBlackboard &blackboard, const ViewInfo &viewData,
   const PropertyGroupOffsets &propertyGroupOffsets,
   const LightingSettings &lightingSettings, const bool softShadows) {
-  constexpr auto kPassName = "WeightedBlended OIT";
+  static constexpr auto kPassName = "WeightedBlended OIT";
   ZoneScopedN(kPassName);
 
   std::vector<const Renderable *> transparentRenderables;

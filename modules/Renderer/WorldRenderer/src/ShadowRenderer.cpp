@@ -247,7 +247,7 @@ FrameGraphResource
 ShadowRenderer::visualizeCascades(FrameGraph &fg,
                                   const FrameGraphBlackboard &blackboard,
                                   FrameGraphResource target) const {
-  constexpr auto kPassName = "VisualizeCascades";
+  static constexpr auto kPassName = "VisualizeCascades";
   ZoneScopedN(kPassName);
 
   const auto shadowBlock = blackboard.get<ShadowMapData>().shadowBlock;

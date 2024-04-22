@@ -29,7 +29,7 @@ void SSR::clear(const PipelineGroups flags) {
 
 FrameGraphResource SSR::addPass(FrameGraph &fg,
                                 FrameGraphBlackboard &blackboard) {
-  constexpr auto kPassName = "SSR";
+  static constexpr auto kPassName = "SSR";
   ZoneScopedN(kPassName);
 
   const auto [reflections] = blackboard.add<ReflectionsData>() =

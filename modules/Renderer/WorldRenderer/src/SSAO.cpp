@@ -134,7 +134,7 @@ void SSAO::clear(const PipelineGroups flags) {
 
 void SSAO::addPass(FrameGraph &fg, FrameGraphBlackboard &blackboard, Blur &blur,
                    const Settings &settings) {
-  constexpr auto kPassName = "SSAO";
+  static constexpr auto kPassName = "SSAO";
   ZoneScopedN(kPassName);
 
   const auto [ssao] = fg.addCallbackPass<SSAOData>(

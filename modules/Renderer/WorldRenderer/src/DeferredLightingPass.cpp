@@ -40,7 +40,7 @@ FrameGraphResource DeferredLightingPass::addPass(
   FrameGraph &fg, const FrameGraphBlackboard &blackboard,
   const LightingSettings &lightingSettings, const bool softShadows,
   const bool irradianceOnly) {
-  constexpr auto kPassName = "DeferredLighting Pass";
+  static constexpr auto kPassName = "DeferredLighting Pass";
   ZoneScopedN(kPassName);
 
   LightingPassFeatures features{

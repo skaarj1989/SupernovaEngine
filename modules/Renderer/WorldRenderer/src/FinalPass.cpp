@@ -135,7 +135,7 @@ FrameGraphResource FinalPass::compose(FrameGraph &fg,
                                       const FrameGraphBlackboard &blackboard,
                                       const OutputMode outputMode,
                                       FrameGraphResource target) {
-  constexpr auto kPassName = "FinalComposition";
+  static constexpr auto kPassName = "FinalComposition";
   ZoneScopedN(kPassName);
 
   auto [source, mode] = pickOutput(blackboard, outputMode);

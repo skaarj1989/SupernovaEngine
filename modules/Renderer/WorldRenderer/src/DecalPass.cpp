@@ -65,7 +65,7 @@ void DecalPass::addGeometryPass(
   const PropertyGroupOffsets &propertyGroupOffsets) {
   assert(!viewData.visibleRenderables.empty());
 
-  constexpr auto kPassName = "DecalPass";
+  static constexpr auto kPassName = "DecalPass";
   ZoneScopedN(kPassName);
 
   std::vector<GPUInstance> gpuInstances;

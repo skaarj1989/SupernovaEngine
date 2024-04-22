@@ -109,7 +109,7 @@ std::optional<FrameGraphResource> TransparencyPass::addGeometryPass(
   const FrameGraphResource sceneColor, const ViewInfo &viewData,
   const PropertyGroupOffsets &propertyGroupOffsets,
   const LightingSettings &lightingSettings, const bool softShadows) {
-  constexpr auto kPassName = "ForwardTransparency";
+  static constexpr auto kPassName = "ForwardTransparency";
   ZoneScopedN(kPassName);
 
   std::vector<const Renderable *> transparentRenderables;

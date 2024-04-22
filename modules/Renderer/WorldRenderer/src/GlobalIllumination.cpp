@@ -296,7 +296,7 @@ void GlobalIllumination::update(
 
 FrameGraphResource GlobalIllumination::addDebugPass(
   FrameGraph &fg, FrameGraphBlackboard &blackboard, FrameGraphResource target) {
-  constexpr auto kPassName = "DebugVPL";
+  static constexpr auto kPassName = "DebugVPL";
   ZoneScopedN(kPassName);
 
   fg.addCallbackPass(
@@ -391,7 +391,7 @@ ReflectiveShadowMapData GlobalIllumination::_addReflectiveShadowMapPass(
   FrameGraph &fg, FrameGraphBlackboard &blackboard, const RawCamera &lightView,
   const glm::vec3 lightIntensity, std::vector<const Renderable *> &&renderables,
   const PropertyGroupOffsets &propertyGroupOffsets) {
-  constexpr auto kPassName = "ReflectiveShadowMap";
+  static constexpr auto kPassName = "ReflectiveShadowMap";
   ZoneScopedN(kPassName);
 
   const auto cameraBlock = uploadCameraBlock(fg, kRSMExtent, lightView);
@@ -487,7 +487,7 @@ ReflectiveShadowMapData GlobalIllumination::_addReflectiveShadowMapPass(
 LightPropagationVolumesData GlobalIllumination::_addRadianceInjectionPass(
   FrameGraph &fg, const FrameGraphResource sceneGridBlock,
   const ReflectiveShadowMapData &RSM, const glm::uvec3 gridSize) {
-  constexpr auto kPassName = "RadianceInjection";
+  static constexpr auto kPassName = "RadianceInjection";
   ZoneScopedN(kPassName);
 
   const auto LPVData = fg.addCallbackPass<LightPropagationVolumesData>(

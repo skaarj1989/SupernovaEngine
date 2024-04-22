@@ -31,7 +31,7 @@ Upsampler::Upsampler(rhi::RenderDevice &rd,
 FrameGraphResource Upsampler::addPass(FrameGraph &fg,
                                       const FrameGraphResource input,
                                       const float radius) {
-  constexpr auto kPassName = "UpsamplePass";
+  static constexpr auto kPassName = "UpsamplePass";
   ZoneScopedN(kPassName);
 
   struct Data {

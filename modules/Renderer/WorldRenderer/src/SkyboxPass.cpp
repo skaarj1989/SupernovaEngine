@@ -43,7 +43,7 @@ FrameGraphResource SkyboxPass::addPass(FrameGraph &fg,
   auto skyLight = blackboard.try_get<SkyLightData>();
   if (!skyLight) return target;
 
-  constexpr auto kPassName = "SkyboxPass";
+  static constexpr auto kPassName = "SkyboxPass";
   ZoneScopedN(kPassName);
 
   const auto skybox = skyLight->environment;

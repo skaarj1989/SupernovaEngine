@@ -59,7 +59,7 @@ void GBufferPass::addGeometryPass(
   FrameGraph &fg, FrameGraphBlackboard &blackboard,
   const rhi::Extent2D resolution, const ViewInfo &viewData,
   const PropertyGroupOffsets &propertyGroupOffsets) {
-  constexpr auto kPassName = "GBufferPass";
+  static constexpr auto kPassName = "GBufferPass";
   ZoneScopedN(kPassName);
 
   std::vector<const Renderable *> opaqueRenderables;

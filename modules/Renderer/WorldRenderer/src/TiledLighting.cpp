@@ -86,7 +86,7 @@ TiledLighting::FrustumBuilder::FrustumBuilder(rhi::RenderDevice &rd)
 FrameGraphResource TiledLighting::FrustumBuilder::buildFrustums(
   FrameGraph &fg, const FrameGraphBlackboard &blackboard,
   const PassInfo &passInfo) {
-  constexpr auto kPassName = "BuildFrustums";
+  static constexpr auto kPassName = "BuildFrustums";
   ZoneScopedN(kPassName);
 
   struct FrustumsData {
@@ -149,7 +149,7 @@ TiledLighting::LightCuller::LightCuller(rhi::RenderDevice &rd)
 void TiledLighting::LightCuller::cullLights(
   FrameGraph &fg, FrameGraphBlackboard &blackboard,
   const FrameGraphResource gridFrustums, const PassInfo &passInfo) {
-  constexpr auto kPassName = "CullLights";
+  static constexpr auto kPassName = "CullLights";
   ZoneScopedN(kPassName);
 
   struct Data : LightCullingData {

@@ -80,7 +80,7 @@ findShadowMapIndex(const Light &light, const ShadowMapIndices &indices) {
 void uploadLights(FrameGraph &fg, FrameGraphBlackboard &blackboard,
                   std::vector<const Light *> &&visibleLights,
                   ShadowMapIndices &&indices) {
-  constexpr auto kPassName = "UploadLights";
+  static constexpr auto kPassName = "UploadLights";
   ZoneScopedN(kPassName);
 
   const auto numLights = uint32_t(visibleLights.size());

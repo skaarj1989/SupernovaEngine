@@ -55,7 +55,7 @@ constexpr auto kNumHistogramBins = 256u;
 }
 
 [[nodiscard]] auto createHistogram(FrameGraph &fg) {
-  constexpr auto kPassName = "CreateHistogram";
+  static constexpr auto kPassName = "CreateHistogram";
   ZoneScopedN(kPassName);
 
   struct Data {
@@ -135,7 +135,7 @@ EyeAdaptation::HistogramBuilder::HistogramBuilder(rhi::RenderDevice &rd) {
 FrameGraphResource EyeAdaptation::HistogramBuilder::buildHistogram(
   FrameGraph &fg, const FrameGraphResource sceneColor,
   const float minLogLuminance, const float logLuminanceRange) {
-  constexpr auto kPassName = "BuildHistogram";
+  static constexpr auto kPassName = "BuildHistogram";
   ZoneScopedN(kPassName);
 
   // TransientResources system does not guarantee that acquired buffer will be
@@ -209,7 +209,7 @@ FrameGraphResource EyeAdaptation::AverageLuminance::calculateAverageLuminance(
   const float minLogLuminance, const float logLuminanceRange,
   const rhi::Extent2D dimensions, const float tau, const ID uid,
   const float deltaTime) {
-  constexpr auto kPassName = "AverageLuminance";
+  static constexpr auto kPassName = "AverageLuminance";
   ZoneScopedN(kPassName);
 
   struct Data {

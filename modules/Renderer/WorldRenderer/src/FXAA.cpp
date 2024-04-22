@@ -27,7 +27,7 @@ void FXAA::clear(const PipelineGroups flags) {
 FrameGraphResource FXAA::addPass(FrameGraph &fg,
                                  const FrameGraphBlackboard &blackboard,
                                  const FrameGraphResource input) {
-  constexpr auto kPassName = "FXAA";
+  static constexpr auto kPassName = "FXAA";
   ZoneScopedN(kPassName);
 
   struct Data {

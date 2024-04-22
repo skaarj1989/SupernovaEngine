@@ -59,7 +59,7 @@ std::optional<FrameGraphResource> TransmissionPass::addGeometryPass(
   const FrameGraphResource sceneColor, const ViewInfo &viewData,
   const PropertyGroupOffsets &propertyGroupOffsets,
   const LightingSettings &lightingSettings, const bool softShadows) {
-  constexpr auto kPassName = "TransmissionPass";
+  static constexpr auto kPassName = "TransmissionPass";
   ZoneScopedN(kPassName);
 
   std::vector<const Renderable *> transmissiveRenderables;

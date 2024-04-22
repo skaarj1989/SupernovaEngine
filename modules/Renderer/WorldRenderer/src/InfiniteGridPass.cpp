@@ -39,7 +39,7 @@ FrameGraphResource
 InfiniteGridPass::addPass(FrameGraph &fg,
                           const FrameGraphBlackboard &blackboard,
                           FrameGraphResource target) {
-  constexpr auto kPassName = "InfiniteGrid";
+  static constexpr auto kPassName = "InfiniteGrid";
   ZoneScopedN(kPassName);
 
   fg.addCallbackPass(

@@ -18,7 +18,7 @@ FrameGraphResource
 TransparencyCompositionPass::addPass(FrameGraph &fg,
                                      const WeightedBlendedData &weightedBlended,
                                      FrameGraphResource target) {
-  constexpr auto kPassName = "TransparencyComposition";
+  static constexpr auto kPassName = "TransparencyComposition";
   ZoneScopedN(kPassName);
 
   fg.addCallbackPass(

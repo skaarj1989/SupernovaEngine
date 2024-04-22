@@ -34,7 +34,7 @@ FrameGraphResource TonemapPass::addPass(FrameGraph &fg,
                                         const Tonemap tonemap,
                                         const float exposure,
                                         const float bloomStrength) {
-  constexpr auto kPassName = "Tonemapping";
+  static constexpr auto kPassName = "Tonemapping";
   ZoneScopedN(kPassName);
 
   std::optional<FrameGraphResource> averageLuminance;

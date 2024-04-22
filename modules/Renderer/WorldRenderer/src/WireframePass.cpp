@@ -50,7 +50,7 @@ void WireframePass::clear(const PipelineGroups flags) {
 FrameGraphResource WireframePass::addGeometryPass(
   FrameGraph &fg, const FrameGraphBlackboard &blackboard,
   FrameGraphResource target, const ViewInfo &viewData) {
-  constexpr auto kPassName = "WireframePass";
+  static constexpr auto kPassName = "WireframePass";
   ZoneScopedN(kPassName);
 
   sortByMaterial(viewData.visibleRenderables);

@@ -44,7 +44,7 @@ void Blit::clear(const PipelineGroups flags) {
 
 FrameGraphResource Blit::mix(FrameGraph &fg, const FrameGraphResource a,
                              const FrameGraphResource b) {
-  constexpr auto kPassName = "Mix";
+  static constexpr auto kPassName = "Mix";
   ZoneScopedN(kPassName);
 
   struct Data {
@@ -104,7 +104,7 @@ FrameGraphResource Blit::addColor(FrameGraph &fg,
 
 FrameGraphResource Blit::merge(FrameGraph &fg, FrameGraphResource target,
                                const std::vector<FrameGraphResource> &sources) {
-  constexpr auto kPassName = "Merge";
+  static constexpr auto kPassName = "Merge";
   ZoneScopedN(kPassName);
 
   const auto numTextures = sources.size();

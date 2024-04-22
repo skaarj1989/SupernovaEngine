@@ -127,7 +127,7 @@ FrameGraphResource DebugDrawPass::addGeometryPass(
   FrameGraphResource target, DebugDraw &debugDraw) {
   assert(!debugDraw.empty());
 
-  constexpr auto kPassName = "DebugDraw";
+  static constexpr auto kPassName = "DebugDraw";
   ZoneScopedN(kPassName);
 
   const auto &primitives = debugDraw.getPrimitives();

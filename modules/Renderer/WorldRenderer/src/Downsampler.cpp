@@ -32,7 +32,7 @@ Downsampler::Downsampler(rhi::RenderDevice &rd,
 FrameGraphResource Downsampler::addPass(FrameGraph &fg,
                                         const FrameGraphResource input,
                                         const uint32_t level) {
-  constexpr auto kPassName = "DownsamplePass";
+  static constexpr auto kPassName = "DownsamplePass";
   ZoneScopedN(kPassName);
 
   struct Data {
