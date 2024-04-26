@@ -7,6 +7,7 @@
 
 #include "Resources/FrameBlock.glsl"
 #include "Resources/CameraBlock.glsl"
+#include "Resources/IDs.glsl"
 
 #include "Lib/Depth.glsl"
 
@@ -262,5 +263,8 @@ void main() {
   Reveal = a;
 #else
   FragColor = vec4(color, a);
+#endif
+#if WRITE_USERDATA
+  writeUserData(fs_in.userData);
 #endif
 }

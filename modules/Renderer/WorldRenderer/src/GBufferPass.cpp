@@ -8,6 +8,7 @@
 #include "FrameGraphResourceAccess.hpp"
 #include "FrameGraphCommon.hpp"
 #include "renderer/FrameGraphTexture.hpp"
+#include "renderer/FrameGraphBuffer.hpp"
 #include "UploadInstances.hpp"
 
 #include "FrameGraphData/DummyResources.hpp"
@@ -17,6 +18,7 @@
 #include "FrameGraphData/Skins.hpp"
 #include "FrameGraphData/MaterialProperties.hpp"
 #include "FrameGraphData/GBuffer.hpp"
+#include "FrameGraphData/UserData.hpp"
 
 #include "MaterialShader.hpp"
 #include "BatchBuilder.hpp"
@@ -41,6 +43,30 @@ namespace {
 
 [[nodiscard]] auto batchCompatible(const Batch &b, const Renderable &r) {
   return sameGeometry(b, r) && sameMaterial(b, r) && sameTextures(b, r);
+}
+
+FrameGraphResource clearBufferPass(FrameGraph &fg,
+                                   const FrameGraphResource inBuffer) {
+  static constexpr auto kPassName = "ClearBuffer";
+
+  struct Data {
+    FrameGraphResource buffer;
+  };
+  const auto [outBuffer] = fg.addCallbackPass<Data>(
+    kPassName,
+    [inBuffer](FrameGraph::Builder &builder, Data &data) {
+      PASS_SETUP_ZONE;
+
+      data.buffer = builder.write(
+        inBuffer, BindingInfo{.pipelineStage = PipelineStage::Transfer});
+    },
+    [](const Data &data, FrameGraphPassResources &resources, void *ctx) {
+      auto &cb = static_cast<RenderContext *>(ctx)->commandBuffer;
+      RHI_GPU_ZONE(cb, kPassName);
+      cb.clear(*resources.get<FrameGraphBuffer>(data.buffer).buffer, UINT_MAX);
+    });
+
+  return outBuffer;
 }
 
 } // namespace
@@ -75,6 +101,9 @@ void GBufferPass::addGeometryPass(
   // attachments (the succeeding passes might need the DepthBuffer).
 
   const auto instances = uploadInstances(fg, std::move(gpuInstances));
+  if (auto *d = blackboard.try_get<UserData>(); d) {
+    d->userData = clearBufferPass(fg, d->userData);
+  }
 
   blackboard.add<GBufferData>() = fg.addCallbackPass<GBufferData>(
     kPassName,
@@ -168,6 +197,8 @@ void GBufferPass::addGeometryPass(
                                    .index = 4,
                                    .clearValue = ClearValue::TransparentBlack,
                                  });
+
+      writeUserData(builder, blackboard);
     },
     [this, batches = std::move(batches)](
       const GBufferData &, const FrameGraphPassResources &, void *ctx) {
@@ -178,6 +209,7 @@ void GBufferPass::addGeometryPass(
       BaseGeometryPassInfo passInfo{
         .depthFormat = rhi::getDepthFormat(*framebufferInfo),
         .colorFormats = rhi::getColorFormats(*framebufferInfo),
+        .writeUserData = sets[2].contains(13),
       };
       cb.beginRendering(*framebufferInfo);
       for (const auto &batch : batches) {
@@ -192,7 +224,8 @@ void GBufferPass::addGeometryPass(
 
 CodePair GBufferPass::buildShaderCode(const rhi::RenderDevice &rd,
                                       const VertexFormat *vertexFormat,
-                                      const Material &material) {
+                                      const Material &material,
+                                      const bool writeUserData) {
   const auto offsetAlignment =
     rd.getDeviceLimits().minStorageBufferOffsetAlignment;
 
@@ -213,6 +246,7 @@ CodePair GBufferPass::buildShaderCode(const rhi::RenderDevice &rd,
   // -- FragmentShader:
 
   shaderCodeBuilder.setDefines(commonDefines);
+  shaderCodeBuilder.addDefine<int32_t>("WRITE_USERDATA", writeUserData);
   addMaterial(shaderCodeBuilder, material, rhi::ShaderType::Fragment,
               offsetAlignment);
   code.frag = shaderCodeBuilder.buildFromFile("GBufferPass.frag");
@@ -229,8 +263,8 @@ GBufferPass::_createPipeline(const BaseGeometryPassInfo &passInfo) const {
   auto &rd = getRenderDevice();
 
   const auto &material = *passInfo.material;
-  const auto [vertCode, fragCode] =
-    buildShaderCode(rd, passInfo.vertexFormat, material);
+  const auto [vertCode, fragCode] = buildShaderCode(
+    rd, passInfo.vertexFormat, material, passInfo.writeUserData);
 
   return rhi::GraphicsPipeline::Builder{}
     .setDepthFormat(passInfo.depthFormat)

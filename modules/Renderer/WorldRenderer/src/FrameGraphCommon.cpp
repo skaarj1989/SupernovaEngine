@@ -17,6 +17,7 @@
 #include "FrameGraphData/ShadowMap.hpp"
 #include "FrameGraphData/SSAO.hpp"
 #include "FrameGraphData/GlobalIllumination.hpp"
+#include "FrameGraphData/UserData.hpp"
 
 #include <utility> // to_underlying
 
@@ -325,6 +326,15 @@ void readSceneDepth(FrameGraph::Builder &builder,
     if (bool(readFlags & ReadFlags::Attachment)) {
       builder.read(sceneDepth, Attachment{});
     }
+
+void writeUserData(FrameGraph::Builder &builder,
+                   FrameGraphBlackboard &blackboard) {
+  if (auto *d = blackboard.try_get<UserData>(); d) {
+    d->userData = builder.write(
+      d->userData, BindingInfo{
+                     .location = {.set = 2, .binding = 13},
+                     .pipelineStage = PipelineStage::FragmentShader,
+                   });
   }
 }
 

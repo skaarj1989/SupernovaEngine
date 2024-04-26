@@ -127,6 +127,8 @@ void WeightedBlendedPass::addGeometryPass(
                                      .index = 1,
                                      .clearValue = ClearValue::OpaqueWhite,
                                    });
+
+      writeUserData(builder, blackboard);
     },
     [this, lightingSettings, features, batches = std::move(batches)](
       const WeightedBlendedData &, const FrameGraphPassResources &, void *ctx) {
@@ -145,6 +147,7 @@ void WeightedBlendedPass::addGeometryPass(
       BaseGeometryPassInfo passInfo{
         .depthFormat = rhi::getDepthFormat(*framebufferInfo),
         .colorFormats = rhi::getColorFormats(*framebufferInfo),
+        .writeUserData = sets[2].contains(13),
       };
 
       cb.beginRendering(*framebufferInfo);
@@ -173,7 +176,8 @@ void WeightedBlendedPass::compose(FrameGraph &fg,
 
 CodePair WeightedBlendedPass::buildShaderCode(
   const rhi::RenderDevice &rd, const VertexFormat *vertexFormat,
-  const Material &material, const LightingPassFeatures &features) {
+  const Material &material, const LightingPassFeatures &features,
+  const bool writeUserData) {
   const auto offsetAlignment =
     rd.getDeviceLimits().minStorageBufferOffsetAlignment;
 
@@ -195,7 +199,8 @@ CodePair WeightedBlendedPass::buildShaderCode(
   shaderCodeBuilder.setDefines(commonDefines)
     .addDefine("HAS_SCENE_DEPTH", 1)
     .addDefine("HAS_SCENE_COLOR", 1)
-    .addDefine("WEIGHTED_BLENDED", 1);
+    .addDefine("WEIGHTED_BLENDED", 1)
+    .addDefine<int32_t>("WRITE_USERDATA", writeUserData);
   addMaterial(shaderCodeBuilder, material, rhi::ShaderType::Fragment,
               offsetAlignment);
   addLighting(shaderCodeBuilder, features);
@@ -216,7 +221,8 @@ WeightedBlendedPass::_createPipeline(const ForwardPassInfo &passInfo) const {
 
   const auto &material = *passInfo.material;
   const auto [vertCode, fragCode] =
-    buildShaderCode(rd, passInfo.vertexFormat, material, passInfo.features);
+    buildShaderCode(rd, passInfo.vertexFormat, material, passInfo.features,
+                    passInfo.writeUserData);
 
   const auto &surface = getSurface(material);
 

@@ -6,7 +6,8 @@ class DebugDraw;
 
 namespace rhi {
 class Texture;
-}
+class Buffer;
+} // namespace rhi
 
 namespace gfx {
 class PerspectiveCamera;
@@ -22,6 +23,8 @@ struct SceneView {
   SkyLight *skyLight{nullptr};
   std::span<const MaterialInstance> postProcessEffects;
   DebugDraw *debugDraw{nullptr};
+
+  rhi::Buffer *userData{nullptr};
 };
 
 } // namespace gfx

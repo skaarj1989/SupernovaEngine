@@ -47,6 +47,9 @@ public:
 
   MeshInstance &setSkinMatrices(Joints);
 
+  MeshInstance &setUserData(const uint32_t);
+  uint32_t getUserData() const;
+
   // ---
 
   [[nodiscard]] const glm::mat4 &getModelMatrix() const;
@@ -94,6 +97,8 @@ private:
   std::shared_ptr<Mesh> m_prototype;
   std::vector<SubMeshInstance> m_subMeshes;
   Joints m_skinMatrices;
+
+  uint32_t m_userData{UINT_MAX};
 };
 
 static_assert(std::is_copy_constructible_v<MeshInstance>);

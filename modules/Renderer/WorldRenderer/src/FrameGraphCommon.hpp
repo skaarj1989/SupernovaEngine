@@ -75,6 +75,8 @@ enum class ReadFlags {
 void readSceneDepth(FrameGraph::Builder &, const FrameGraphResource sceneDepth,
                     const ReadFlags);
 
+void writeUserData(FrameGraph::Builder &, FrameGraphBlackboard &);
+
 } // namespace gfx
 
 template <> struct has_flags<gfx::ReadFlags> : std::true_type {};

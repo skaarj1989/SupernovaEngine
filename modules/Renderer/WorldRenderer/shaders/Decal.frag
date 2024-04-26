@@ -6,6 +6,7 @@
 
 #include "Resources/FrameBlock.glsl"
 #include "Resources/CameraBlock.glsl"
+#include "Resources/IDs.glsl"
 
 #include "Lib/Depth.glsl"
 
@@ -90,5 +91,8 @@ void main() {
 #if WRITE_METALLIC_ROUGHNESS_AO
   GBuffer3 = vec4(clamp01(material.metallic), clamp01(material.roughness),
                   clamp01(material.ambientOcclusion), 1.0);
+#endif
+#if WRITE_USERDATA
+  writeUserData(fs_in.userData);
 #endif
 }

@@ -6,6 +6,7 @@
 
 #include "Resources/FrameBlock.glsl"
 #include "Resources/CameraBlock.glsl"
+#include "Resources/IDs.glsl"
 
 #include "Material.glsl"
 
@@ -45,4 +46,7 @@ void main() {
   GBuffer3 = vec4(clamp01(material.metallic), clamp01(material.roughness),
                   clamp01(material.ambientOcclusion), 1.0);
   GBuffer4 = encodeMisc(SHADING_MODEL, fs_in.flags);
+#if WRITE_USERDATA
+  writeUserData(fs_in.userData);
+#endif
 }

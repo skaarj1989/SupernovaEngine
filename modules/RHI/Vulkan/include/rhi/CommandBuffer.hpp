@@ -98,7 +98,7 @@ public:
 
   // ---
 
-  CommandBuffer &clear(Buffer &);
+  CommandBuffer &clear(Buffer &, const uint32_t value = 0);
   // Texture image must be created with TRANSFER_DST.
   CommandBuffer &clear(Texture &, const ClearValue &);
 

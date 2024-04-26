@@ -17,6 +17,7 @@ void main() {
   const Instance instance = GET_INSTANCE();
   vs_out.materialId = instance.materialId;
   vs_out.flags = instance.flags;
+  vs_out.userData = instance.userData;
 
   const mat4 modelMatrix = g_Transforms[instance.transformId];
   vs_out.invModelMatrix = inverse(modelMatrix);

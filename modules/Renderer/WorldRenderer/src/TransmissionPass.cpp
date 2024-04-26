@@ -55,7 +55,7 @@ void TransmissionPass::clear(const PipelineGroups flags) {
 }
 
 std::optional<FrameGraphResource> TransmissionPass::addGeometryPass(
-  FrameGraph &fg, const FrameGraphBlackboard &blackboard,
+  FrameGraph &fg, FrameGraphBlackboard &blackboard,
   const FrameGraphResource sceneColor, const ViewInfo &viewData,
   const PropertyGroupOffsets &propertyGroupOffsets,
   const LightingSettings &lightingSettings, const bool softShadows) {
@@ -98,6 +98,8 @@ std::optional<FrameGraphResource> TransmissionPass::addGeometryPass(
                                      .index = 0,
                                      .clearValue = ClearValue::TransparentBlack,
                                    });
+
+      writeUserData(builder, blackboard);
     },
     [this, lightingSettings, features, batches = std::move(batches)](
       const Data &, const FrameGraphPassResources &, void *ctx) {
@@ -116,6 +118,7 @@ std::optional<FrameGraphResource> TransmissionPass::addGeometryPass(
       BaseGeometryPassInfo passInfo{
         .depthFormat = rhi::getDepthFormat(*framebufferInfo),
         .colorFormats = rhi::getColorFormats(*framebufferInfo),
+        .writeUserData = sets[2].contains(13),
       };
 
       cb.beginRendering(*framebufferInfo);
@@ -136,9 +139,11 @@ std::optional<FrameGraphResource> TransmissionPass::addGeometryPass(
   return output;
 }
 
-CodePair TransmissionPass::buildShaderCode(
-  const rhi::RenderDevice &rd, const VertexFormat *vertexFormat,
-  const Material &material, const LightingPassFeatures &features) {
+CodePair TransmissionPass::buildShaderCode(const rhi::RenderDevice &rd,
+                                           const VertexFormat *vertexFormat,
+                                           const Material &material,
+                                           const LightingPassFeatures &features,
+                                           const bool writeUserData) {
   const auto offsetAlignment =
     rd.getDeviceLimits().minStorageBufferOffsetAlignment;
 
@@ -159,7 +164,8 @@ CodePair TransmissionPass::buildShaderCode(
 
   shaderCodeBuilder.setDefines(commonDefines)
     .addDefine("HAS_SCENE_DEPTH", 1)
-    .addDefine("HAS_SCENE_COLOR", 1);
+    .addDefine("HAS_SCENE_COLOR", 1)
+    .addDefine<int32_t>("WRITE_USERDATA", writeUserData);
   addMaterial(shaderCodeBuilder, material, rhi::ShaderType::Fragment,
               offsetAlignment);
   addLighting(shaderCodeBuilder, features);
@@ -180,7 +186,8 @@ TransmissionPass::_createPipeline(const ForwardPassInfo &passInfo) const {
 
   const auto &material = *passInfo.material;
   const auto [vertCode, fragCode] =
-    buildShaderCode(rd, passInfo.vertexFormat, material, passInfo.features);
+    buildShaderCode(rd, passInfo.vertexFormat, material, passInfo.features,
+                    passInfo.writeUserData);
 
   return rhi::GraphicsPipeline::Builder{}
     .setDepthFormat(passInfo.depthFormat)

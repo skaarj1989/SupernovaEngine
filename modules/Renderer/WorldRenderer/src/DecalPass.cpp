@@ -100,6 +100,8 @@ void DecalPass::addGeometryPass(
       gBuffer.albedo = builder.write(gBuffer.albedo, Attachment{.index = 2});
       gBuffer.metallicRoughnessAO =
         builder.write(gBuffer.metallicRoughnessAO, Attachment{.index = 3});
+
+      writeUserData(builder, blackboard);
     },
     [this, batches = std::move(batches)](
       const auto &, const FrameGraphPassResources &, void *ctx) {
@@ -113,6 +115,7 @@ void DecalPass::addGeometryPass(
       BaseGeometryPassInfo passInfo{
         .depthFormat = rhi::getDepthFormat(*framebufferInfo),
         .colorFormats = rhi::getColorFormats(*framebufferInfo),
+        .writeUserData = sets[2].contains(13),
       };
       for (const auto &batch : batches) {
         if (const auto *pipeline = _getPipeline(adjust(passInfo, batch));
@@ -126,7 +129,8 @@ void DecalPass::addGeometryPass(
 
 CodePair DecalPass::buildShaderCode(const rhi::RenderDevice &rd,
                                     const VertexFormat *vertexFormat,
-                                    const Material &material) {
+                                    const Material &material,
+                                    const bool writeUserData) {
   assert(isSurface(material));
 
   const auto offsetAlignment =
@@ -150,6 +154,7 @@ CodePair DecalPass::buildShaderCode(const rhi::RenderDevice &rd,
   // -- FragmentShader:
 
   shaderCodeBuilder.setDefines(commonDefines);
+  shaderCodeBuilder.addDefine<int32_t>("WRITE_USERDATA", writeUserData);
   addMaterial(shaderCodeBuilder, material, rhi::ShaderType::Fragment,
               offsetAlignment);
   addDecalBlendMode(shaderCodeBuilder, getSurface(material).decalBlendMode);
@@ -167,8 +172,8 @@ DecalPass::_createPipeline(const BaseGeometryPassInfo &passInfo) const {
   assert(passInfo.vertexFormat && passInfo.material);
 
   const auto &material = *passInfo.material;
-  const auto [vertCode, fragCode] =
-    buildShaderCode(getRenderDevice(), passInfo.vertexFormat, material);
+  const auto [vertCode, fragCode] = buildShaderCode(
+    getRenderDevice(), passInfo.vertexFormat, material, passInfo.writeUserData);
 
   constexpr auto pickBlendState = [](BlendOp b) {
     return b == BlendOp::Replace

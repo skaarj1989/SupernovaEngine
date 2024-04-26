@@ -35,7 +35,8 @@ public:
   [[nodiscard]] static CodePair buildShaderCode(const rhi::RenderDevice &,
                                                 const VertexFormat *,
                                                 const Material &,
-                                                const LightingPassFeatures &);
+                                                const LightingPassFeatures &,
+                                                const bool writeUserData);
 
 private:
   [[nodiscard]] rhi::GraphicsPipeline

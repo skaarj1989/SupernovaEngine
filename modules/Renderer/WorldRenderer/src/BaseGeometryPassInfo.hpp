@@ -16,6 +16,7 @@ struct BaseGeometryPassInfo {
   rhi::PrimitiveTopology topology{rhi::PrimitiveTopology::TriangleList};
   const VertexFormat *vertexFormat{nullptr};
   const Material *material{nullptr};
+  bool writeUserData{false};
 };
 
 } // namespace gfx

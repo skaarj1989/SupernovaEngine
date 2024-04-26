@@ -29,7 +29,7 @@ public:
   void clear(const PipelineGroups) override;
 
   [[nodiscard]] std::optional<FrameGraphResource>
-  addGeometryPass(FrameGraph &, const FrameGraphBlackboard &,
+  addGeometryPass(FrameGraph &, FrameGraphBlackboard &,
                   const FrameGraphResource target, const ViewInfo &,
                   const PropertyGroupOffsets &, const LightingSettings &,
                   bool const softShadows);
@@ -37,7 +37,8 @@ public:
   [[nodiscard]] static CodePair buildShaderCode(const rhi::RenderDevice &,
                                                 const VertexFormat *,
                                                 const Material &,
-                                                const LightingPassFeatures &);
+                                                const LightingPassFeatures &,
+                                                const bool writeUserData);
 
 private:
   [[nodiscard]] rhi::GraphicsPipeline

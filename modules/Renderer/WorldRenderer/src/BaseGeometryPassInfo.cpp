@@ -15,6 +15,7 @@ size_t hash<gfx::BaseGeometryPassInfo>::operator()(
   hashCombine(h, v.topology);
   if (v.vertexFormat) hashCombine(h, v.vertexFormat->getHash());
   if (v.material) hashCombine(h, v.material->getHash());
+  hashCombine(h, v.writeUserData);
   return h;
 }
 

@@ -19,6 +19,7 @@ struct Renderable {
   uint32_t transformId{UINT_MAX}; // Index to frame's global modelMatrices.
   uint32_t skinOffset{UINT_MAX};  // Offset to the first joint.
   uint32_t materialId{UINT_MAX};
+  uint32_t userData{UINT_MAX};
 };
 
 const Material *getMaterial(const Renderable &);

@@ -340,13 +340,13 @@ CommandBuffer &CommandBuffer::drawFullScreenTriangle() {
 }
 CommandBuffer &CommandBuffer::drawCube() { return draw({.numVertices = 36}); }
 
-CommandBuffer &CommandBuffer::clear(Buffer &buffer) {
+CommandBuffer &CommandBuffer::clear(Buffer &buffer, const uint32_t value) {
   assert(buffer);
   assert(_invariant(State::Recording, InvariantFlags::OutsideRenderPass));
 
   _TRACY_GPU_ZONE2("ClearBuffer");
   flushBarriers();
-  vkCmdFillBuffer(m_handle, buffer.getHandle(), 0, VK_WHOLE_SIZE, 0);
+  vkCmdFillBuffer(m_handle, buffer.getHandle(), 0, VK_WHOLE_SIZE, value);
   return *this;
 }
 CommandBuffer &CommandBuffer::clear(Texture &texture,

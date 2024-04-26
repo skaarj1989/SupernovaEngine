@@ -7,6 +7,13 @@
 
 namespace {
 
+void initMeshInstance(entt::registry &r, const entt::entity e) {
+  r.get<gfx::MeshInstance>(e).setUserData(entt::to_integral(e));
+}
+void initDecalInstance(entt::registry &r, const entt::entity e) {
+  r.get<gfx::DecalInstance>(e).setUserData(entt::to_integral(e));
+}
+
 void initCamera(entt::registry &r, const entt::entity e) {
   if (auto &skyLight = r.get<CameraComponent>(e).skyLight; skyLight.source) {
     assert(!skyLight.diffuse && !skyLight.specular);
@@ -97,6 +104,8 @@ void RenderSystem::setup(entt::registry &r, gfx::WorldRenderer &wr) {
   });
   ctx.emplace<MainCamera>();
 
+  r.on_construct<gfx::MeshInstance>().connect<&initMeshInstance>();
+  r.on_construct<gfx::DecalInstance>().connect<&initDecalInstance>();
   r.on_construct<CameraComponent>().connect<&initCamera>();
 }
 

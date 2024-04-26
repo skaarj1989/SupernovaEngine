@@ -51,6 +51,7 @@ Batches buildBatches(std::vector<GPUInstance> &gpuInstances,
       .skinOffset = renderable->skinOffset,
       .materialId = renderable->materialId,
       .flags = uint32_t(materialInstance.getFlags()),
+      .userData = renderable->userData,
     });
   }
 

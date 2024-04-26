@@ -42,6 +42,7 @@ layout(location = 0) INTERFACE_BLOCK(VertexData) {
 
   flat uint materialId;
   flat uint flags;
+  flat uint userData;
 }
 VERTEX_DATA_BLOCK;
 

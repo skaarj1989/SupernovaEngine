@@ -4,7 +4,7 @@
 
 #include "os/InputSystem.hpp"
 
-#include "rhi/CommandBuffer.hpp"
+#include "rhi/RenderDevice.hpp"
 #include "renderer/WorldRenderer.hpp"
 
 #include "Inspectors/CameraInspector.hpp"
@@ -240,12 +240,20 @@ void cameraOverlay(const entt::handle h, float height = 128) {
 void showSceneViewportInspector(os::InputSystem &inputSystem,
                                 RenderTargetPreview &renderTargetPreview,
                                 SceneEditor::Entry &entry,
+                                rhi::Buffer &entityIDs,
                                 const bool showOverlay) {
+  const auto extent = renderTargetPreview.getExtent();
   renderTargetPreview.show(
-    [&entry](const auto extent) {
+    [&entry, &entityIDs,
+     &rd = renderTargetPreview.getRenderDevice()](const auto extent) {
       entry.viewport.camera.setAspectRatio(extent.getAspectRatio());
+
+      rd.pushGarbage(entityIDs);
+      entityIDs =
+        rd.createStorageBuffer(extent.width * extent.height * sizeof(uint32_t),
+                               rhi::AllocationHints::SequentialWrite);
     },
-    [&inputSystem, &entry, showOverlay] {
+    [&inputSystem, &entry, &entityIDs, showOverlay, extent] {
       CameraController::Result controller;
 
       auto &camera = entry.viewport.camera;
@@ -260,6 +268,16 @@ void showSceneViewportInspector(os::InputSystem &inputSystem,
         inputSystem.setMousePosition(anchor);
       }
       inputSystem.showCursor(!controller.wantUse);
+
+      if (ImGui::IsWindowHovered() &&
+          ImGui::IsMouseClicked(ImGuiMouseButton_Middle)) {
+        ImGui::SetWindowFocus();
+
+        const glm::ivec2 p =
+          glm::vec2{ImGui::GetMousePos()} - glm::vec2{ImGui::GetWindowPos()};
+        const auto IDs = static_cast<entt::entity *>(entityIDs.map());
+        entry.selectedEntity = entry.scene.get(IDs[p.x + extent.width * p.y]);
+      }
 
       // ---
 
@@ -816,7 +834,7 @@ void SceneEditor::_scenesWidget() {
           m_renderTargetPreview.getExtent().getAspectRatio());
       }
       showSceneViewportInspector(m_inputSystem, m_renderTargetPreview,
-                                 *activeEntry, !junk);
+                                 *activeEntry, m_entityIDs, !junk);
 
       ImGui::EndTabItem();
     }
@@ -1109,12 +1127,13 @@ void SceneEditor::_drawWorld(Entry &entry, rhi::CommandBuffer &cb,
                              gfx::DebugOutput *debugOutput) {
   ZoneScopedN("SceneEditor::DrawWorld");
   auto &r = entry.scene.getRegistry();
-  const auto mainSceneView = [&entry, &texture, &r] {
+  auto mainSceneView = [&entry, &texture, &r] {
     auto *c = getMainCameraComponent(r);
     return c ? createSceneView("Main", *c, &entry.viewport.camera, &texture)
              // Fallback to editor viewport:
              : createEditorSceneView(entry.viewport, texture);
   }();
+  mainSceneView.userData = &m_entityIDs;
 
   if (auto *dd = mainSceneView.debugDraw; dd) {
     PhysicsSystem::debugDraw(r, *dd);

@@ -30,7 +30,8 @@ public:
 
   [[nodiscard]] static CodePair buildShaderCode(const rhi::RenderDevice &,
                                                 const VertexFormat *,
-                                                const Material &);
+                                                const Material &,
+                                                const bool writeUserData);
 
 private:
   [[nodiscard]] rhi::GraphicsPipeline

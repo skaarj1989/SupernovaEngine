@@ -23,6 +23,7 @@
 #include "fg/FrameGraph.hpp"
 #include "fg/Blackboard.hpp"
 #include "FrameGraphImport.hpp"
+#include "renderer/FrameGraphBuffer.hpp"
 
 #include "UploadFrameBlock.hpp"
 #include "UploadCameraBlock.hpp"
@@ -36,6 +37,7 @@
 #include "FrameGraphData/SceneColor.hpp"
 #include "FrameGraphData/BRDF.hpp"
 #include "FrameGraphData/SkyLight.hpp"
+#include "FrameGraphData/UserData.hpp"
 
 #include "RenderContext.hpp"
 #include "ShaderCodeBuilder.hpp"
@@ -167,6 +169,7 @@ addMaterialInstance(RenderableStore &store,
         .transformId = transformId,
         .skinOffset = skinOffset.value_or(kInvalidId),
         .materialId = materialId.value_or(kInvalidId),
+        .userData = meshInstance->getUserData(),
       });
     }
   }
@@ -385,18 +388,19 @@ std::optional<StageError> WorldRenderer::isValid(const rhi::RenderDevice &rd,
       switch (surface.blendMode) {
       case BlendMode::Opaque:
       case BlendMode::Masked:
-        code = GBufferPass::buildShaderCode(rd, vertexFormat.get(), material);
+        code =
+          GBufferPass::buildShaderCode(rd, vertexFormat.get(), material, false);
         break;
       case BlendMode::Transparent:
       case BlendMode::Add:
       case BlendMode::Modulate:
         code = TransparencyPass::buildShaderCode(rd, vertexFormat.get(),
-                                                 material, {});
+                                                 material, {}, false);
         break;
       }
     } else {
-      code =
-        TransmissionPass::buildShaderCode(rd, vertexFormat.get(), material, {});
+      code = TransmissionPass::buildShaderCode(rd, vertexFormat.get(), material,
+                                               {}, false);
     }
   } break;
   case MaterialDomain::PostProcess: {
@@ -436,6 +440,16 @@ void WorldRenderer::_drawScene(FrameGraph &fg, FrameGraphBlackboard blackboard,
   ZoneScopedN("DrawScene");
 
   const auto backbuffer = importTexture(fg, sceneView.name, &target);
+  if (auto *buffer = sceneView.userData; buffer) {
+    blackboard.add<UserData>().userData = fg.import <FrameGraphBuffer>(
+      "UserData",
+      FrameGraphBuffer::Desc{
+        .type = BufferType::StorageBuffer,
+        .stride = sizeof(uint32_t),
+        .capacity = buffer->getSize() / sizeof(uint32_t),
+      },
+      {buffer});
+  }
 
   auto &camera = sceneView.camera;
   blackboard.add<CameraData>(uploadCameraBlock(fg, resolution, camera));

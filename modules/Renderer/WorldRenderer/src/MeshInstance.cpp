@@ -57,6 +57,12 @@ MeshInstance &MeshInstance::setSkinMatrices(Joints skin) {
   return *this;
 }
 
+MeshInstance &MeshInstance::setUserData(const uint32_t ud) {
+  m_userData = ud;
+  return *this;
+}
+uint32_t MeshInstance::getUserData() const { return m_userData; }
+
 const glm::mat4 &MeshInstance::getModelMatrix() const { return m_modelMatrix; }
 const AABB &MeshInstance::getAABB() const { return m_aabb; }
 
