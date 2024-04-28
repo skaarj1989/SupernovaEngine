@@ -53,6 +53,7 @@ FrameGraphResource SSR::addPass(FrameGraph &fg,
                            .pipelineStage = PipelineStage::FragmentShader,
                          },
                        .type = TextureRead::Type::SampledImage,
+                       .imageAspect = rhi::ImageAspect::Color,
                      });
 
         const auto &inputDesc =
@@ -62,6 +63,7 @@ FrameGraphResource SSR::addPass(FrameGraph &fg,
         data.reflections = builder.write(
           data.reflections, Attachment{
                               .index = 0,
+                              .imageAspect = rhi::ImageAspect::Color,
                               .clearValue = ClearValue::TransparentBlack,
                             });
       },

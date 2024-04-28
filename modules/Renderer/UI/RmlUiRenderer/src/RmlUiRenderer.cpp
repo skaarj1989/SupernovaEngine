@@ -82,7 +82,11 @@ void RmlUiRenderer::draw(rhi::CommandBuffer &cb,
     constexpr auto kDescriptorSetId = 0;
     auto descriptorSet =
       cb.createDescriptorSetBuilder()
-        .bind(0, rhi::bindings::CombinedImageSampler{texture})
+        .bind(0,
+              rhi::bindings::CombinedImageSampler{
+                .texture = texture,
+                .imageAspect = rhi::ImageAspect::Color,
+              })
         .build(pipeline->getDescriptorSetLayout(kDescriptorSetId));
     cb.bindDescriptorSet(kDescriptorSetId, descriptorSet);
   }

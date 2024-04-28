@@ -20,6 +20,7 @@ void bindTextures(ResourceBindings &bindings, const uint32_t firstBinding,
     bindings[firstBinding + static_cast<uint32_t>(i)] =
       rhi::bindings::CombinedImageSampler{
         .texture = textureInfo.texture.get(),
+        .imageAspect = rhi::ImageAspect::Color,
       };
   }
 }

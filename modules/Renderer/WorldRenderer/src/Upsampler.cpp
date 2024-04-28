@@ -49,6 +49,7 @@ FrameGraphResource Upsampler::addPass(FrameGraph &fg,
                                 .pipelineStage = PipelineStage::FragmentShader,
                               },
                             .type = TextureRead::Type::CombinedImageSampler,
+                            .imageAspect = rhi::ImageAspect::Color,
                           });
 
       const auto &inputDesc = fg.getDescriptor<FrameGraphTexture>(input);
@@ -59,7 +60,11 @@ FrameGraphResource Upsampler::addPass(FrameGraph &fg,
                        .usageFlags = rhi::ImageUsage::RenderTarget |
                                      rhi::ImageUsage::Sampled,
                      });
-      data.upsampled = builder.write(data.upsampled, Attachment{.index = 0});
+      data.upsampled =
+        builder.write(data.upsampled, Attachment{
+                                        .index = 0,
+                                        .imageAspect = rhi::ImageAspect::Color,
+                                      });
     },
     [this, radius](const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);

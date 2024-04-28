@@ -58,9 +58,13 @@ FrameGraphResource DebugNormalPass::addGeometryPass(
       read(builder, blackboard.try_get<TransformData>(), dummyResources);
       read(builder, blackboard.try_get<SkinData>(), dummyResources);
 
-      builder.read(blackboard.get<GBufferData>().depth, Attachment{});
+      builder.read(blackboard.get<GBufferData>().depth,
+                   Attachment{.imageAspect = rhi::ImageAspect::Depth});
 
-      target = builder.write(target, Attachment{.index = 0});
+      target = builder.write(target, Attachment{
+                                       .index = 0,
+                                       .imageAspect = rhi::ImageAspect::Color,
+                                     });
     },
     [this, batches = std::move(batches)](
       const auto &, const FrameGraphPassResources &, void *ctx) {

@@ -228,7 +228,11 @@ void ImGuiRenderer::draw(rhi::CommandBuffer &cb,
 
         auto descriptorSet =
           descriptorSetBuilder
-            .bind(0, rhi::bindings::CombinedImageSampler{texture})
+            .bind(0,
+                  rhi::bindings::CombinedImageSampler{
+                    .texture = texture,
+                    .imageAspect = rhi::ImageAspect::Color,
+                  })
             .build(pipeline->getDescriptorSetLayout(kDescriptorSetId));
 
         cb.bindPipeline(*pipeline)

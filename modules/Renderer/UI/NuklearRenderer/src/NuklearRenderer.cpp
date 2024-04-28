@@ -258,7 +258,12 @@ void NuklearRenderer::draw(rhi::CommandBuffer &cb, FrameResources &resources,
     constexpr auto kDescriptorSetId = 0;
 
     auto descriptorSet =
-      descriptorSetBuilder.bind(0, rhi::bindings::CombinedImageSampler{texture})
+      descriptorSetBuilder
+        .bind(0,
+              rhi::bindings::CombinedImageSampler{
+                .texture = texture,
+                .imageAspect = rhi::ImageAspect::Color,
+              })
         .build(m_graphicsPipeline.getDescriptorSetLayout(kDescriptorSetId));
 
     cb.bindDescriptorSet(kDescriptorSetId, descriptorSet)

@@ -131,7 +131,10 @@ void GBufferPass::addGeometryPass(
                                       rhi::ImageUsage::Sampled,
                       });
       data.depth =
-        builder.write(data.depth, Attachment{.clearValue = ClearValue::One});
+        builder.write(data.depth, Attachment{
+                                    .imageAspect = rhi::ImageAspect::Depth,
+                                    .clearValue = ClearValue::One,
+                                  });
 
       data.normal = builder.create<FrameGraphTexture>(
         "Normal", {
@@ -143,6 +146,7 @@ void GBufferPass::addGeometryPass(
       data.normal =
         builder.write(data.normal, Attachment{
                                      .index = 0,
+                                     .imageAspect = rhi::ImageAspect::Color,
                                      .clearValue = ClearValue::TransparentBlack,
                                    });
 
@@ -156,6 +160,7 @@ void GBufferPass::addGeometryPass(
       data.emissive = builder.write(
         data.emissive, Attachment{
                          .index = 1,
+                         .imageAspect = rhi::ImageAspect::Color,
                          .clearValue = ClearValue::TransparentBlack,
                        });
 
@@ -169,6 +174,7 @@ void GBufferPass::addGeometryPass(
       data.albedo =
         builder.write(data.albedo, Attachment{
                                      .index = 2,
+                                     .imageAspect = rhi::ImageAspect::Color,
                                      .clearValue = ClearValue::TransparentBlack,
                                    });
 
@@ -182,6 +188,7 @@ void GBufferPass::addGeometryPass(
       data.metallicRoughnessAO = builder.write(
         data.metallicRoughnessAO, Attachment{
                                     .index = 3,
+                                    .imageAspect = rhi::ImageAspect::Color,
                                     .clearValue = ClearValue::TransparentBlack,
                                   });
 
@@ -195,6 +202,7 @@ void GBufferPass::addGeometryPass(
       data.misc =
         builder.write(data.misc, Attachment{
                                    .index = 4,
+                                   .imageAspect = rhi::ImageAspect::Color,
                                    .clearValue = ClearValue::TransparentBlack,
                                  });
 

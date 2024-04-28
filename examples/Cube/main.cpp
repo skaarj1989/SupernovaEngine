@@ -109,7 +109,11 @@ private:
 
       const auto descriptorSet =
         cb.createDescriptorSetBuilder()
-          .bind(0, rhi::bindings::CombinedImageSampler{&m_texture})
+          .bind(0,
+                rhi::bindings::CombinedImageSampler{
+                  .texture = &m_texture,
+                  .imageAspect = rhi::ImageAspect::Color,
+                })
           .build(m_texturedPipeline.getDescriptorSetLayout(kDescriptorSetId));
 
       cb.bindPipeline(m_texturedPipeline)

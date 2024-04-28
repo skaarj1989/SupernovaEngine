@@ -34,6 +34,7 @@ TransparencyCompositionPass::addPass(FrameGraph &fg,
                          .pipelineStage = PipelineStage::FragmentShader,
                        },
                      .type = TextureRead::Type::SampledImage,
+                     .imageAspect = rhi::ImageAspect::Color,
                    });
       builder.read(weightedBlended.reveal,
                    TextureRead{
@@ -43,9 +44,11 @@ TransparencyCompositionPass::addPass(FrameGraph &fg,
                          .pipelineStage = PipelineStage::FragmentShader,
                        },
                      .type = TextureRead::Type::SampledImage,
+                     .imageAspect = rhi::ImageAspect::Color,
                    });
 
-      target = builder.write(target, Attachment{.index = 0});
+      target = builder.write(
+        target, Attachment{.index = 0, .imageAspect = rhi::ImageAspect::Color});
     },
     [this](const auto &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);

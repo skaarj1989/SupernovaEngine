@@ -1,5 +1,6 @@
 #pragma once
 
+#include "rhi/ImageAspect.hpp"
 #include "rhi/CubeFace.hpp"
 #include "PipelineStage.hpp"
 #include <cstdint>
@@ -19,6 +20,7 @@ enum class ClearValue {
 
 struct Attachment {
   uint32_t index{0};
+  rhi::ImageAspect imageAspect;
   std::optional<uint32_t> layer;
   std::optional<rhi::CubeFace> face;
   std::optional<ClearValue> clearValue;
@@ -50,9 +52,18 @@ struct TextureRead {
 
   enum class Type { CombinedImageSampler, SampledImage, StorageImage };
   Type type;
+  rhi::ImageAspect imageAspect;
 
   [[nodiscard]] operator uint32_t() const;
 };
 [[nodiscard]] TextureRead decodeTextureRead(uint32_t bits);
+
+struct ImageWrite {
+  BindingInfo binding;
+  rhi::ImageAspect imageAspect;
+
+  [[nodiscard]] operator uint32_t() const;
+};
+[[nodiscard]] ImageWrite decodeImageWrite(uint32_t bits);
 
 } // namespace gfx

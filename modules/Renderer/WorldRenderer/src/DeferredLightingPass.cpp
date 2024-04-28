@@ -92,6 +92,7 @@ FrameGraphResource DeferredLightingPass::addPass(
       data.sceneColor = builder.write(
         data.sceneColor, Attachment{
                            .index = 0,
+                           .imageAspect = rhi::ImageAspect::Color,
                            .clearValue = ClearValue::TransparentBlack,
                          });
     },

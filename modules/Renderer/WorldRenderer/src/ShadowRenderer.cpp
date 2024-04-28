@@ -269,9 +269,11 @@ ShadowRenderer::visualizeCascades(FrameGraph &fg,
                          .pipelineStage = PipelineStage::FragmentShader,
                        },
                      .type = TextureRead::Type::SampledImage,
+                     .imageAspect = rhi::ImageAspect::Depth,
                    });
 
-      target = builder.write(target, Attachment{.index = 0});
+      target = builder.write(
+        target, Attachment{.index = 0, .imageAspect = rhi::ImageAspect::Color});
     },
     [this](const auto &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
@@ -393,11 +395,12 @@ FrameGraphResource ShadowRenderer::_addCascadePass(
               rhi::ImageUsage::RenderTarget | rhi::ImageUsage::Sampled,
           });
       }
-      data.shadowMaps =
-        builder.write(*cascadedShadowMaps, Attachment{
-                                             .layer = cascadeIndex,
-                                             .clearValue = ClearValue::One,
-                                           });
+      data.shadowMaps = builder.write(*cascadedShadowMaps,
+                                      Attachment{
+                                        .imageAspect = rhi::ImageAspect::Depth,
+                                        .layer = cascadeIndex,
+                                        .clearValue = ClearValue::One,
+                                      });
     },
     [this, passName, batches = std::move(batches)](
       const Data &, const FrameGraphPassResources &, void *ctx) {
@@ -485,6 +488,7 @@ FrameGraphResource ShadowRenderer::_addSpotLightPass(
       }
       data.shadowMaps =
         builder.write(*shadowMaps, Attachment{
+                                     .imageAspect = rhi::ImageAspect::Depth,
                                      .layer = index,
                                      .clearValue = ClearValue::One,
                                    });
@@ -586,6 +590,7 @@ FrameGraphResource ShadowRenderer::_addOmniLightPass(
       }
       data.shadowMaps =
         builder.write(*shadowMaps, Attachment{
+                                     .imageAspect = rhi::ImageAspect::Depth,
                                      .layer = index,
                                      .face = face,
                                      .clearValue = ClearValue::One,

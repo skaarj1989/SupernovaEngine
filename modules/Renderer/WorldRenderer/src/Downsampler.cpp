@@ -50,6 +50,7 @@ FrameGraphResource Downsampler::addPass(FrameGraph &fg,
                                 .pipelineStage = PipelineStage::FragmentShader,
                               },
                             .type = TextureRead::Type::CombinedImageSampler,
+                            .imageAspect = rhi::ImageAspect::Color,
                           });
 
       const auto &inputDesc = fg.getDescriptor<FrameGraphTexture>(input);
@@ -63,6 +64,7 @@ FrameGraphResource Downsampler::addPass(FrameGraph &fg,
       data.downsampled = builder.write(
         data.downsampled, Attachment{
                             .index = 0,
+                            .imageAspect = rhi::ImageAspect::Color,
                             .clearValue = ClearValue::TransparentBlack,
                           });
     },

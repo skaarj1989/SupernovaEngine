@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ImageAspect.hpp"
 #include "ResourceIndices.hpp"
 #include "glad/vulkan.h"
 #include "robin_hood.h"
@@ -23,13 +24,16 @@ struct SeparateSampler {
 };
 struct CombinedImageSampler {
   const Texture *texture{nullptr};
+  rhi::ImageAspect imageAspect{rhi::ImageAspect::None};
   std::optional<VkSampler> sampler;
 };
 struct SampledImage {
   const Texture *texture{nullptr};
+  rhi::ImageAspect imageAspect{rhi::ImageAspect::None};
 };
 struct StorageImage {
   const Texture *texture{nullptr};
+  rhi::ImageAspect imageAspect{rhi::ImageAspect::None};
   std::optional<uint32_t> mipLevel;
 };
 

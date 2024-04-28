@@ -172,6 +172,7 @@ void read(FrameGraph::Builder &builder, const ReflectiveShadowMapData &RSM,
                                    .pipelineStage = pipelineStage,
                                  },
                                .type = TextureRead::Type::SampledImage,
+                               .imageAspect = rhi::ImageAspect::Color,
                              });
   builder.read(RSM.normal, TextureRead{
                              .binding =
@@ -180,6 +181,7 @@ void read(FrameGraph::Builder &builder, const ReflectiveShadowMapData &RSM,
                                  .pipelineStage = pipelineStage,
                                },
                              .type = TextureRead::Type::SampledImage,
+                             .imageAspect = rhi::ImageAspect::Color,
                            });
   builder.read(RSM.flux, TextureRead{
                            .binding =
@@ -188,6 +190,7 @@ void read(FrameGraph::Builder &builder, const ReflectiveShadowMapData &RSM,
                                .pipelineStage = pipelineStage,
                              },
                            .type = TextureRead::Type::SampledImage,
+                           .imageAspect = rhi::ImageAspect::Color,
                          });
 }
 void read(FrameGraph::Builder &builder, const LightPropagationVolumesData &LPV,
@@ -199,6 +202,7 @@ void read(FrameGraph::Builder &builder, const LightPropagationVolumesData &LPV,
                             .pipelineStage = pipelineStage,
                           },
                         .type = TextureRead::Type::SampledImage,
+                        .imageAspect = rhi::ImageAspect::Color,
                       });
   builder.read(LPV.g, TextureRead{
                         .binding =
@@ -207,6 +211,7 @@ void read(FrameGraph::Builder &builder, const LightPropagationVolumesData &LPV,
                             .pipelineStage = pipelineStage,
                           },
                         .type = TextureRead::Type::SampledImage,
+                        .imageAspect = rhi::ImageAspect::Color,
                       });
   builder.read(LPV.b, TextureRead{
                         .binding =
@@ -215,6 +220,7 @@ void read(FrameGraph::Builder &builder, const LightPropagationVolumesData &LPV,
                             .pipelineStage = pipelineStage,
                           },
                         .type = TextureRead::Type::SampledImage,
+                        .imageAspect = rhi::ImageAspect::Color,
                       });
 }
 
@@ -305,7 +311,8 @@ FrameGraphResource GlobalIllumination::addDebugPass(
       PASS_SETUP_ZONE;
 
       read(builder, blackboard.get<CameraData>(), PipelineStage::VertexShader);
-      builder.read(blackboard.get<GBufferData>().depth, Attachment{});
+      builder.read(blackboard.get<GBufferData>().depth,
+                   Attachment{.imageAspect = rhi::ImageAspect::Depth});
 
       const auto &GI = blackboard.get<GlobalIlluminationData>();
       readSceneGrid(builder, GI.sceneGridBlock, PipelineStage::VertexShader);
@@ -319,6 +326,7 @@ FrameGraphResource GlobalIllumination::addDebugPass(
                          .pipelineStage = PipelineStage::VertexShader,
                        },
                      .type = TextureRead::Type::SampledImage,
+                     .imageAspect = rhi::ImageAspect::Color,
                    });
       builder.read(RSM.normal,
                    TextureRead{
@@ -328,10 +336,12 @@ FrameGraphResource GlobalIllumination::addDebugPass(
                          .pipelineStage = PipelineStage::VertexShader,
                        },
                      .type = TextureRead::Type::SampledImage,
+                     .imageAspect = rhi::ImageAspect::Color,
                    });
       read(builder, GI.LPV, PipelineStage::FragmentShader);
 
-      target = builder.write(target, Attachment{.index = 0});
+      target = builder.write(
+        target, Attachment{.index = 0, .imageAspect = rhi::ImageAspect::Color});
     },
     [this](const auto &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
@@ -426,7 +436,10 @@ ReflectiveShadowMapData GlobalIllumination::_addReflectiveShadowMapPass(
                        .usageFlags = rhi::ImageUsage::RenderTarget,
                      });
       data.depth =
-        builder.write(data.depth, Attachment{.clearValue = ClearValue::One});
+        builder.write(data.depth, Attachment{
+                                    .imageAspect = rhi::ImageAspect::Depth,
+                                    .clearValue = ClearValue::One,
+                                  });
 
       const auto kGBufferDesc = FrameGraphTexture::Desc{
         .extent = kRSMExtent,
@@ -438,6 +451,7 @@ ReflectiveShadowMapData GlobalIllumination::_addReflectiveShadowMapPass(
       data.position = builder.write(
         data.position, Attachment{
                          .index = 0,
+                         .imageAspect = rhi::ImageAspect::Color,
                          .clearValue = ClearValue::TransparentBlack,
                        });
 
@@ -446,6 +460,7 @@ ReflectiveShadowMapData GlobalIllumination::_addReflectiveShadowMapPass(
       data.normal =
         builder.write(data.normal, Attachment{
                                      .index = 1,
+                                     .imageAspect = rhi::ImageAspect::Color,
                                      .clearValue = ClearValue::TransparentBlack,
                                    });
 
@@ -453,6 +468,7 @@ ReflectiveShadowMapData GlobalIllumination::_addReflectiveShadowMapPass(
       data.flux =
         builder.write(data.flux, Attachment{
                                    .index = 2,
+                                   .imageAspect = rhi::ImageAspect::Color,
                                    .clearValue = ClearValue::TransparentBlack,
                                  });
     },
@@ -511,6 +527,7 @@ LightPropagationVolumesData GlobalIllumination::_addRadianceInjectionPass(
       data.r =
         builder.write(data.r, Attachment{
                                 .index = 0,
+                                .imageAspect = rhi::ImageAspect::Color,
                                 .clearValue = ClearValue::TransparentBlack,
                               });
 
@@ -518,6 +535,7 @@ LightPropagationVolumesData GlobalIllumination::_addRadianceInjectionPass(
       data.g =
         builder.write(data.g, Attachment{
                                 .index = 1,
+                                .imageAspect = rhi::ImageAspect::Color,
                                 .clearValue = ClearValue::TransparentBlack,
                               });
 
@@ -525,6 +543,7 @@ LightPropagationVolumesData GlobalIllumination::_addRadianceInjectionPass(
       data.b =
         builder.write(data.b, Attachment{
                                 .index = 2,
+                                .imageAspect = rhi::ImageAspect::Color,
                                 .clearValue = ClearValue::TransparentBlack,
                               });
     },
@@ -577,6 +596,7 @@ LightPropagationVolumesData GlobalIllumination::_addRadiancePropagationPass(
       data.r =
         builder.write(data.r, Attachment{
                                 .index = 0,
+                                .imageAspect = rhi::ImageAspect::Color,
                                 .clearValue = ClearValue::TransparentBlack,
                               });
 
@@ -584,6 +604,7 @@ LightPropagationVolumesData GlobalIllumination::_addRadiancePropagationPass(
       data.g =
         builder.write(data.g, Attachment{
                                 .index = 1,
+                                .imageAspect = rhi::ImageAspect::Color,
                                 .clearValue = ClearValue::TransparentBlack,
                               });
 
@@ -591,6 +612,7 @@ LightPropagationVolumesData GlobalIllumination::_addRadiancePropagationPass(
       data.b =
         builder.write(data.b, Attachment{
                                 .index = 2,
+                                .imageAspect = rhi::ImageAspect::Color,
                                 .clearValue = ClearValue::TransparentBlack,
                               });
     },

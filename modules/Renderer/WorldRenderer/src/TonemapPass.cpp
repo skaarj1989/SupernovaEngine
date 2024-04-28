@@ -62,6 +62,7 @@ FrameGraphResource TonemapPass::addPass(FrameGraph &fg,
                          .pipelineStage = PipelineStage::FragmentShader,
                        },
                      .type = TextureRead::Type::SampledImage,
+                     .imageAspect = rhi::ImageAspect::Color,
                    });
       if (averageLuminance) {
         builder.read(*averageLuminance,
@@ -72,6 +73,7 @@ FrameGraphResource TonemapPass::addPass(FrameGraph &fg,
                            .pipelineStage = PipelineStage::FragmentShader,
                          },
                        .type = TextureRead::Type::StorageImage,
+                       .imageAspect = rhi::ImageAspect::Color,
                      });
       }
       if (bloom) {
@@ -83,6 +85,7 @@ FrameGraphResource TonemapPass::addPass(FrameGraph &fg,
                            .pipelineStage = PipelineStage::FragmentShader,
                          },
                        .type = TextureRead::Type::SampledImage,
+                       .imageAspect = rhi::ImageAspect::Color,
                      });
       }
 
@@ -95,7 +98,9 @@ FrameGraphResource TonemapPass::addPass(FrameGraph &fg,
                         .usageFlags = rhi::ImageUsage::RenderTarget |
                                       rhi::ImageUsage::Sampled,
                       });
-      data.output = builder.write(data.output, Attachment{.index = 0});
+      data.output = builder.write(
+        data.output,
+        Attachment{.index = 0, .imageAspect = rhi::ImageAspect::Color});
     },
     [this, averageLuminance, bloom, tonemap, exposure,
      bloomStrength](const Data &, const FrameGraphPassResources &, void *ctx) {

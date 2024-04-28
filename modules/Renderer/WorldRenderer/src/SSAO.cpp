@@ -160,6 +160,7 @@ void SSAO::addPass(FrameGraph &fg, FrameGraphBlackboard &blackboard, Blur &blur,
       data.ssao =
         builder.write(data.ssao, Attachment{
                                    .index = 0,
+                                   .imageAspect = rhi::ImageAspect::Color,
                                    .clearValue = ClearValue::OpaqueWhite,
                                  });
     },
@@ -175,7 +176,10 @@ void SSAO::addPass(FrameGraph &fg, FrameGraphBlackboard &blackboard, Blur &blur,
         auto &bindings = sets[2];
         bindings[0] = rhi::bindings::SeparateSampler{m_samplers.bilinear};
         bindings[1] = rhi::bindings::UniformBuffer{.buffer = &m_kernelBuffer};
-        bindings[2] = rhi::bindings::CombinedImageSampler{.texture = &m_noise};
+        bindings[2] = rhi::bindings::CombinedImageSampler{
+          .texture = &m_noise,
+          .imageAspect = rhi::ImageAspect::Color,
+        };
 
         cb.bindPipeline(*pipeline);
         bindDescriptorSets(rc, *pipeline);

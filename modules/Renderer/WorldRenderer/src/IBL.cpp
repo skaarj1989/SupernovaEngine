@@ -79,7 +79,12 @@ rhi::Texture IBL::generateBRDF(rhi::CommandBuffer &cb) {
 
   const auto descriptors =
     cb.createDescriptorSetBuilder()
-      .bind(0, rhi::bindings::StorageImage{&brdf, 0})
+      .bind(0,
+            rhi::bindings::StorageImage{
+              .texture = &brdf,
+              .imageAspect = rhi::ImageAspect::Color,
+              .mipLevel = 0,
+            })
       .build(m_brdfPipeline.getDescriptorSetLayout(kDescriptorSetId));
 
   // ---
@@ -168,8 +173,17 @@ rhi::Texture IBL::IrradianceGenerator::generate(rhi::CommandBuffer &cb,
 
   const auto descriptors =
     cb.createDescriptorSetBuilder()
-      .bind(0, rhi::bindings::CombinedImageSampler{&source})
-      .bind(1, rhi::bindings::StorageImage{&irradiance, 0})
+      .bind(0,
+            rhi::bindings::CombinedImageSampler{
+              .texture = &source,
+              .imageAspect = rhi::ImageAspect::Color,
+            })
+      .bind(1,
+            rhi::bindings::StorageImage{
+              .texture = &irradiance,
+              .imageAspect = rhi::ImageAspect::Color,
+              .mipLevel = 0,
+            })
       .build(pipeline->getDescriptorSetLayout(kDescriptorSetId));
 
   // ---
@@ -268,8 +282,16 @@ rhi::Texture IBL::PrefilterGenerator::generate(rhi::CommandBuffer &cb,
 
   const auto descriptors =
     cb.createDescriptorSetBuilder()
-      .bind(0, rhi::bindings::CombinedImageSampler{&source})
-      .bind(1, rhi::bindings::StorageImage{&prefilteredEnvMap})
+      .bind(0,
+            rhi::bindings::CombinedImageSampler{
+              .texture = &source,
+              .imageAspect = rhi::ImageAspect::Color,
+            })
+      .bind(1,
+            rhi::bindings::StorageImage{
+              .texture = &prefilteredEnvMap,
+              .imageAspect = rhi::ImageAspect::Color,
+            })
       .build(pipeline->getDescriptorSetLayout(kDescriptorSetId));
 
   // ---

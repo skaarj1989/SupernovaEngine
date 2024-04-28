@@ -142,7 +142,7 @@ FrameGraphResource FinalPass::compose(FrameGraph &fg,
 
   fg.addCallbackPass(
     kPassName,
-    [&blackboard, &target, source](FrameGraph::Builder &builder, auto &) {
+    [&blackboard, &target, source, mode](FrameGraph::Builder &builder, auto &) {
       PASS_SETUP_ZONE;
 
       read(builder, blackboard.get<CameraData>(),
@@ -156,11 +156,15 @@ FrameGraphResource FinalPass::compose(FrameGraph &fg,
                            .pipelineStage = PipelineStage::FragmentShader,
                          },
                        .type = TextureRead::Type::CombinedImageSampler,
+                       .imageAspect = mode == gfx::Mode::LinearDepth
+                                        ? rhi::ImageAspect::Depth
+                                        : rhi::ImageAspect::Color,
                      });
       }
 
       target = builder.write(target, Attachment{
                                        .index = 0,
+                                       .imageAspect = rhi::ImageAspect::Color,
                                        .clearValue = ClearValue::OpaqueBlack,
                                      });
     },

@@ -155,6 +155,7 @@ FrameGraphResource EyeAdaptation::HistogramBuilder::buildHistogram(
                          .pipelineStage = PipelineStage::ComputeShader,
                        },
                      .type = TextureRead::Type::SampledImage,
+                     .imageAspect = rhi::ImageAspect::Color,
                    });
 
       histogram = builder.write(histogram,
@@ -230,13 +231,13 @@ FrameGraphResource EyeAdaptation::AverageLuminance::calculateAverageLuminance(
         fg, std::format("AvgLuminance<BR/>[uid: {}]", uid), avgLuminance);
       data.averageLuminance =
         builder.write(data.averageLuminance,
-                      TextureRead{
+                      ImageWrite{
                         .binding =
                           {
                             .location = {.set = 0, .binding = 2},
                             .pipelineStage = PipelineStage::ComputeShader,
                           },
-                        .type = TextureRead::Type::StorageImage,
+                        .imageAspect = rhi::ImageAspect::Color,
                       });
     },
     [this, minLogLuminance, logLuminanceRange, dimensions, tau,

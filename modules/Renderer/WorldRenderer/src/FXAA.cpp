@@ -47,11 +47,16 @@ FrameGraphResource FXAA::addPass(FrameGraph &fg,
                                 .pipelineStage = PipelineStage::FragmentShader,
                               },
                             .type = TextureRead::Type::CombinedImageSampler,
+                            .imageAspect = rhi::ImageAspect::Color,
                           });
 
       const auto &inputDesc = fg.getDescriptor<FrameGraphTexture>(input);
       data.output = builder.create<FrameGraphTexture>("AA", inputDesc);
-      data.output = builder.write(data.output, Attachment{.index = 0});
+      data.output =
+        builder.write(data.output, Attachment{
+                                     .index = 0,
+                                     .imageAspect = rhi::ImageAspect::Color,
+                                   });
     },
     [this](const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);

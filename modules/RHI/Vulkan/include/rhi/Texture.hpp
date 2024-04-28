@@ -5,6 +5,7 @@
 #include "TextureType.hpp"
 #include "CubeFace.hpp"
 #include "PixelFormat.hpp"
+#include "ImageAspect.hpp"
 #include "ImageLayout.hpp"
 #include "BarrierScope.hpp"
 
@@ -12,6 +13,7 @@
 #include "vk_mem_alloc.h"
 
 #include <vector>
+#include <unordered_map>
 #include <variant>
 #include <optional>
 #include <span>
@@ -59,13 +61,19 @@ public:
   [[nodiscard]] VkImage getImageHandle() const;
   [[nodiscard]] ImageLayout getImageLayout() const;
 
-  [[nodiscard]] VkImageView getImageView() const;
+  [[nodiscard]] VkImageView
+  getImageView(const VkImageAspectFlags = VK_IMAGE_ASPECT_NONE) const;
 
-  [[nodiscard]] VkImageView getMipLevel(const uint32_t) const;
-  [[nodiscard]] std::span<const VkImageView> getMipLevels() const;
-  [[nodiscard]] std::span<const VkImageView> getLayers() const;
-  [[nodiscard]] VkImageView getLayer(const uint32_t,
-                                     const std::optional<CubeFace>) const;
+  [[nodiscard]] VkImageView
+  getMipLevel(const uint32_t,
+              const VkImageAspectFlags = VK_IMAGE_ASPECT_NONE) const;
+  [[nodiscard]] std::span<const VkImageView>
+  getMipLevels(const VkImageAspectFlags = VK_IMAGE_ASPECT_NONE) const;
+  [[nodiscard]] VkImageView
+  getLayer(const uint32_t, const std::optional<CubeFace>,
+           const VkImageAspectFlags = VK_IMAGE_ASPECT_NONE) const;
+  [[nodiscard]] std::span<const VkImageView>
+  getLayers(const VkImageAspectFlags = VK_IMAGE_ASPECT_NONE) const;
 
   [[nodiscard]] VkSampler getSampler() const;
 
@@ -117,6 +125,17 @@ private:
 
   void _destroy() noexcept;
 
+  VkDevice _getDeviceHandle() const;
+
+  struct AspectData {
+    VkImageView imageView{VK_NULL_HANDLE};
+    std::vector<VkImageView> mipLevels;
+    std::vector<VkImageView> layers;
+  };
+  void _createAspect(const VkDevice, const VkImage, const VkImageViewType,
+                     const VkImageAspectFlags, AspectData &);
+  const AspectData *_getAspect(const VkImageAspectFlags) const;
+
 private:
   using DeviceOrAllcator = std::variant<std::monostate, VkDevice, VmaAllocator>;
   DeviceOrAllcator m_deviceOrAllocator{};
@@ -135,9 +154,8 @@ private:
   mutable ImageLayout m_layout{ImageLayout::Undefined};
   mutable BarrierScope m_lastScope{kInitialBarrierScope};
 
-  VkImageView m_imageView{VK_NULL_HANDLE};
-  std::vector<VkImageView> m_mipLevels;
-  std::vector<VkImageView> m_layers;
+  std::unordered_map<VkImageAspectFlags, AspectData> m_aspects;
+
   VkSampler m_sampler{VK_NULL_HANDLE}; // Non-owning.
 
   Extent2D m_extent{0u};

@@ -48,9 +48,11 @@ InfiniteGridPass::addPass(FrameGraph &fg,
       PASS_SETUP_ZONE;
 
       read(builder, blackboard.get<CameraData>());
-      builder.read(blackboard.get<GBufferData>().depth, Attachment{});
+      builder.read(blackboard.get<GBufferData>().depth,
+                   Attachment{.imageAspect = rhi::ImageAspect::Depth});
 
-      target = builder.write(target, Attachment{.index = 0});
+      target = builder.write(
+        target, Attachment{.index = 0, .imageAspect = rhi::ImageAspect::Color});
     },
     [this](const auto &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);

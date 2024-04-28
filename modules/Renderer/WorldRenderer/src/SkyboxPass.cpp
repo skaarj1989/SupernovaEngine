@@ -56,7 +56,8 @@ FrameGraphResource SkyboxPass::addPass(FrameGraph &fg,
 
       read(builder, blackboard.get<CameraData>(),
            PipelineStage::FragmentShader);
-      builder.read(blackboard.get<GBufferData>().depth, Attachment{});
+      builder.read(blackboard.get<GBufferData>().depth,
+                   Attachment{.imageAspect = rhi::ImageAspect::Depth});
       builder.read(skybox, TextureRead{
                              .binding =
                                {
@@ -64,9 +65,11 @@ FrameGraphResource SkyboxPass::addPass(FrameGraph &fg,
                                  .pipelineStage = PipelineStage::FragmentShader,
                                },
                              .type = TextureRead::Type::CombinedImageSampler,
+                             .imageAspect = rhi::ImageAspect::Color,
                            });
 
-      target = builder.write(target, Attachment{.index = 0});
+      target = builder.write(
+        target, Attachment{.index = 0, .imageAspect = rhi::ImageAspect::Color});
     },
     [this, skybox](const auto &, FrameGraphPassResources &resources,
                    void *ctx) {

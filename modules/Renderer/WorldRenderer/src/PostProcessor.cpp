@@ -110,6 +110,7 @@ PostProcessor::addPass(FrameGraph &fg, const FrameGraphBlackboard &blackboard,
                          .pipelineStage = PipelineStage::FragmentShader,
                        },
                      .type = TextureRead::Type::CombinedImageSampler,
+                     .imageAspect = rhi::ImageAspect::Depth,
                    });
       builder.read(sceneColor,
                    TextureRead{
@@ -119,6 +120,7 @@ PostProcessor::addPass(FrameGraph &fg, const FrameGraphBlackboard &blackboard,
                          .pipelineStage = PipelineStage::FragmentShader,
                        },
                      .type = TextureRead::Type::CombinedImageSampler,
+                     .imageAspect = rhi::ImageAspect::Color,
                    });
 
       if (materialProperties)
@@ -131,6 +133,7 @@ PostProcessor::addPass(FrameGraph &fg, const FrameGraphBlackboard &blackboard,
       data.output =
         builder.write(data.output, Attachment{
                                      .index = 0,
+                                     .imageAspect = rhi::ImageAspect::Color,
                                      .clearValue = ClearValue::TransparentBlack,
                                    });
     },

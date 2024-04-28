@@ -93,8 +93,17 @@ rhi::Texture CubemapConverter::equirectangularToCubemap(
 
   auto descriptors =
     cb.createDescriptorSetBuilder()
-      .bind(0, rhi::bindings::CombinedImageSampler{&equirectangular})
-      .bind(1, rhi::bindings::StorageImage{&cubemap, 0})
+      .bind(0,
+            rhi::bindings::CombinedImageSampler{
+              .texture = &equirectangular,
+              .imageAspect = rhi::ImageAspect::Color,
+            })
+      .bind(1,
+            rhi::bindings::StorageImage{
+              .texture = &cubemap,
+              .imageAspect = rhi::ImageAspect::Color,
+              .mipLevel = 0,
+            })
       .build(pipeline->getDescriptorSetLayout(kDescriptorSetId));
 
   // ---

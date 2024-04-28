@@ -56,13 +56,16 @@ FrameGraphResource Blit::mix(FrameGraph &fg, const FrameGraphResource a,
       PASS_SETUP_ZONE;
 
       for (auto index = 1u; auto input : {a, b}) {
-        builder.read(
-          input, TextureRead{.binding =
-                               {
-                                 .location = {.set = 0, .binding = index},
-                                 .pipelineStage = PipelineStage::FragmentShader,
-                               },
-                             .type = TextureRead::Type::SampledImage});
+        builder.read(input,
+                     TextureRead{
+                       .binding =
+                         {
+                           .location = {.set = 0, .binding = index},
+                           .pipelineStage = PipelineStage::FragmentShader,
+                         },
+                       .type = TextureRead::Type::SampledImage,
+                       .imageAspect = rhi::ImageAspect::Color,
+                     });
         ++index;
       }
 
@@ -77,7 +80,11 @@ FrameGraphResource Blit::mix(FrameGraph &fg, const FrameGraphResource a,
           .usageFlags = (inputDescA.usageFlags | inputDescB.usageFlags) &
                         ~rhi::ImageUsage::Storage,
         });
-      data.output = builder.write(data.output, Attachment{.index = 0});
+      data.output =
+        builder.write(data.output, Attachment{
+                                     .index = 0,
+                                     .imageAspect = rhi::ImageAspect::Color,
+                                   });
     },
     [this](const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
@@ -124,9 +131,13 @@ FrameGraphResource Blit::merge(FrameGraph &fg, FrameGraphResource target,
                            .pipelineStage = PipelineStage::FragmentShader,
                          },
                        .type = TextureRead::Type::SampledImage,
+                       .imageAspect = rhi::ImageAspect::Color,
                      });
       }
-      target = builder.write(target, Attachment{.index = 0});
+      target = builder.write(target, Attachment{
+                                       .index = 0,
+                                       .imageAspect = rhi::ImageAspect::Color,
+                                     });
     },
     [this, numTextures](const auto &, const FrameGraphPassResources &,
                         void *ctx) {

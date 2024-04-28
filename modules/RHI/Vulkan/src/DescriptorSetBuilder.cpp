@@ -10,9 +10,8 @@
 
 namespace rhi {
 
-#if _DEBUG
 namespace {
-
+#if _DEBUG
 [[nodiscard]] auto validRange(const Buffer &buffer, const VkDeviceSize offset,
                               const std::optional<VkDeviceSize> range) {
   const auto size = buffer.getSize();
@@ -20,9 +19,26 @@ namespace {
 
   return !range || (offset + *range < size);
 }
+#endif
+
+[[nodiscard]] VkImageAspectFlags toVk(const rhi::ImageAspect imageAspect) {
+  switch (imageAspect) {
+    using enum rhi::ImageAspect;
+
+  case Depth:
+    return VK_IMAGE_ASPECT_DEPTH_BIT;
+  case Stencil:
+    return VK_IMAGE_ASPECT_STENCIL_BIT;
+  case Color:
+    return VK_IMAGE_ASPECT_COLOR_BIT;
+
+  default:
+    assert(false);
+    return VK_IMAGE_ASPECT_NONE;
+  }
+}
 
 } // namespace
-#endif
 
 //
 // DescriptorSetBuilder class:
@@ -77,7 +93,7 @@ DescriptorSetBuilder::bind(const BindingIndex index,
     .imageInfo =
       {
         .sampler = sampler,
-        .imageView = info.texture->getImageView(),
+        .imageView = info.texture->getImageView(toVk(info.imageAspect)),
         .imageLayout = VkImageLayout(imageLayout),
       },
   });
@@ -93,7 +109,7 @@ DescriptorSetBuilder::bind(const BindingIndex index,
     .count = 1,
     .descriptorId = int32_t(m_descriptors.size()),
   };
-  _addImage(info.texture->getImageView(),
+  _addImage(info.texture->getImageView(toVk(info.imageAspect)),
             static_cast<VkImageLayout>(info.texture->getImageLayout()));
   return *this;
 }
@@ -112,7 +128,7 @@ DescriptorSetBuilder::bind(const BindingIndex index,
     .descriptorId = int32_t(m_descriptors.size()),
   };
   for (auto i = 0u; i < numImages; ++i) {
-    _addImage(info.texture->getMipLevel(i),
+    _addImage(info.texture->getMipLevel(i, toVk(info.imageAspect)),
               static_cast<VkImageLayout>(imageLayout));
   }
   return *this;

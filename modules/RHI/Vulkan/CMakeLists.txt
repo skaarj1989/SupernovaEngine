@@ -43,6 +43,7 @@ add_library(VulkanRHI
   "src/ShaderType.cpp"
   "include/rhi/CullMode.hpp"
   "src/CullMode.cpp"
+  "include/rhi/ImageAspect.hpp"
   "include/rhi/ImageLayout.hpp"
   "include/rhi/PipelineStage.hpp"
   "include/rhi/Access.hpp"

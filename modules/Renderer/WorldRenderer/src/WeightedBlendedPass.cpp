@@ -112,6 +112,7 @@ void WeightedBlendedPass::addGeometryPass(
       data.accum =
         builder.write(data.accum, Attachment{
                                     .index = 0,
+                                    .imageAspect = rhi::ImageAspect::Color,
                                     .clearValue = ClearValue::TransparentBlack,
                                   });
 
@@ -125,6 +126,7 @@ void WeightedBlendedPass::addGeometryPass(
       data.reveal =
         builder.write(data.reveal, Attachment{
                                      .index = 1,
+                                     .imageAspect = rhi::ImageAspect::Color,
                                      .clearValue = ClearValue::OpaqueWhite,
                                    });
 

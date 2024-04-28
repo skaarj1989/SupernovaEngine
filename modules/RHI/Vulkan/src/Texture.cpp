@@ -148,9 +148,7 @@ Texture::Texture(Texture &&other) noexcept
       m_layout(other.m_layout),
       m_lastScope{std::move(other.m_lastScope)},
       
-      m_imageView{other.m_imageView}, 
-      m_mipLevels{std::move(other.m_mipLevels)},
-      m_layers{std::move(other.m_layers)},
+      m_aspects{std::move(other.m_aspects)}, 
       m_sampler{other.m_sampler},
   
       m_extent{other.m_extent},
@@ -166,7 +164,6 @@ Texture::Texture(Texture &&other) noexcept
   other.m_type = TextureType::Undefined;
   other.m_layout = ImageLayout::Undefined;
 
-  other.m_imageView = VK_NULL_HANDLE;
   other.m_sampler = VK_NULL_HANDLE;
 
   other.m_format = PixelFormat::Undefined;
@@ -186,9 +183,7 @@ Texture &Texture::operator=(Texture &&rhs) noexcept {
     std::swap(m_layout, rhs.m_layout);
     std::swap(m_lastScope, rhs.m_lastScope);
 
-    std::swap(m_imageView, rhs.m_imageView);
-    std::swap(m_mipLevels, rhs.m_mipLevels);
-    std::swap(m_layers, rhs.m_layers);
+    std::swap(m_aspects, rhs.m_aspects);
     std::swap(m_sampler, rhs.m_sampler);
 
     std::swap(m_extent, rhs.m_extent);
@@ -233,23 +228,36 @@ VkImage Texture::getImageHandle() const {
 }
 ImageLayout Texture::getImageLayout() const { return m_layout; }
 
-VkImageView Texture::getImageView() const { return m_imageView; }
+VkImageView Texture::getImageView(const VkImageAspectFlags aspectMask) const {
+  const auto *aspect = _getAspect(aspectMask);
+  return aspect ? aspect->imageView : VK_NULL_HANDLE;
+}
 
-VkImageView Texture::getMipLevel(const uint32_t index) const {
+VkImageView Texture::getMipLevel(const uint32_t index,
+                                 const VkImageAspectFlags aspectMask) const {
   const auto safeIndex = glm::clamp(index, 0u, m_numMipLevels - 1);
   assert(index == safeIndex);
-  return m_mipLevels[safeIndex];
+  const auto *aspect = _getAspect(aspectMask);
+  return aspect ? aspect->mipLevels[safeIndex] : VK_NULL_HANDLE;
 }
-std::span<const VkImageView> Texture::getMipLevels() const {
-  return m_mipLevels;
+std::span<const VkImageView>
+Texture::getMipLevels(const VkImageAspectFlags aspectMask) const {
+  const auto *aspect = _getAspect(aspectMask);
+  return aspect ? aspect->mipLevels : std::span<const VkImageView>{};
 }
-std::span<const VkImageView> Texture::getLayers() const { return m_layers; }
 VkImageView Texture::getLayer(const uint32_t layer,
-                              const std::optional<CubeFace> face) const {
+                              const std::optional<CubeFace> face,
+                              const VkImageAspectFlags aspectMask) const {
   const auto i = face ? (layer * 6) + uint32_t(*face) : layer;
   const auto safeIndex = glm::clamp(i, 0u, m_layerFaces - 1);
   assert(i == safeIndex);
-  return m_layers[safeIndex];
+  const auto *aspect = _getAspect(aspectMask);
+  return aspect ? aspect->layers[safeIndex] : VK_NULL_HANDLE;
+}
+std::span<const VkImageView>
+Texture::getLayers(const VkImageAspectFlags aspectMask) const {
+  const auto *aspect = _getAspect(aspectMask);
+  return aspect ? aspect->layers : std::span<const VkImageView>{};
 }
 
 VkSampler Texture::getSampler() const { return m_sampler; }
@@ -324,56 +332,33 @@ Texture::Texture(const VmaAllocator memoryAllocator, CreateInfo &&ci)
   vmaGetAllocatorInfo(memoryAllocator, &allocatorInfo);
 
   const auto imageViewType = getImageViewType(m_type);
-  m_imageView = createImageView(allocatorInfo.device, image.handle,
-                                imageViewType, imageInfo.format,
-                                {
-                                  .aspectMask = aspectMask,
-                                  .levelCount = imageInfo.mipLevels,
-                                  .layerCount = imageInfo.arrayLayers,
-                                });
 
-  m_mipLevels.reserve(ci.numMipLevels);
-  for (auto i = 0u; i < ci.numMipLevels; ++i) {
-    m_mipLevels.emplace_back(createImageView(
-      allocatorInfo.device, image.handle, imageViewType, imageInfo.format,
-      {
-        .aspectMask = aspectMask,
-        .baseMipLevel = i,
-        .levelCount = 1u,
-        .layerCount = imageInfo.arrayLayers,
-      }));
-  }
-
-  if (isLayered(m_type)) {
-    m_layers.reserve(layerFaces);
-    for (auto i = 0u; i < layerFaces; ++i) {
-      m_layers.emplace_back(createImageView(allocatorInfo.device, image.handle,
-                                            VK_IMAGE_VIEW_TYPE_2D,
-                                            imageInfo.format,
-                                            {
-                                              .aspectMask = aspectMask,
-                                              .levelCount = 1u,
-                                              .baseArrayLayer = i,
-                                              .layerCount = 1u,
-                                            }));
-    }
+  const auto device = _getDeviceHandle();
+  _createAspect(device, image.handle, imageViewType, aspectMask,
+                m_aspects[aspectMask]);
+  if (aspectMask == (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT)) {
+    _createAspect(device, image.handle, imageViewType,
+                  VK_IMAGE_ASPECT_DEPTH_BIT,
+                  m_aspects[VK_IMAGE_ASPECT_DEPTH_BIT]);
+    _createAspect(device, image.handle, imageViewType,
+                  VK_IMAGE_ASPECT_STENCIL_BIT,
+                  m_aspects[VK_IMAGE_ASPECT_STENCIL_BIT]);
   }
 }
-
 Texture::Texture(const VkDevice device, const VkImage handle,
                  const Extent2D extent, const PixelFormat pixelFormat)
     : m_deviceOrAllocator{device}, m_image{handle},
       m_type{TextureType::Texture2D}, m_extent{extent}, m_format{pixelFormat},
       m_usageFlags{kSwapchainDefaultUsageFlags} {
-  m_imageView = createImageView(device, handle, VK_IMAGE_VIEW_TYPE_2D,
-                                VkFormat(pixelFormat),
-                                {
-                                  .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-                                  .baseMipLevel = 0,
-                                  .levelCount = 1,
-                                  .baseArrayLayer = 0,
-                                  .layerCount = 1,
-                                });
+  m_aspects[VK_IMAGE_ASPECT_COLOR_BIT].imageView = createImageView(
+    device, handle, VK_IMAGE_VIEW_TYPE_2D, VkFormat(pixelFormat),
+    {
+      .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+      .baseMipLevel = 0,
+      .levelCount = 1,
+      .baseArrayLayer = 0,
+      .layerCount = 1,
+    });
 }
 
 void Texture::_destroy() noexcept {
@@ -381,31 +366,23 @@ void Texture::_destroy() noexcept {
 
   m_sampler = VK_NULL_HANDLE;
 
-  const auto device = std::visit(
-    Overload{
-      [](const std::monostate) -> VkDevice { return VK_NULL_HANDLE; },
-      [](const VkDevice device) { return device; },
-      [](const VmaAllocator allocator) {
-        VmaAllocatorInfo allocatorInfo;
-        vmaGetAllocatorInfo(allocator, &allocatorInfo);
-        return allocatorInfo.device;
-      },
-    },
-    m_deviceOrAllocator);
+  const auto device = _getDeviceHandle();
   assert(device != VK_NULL_HANDLE);
 
-  for (auto layer : m_layers) {
-    vkDestroyImageView(device, layer, nullptr);
-  }
-  m_layers.clear();
-  for (auto mipLevel : m_mipLevels) {
-    vkDestroyImageView(device, mipLevel, nullptr);
-  }
-  m_mipLevels.clear();
+  for (auto &[_, data] : m_aspects) {
+    for (const auto layer : data.layers) {
+      vkDestroyImageView(device, layer, nullptr);
+    }
+    data.layers.clear();
+    for (const auto mipLevel : data.mipLevels) {
+      vkDestroyImageView(device, mipLevel, nullptr);
+    }
+    data.mipLevels.clear();
 
-  if (m_imageView != VK_NULL_HANDLE) {
-    vkDestroyImageView(device, m_imageView, nullptr);
-    m_imageView = VK_NULL_HANDLE;
+    if (data.imageView != VK_NULL_HANDLE) {
+      vkDestroyImageView(device, data.imageView, nullptr);
+      data.imageView = VK_NULL_HANDLE;
+    }
   }
 
   if (const auto allocatedImage = std::get_if<AllocatedImage>(&m_image);
@@ -426,6 +403,64 @@ void Texture::_destroy() noexcept {
   m_numMipLevels = 0u;
   m_numLayers = 0u;
   m_layerFaces = 0u;
+}
+
+VkDevice Texture::_getDeviceHandle() const {
+  return std::visit(
+    Overload{
+      [](const std::monostate) -> VkDevice { return VK_NULL_HANDLE; },
+      [](const VkDevice device) { return device; },
+      [](const VmaAllocator allocator) {
+        VmaAllocatorInfo allocatorInfo;
+        vmaGetAllocatorInfo(allocator, &allocatorInfo);
+        return allocatorInfo.device;
+      },
+    },
+    m_deviceOrAllocator);
+}
+
+void Texture::_createAspect(const VkDevice device, const VkImage image,
+                            const VkImageViewType viewType,
+                            const VkImageAspectFlags aspectMask,
+                            AspectData &data) {
+  const auto format = static_cast<VkFormat>(m_format);
+  data.imageView = createImageView(device, image, viewType, format,
+                                   {
+                                     .aspectMask = aspectMask,
+                                     .levelCount = m_numMipLevels,
+                                     .layerCount = m_layerFaces,
+                                   });
+
+  data.mipLevels.reserve(m_numMipLevels);
+  for (auto i = 0u; i < m_numMipLevels; ++i) {
+    data.mipLevels.emplace_back(createImageView(device, image, viewType, format,
+                                                {
+                                                  .aspectMask = aspectMask,
+                                                  .baseMipLevel = i,
+                                                  .levelCount = 1u,
+                                                  .layerCount = m_layerFaces,
+                                                }));
+  }
+
+  if (isLayered(m_type)) {
+    data.layers.reserve(m_layerFaces);
+    for (auto i = 0u; i < m_layerFaces; ++i) {
+      data.layers.emplace_back(createImageView(device, image,
+                                               VK_IMAGE_VIEW_TYPE_2D, format,
+                                               {
+                                                 .aspectMask = aspectMask,
+                                                 .levelCount = 1u,
+                                                 .baseArrayLayer = i,
+                                                 .layerCount = 1u,
+                                               }));
+    }
+  }
+}
+const Texture::AspectData *
+Texture::_getAspect(const VkImageAspectFlags aspectMask) const {
+  auto it = m_aspects.find(
+    aspectMask == VK_IMAGE_ASPECT_NONE ? getAspectMask(m_format) : aspectMask);
+  return it != m_aspects.end() ? &it->second : nullptr;
 }
 
 //

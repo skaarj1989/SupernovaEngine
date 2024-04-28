@@ -4,13 +4,11 @@
 namespace rhi {
 
 VkImageAspectFlags getAspectMask(const PixelFormat pixelFormat) {
-  assert(pixelFormat != PixelFormat::Undefined);
-
   switch (pixelFormat) {
     using enum PixelFormat;
 
   case Undefined:
-    break;
+    return VK_IMAGE_ASPECT_NONE;
 
   case Depth16:
   case Depth32F:
@@ -27,9 +25,6 @@ VkImageAspectFlags getAspectMask(const PixelFormat pixelFormat) {
   default:
     return VK_IMAGE_ASPECT_COLOR_BIT;
   }
-
-  assert(false);
-  return 0;
 }
 
 #define CASE(Value)                                                            \

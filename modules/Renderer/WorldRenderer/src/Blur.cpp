@@ -78,6 +78,7 @@ FrameGraphResource Blur::_addPass(FrameGraph &fg,
                                 .pipelineStage = PipelineStage::FragmentShader,
                               },
                             .type = TextureRead::Type::CombinedImageSampler,
+                            .imageAspect = rhi::ImageAspect::Color,
                           });
 
       const auto &inputDesc = fg.getDescriptor<FrameGraphTexture>(input);
@@ -88,7 +89,11 @@ FrameGraphResource Blur::_addPass(FrameGraph &fg,
                      .usageFlags =
                        rhi::ImageUsage::RenderTarget | rhi::ImageUsage::Sampled,
                    });
-      data.output = builder.write(data.output, Attachment{.index = 0});
+      data.output =
+        builder.write(data.output, Attachment{
+                                     .index = 0,
+                                     .imageAspect = rhi::ImageAspect::Color,
+                                   });
     },
     [this, passName, direction](const Data &, const FrameGraphPassResources &,
                                 void *ctx) {

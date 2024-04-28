@@ -181,6 +181,7 @@ void TiledLighting::LightCuller::cullLights(
                          .pipelineStage = PipelineStage::ComputeShader,
                        },
                      .type = TextureRead::Type::SampledImage,
+                     .imageAspect = rhi::ImageAspect::Depth,
                    });
 
       data.lightsCounter = builder.create<FrameGraphBuffer>(
@@ -202,9 +203,13 @@ void TiledLighting::LightCuller::cullLights(
                        .usageFlags = rhi::ImageUsage::Storage,
                      });
       data.lightGrid = builder.write(
-        data.lightGrid, BindingInfo{
-                          .location = {.set = 2, .binding = 3},
-                          .pipelineStage = PipelineStage::ComputeShader,
+        data.lightGrid, ImageWrite{
+                          .binding =
+                            {
+                              .location = {.set = 2, .binding = 3},
+                              .pipelineStage = PipelineStage::ComputeShader,
+                            },
+                          .imageAspect = rhi::ImageAspect::Color,
                         });
 
       const auto averageOverlappingLightsPerTile =
@@ -234,9 +239,13 @@ void TiledLighting::LightCuller::cullLights(
             .usageFlags = rhi::ImageUsage::Storage | rhi::ImageUsage::Sampled,
           });
         data.debugMap = builder.write(
-          *data.debugMap, BindingInfo{
-                            .location = {.set = 2, .binding = 5},
-                            .pipelineStage = PipelineStage::ComputeShader,
+          *data.debugMap, ImageWrite{
+                            .binding =
+                              {
+                                .location = {.set = 2, .binding = 5},
+                                .pipelineStage = PipelineStage::ComputeShader,
+                              },
+                            .imageAspect = rhi::ImageAspect::Color,
                           });
       }
     },

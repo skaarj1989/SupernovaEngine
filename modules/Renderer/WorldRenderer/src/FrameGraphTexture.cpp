@@ -49,7 +49,7 @@ template <class Target> struct StaticCast {
     .face = map(in.face, StaticCast<rhi::CubeFace>{}),
     .clearValue = map(in.clearValue, convert),
   };
-};
+}
 
 } // namespace
 
@@ -74,12 +74,26 @@ void FrameGraphTexture::preRead(const Desc &, uint32_t bits, void *ctx) {
     if (!framebufferInfo)
       framebufferInfo.emplace().area = {.extent = texture->getExtent()};
 
-    framebufferInfo->depthAttachment = rhi::AttachmentInfo{.target = texture};
-    framebufferInfo->depthReadOnly = true;
+    switch (decodeAttachment(bits).imageAspect) {
+      using enum rhi::ImageAspect;
+
+    case Depth:
+      framebufferInfo->depthAttachment = rhi::AttachmentInfo{.target = texture};
+      framebufferInfo->depthReadOnly = true;
+      break;
+    case Stencil:
+      framebufferInfo->stencilAttachment =
+        rhi::AttachmentInfo{.target = texture};
+      framebufferInfo->stencilReadOnly = true;
+      break;
+
+    default:
+      assert(false);
+    }
 
     rhi::prepareForAttachment(cb, *texture, true);
   } else {
-    const auto &[bindingInfo, type] = decodeTextureRead(bits);
+    const auto &[bindingInfo, type, imageAspect] = decodeTextureRead(bits);
     const auto [location, pipelineStage] = bindingInfo;
 
     assert(!bool(pipelineStage & PipelineStage::Transfer));
@@ -88,19 +102,27 @@ void FrameGraphTexture::preRead(const Desc &, uint32_t bits, void *ctx) {
 
     const auto [set, binding] = location;
     switch (type) {
-    case TextureRead::Type::CombinedImageSampler:
+      using enum TextureRead::Type;
+
+    case CombinedImageSampler:
       imageLayout = rhi::ImageLayout::ReadOnly;
-      sets[set][binding] =
-        rhi::bindings::CombinedImageSampler{.texture = texture};
+      sets[set][binding] = rhi::bindings::CombinedImageSampler{
+        .texture = texture,
+        .imageAspect = imageAspect,
+      };
       break;
-    case TextureRead::Type::SampledImage:
+    case SampledImage:
       imageLayout = rhi::ImageLayout::ReadOnly;
-      sets[set][binding] = rhi::bindings::SampledImage{.texture = texture};
+      sets[set][binding] = rhi::bindings::SampledImage{
+        .texture = texture,
+        .imageAspect = imageAspect,
+      };
       break;
-    case TextureRead::Type::StorageImage:
+    case StorageImage:
       imageLayout = rhi::ImageLayout::General;
       sets[set][binding] = rhi::bindings::StorageImage{
         .texture = texture,
+        .imageAspect = imageAspect,
         .mipLevel = 0,
       };
       break;
@@ -123,7 +145,6 @@ void FrameGraphTexture::preRead(const Desc &, uint32_t bits, void *ctx) {
       });
   }
 }
-
 void FrameGraphTexture::preWrite(const Desc &, uint32_t bits, void *ctx) {
   ZoneScopedN("+T");
 
@@ -134,22 +155,34 @@ void FrameGraphTexture::preWrite(const Desc &, uint32_t bits, void *ctx) {
       framebufferInfo.emplace().area = {.extent = texture->getExtent()};
 
     const auto attachment = decodeAttachment(bits);
-    const auto aspectMask = rhi::getAspectMask(*texture);
-    if (aspectMask & VK_IMAGE_ASPECT_DEPTH_BIT) {
+
+    switch (attachment.imageAspect) {
+      using enum rhi::ImageAspect;
+
+    case Depth:
       framebufferInfo->depthAttachment = makeAttachment(attachment, texture);
       framebufferInfo->depthReadOnly = false;
-    } else if (aspectMask & VK_IMAGE_ASPECT_COLOR_BIT) {
+      break;
+    case Stencil:
+      framebufferInfo->stencilAttachment = makeAttachment(attachment, texture);
+      framebufferInfo->stencilReadOnly = false;
+      break;
+    case Color: {
       auto &v = framebufferInfo->colorAttachments;
       v.resize(attachment.index + 1);
       v[attachment.index] = makeAttachment(attachment, texture);
+    } break;
     }
 
     rhi::prepareForAttachment(cb, *texture, false);
   } else {
-    const auto [location, pipelineStage] = decodeBindingInfo(bits);
+    const auto [bindingInfo, imageAspect] = decodeImageWrite(bits);
+    assert(imageAspect != rhi::ImageAspect::None);
+    const auto [location, pipelineStage] = bindingInfo;
     const auto [set, binding] = location;
     sets[set][binding] = rhi::bindings::StorageImage{
       .texture = texture,
+      .imageAspect = imageAspect,
       .mipLevel = 0,
     };
 

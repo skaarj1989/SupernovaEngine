@@ -96,6 +96,7 @@ std::optional<FrameGraphResource> TransmissionPass::addGeometryPass(
       data.output =
         builder.write(data.output, Attachment{
                                      .index = 0,
+                                     .imageAspect = rhi::ImageAspect::Color,
                                      .clearValue = ClearValue::TransparentBlack,
                                    });
 

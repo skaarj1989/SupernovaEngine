@@ -150,8 +150,12 @@ FrameGraphResource DebugDrawPass::addGeometryPass(
       readInstances(builder, buffers.instances,
                     blackboard.get<DummyResourcesData>());
 
-      builder.read(blackboard.get<GBufferData>().depth, Attachment{});
-      target = builder.write(target, Attachment{.index = 0});
+      builder.read(blackboard.get<GBufferData>().depth,
+                   Attachment{.imageAspect = rhi::ImageAspect::Depth});
+      target = builder.write(target, Attachment{
+                                       .index = 0,
+                                       .imageAspect = rhi::ImageAspect::Color,
+                                     });
     },
     [this, buffers, info, drawCalls = primitives.meshes.drawInfo](
       const auto &, FrameGraphPassResources &resources, void *ctx) {

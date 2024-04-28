@@ -94,12 +94,26 @@ void DecalPass::addGeometryPass(
       readSceneDepth(builder, gBuffer.depth,
                      ReadFlags::Attachment | ReadFlags::Sampling);
 
-      gBuffer.normal = builder.write(gBuffer.normal, Attachment{.index = 0});
-      gBuffer.emissive =
-        builder.write(gBuffer.emissive, Attachment{.index = 1});
-      gBuffer.albedo = builder.write(gBuffer.albedo, Attachment{.index = 2});
-      gBuffer.metallicRoughnessAO =
-        builder.write(gBuffer.metallicRoughnessAO, Attachment{.index = 3});
+      gBuffer.normal =
+        builder.write(gBuffer.normal, Attachment{
+                                        .index = 0,
+                                        .imageAspect = rhi::ImageAspect::Color,
+                                      });
+      gBuffer.emissive = builder.write(gBuffer.emissive,
+                                       Attachment{
+                                         .index = 1,
+                                         .imageAspect = rhi::ImageAspect::Color,
+                                       });
+      gBuffer.albedo =
+        builder.write(gBuffer.albedo, Attachment{
+                                        .index = 2,
+                                        .imageAspect = rhi::ImageAspect::Color,
+                                      });
+      gBuffer.metallicRoughnessAO = builder.write(
+        gBuffer.metallicRoughnessAO, Attachment{
+                                       .index = 3,
+                                       .imageAspect = rhi::ImageAspect::Color,
+                                     });
 
       writeUserData(builder, blackboard);
     },

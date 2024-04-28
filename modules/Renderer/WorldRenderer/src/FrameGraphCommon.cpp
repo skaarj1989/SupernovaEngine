@@ -94,6 +94,7 @@ void read(FrameGraph::Builder &builder, const GBufferData &data,
                        .pipelineStage = PipelineStage::FragmentShader,
                      },
                    .type = TextureRead::Type::SampledImage,
+                   .imageAspect = rhi::ImageAspect::Depth,
                  });
   }
   if (bool(flags & GBufferFlags::Normal)) {
@@ -105,6 +106,7 @@ void read(FrameGraph::Builder &builder, const GBufferData &data,
                        .pipelineStage = PipelineStage::FragmentShader,
                      },
                    .type = TextureRead::Type::SampledImage,
+                   .imageAspect = rhi::ImageAspect::Color,
                  });
   }
   if (bool(flags & GBufferFlags::Emissive)) {
@@ -116,6 +118,7 @@ void read(FrameGraph::Builder &builder, const GBufferData &data,
                        .pipelineStage = PipelineStage::FragmentShader,
                      },
                    .type = TextureRead::Type::SampledImage,
+                   .imageAspect = rhi::ImageAspect::Color,
                  });
   }
   if (bool(flags & GBufferFlags::AlbedoSpecular)) {
@@ -127,6 +130,7 @@ void read(FrameGraph::Builder &builder, const GBufferData &data,
                        .pipelineStage = PipelineStage::FragmentShader,
                      },
                    .type = TextureRead::Type::SampledImage,
+                   .imageAspect = rhi::ImageAspect::Color,
                  });
   }
   if (bool(flags & GBufferFlags::MetallicRoughnessAO)) {
@@ -138,6 +142,7 @@ void read(FrameGraph::Builder &builder, const GBufferData &data,
                        .pipelineStage = PipelineStage::FragmentShader,
                      },
                    .type = TextureRead::Type::SampledImage,
+                   .imageAspect = rhi::ImageAspect::Color,
                  });
   }
   if (bool(flags & GBufferFlags::Misc)) {
@@ -149,6 +154,7 @@ void read(FrameGraph::Builder &builder, const GBufferData &data,
                        .pipelineStage = PipelineStage::FragmentShader,
                      },
                    .type = TextureRead::Type::SampledImage,
+                   .imageAspect = rhi::ImageAspect::Color,
                  });
   }
 }
@@ -161,6 +167,7 @@ void read(FrameGraph::Builder &builder, const BRDF &data) {
                                .pipelineStage = PipelineStage::FragmentShader,
                              },
                            .type = TextureRead::Type::CombinedImageSampler,
+                           .imageAspect = rhi::ImageAspect::Color,
                          });
 }
 void read(FrameGraph::Builder &builder, const SkyLightData &data) {
@@ -172,6 +179,7 @@ void read(FrameGraph::Builder &builder, const SkyLightData &data) {
                      .pipelineStage = PipelineStage::FragmentShader,
                    },
                  .type = TextureRead::Type::CombinedImageSampler,
+                 .imageAspect = rhi::ImageAspect::Color,
                });
   builder.read(data.specular,
                TextureRead{
@@ -181,6 +189,7 @@ void read(FrameGraph::Builder &builder, const SkyLightData &data) {
                      .pipelineStage = PipelineStage::FragmentShader,
                    },
                  .type = TextureRead::Type::CombinedImageSampler,
+                 .imageAspect = rhi::ImageAspect::Color,
                });
 }
 
@@ -200,6 +209,7 @@ void read(FrameGraph::Builder &builder, const LightCullingData &data) {
                      .pipelineStage = PipelineStage::FragmentShader,
                    },
                  .type = TextureRead::Type::StorageImage,
+                 .imageAspect = rhi::ImageAspect::Color,
                });
   builder.read(data.lightIndices,
                BindingInfo{
@@ -221,6 +231,7 @@ void read(FrameGraph::Builder &builder, const ShadowMapData &data,
           .pipelineStage = PipelineStage::FragmentShader,
         },
       .type = TextureRead::Type::SampledImage,
+      .imageAspect = rhi::ImageAspect::Depth,
     });
   builder.read(
     data.spotLightShadowMaps.value_or(dummyResources.shadowMaps2DArray),
@@ -231,6 +242,7 @@ void read(FrameGraph::Builder &builder, const ShadowMapData &data,
           .pipelineStage = PipelineStage::FragmentShader,
         },
       .type = TextureRead::Type::SampledImage,
+      .imageAspect = rhi::ImageAspect::Depth,
     });
   builder.read(data.omniShadowMaps.value_or(dummyResources.shadowMapsCubeArray),
                TextureRead{
@@ -240,6 +252,7 @@ void read(FrameGraph::Builder &builder, const ShadowMapData &data,
                      .pipelineStage = PipelineStage::FragmentShader,
                    },
                  .type = TextureRead::Type::SampledImage,
+                 .imageAspect = rhi::ImageAspect::Depth,
                });
 }
 void readShadowBlock(FrameGraph::Builder &builder,
@@ -258,6 +271,7 @@ void read(FrameGraph::Builder &builder, const SSAOData &data) {
                                 .pipelineStage = PipelineStage::FragmentShader,
                               },
                             .type = TextureRead::Type::SampledImage,
+                            .imageAspect = rhi::ImageAspect::Color,
                           });
 }
 
@@ -270,6 +284,7 @@ void read(FrameGraph::Builder &builder, const GlobalIlluminationData &data) {
                                  .pipelineStage = PipelineStage::FragmentShader,
                                },
                              .type = TextureRead::Type::SampledImage,
+                             .imageAspect = rhi::ImageAspect::Color,
                            });
   builder.read(data.LPV.g, TextureRead{
                              .binding =
@@ -278,6 +293,7 @@ void read(FrameGraph::Builder &builder, const GlobalIlluminationData &data) {
                                  .pipelineStage = PipelineStage::FragmentShader,
                                },
                              .type = TextureRead::Type::SampledImage,
+                             .imageAspect = rhi::ImageAspect::Color,
                            });
   builder.read(data.LPV.b, TextureRead{
                              .binding =
@@ -286,6 +302,7 @@ void read(FrameGraph::Builder &builder, const GlobalIlluminationData &data) {
                                  .pipelineStage = PipelineStage::FragmentShader,
                                },
                              .type = TextureRead::Type::SampledImage,
+                             .imageAspect = rhi::ImageAspect::Color,
                            });
 }
 void readSceneGrid(FrameGraph::Builder &builder,
@@ -306,6 +323,7 @@ void readSceneColor(FrameGraph::Builder &builder,
                                  .pipelineStage = PipelineStage::FragmentShader,
                                },
                              .type = TextureRead::Type::CombinedImageSampler,
+                             .imageAspect = rhi::ImageAspect::Color,
                            });
 }
 void readSceneDepth(FrameGraph::Builder &builder,
@@ -322,10 +340,14 @@ void readSceneDepth(FrameGraph::Builder &builder,
                        .pipelineStage = PipelineStage::FragmentShader,
                      },
                    .type = TextureRead::Type::CombinedImageSampler,
+                   .imageAspect = rhi::ImageAspect::Depth,
                  });
-    if (bool(readFlags & ReadFlags::Attachment)) {
-      builder.read(sceneDepth, Attachment{});
-    }
+  }
+  if (bool(readFlags & ReadFlags::Attachment)) {
+    builder.read(sceneDepth,
+                 Attachment{.imageAspect = rhi::ImageAspect::Depth});
+  }
+}
 
 void writeUserData(FrameGraph::Builder &builder,
                    FrameGraphBlackboard &blackboard) {
