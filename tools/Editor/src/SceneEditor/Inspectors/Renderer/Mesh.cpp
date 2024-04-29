@@ -50,7 +50,8 @@ void onInspect(const uint32_t index, gfx::SubMeshInstance &subMeshInstance) {
   if (treeOpened) {
     inspect(subMeshInstance.material);
     ImGui::SameLine();
-    ImGui::Checkbox("Debug", &subMeshInstance.debug);
+    ImGui::CheckboxFlags("AABB", subMeshInstance.flags,
+                         gfx::SubMeshInstance::Flags::ShowAABB);
     ImGui::TreePop();
   }
 }

@@ -36,6 +36,8 @@ set(FG_DATA_SOURCES
   "src/FrameGraphData/SSAO.hpp"
   "src/FrameGraphData/Transforms.hpp"
   "src/FrameGraphData/WeightedBlended.hpp"
+  "src/FrameGraphData/UserData.hpp"
+  "src/FrameGraphData/Silhouette.hpp"
 )
 set(FG_SOURCES
 
@@ -139,6 +141,8 @@ set(PASS_SOURCES
   "src/DebugNormalPass.cpp"
   "include/renderer/InfiniteGridPass.hpp"
   "src/InfiniteGridPass.cpp"
+  "include/renderer/OutlineRenderer.hpp"
+  "src/OutlineRenderer.cpp"
 
   "src/TransientBuffer.hpp"
   "src/UploadStruct.hpp"

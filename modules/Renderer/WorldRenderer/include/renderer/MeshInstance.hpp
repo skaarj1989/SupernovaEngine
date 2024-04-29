@@ -13,8 +13,14 @@ struct SubMeshInstance {
   const SubMesh *prototype{nullptr};
   MaterialInstance material;
   bool visible{true};
-  bool debug{false};
   AABB aabb; // World-space.
+
+  enum class Flags {
+    None = 0,
+    ShowAABB = 1 << 0,
+    ShowOutline = 1 << 1,
+  };
+  Flags flags{Flags::None};
 
   template <class Archive> void serialize(Archive &archive) {
     archive(visible, material);
@@ -104,6 +110,8 @@ private:
 static_assert(std::is_copy_constructible_v<MeshInstance>);
 
 } // namespace gfx
+
+template <> struct has_flags<gfx::SubMeshInstance::Flags> : std::true_type {};
 
 template <> struct entt::type_hash<gfx::MeshInstance> {
   [[nodiscard]] static constexpr entt::id_type value() noexcept {

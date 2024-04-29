@@ -75,6 +75,29 @@ void embedEntity(const entt::entity e) {
   return *static_cast<const entt::entity *>(payload.Data);
 }
 
+void setOutline(gfx::MeshInstance *mi, const bool selected) {
+  if (mi) {
+    for (auto &sm : mi->each()) {
+      if (selected) {
+        sm.flags |= gfx::SubMeshInstance::Flags::ShowOutline;
+      } else {
+        sm.flags &= ~gfx::SubMeshInstance::Flags::ShowOutline;
+      }
+    }
+  }
+}
+void selectEntity(SceneEditor::Entry *e, const entt::handle h) {
+  if (e) {
+    if (e->selectedEntity) {
+      setOutline(e->selectedEntity.try_get<gfx::MeshInstance>(), false);
+    }
+    if (h) {
+      setOutline(h.try_get<gfx::MeshInstance>(), true);
+    }
+    e->selectedEntity = h;
+  }
+}
+
 void print(const entt::entity e) {
   ImGui::BulletText("ID: %u", entt::to_entity(e));
   ImGui::BulletText("Version: %hu", entt::to_version(e));
@@ -275,8 +298,9 @@ void showSceneViewportInspector(os::InputSystem &inputSystem,
 
         const glm::ivec2 p =
           glm::vec2{ImGui::GetMousePos()} - glm::vec2{ImGui::GetWindowPos()};
+        static_assert(sizeof(uint32_t) == sizeof(entt::entity));
         const auto IDs = static_cast<entt::entity *>(entityIDs.map());
-        entry.selectedEntity = entry.scene.get(IDs[p.x + extent.width * p.y]);
+        selectEntity(&entry, entry.scene.get(IDs[p.x + extent.width * p.y]));
       }
 
       // ---
@@ -709,7 +733,7 @@ bool SceneEditor::_hasScene(const std::filesystem::path &p) const {
 }
 
 void SceneEditor::_selectEntity(const SelectEntityRequest &req) {
-  if (auto *entry = getActiveSceneEntry(); entry) entry->selectedEntity = req.h;
+  selectEntity(getActiveSceneEntry(), req.h);
 }
 void SceneEditor::_detachEntity(const DetachEntityRequest &req) {
   HierarchySystem::detach(*req.h.registry(), req.h);
@@ -911,7 +935,8 @@ void SceneEditor::_showEntitiesWidget(Entry &entry) {
     if (selectedEntity) {
       ImGui::SameLine();
       if (ImGui::Button(ICON_FA_CLONE " Clone")) {
-        selectedEntity = scene.clone(selectedEntity);
+        const auto clone = scene.clone(selectedEntity);
+        selectEntity(&entry, clone);
       }
 
       constexpr auto kDestroyEntityPopupId = MAKE_WARNING("Confirm");
@@ -951,7 +976,7 @@ void SceneEditor::_showEntitiesWidget(Entry &entry) {
   ImGui::End();
 }
 
-void SceneEditor::_viewEntity(const entt::handle h, entt::handle &selected,
+void SceneEditor::_viewEntity(const entt::handle h, const entt::handle selected,
                               const int32_t level) {
   ZoneScopedN("SceneEditor::ViewEntity");
 
@@ -975,7 +1000,8 @@ void SceneEditor::_viewEntity(const entt::handle h, entt::handle &selected,
   const auto label = makeLabel(h);
   const auto isOpen = ImGui::TreeNodeEx(label.c_str(), flags);
   if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-    selected = flags & ImGuiTreeNodeFlags_Selected ? entt::handle{} : h;
+    selectEntity(getActiveSceneEntry(),
+                 flags & ImGuiTreeNodeFlags_Selected ? entt::handle{} : h);
   } else if (parent && ImGui::IsItemClicked(ImGuiMouseButton_Right)) {
     ImGui::OpenPopup(kContextMenuId);
   }

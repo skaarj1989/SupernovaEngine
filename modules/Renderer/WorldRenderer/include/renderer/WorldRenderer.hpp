@@ -37,6 +37,7 @@
 
 #include "DebugDrawPass.hpp"
 #include "InfiniteGridPass.hpp"
+#include "OutlineRenderer.hpp"
 
 #include "Blur.hpp"
 #include "Blit.hpp"
@@ -138,6 +139,7 @@ private:
 
   DebugDrawPass m_debugDrawPass{m_renderDevice};
   InfiniteGridPass m_infiniteGridPass{m_renderDevice};
+  OutlineRenderer m_outlineRenderer{m_renderDevice, m_commonSamplers};
 
   Blur m_blur{m_renderDevice, m_commonSamplers};
   Blit m_blit{m_renderDevice, m_commonSamplers};

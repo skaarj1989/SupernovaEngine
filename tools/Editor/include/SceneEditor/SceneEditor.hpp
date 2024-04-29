@@ -101,7 +101,7 @@ private:
   void _showConfigWidget(Entry &);
 
   void _showEntitiesWidget(Entry &);
-  void _viewEntity(const entt::handle inspected, entt::handle &selected,
+  void _viewEntity(const entt::handle inspected, const entt::handle selected,
                    const int32_t level);
   void _inspectorWidget(entt::handle &);
 

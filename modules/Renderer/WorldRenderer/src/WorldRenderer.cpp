@@ -250,7 +250,7 @@ rhi::RenderDevice &WorldRenderer::getRenderDevice() const {
     &m_skyboxPass, &m_weightedBlendedPass, &m_wireframePass,                   \
     &m_debugNormalPass, &m_ssao, &m_ssr, &m_bloom, &m_eyeAdaptation,           \
     &m_tonemapPass, &m_fxaa, &m_postProcessor, &m_finalPass, &m_debugDrawPass, \
-    &m_infiniteGridPass, &m_blur, &m_blit
+    &m_infiniteGridPass, &m_outlineRenderer, &m_blur, &m_blit
 
 uint32_t WorldRenderer::countPipelines(PipelineGroups flags) const {
   uint32_t n{0};
@@ -624,6 +624,9 @@ void WorldRenderer::_drawScene(FrameGraph &fg, FrameGraphBlackboard blackboard,
       }
     }
   }
+
+  sceneColor.LDR = m_outlineRenderer.addOutlines(
+    fg, blackboard, {camera, visibleRenderables}, sceneColor.LDR);
 
   m_finalPass.compose(fg, blackboard, settings.outputMode, backbuffer);
 }

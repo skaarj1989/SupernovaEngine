@@ -70,7 +70,8 @@ template <class T>
 
     if (debugDraw) {
       for (const auto &sm : meshInstance.each()) {
-        if (sm.debug) debugDraw->addAABB(sm.aabb);
+        if (bool(sm.flags & gfx::SubMeshInstance::Flags::ShowAABB))
+          debugDraw->addAABB(sm.aabb);
       }
     }
   }
