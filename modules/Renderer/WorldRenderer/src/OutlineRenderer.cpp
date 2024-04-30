@@ -277,7 +277,7 @@ FrameGraphResource OutlineRenderer::OutlinePass::addPostProcessPass(
         };
         const Uniforms uniforms{
           .color = glm::vec4{0.920f, 0.180f, 0.290f, 0.760f},
-          .numSteps = 24,
+          .numSteps = 8,
           .radius = 3.0f,
         };
         cb.bindPipeline(*pipeline);
