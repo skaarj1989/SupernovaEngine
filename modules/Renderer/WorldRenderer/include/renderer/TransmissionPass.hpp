@@ -8,8 +8,6 @@
 
 namespace gfx {
 
-struct CommonSamplers;
-
 struct ViewInfo;
 struct ForwardPassInfo;
 struct LightingPassFeatures;
@@ -23,7 +21,7 @@ class TransmissionPass final : public rhi::RenderPass<TransmissionPass>,
   friend class BasePass;
 
 public:
-  TransmissionPass(rhi::RenderDevice &, const CommonSamplers &);
+  explicit TransmissionPass(rhi::RenderDevice &);
 
   uint32_t count(const PipelineGroups) const override;
   void clear(const PipelineGroups) override;
@@ -43,9 +41,6 @@ public:
 private:
   [[nodiscard]] rhi::GraphicsPipeline
   _createPipeline(const ForwardPassInfo &) const;
-
-private:
-  const CommonSamplers &m_samplers;
 };
 
 } // namespace gfx

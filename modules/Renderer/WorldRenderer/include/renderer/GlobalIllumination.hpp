@@ -14,8 +14,6 @@
 
 namespace gfx {
 
-struct CommonSamplers;
-
 struct BaseGeometryPassInfo;
 
 class PerspectiveCamera;
@@ -31,7 +29,7 @@ class GlobalIllumination final : public rhi::RenderPass<GlobalIllumination>,
   friend class BasePass;
 
 public:
-  GlobalIllumination(rhi::RenderDevice &, const CommonSamplers &);
+  explicit GlobalIllumination(rhi::RenderDevice &);
 
   uint32_t count(const PipelineGroups) const override;
   void clear(const PipelineGroups) override;
@@ -65,8 +63,6 @@ private:
   rhi::GraphicsPipeline _createPipeline(const BaseGeometryPassInfo &) const;
 
 private:
-  const CommonSamplers &m_samplers;
-
   rhi::GraphicsPipeline m_radianceInjectionPipeline;
   rhi::GraphicsPipeline m_radiancePropagationPipeline;
 

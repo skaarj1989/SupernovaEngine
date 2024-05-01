@@ -2,6 +2,7 @@
 
 #include "rhi/DescriptorSetBuilder.hpp"
 #include "rhi/FramebufferInfo.hpp"
+#include "renderer/CommonSamplers.hpp"
 #include "renderer/Material.hpp"
 #include "PipelineStage.hpp"
 #include "BaseGeometryPassInfo.hpp"
@@ -24,9 +25,11 @@ using ResourceSet =
 [[nodiscard]] rhi::PipelineStages convert(const PipelineStage);
 
 struct RenderContext {
-  explicit RenderContext(rhi::CommandBuffer &);
+  RenderContext(rhi::CommandBuffer &, const CommonSamplers &);
 
   rhi::CommandBuffer &commandBuffer;
+  const CommonSamplers &commonSamplers;
+
   std::optional<rhi::FramebufferInfo> framebufferInfo;
   ResourceSet resourceSet;
 };

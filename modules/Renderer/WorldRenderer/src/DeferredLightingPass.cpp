@@ -1,7 +1,6 @@
 #include "renderer/DeferredLightingPass.hpp"
 #include "rhi/CommandBuffer.hpp"
 
-#include "renderer/CommonSamplers.hpp"
 #include "LightingSettings.hpp"
 #include "LightingPassFeatures.hpp"
 
@@ -25,9 +24,8 @@
 
 namespace gfx {
 
-DeferredLightingPass::DeferredLightingPass(rhi::RenderDevice &rd,
-                                           const CommonSamplers &commonSamplers)
-    : rhi::RenderPass<DeferredLightingPass>{rd}, m_samplers{commonSamplers} {}
+DeferredLightingPass::DeferredLightingPass(rhi::RenderDevice &rd)
+    : rhi::RenderPass<DeferredLightingPass>{rd} {}
 
 uint32_t DeferredLightingPass::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::BuiltIn) ? BasePass::count() : 0;
@@ -99,19 +97,21 @@ FrameGraphResource DeferredLightingPass::addPass(
     [this, lightingSettings,
      features](const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, framebufferInfo, sets] = rc;
+      auto &[cb, commonSamplers, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, kPassName);
 
       const auto *pipeline =
         _getPipeline(rhi::getColorFormat(*framebufferInfo, 0), features);
       if (pipeline) {
         auto &samplerBindings = sets[0];
-        samplerBindings[3] = rhi::bindings::SeparateSampler{m_samplers.point};
+        samplerBindings[3] =
+          rhi::bindings::SeparateSampler{commonSamplers.point};
         samplerBindings[4] =
-          rhi::bindings::SeparateSampler{m_samplers.bilinear};
-        samplerBindings[5] = rhi::bindings::SeparateSampler{m_samplers.shadow};
+          rhi::bindings::SeparateSampler{commonSamplers.bilinear};
+        samplerBindings[5] =
+          rhi::bindings::SeparateSampler{commonSamplers.shadow};
         samplerBindings[6] =
-          rhi::bindings::SeparateSampler{m_samplers.omniShadow};
+          rhi::bindings::SeparateSampler{commonSamplers.omniShadow};
 
         cb.bindPipeline(*pipeline);
         bindDescriptorSets(rc, *pipeline);

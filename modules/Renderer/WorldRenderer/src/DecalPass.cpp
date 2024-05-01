@@ -1,8 +1,6 @@
 #include "renderer/DecalPass.hpp"
 #include "rhi/RenderDevice.hpp"
 
-#include "renderer/CommonSamplers.hpp"
-
 #include "renderer/ViewInfo.hpp"
 #include "renderer/VertexFormat.hpp"
 #include "renderer/Material.hpp"
@@ -49,9 +47,7 @@ void addDecalBlendMode(ShaderCodeBuilder &builder,
 
 } // namespace
 
-DecalPass::DecalPass(rhi::RenderDevice &rd,
-                     const CommonSamplers &commonSamplers)
-    : rhi::RenderPass<DecalPass>{rd}, m_samplers{commonSamplers} {}
+DecalPass::DecalPass(rhi::RenderDevice &rd) : rhi::RenderPass<DecalPass>{rd} {}
 
 uint32_t DecalPass::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::SurfaceMaterial) ? BasePass::count() : 0;
@@ -120,10 +116,10 @@ void DecalPass::addGeometryPass(
     [this, batches = std::move(batches)](
       const auto &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, framebufferInfo, sets] = rc;
+      auto &[cb, commonSamplers, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, kPassName);
 
-      overrideSampler(sets[1][5], m_samplers.bilinear);
+      overrideSampler(sets[1][5], commonSamplers.bilinear);
 
       cb.beginRendering(*framebufferInfo);
       BaseGeometryPassInfo passInfo{

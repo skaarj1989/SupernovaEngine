@@ -1,7 +1,6 @@
 #include "renderer/TonemapPass.hpp"
 #include "rhi/CommandBuffer.hpp"
 
-#include "renderer/CommonSamplers.hpp"
 #include "renderer/PostProcess.hpp"
 
 #include "fg/FrameGraph.hpp"
@@ -18,9 +17,8 @@
 
 namespace gfx {
 
-TonemapPass::TonemapPass(rhi::RenderDevice &rd,
-                         const CommonSamplers &commonSamplers)
-    : rhi::RenderPass<TonemapPass>{rd}, m_samplers{commonSamplers} {}
+TonemapPass::TonemapPass(rhi::RenderDevice &rd)
+    : rhi::RenderPass<TonemapPass>{rd} {}
 
 uint32_t TonemapPass::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::BuiltIn) ? BasePass::count() : 0;
@@ -105,14 +103,14 @@ FrameGraphResource TonemapPass::addPass(FrameGraph &fg,
     [this, averageLuminance, bloom, tonemap, exposure,
      bloomStrength](const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, framebufferInfo, sets] = rc;
+      auto &[cb, commonSamplers, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, kPassName);
 
       const auto *pipeline =
         _getPipeline(rhi::getColorFormat(*framebufferInfo, 0),
                      averageLuminance.has_value(), bloom.has_value());
       if (pipeline) {
-        sets[0][0] = rhi::bindings::SeparateSampler{m_samplers.bilinear};
+        sets[0][0] = rhi::bindings::SeparateSampler{commonSamplers.bilinear};
 
         cb.bindPipeline(*pipeline);
         bindDescriptorSets(rc, *pipeline);

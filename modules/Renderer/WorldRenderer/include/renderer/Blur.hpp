@@ -7,13 +7,11 @@
 
 namespace gfx {
 
-struct CommonSamplers;
-
 class Blur final : public rhi::RenderPass<Blur>, public Technique {
   friend class BasePass;
 
 public:
-  Blur(rhi::RenderDevice &, const CommonSamplers &);
+  explicit Blur(rhi::RenderDevice &);
 
   uint32_t count(const PipelineGroups) const override;
   void clear(const PipelineGroups) override;
@@ -33,9 +31,6 @@ private:
   [[nodiscard]] FrameGraphResource _addPass(FrameGraph &,
                                             const FrameGraphResource input,
                                             const glm::vec2 direction);
-
-private:
-  const CommonSamplers &m_samplers;
 };
 
 } // namespace gfx

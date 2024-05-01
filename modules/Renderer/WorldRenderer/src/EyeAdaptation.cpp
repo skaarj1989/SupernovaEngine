@@ -167,8 +167,7 @@ FrameGraphResource EyeAdaptation::HistogramBuilder::buildHistogram(
     [this, sceneColor, minLogLuminance, logLuminanceRange](
       const auto &, const FrameGraphPassResources &resources, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, _, sets] = rc;
-      RHI_GPU_ZONE(cb, kPassName);
+      RHI_GPU_ZONE(rc.commandBuffer, kPassName);
 
       struct Uniforms {
         float minLogLuminance;
@@ -182,12 +181,12 @@ FrameGraphResource EyeAdaptation::HistogramBuilder::buildHistogram(
         .oneOverLuminanceRange = 1.0f / logLuminanceRange,
         .extent = glm::uvec2{extent},
       };
-      cb.bindPipeline(m_pipeline);
+      rc.commandBuffer.bindPipeline(m_pipeline);
       bindDescriptorSets(rc, m_pipeline);
-      cb.pushConstants(rhi::ShaderStages::Compute, 0, &uniforms)
+      rc.commandBuffer.pushConstants(rhi::ShaderStages::Compute, 0, &uniforms)
         .dispatch({rhi::calcNumWorkGroups(glm::uvec2{extent}, kTileSize), 1u});
 
-      sets.clear();
+      rc.resourceSet.clear();
     });
 
   return histogram;
@@ -243,8 +242,7 @@ FrameGraphResource EyeAdaptation::AverageLuminance::calculateAverageLuminance(
     [this, minLogLuminance, logLuminanceRange, dimensions, tau,
      deltaTime](const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, _, sets] = rc;
-      RHI_GPU_ZONE(cb, kPassName);
+      RHI_GPU_ZONE(rc.commandBuffer, kPassName);
 
       struct Uniforms {
         float minLogLuminance;
@@ -258,12 +256,12 @@ FrameGraphResource EyeAdaptation::AverageLuminance::calculateAverageLuminance(
         .timeCoeff = glm::clamp(1.0f - glm::exp(-deltaTime * tau), 0.0f, 1.0f),
         .numPixels = dimensions.width * dimensions.height,
       };
-      cb.bindPipeline(m_pipeline);
+      rc.commandBuffer.bindPipeline(m_pipeline);
       bindDescriptorSets(rc, m_pipeline);
-      cb.pushConstants(rhi::ShaderStages::Compute, 0, &uniforms)
+      rc.commandBuffer.pushConstants(rhi::ShaderStages::Compute, 0, &uniforms)
         .dispatch(glm::uvec3{1u});
 
-      sets.clear();
+      rc.resourceSet.clear();
     });
 
   return averageLuminance;

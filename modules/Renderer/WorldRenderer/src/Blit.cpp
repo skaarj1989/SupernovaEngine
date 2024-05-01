@@ -1,7 +1,6 @@
 #include "renderer/Blit.hpp"
 #include "rhi/CommandBuffer.hpp"
 
-#include "renderer/CommonSamplers.hpp"
 #include "renderer/PostProcess.hpp"
 
 #include "fg/FrameGraph.hpp"
@@ -32,8 +31,7 @@ template <> struct hash<gfx::Blit::MergePassInfo> {
 
 namespace gfx {
 
-Blit::Blit(rhi::RenderDevice &rd, const CommonSamplers &commonSamplers)
-    : BasePass{rd}, m_samplers{commonSamplers} {}
+Blit::Blit(rhi::RenderDevice &rd) : BasePass{rd} {}
 
 uint32_t Blit::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::BuiltIn) ? BasePass::count() : 0;
@@ -88,14 +86,14 @@ FrameGraphResource Blit::mix(FrameGraph &fg, const FrameGraphResource a,
     },
     [this](const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, framebufferInfo, sets] = rc;
+      auto &[cb, commonSamplers, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, kPassName);
 
       const auto *pipeline = _getPipeline(MixPassInfo{
         .colorFormat = rhi::getColorFormat(*framebufferInfo, 0),
       });
       if (pipeline) {
-        sets[0][0] = rhi::bindings::SeparateSampler{m_samplers.bilinear};
+        sets[0][0] = rhi::bindings::SeparateSampler{commonSamplers.bilinear};
         renderFullScreenPostProcess(rc, *pipeline);
       }
     });
@@ -142,7 +140,7 @@ FrameGraphResource Blit::merge(FrameGraph &fg, FrameGraphResource target,
     [this, numTextures](const auto &, const FrameGraphPassResources &,
                         void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, framebufferInfo, sets] = rc;
+      auto &[cb, commonSamplers, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, kPassName);
 
       const auto *pipeline = _getPipeline(MergePassInfo{
@@ -150,7 +148,7 @@ FrameGraphResource Blit::merge(FrameGraph &fg, FrameGraphResource target,
         .numTextures = numTextures,
       });
       if (pipeline) {
-        sets[0][0] = rhi::bindings::SeparateSampler{m_samplers.bilinear};
+        sets[0][0] = rhi::bindings::SeparateSampler{commonSamplers.bilinear};
         renderFullScreenPostProcess(rc, *pipeline);
       }
     });

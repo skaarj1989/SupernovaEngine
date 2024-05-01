@@ -1,8 +1,6 @@
 #include "renderer/TransparencyPass.hpp"
 #include "rhi/RenderDevice.hpp"
 
-#include "renderer/CommonSamplers.hpp"
-
 #include "renderer/ViewInfo.hpp"
 #include "renderer/VertexFormat.hpp"
 #include "renderer/MeshInstance.hpp"
@@ -93,9 +91,8 @@ namespace {
 // TransparencyPass class:
 //
 
-TransparencyPass::TransparencyPass(rhi::RenderDevice &rd,
-                                   const CommonSamplers &commonSamplers)
-    : rhi::RenderPass<TransparencyPass>{rd}, m_samplers{commonSamplers} {}
+TransparencyPass::TransparencyPass(rhi::RenderDevice &rd)
+    : rhi::RenderPass<TransparencyPass>{rd} {}
 
 uint32_t TransparencyPass::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::SurfaceMaterial) ? BasePass::count() : 0;
@@ -157,16 +154,17 @@ std::optional<FrameGraphResource> TransparencyPass::addGeometryPass(
     [this, lightingSettings, features, batches = std::move(batches)](
       const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, framebufferInfo, sets] = rc;
+      auto &[cb, commonSamplers, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, kPassName);
 
       auto &samplerBindings = sets[0];
-      samplerBindings[4] = rhi::bindings::SeparateSampler{m_samplers.shadow};
+      samplerBindings[4] =
+        rhi::bindings::SeparateSampler{commonSamplers.shadow};
       samplerBindings[5] =
-        rhi::bindings::SeparateSampler{m_samplers.omniShadow};
+        rhi::bindings::SeparateSampler{commonSamplers.omniShadow};
 
-      overrideSampler(sets[1][5], m_samplers.bilinear);
-      overrideSampler(sets[1][11], m_samplers.bilinear);
+      overrideSampler(sets[1][5], commonSamplers.bilinear);
+      overrideSampler(sets[1][11], commonSamplers.bilinear);
 
       BaseGeometryPassInfo passInfo{
         .depthFormat = rhi::getDepthFormat(*framebufferInfo),

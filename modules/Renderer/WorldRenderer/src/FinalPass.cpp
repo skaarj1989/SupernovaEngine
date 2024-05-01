@@ -1,7 +1,6 @@
 #include "renderer/FinalPass.hpp"
 #include "rhi/CommandBuffer.hpp"
 
-#include "renderer/CommonSamplers.hpp"
 #include "renderer/PostProcess.hpp"
 
 #include "FrameGraphResourceAccess.hpp"
@@ -120,9 +119,7 @@ enum class Mode {
 
 } // namespace
 
-FinalPass::FinalPass(rhi::RenderDevice &rd,
-                     const CommonSamplers &commonSamplers)
-    : rhi::RenderPass<FinalPass>{rd}, m_samplers{commonSamplers} {}
+FinalPass::FinalPass(rhi::RenderDevice &rd) : rhi::RenderPass<FinalPass>{rd} {}
 
 uint32_t FinalPass::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::BuiltIn) ? BasePass::count() : 0;
@@ -171,7 +168,7 @@ FrameGraphResource FinalPass::compose(FrameGraph &fg,
     [this, target, source,
      mode](const auto &, FrameGraphPassResources &resources, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, framebufferInfo, sets] = rc;
+      auto &[cb, commonSamplers, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, kPassName);
 
       const auto *pipeline =
@@ -180,7 +177,7 @@ FrameGraphResource FinalPass::compose(FrameGraph &fg,
       if (pipeline) {
         cb.bindPipeline(*pipeline);
         if (source) {
-          overrideSampler(sets[2][1], m_samplers.bilinear);
+          overrideSampler(sets[2][1], commonSamplers.bilinear);
 
           bindDescriptorSets(rc, *pipeline);
           cb.pushConstants(rhi::ShaderStages::Fragment, 0, &mode);

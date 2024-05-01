@@ -68,7 +68,7 @@ void FrameGraphTexture::destroy(const Desc &desc, void *allocator) {
 void FrameGraphTexture::preRead(const Desc &, uint32_t bits, void *ctx) {
   ZoneScopedN("T*");
 
-  auto &[cb, framebufferInfo, sets] = *static_cast<RenderContext *>(ctx);
+  auto &[cb, _, framebufferInfo, sets] = *static_cast<RenderContext *>(ctx);
 
   if (holdsAttachment(bits)) {
     if (!framebufferInfo)
@@ -148,7 +148,7 @@ void FrameGraphTexture::preRead(const Desc &, uint32_t bits, void *ctx) {
 void FrameGraphTexture::preWrite(const Desc &, uint32_t bits, void *ctx) {
   ZoneScopedN("+T");
 
-  auto &[cb, framebufferInfo, sets] = *static_cast<RenderContext *>(ctx);
+  auto &[cb, _, framebufferInfo, sets] = *static_cast<RenderContext *>(ctx);
 
   if (holdsAttachment(bits)) {
     if (!framebufferInfo)

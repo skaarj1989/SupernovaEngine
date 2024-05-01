@@ -6,13 +6,11 @@
 
 namespace gfx {
 
-struct CommonSamplers;
-
 class Upsampler final : public rhi::RenderPass<Upsampler> {
   friend class BasePass;
 
 public:
-  Upsampler(rhi::RenderDevice &, const CommonSamplers &);
+  explicit Upsampler(rhi::RenderDevice &);
 
   [[nodiscard]] FrameGraphResource
   addPass(FrameGraph &, const FrameGraphResource input, const float radius);
@@ -20,9 +18,6 @@ public:
 private:
   [[nodiscard]] rhi::GraphicsPipeline
   _createPipeline(const rhi::PixelFormat colorFormat) const;
-
-private:
-  const CommonSamplers &m_samplers;
 };
 
 } // namespace gfx

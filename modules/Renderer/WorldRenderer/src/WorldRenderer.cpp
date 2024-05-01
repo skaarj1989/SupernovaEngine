@@ -362,7 +362,7 @@ void WorldRenderer::drawFrame(rhi::CommandBuffer &commandBuffer,
     debugOutput->dot = (std::ostringstream{} << fg).str();
   }
   {
-    RenderContext rc{commandBuffer};
+    RenderContext rc{commandBuffer, m_commonSamplers};
     TRACY_GPU_ZONE(rc.commandBuffer, "FrameGraph::Execute");
     fg.execute(&rc, &m_transientResources);
   }

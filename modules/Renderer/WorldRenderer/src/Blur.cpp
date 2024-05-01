@@ -1,7 +1,6 @@
 #include "renderer/Blur.hpp"
 #include "rhi/CommandBuffer.hpp"
 
-#include "renderer/CommonSamplers.hpp"
 #include "renderer/PostProcess.hpp"
 
 #include "fg/FrameGraph.hpp"
@@ -14,8 +13,7 @@
 
 namespace gfx {
 
-Blur::Blur(rhi::RenderDevice &rd, const CommonSamplers &commonSamplers)
-    : rhi::RenderPass<Blur>{rd}, m_samplers{commonSamplers} {
+Blur::Blur(rhi::RenderDevice &rd) : rhi::RenderPass<Blur>{rd} {
   // Warmup ...
   _getPipeline(rhi::PixelFormat::R8_UNorm);    // For SSAO.
   _getPipeline(rhi::PixelFormat::RGBA8_UNorm); // Everything else.
@@ -98,13 +96,13 @@ FrameGraphResource Blur::_addPass(FrameGraph &fg,
     [this, passName, direction](const Data &, const FrameGraphPassResources &,
                                 void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, framebufferInfo, sets] = rc;
+      auto &[cb, commonSamplers, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, passName.c_str());
 
       const auto *pipeline =
         _getPipeline(rhi::getColorFormat(*framebufferInfo, 0));
       if (pipeline) {
-        overrideSampler(sets[0][1], m_samplers.bilinear);
+        overrideSampler(sets[0][1], commonSamplers.bilinear);
 
         cb.bindPipeline(*pipeline);
         bindDescriptorSets(rc, *pipeline);

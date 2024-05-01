@@ -6,8 +6,6 @@
 
 namespace gfx {
 
-struct CommonSamplers;
-
 struct LightingSettings;
 struct LightingPassFeatures;
 
@@ -16,7 +14,7 @@ class DeferredLightingPass final : public rhi::RenderPass<DeferredLightingPass>,
   friend class BasePass;
 
 public:
-  DeferredLightingPass(rhi::RenderDevice &, const CommonSamplers &);
+  explicit DeferredLightingPass(rhi::RenderDevice &);
 
   uint32_t count(const PipelineGroups) const override;
   void clear(const PipelineGroups) override;
@@ -28,9 +26,6 @@ public:
 private:
   rhi::GraphicsPipeline _createPipeline(const rhi::PixelFormat colorFormat,
                                         const LightingPassFeatures &) const;
-
-private:
-  const CommonSamplers &m_samplers;
 };
 
 } // namespace gfx

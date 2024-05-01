@@ -1,7 +1,6 @@
 #include "renderer/FXAA.hpp"
 #include "rhi/CommandBuffer.hpp"
 
-#include "renderer/CommonSamplers.hpp"
 #include "renderer/PostProcess.hpp"
 
 #include "FrameGraphResourceAccess.hpp"
@@ -14,8 +13,7 @@
 
 namespace gfx {
 
-FXAA::FXAA(rhi::RenderDevice &rd, const CommonSamplers &commonSamplers)
-    : rhi::RenderPass<FXAA>{rd}, m_samplers{commonSamplers} {}
+FXAA::FXAA(rhi::RenderDevice &rd) : rhi::RenderPass<FXAA>{rd} {}
 
 uint32_t FXAA::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::BuiltIn) ? BasePass::count() : 0;
@@ -60,13 +58,13 @@ FrameGraphResource FXAA::addPass(FrameGraph &fg,
     },
     [this](const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, framebufferInfo, sets] = rc;
+      auto &[cb, commonSamplers, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, kPassName);
 
       const auto *pipeline =
         _getPipeline(rhi::getColorFormat(*framebufferInfo, 0));
       if (pipeline) {
-        overrideSampler(sets[2][0], m_samplers.bilinear);
+        overrideSampler(sets[2][0], commonSamplers.bilinear);
         renderFullScreenPostProcess(rc, *pipeline);
       }
     });

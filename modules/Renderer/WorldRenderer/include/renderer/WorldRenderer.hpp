@@ -110,39 +110,39 @@ private:
 
   TiledLighting m_tiledLighting{m_renderDevice};
   ShadowRenderer m_shadowRenderer{m_renderDevice};
-  GlobalIllumination m_globalIllumination{m_renderDevice, m_commonSamplers};
+  GlobalIllumination m_globalIllumination{m_renderDevice};
 
   GBufferPass m_gBufferPass{m_renderDevice};
-  DecalPass m_decalPass{m_renderDevice, m_commonSamplers};
-  DeferredLightingPass m_deferredLightingPass{m_renderDevice, m_commonSamplers};
+  DecalPass m_decalPass{m_renderDevice};
+  DeferredLightingPass m_deferredLightingPass{m_renderDevice};
 
-  TransparencyPass m_transparencyPass{m_renderDevice, m_commonSamplers};
-  TransmissionPass m_transmissionPass{m_renderDevice, m_commonSamplers};
+  TransparencyPass m_transparencyPass{m_renderDevice};
+  TransmissionPass m_transmissionPass{m_renderDevice};
 
   SkyboxPass m_skyboxPass{m_renderDevice};
 
-  WeightedBlendedPass m_weightedBlendedPass{m_renderDevice, m_commonSamplers};
+  WeightedBlendedPass m_weightedBlendedPass{m_renderDevice};
 
   WireframePass m_wireframePass{m_renderDevice};
   DebugNormalPass m_debugNormalPass{m_renderDevice};
 
-  SSAO m_ssao{m_renderDevice, m_commonSamplers};
-  SSR m_ssr{m_renderDevice, m_commonSamplers};
-  Bloom m_bloom{m_renderDevice, m_commonSamplers};
+  SSAO m_ssao{m_renderDevice};
+  SSR m_ssr{m_renderDevice};
+  Bloom m_bloom{m_renderDevice};
 
   EyeAdaptation m_eyeAdaptation{m_renderDevice};
-  TonemapPass m_tonemapPass{m_renderDevice, m_commonSamplers};
-  FXAA m_fxaa{m_renderDevice, m_commonSamplers};
+  TonemapPass m_tonemapPass{m_renderDevice};
+  FXAA m_fxaa{m_renderDevice};
 
-  PostProcessor m_postProcessor{m_renderDevice, m_commonSamplers};
-  FinalPass m_finalPass{m_renderDevice, m_commonSamplers};
+  PostProcessor m_postProcessor{m_renderDevice};
+  FinalPass m_finalPass{m_renderDevice};
 
   DebugDrawPass m_debugDrawPass{m_renderDevice};
   InfiniteGridPass m_infiniteGridPass{m_renderDevice};
-  OutlineRenderer m_outlineRenderer{m_renderDevice, m_commonSamplers};
+  OutlineRenderer m_outlineRenderer{m_renderDevice};
 
-  Blur m_blur{m_renderDevice, m_commonSamplers};
-  Blit m_blit{m_renderDevice, m_commonSamplers};
+  Blur m_blur{m_renderDevice};
+  Blit m_blit{m_renderDevice};
 };
 
 } // namespace gfx

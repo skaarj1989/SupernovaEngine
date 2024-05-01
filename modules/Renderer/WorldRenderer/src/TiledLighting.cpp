@@ -114,18 +114,18 @@ FrameGraphResource TiledLighting::FrustumBuilder::buildFrustums(
     [this, passInfo](const FrustumsData &, const FrameGraphPassResources &,
                      void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, _, sets] = rc;
-      RHI_GPU_ZONE(cb, kPassName);
+      RHI_GPU_ZONE(rc.commandBuffer, kPassName);
 
       const auto *pipeline = _getPipeline(passInfo.tileSize);
       if (pipeline) {
-        cb.bindPipeline(*pipeline);
+        rc.commandBuffer.bindPipeline(*pipeline);
         bindDescriptorSets(rc, *pipeline);
-        cb.pushConstants(rhi::ShaderStages::Compute, 0, &passInfo.gridSize);
-        cb.dispatch(
-          {rhi::calcNumWorkGroups(passInfo.gridSize, passInfo.tileSize), 1u});
+        rc.commandBuffer
+          .pushConstants(rhi::ShaderStages::Compute, 0, &passInfo.gridSize)
+          .dispatch(
+            {rhi::calcNumWorkGroups(passInfo.gridSize, passInfo.tileSize), 1u});
       }
-      sets.clear();
+      rc.resourceSet.clear();
     });
 
   return gridFrustums;
@@ -251,16 +251,15 @@ void TiledLighting::LightCuller::cullLights(
     },
     [this, passInfo](const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, _, sets] = rc;
-      RHI_GPU_ZONE(cb, kPassName);
+      RHI_GPU_ZONE(rc.commandBuffer, kPassName);
 
       const auto *pipeline = _getPipeline(passInfo.tileSize);
       if (pipeline) {
-        cb.bindPipeline(*pipeline);
+        rc.commandBuffer.bindPipeline(*pipeline);
         bindDescriptorSets(rc, *pipeline);
-        cb.dispatch({passInfo.gridSize, 1u});
+        rc.commandBuffer.dispatch({passInfo.gridSize, 1u});
       }
-      sets.clear();
+      rc.resourceSet.clear();
     });
 }
 

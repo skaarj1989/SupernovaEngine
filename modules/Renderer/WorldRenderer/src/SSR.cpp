@@ -1,7 +1,6 @@
 #include "renderer/SSR.hpp"
 #include "rhi/CommandBuffer.hpp"
 
-#include "renderer/CommonSamplers.hpp"
 #include "renderer/PostProcess.hpp"
 
 #include "FrameGraphResourceAccess.hpp"
@@ -17,8 +16,7 @@
 
 namespace gfx {
 
-SSR::SSR(rhi::RenderDevice &rd, const CommonSamplers &commonSamplers)
-    : rhi::RenderPass<SSR>{rd}, m_samplers{commonSamplers} {}
+SSR::SSR(rhi::RenderDevice &rd) : rhi::RenderPass<SSR>{rd} {}
 
 uint32_t SSR::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::BuiltIn) ? BasePass::count() : 0;
@@ -70,13 +68,13 @@ FrameGraphResource SSR::addPass(FrameGraph &fg,
       [this](const ReflectionsData &, const FrameGraphPassResources &,
              void *ctx) {
         auto &rc = *static_cast<RenderContext *>(ctx);
-        auto &[cb, framebufferInfo, sets] = rc;
+        auto &[cb, commonSamplers, framebufferInfo, sets] = rc;
         RHI_GPU_ZONE(cb, kPassName);
 
         const auto *pipeline =
           _getPipeline(rhi::getColorFormat(*framebufferInfo, 0));
         if (pipeline) {
-          sets[0][3] = rhi::bindings::SeparateSampler{m_samplers.point};
+          sets[0][3] = rhi::bindings::SeparateSampler{commonSamplers.point};
           renderFullScreenPostProcess(rc, *pipeline);
         }
       });

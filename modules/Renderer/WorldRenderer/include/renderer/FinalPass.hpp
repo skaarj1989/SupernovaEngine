@@ -7,13 +7,11 @@
 
 namespace gfx {
 
-struct CommonSamplers;
-
 class FinalPass final : public rhi::RenderPass<FinalPass>, public Technique {
   friend class BasePass;
 
 public:
-  FinalPass(rhi::RenderDevice &, const CommonSamplers &);
+  explicit FinalPass(rhi::RenderDevice &);
 
   uint32_t count(const PipelineGroups) const override;
   void clear(const PipelineGroups) override;
@@ -26,9 +24,6 @@ private:
 
   [[nodiscard]] rhi::GraphicsPipeline
   _createPipeline(const rhi::PixelFormat colorFormat, const Mode) const;
-
-private:
-  const CommonSamplers &m_samplers;
 };
 
 } // namespace gfx

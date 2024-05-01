@@ -2,8 +2,6 @@
 #include "math/Math.hpp"
 #include "rhi/RenderDevice.hpp"
 
-#include "renderer/CommonSamplers.hpp"
-
 #include "renderer/VertexFormat.hpp"
 #include "renderer/Light.hpp"
 #include "renderer/MeshInstance.hpp"
@@ -243,9 +241,8 @@ bool Grid::valid() const {
 // GlobalIllumination class:
 //
 
-GlobalIllumination::GlobalIllumination(rhi::RenderDevice &rd,
-                                       const CommonSamplers &commonSamplers)
-    : rhi::RenderPass<GlobalIllumination>{rd}, m_samplers{commonSamplers} {
+GlobalIllumination::GlobalIllumination(rhi::RenderDevice &rd)
+    : rhi::RenderPass<GlobalIllumination>{rd} {
   m_radianceInjectionPipeline = createRadianceInjectionPipeline(rd);
   m_radiancePropagationPipeline = createRadiancePropagationPipeline(rd);
   m_debugPipeline = createDebugPipeline(rd);
@@ -345,10 +342,10 @@ FrameGraphResource GlobalIllumination::addDebugPass(
     },
     [this](const auto &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, framebufferInfo, sets] = rc;
+      auto &[cb, commonSamplers, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, kPassName);
 
-      sets[0][3] = rhi::bindings::SeparateSampler{m_samplers.bilinear};
+      sets[0][3] = rhi::bindings::SeparateSampler{commonSamplers.bilinear};
 
       cb.bindPipeline(m_debugPipeline);
       bindDescriptorSets(rc, m_debugPipeline);
@@ -476,7 +473,7 @@ ReflectiveShadowMapData GlobalIllumination::_addReflectiveShadowMapPass(
      batches = std::move(batches)](const ReflectiveShadowMapData &,
                                    const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, framebufferInfo, bindings] = rc;
+      auto &[cb, _, framebufferInfo, bindings] = rc;
       RHI_GPU_ZONE(cb, kPassName);
 
       BaseGeometryPassInfo passInfo{
@@ -549,7 +546,7 @@ LightPropagationVolumesData GlobalIllumination::_addRadianceInjectionPass(
     },
     [this, gridSize](const auto &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, framebufferInfo, sets] = rc;
+      auto &[cb, _, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, kPassName);
 
       framebufferInfo->layers = gridSize.z;
@@ -619,7 +616,7 @@ LightPropagationVolumesData GlobalIllumination::_addRadiancePropagationPass(
     [this, gridSize, passName](const auto &, const FrameGraphPassResources &,
                                void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, framebufferInfo, sets] = rc;
+      auto &[cb, _, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, passName.c_str());
 
       framebufferInfo->layers = gridSize.z;

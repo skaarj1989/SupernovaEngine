@@ -12,11 +12,9 @@ struct BaseGeometryPassInfo;
 
 class VertexFormat;
 
-struct CommonSamplers;
-
 class OutlineRenderer : public Technique {
 public:
-  OutlineRenderer(rhi::RenderDevice &, const CommonSamplers &);
+  explicit OutlineRenderer(rhi::RenderDevice &);
 
   uint32_t count(const PipelineGroups) const override;
   void clear(const PipelineGroups) override;
@@ -49,7 +47,7 @@ private:
     friend class BasePass;
 
   public:
-    OutlinePass(rhi::RenderDevice &, const CommonSamplers &);
+    explicit OutlinePass(rhi::RenderDevice &);
 
     uint32_t count(const PipelineGroups) const override;
     void clear(const PipelineGroups) override;
@@ -61,9 +59,6 @@ private:
   private:
     [[nodiscard]] rhi::GraphicsPipeline
     _createPipeline(const rhi::PixelFormat colorFormat) const;
-
-  private:
-    const CommonSamplers &m_samplers;
   };
 
 private:

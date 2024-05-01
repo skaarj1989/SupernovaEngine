@@ -6,8 +6,6 @@
 
 namespace gfx {
 
-struct CommonSamplers;
-
 class Material;
 class MaterialInstance;
 
@@ -16,7 +14,7 @@ class PostProcessor final : public rhi::RenderPass<PostProcessor>,
   friend class BasePass;
 
 public:
-  PostProcessor(rhi::RenderDevice &, const CommonSamplers &);
+  explicit PostProcessor(rhi::RenderDevice &);
 
   uint32_t count(const PipelineGroups) const override;
   void clear(const PipelineGroups) override;
@@ -36,9 +34,6 @@ public:
 
 private:
   [[nodiscard]] rhi::GraphicsPipeline _createPipeline(const PassInfo &) const;
-
-private:
-  const CommonSamplers &m_samplers;
 };
 
 } // namespace gfx

@@ -1,7 +1,6 @@
 #include "renderer/Downsampler.hpp"
 #include "rhi/CommandBuffer.hpp"
 
-#include "renderer/CommonSamplers.hpp"
 #include "renderer/PostProcess.hpp"
 
 #include "fg/FrameGraph.hpp"
@@ -25,9 +24,8 @@ namespace {
 
 } // namespace
 
-Downsampler::Downsampler(rhi::RenderDevice &rd,
-                         const CommonSamplers &commonSamplers)
-    : rhi::RenderPass<Downsampler>{rd}, m_samplers{commonSamplers} {}
+Downsampler::Downsampler(rhi::RenderDevice &rd)
+    : rhi::RenderPass<Downsampler>{rd} {}
 
 FrameGraphResource Downsampler::addPass(FrameGraph &fg,
                                         const FrameGraphResource input,
@@ -70,13 +68,13 @@ FrameGraphResource Downsampler::addPass(FrameGraph &fg,
     },
     [this, level](const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, framebufferInfo, sets] = rc;
+      auto &[cb, commonSamplers, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, kPassName);
 
       const auto *pipeline =
         _getPipeline(rhi::getColorFormat(*framebufferInfo, 0));
       if (pipeline) {
-        overrideSampler(sets[0][0], m_samplers.bilinear);
+        overrideSampler(sets[0][0], commonSamplers.bilinear);
 
         cb.bindPipeline(*pipeline);
         bindDescriptorSets(rc, *pipeline);

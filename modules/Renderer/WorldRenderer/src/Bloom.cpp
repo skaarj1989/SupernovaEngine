@@ -10,8 +10,7 @@
 
 namespace gfx {
 
-Bloom::Bloom(rhi::RenderDevice &rd, const CommonSamplers &commonSamplers)
-    : m_downsampler{rd, commonSamplers}, m_upsampler{rd, commonSamplers} {}
+Bloom::Bloom(rhi::RenderDevice &rd) : m_downsampler{rd}, m_upsampler{rd} {}
 
 uint32_t Bloom::count(const PipelineGroups groups) const {
   return bool(groups & PipelineGroups::BuiltIn)

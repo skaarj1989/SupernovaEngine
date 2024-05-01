@@ -1,8 +1,6 @@
 #include "renderer/WeightedBlendedPass.hpp"
 #include "rhi/RenderDevice.hpp"
 
-#include "renderer/CommonSamplers.hpp"
-
 #include "renderer/ViewInfo.hpp"
 #include "renderer/VertexFormat.hpp"
 #include "renderer/MeshInstance.hpp"
@@ -46,10 +44,8 @@ namespace {
 // WeightedBlendedPass class:
 //
 
-WeightedBlendedPass::WeightedBlendedPass(rhi::RenderDevice &rd,
-                                         const CommonSamplers &commonSamplers)
-    : rhi::RenderPass<WeightedBlendedPass>{rd}, m_samplers{commonSamplers},
-      m_compositionPass{rd} {}
+WeightedBlendedPass::WeightedBlendedPass(rhi::RenderDevice &rd)
+    : rhi::RenderPass<WeightedBlendedPass>{rd}, m_compositionPass{rd} {}
 
 uint32_t WeightedBlendedPass::count(const PipelineGroups flags) const {
   uint32_t n{0};
@@ -135,16 +131,17 @@ void WeightedBlendedPass::addGeometryPass(
     [this, lightingSettings, features, batches = std::move(batches)](
       const WeightedBlendedData &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, framebufferInfo, sets] = rc;
+      auto &[cb, commonSamplers, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, kPassName);
 
       auto &samplerBindings = sets[0];
-      samplerBindings[4] = rhi::bindings::SeparateSampler{m_samplers.shadow};
+      samplerBindings[4] =
+        rhi::bindings::SeparateSampler{commonSamplers.shadow};
       samplerBindings[5] =
-        rhi::bindings::SeparateSampler{m_samplers.omniShadow};
+        rhi::bindings::SeparateSampler{commonSamplers.omniShadow};
 
-      overrideSampler(sets[1][5], m_samplers.bilinear);
-      overrideSampler(sets[1][11], m_samplers.bilinear);
+      overrideSampler(sets[1][5], commonSamplers.bilinear);
+      overrideSampler(sets[1][11], commonSamplers.bilinear);
 
       BaseGeometryPassInfo passInfo{
         .depthFormat = rhi::getDepthFormat(*framebufferInfo),

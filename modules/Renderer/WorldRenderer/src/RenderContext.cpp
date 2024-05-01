@@ -132,7 +132,9 @@ void endRendering(RenderContext &rc) {
   rc.resourceSet.clear();
 }
 
-RenderContext::RenderContext(rhi::CommandBuffer &cb) : commandBuffer{cb} {
+RenderContext::RenderContext(rhi::CommandBuffer &cb,
+                             const CommonSamplers &commonSamplers_)
+    : commandBuffer{cb}, commonSamplers{commonSamplers_} {
   constexpr auto kNumDescriptorSets = 4;
   resourceSet.reserve(kNumDescriptorSets);
 }

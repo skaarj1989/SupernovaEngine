@@ -1,7 +1,6 @@
 #include "renderer/PostProcessor.hpp"
 #include "rhi/RenderDevice.hpp"
 
-#include "renderer/CommonSamplers.hpp"
 #include "renderer/PostProcess.hpp"
 
 #include "renderer/MaterialInstance.hpp"
@@ -63,9 +62,8 @@ getMaterialProperties(FrameGraph &fg, const MaterialInstance &materialInstance,
 // PostProcessor class:
 //
 
-PostProcessor::PostProcessor(rhi::RenderDevice &rd,
-                             const CommonSamplers &commonSamplers)
-    : rhi::RenderPass<PostProcessor>{rd}, m_samplers{commonSamplers} {}
+PostProcessor::PostProcessor(rhi::RenderDevice &rd)
+    : rhi::RenderPass<PostProcessor>{rd} {}
 
 uint32_t PostProcessor::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::PostProcessMaterial) ? BasePass::count()
@@ -140,7 +138,7 @@ PostProcessor::addPass(FrameGraph &fg, const FrameGraphBlackboard &blackboard,
     [this, materialPtr = &material,
      passName](const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, framebufferInfo, sets] = rc;
+      auto &[cb, commonSamplers, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, passName.c_str());
 
       const auto *pipeline = _getPipeline(PassInfo{
@@ -149,8 +147,8 @@ PostProcessor::addPass(FrameGraph &fg, const FrameGraphBlackboard &blackboard,
       });
       if (pipeline) {
         auto &samplerBindings = sets[2];
-        overrideSampler(samplerBindings[0], m_samplers.bilinear);
-        overrideSampler(samplerBindings[1], m_samplers.bilinear);
+        overrideSampler(samplerBindings[0], commonSamplers.bilinear);
+        overrideSampler(samplerBindings[1], commonSamplers.bilinear);
 
         bindMaterialTextures(rc, materialPtr->getTextures());
         renderFullScreenPostProcess(rc, *pipeline);

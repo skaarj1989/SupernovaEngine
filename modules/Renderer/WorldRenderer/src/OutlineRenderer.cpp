@@ -5,7 +5,6 @@
 #include "renderer/VertexFormat.hpp"
 #include "renderer/MeshInstance.hpp"
 
-#include "renderer/CommonSamplers.hpp"
 #include "renderer/PostProcess.hpp"
 
 #include "fg/FrameGraph.hpp"
@@ -34,9 +33,8 @@ namespace gfx {
 // OutlineRenderer class:
 //
 
-OutlineRenderer::OutlineRenderer(rhi::RenderDevice &rd,
-                                 const CommonSamplers &commonSamplers)
-    : m_silhouettePass{rd}, m_outlinePass{rd, commonSamplers} {}
+OutlineRenderer::OutlineRenderer(rhi::RenderDevice &rd)
+    : m_silhouettePass{rd}, m_outlinePass{rd} {}
 
 uint32_t OutlineRenderer::count(const PipelineGroups flags) const {
   return m_silhouettePass.count(flags) + m_outlinePass.count(flags);
@@ -117,7 +115,7 @@ void OutlineRenderer::SilhouettePass::addGeometryPass(
     [this, batches = std::move(batches)](
       const SilhouetteData &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, framebufferInfo, sets] = rc;
+      auto &[cb, _, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, kPassName);
 
       BaseGeometryPassInfo passInfo{
@@ -194,10 +192,8 @@ rhi::GraphicsPipeline OutlineRenderer::SilhouettePass::_createPipeline(
 // OutlinePass class:
 //
 
-OutlineRenderer::OutlinePass::OutlinePass(rhi::RenderDevice &rd,
-                                          const CommonSamplers &commonSamplers)
-    : rhi::RenderPass<OutlineRenderer::OutlinePass>{rd},
-      m_samplers{commonSamplers} {}
+OutlineRenderer::OutlinePass::OutlinePass(rhi::RenderDevice &rd)
+    : rhi::RenderPass<OutlineRenderer::OutlinePass>{rd} {}
 
 uint32_t OutlineRenderer::OutlinePass::count(const PipelineGroups flags) const {
   return bool(flags & PipelineGroups::BuiltIn) ? BasePass::count() : 0;
@@ -261,14 +257,14 @@ FrameGraphResource OutlineRenderer::OutlinePass::addPostProcessPass(
     },
     [this](const auto &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, framebufferInfo, sets] = rc;
+      auto &[cb, commonSamplers, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, kPassName);
 
       if (const auto *pipeline =
             _getPipeline(rhi::getColorFormat(*framebufferInfo, 0));
           pipeline) {
         for (auto i = 0; i < 3; ++i)
-          overrideSampler(sets[2][i], m_samplers.point);
+          overrideSampler(sets[2][i], commonSamplers.point);
 
         struct Uniforms {
           glm::vec4 color;

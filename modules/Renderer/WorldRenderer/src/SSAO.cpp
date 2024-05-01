@@ -1,7 +1,6 @@
 #include "renderer/SSAO.hpp"
 #include "rhi/RenderDevice.hpp"
 
-#include "renderer/CommonSamplers.hpp"
 #include "renderer/PostProcess.hpp"
 #include "renderer/Blur.hpp"
 
@@ -119,8 +118,7 @@ constexpr auto kKernelSize = 32;
 // SSAO class:
 //
 
-SSAO::SSAO(rhi::RenderDevice &rd, const CommonSamplers &commonSamplers)
-    : rhi::RenderPass<SSAO>{rd}, m_samplers{commonSamplers} {
+SSAO::SSAO(rhi::RenderDevice &rd) : rhi::RenderPass<SSAO>{rd} {
   m_noise = generateNoiseTexture(rd);
   m_kernelBuffer = generateSampleKernelBuffer(rd);
 }
@@ -167,14 +165,14 @@ void SSAO::addPass(FrameGraph &fg, FrameGraphBlackboard &blackboard, Blur &blur,
     [this, settings](const SSAOData &, const FrameGraphPassResources &,
                      void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, framebufferInfo, sets] = rc;
+      auto &[cb, commonSamplers, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, kPassName);
 
       const auto *pipeline =
         _getPipeline(rhi::getColorFormat(*framebufferInfo, 0));
       if (pipeline) {
         auto &bindings = sets[2];
-        bindings[0] = rhi::bindings::SeparateSampler{m_samplers.bilinear};
+        bindings[0] = rhi::bindings::SeparateSampler{commonSamplers.bilinear};
         bindings[1] = rhi::bindings::UniformBuffer{.buffer = &m_kernelBuffer};
         bindings[2] = rhi::bindings::CombinedImageSampler{
           .texture = &m_noise,

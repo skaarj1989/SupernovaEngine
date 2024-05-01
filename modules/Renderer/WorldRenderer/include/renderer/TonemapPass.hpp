@@ -7,14 +7,12 @@
 
 namespace gfx {
 
-struct CommonSamplers;
-
 class TonemapPass final : public rhi::RenderPass<TonemapPass>,
                           public Technique {
   friend class BasePass;
 
 public:
-  TonemapPass(rhi::RenderDevice &, const CommonSamplers &);
+  explicit TonemapPass(rhi::RenderDevice &);
 
   uint32_t count(const PipelineGroups) const override;
   void clear(const PipelineGroups) override;
@@ -27,9 +25,6 @@ private:
   rhi::GraphicsPipeline _createPipeline(const rhi::PixelFormat colorFormat,
                                         const bool autoExposure,
                                         const bool bloom) const;
-
-private:
-  const CommonSamplers &m_samplers;
 };
 
 } // namespace gfx

@@ -10,7 +10,7 @@ class Bloom final : public Technique {
   friend class BasePass;
 
 public:
-  Bloom(rhi::RenderDevice &, const CommonSamplers &);
+  explicit Bloom(rhi::RenderDevice &);
 
   uint32_t count(const PipelineGroups) const override;
   void clear(const PipelineGroups) override;

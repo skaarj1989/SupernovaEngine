@@ -69,7 +69,7 @@ FrameGraphResource DebugNormalPass::addGeometryPass(
     [this, batches = std::move(batches)](
       const auto &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, framebufferInfo, sets] = rc;
+      auto &[cb, _, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, kPassName);
 
       BaseGeometryPassInfo passInfo{

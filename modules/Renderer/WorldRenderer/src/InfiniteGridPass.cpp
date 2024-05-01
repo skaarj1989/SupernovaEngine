@@ -56,7 +56,7 @@ InfiniteGridPass::addPass(FrameGraph &fg,
     },
     [this](const auto &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, framebufferInfo, sets] = rc;
+      auto &[cb, _, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, kPassName);
 
       const auto *pipeline = _getPipeline(PassInfo{

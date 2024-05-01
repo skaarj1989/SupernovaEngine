@@ -7,8 +7,6 @@
 
 namespace gfx {
 
-struct CommonSamplers;
-
 struct ViewInfo;
 struct ForwardPassInfo;
 struct LightingPassFeatures;
@@ -22,7 +20,7 @@ class WeightedBlendedPass final : public rhi::RenderPass<WeightedBlendedPass>,
   friend class BasePass;
 
 public:
-  WeightedBlendedPass(rhi::RenderDevice &, const CommonSamplers &);
+  explicit WeightedBlendedPass(rhi::RenderDevice &);
 
   uint32_t count(const PipelineGroups) const override;
   void clear(const PipelineGroups) override;
@@ -43,7 +41,6 @@ private:
   _createPipeline(const ForwardPassInfo &) const;
 
 private:
-  const CommonSamplers &m_samplers;
   TransparencyCompositionPass m_compositionPass;
 };
 

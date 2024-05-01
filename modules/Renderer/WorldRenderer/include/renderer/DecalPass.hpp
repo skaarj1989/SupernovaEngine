@@ -8,8 +8,6 @@
 
 namespace gfx {
 
-struct CommonSamplers;
-
 struct ViewInfo;
 struct BaseGeometryPassInfo;
 
@@ -20,7 +18,7 @@ class DecalPass final : public rhi::RenderPass<DecalPass>, public Technique {
   friend class BasePass;
 
 public:
-  DecalPass(rhi::RenderDevice &, const CommonSamplers &);
+  explicit DecalPass(rhi::RenderDevice &);
 
   uint32_t count(const PipelineGroups) const override;
   void clear(const PipelineGroups) override;
@@ -36,9 +34,6 @@ public:
 private:
   [[nodiscard]] rhi::GraphicsPipeline
   _createPipeline(const BaseGeometryPassInfo &) const;
-
-private:
-  const CommonSamplers &m_samplers;
 };
 
 } // namespace gfx

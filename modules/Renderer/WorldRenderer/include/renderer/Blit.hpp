@@ -6,13 +6,11 @@
 
 namespace gfx {
 
-struct CommonSamplers;
-
 class Blit final : public rhi::RenderPass<Blit>, public Technique {
   friend class BasePass;
 
 public:
-  Blit(rhi::RenderDevice &, const CommonSamplers &);
+  explicit Blit(rhi::RenderDevice &);
 
   uint32_t count(const PipelineGroups) const override;
   void clear(const PipelineGroups) override;
@@ -42,9 +40,6 @@ public:
 private:
   rhi::GraphicsPipeline _createPipeline(const MixPassInfo &) const;
   rhi::GraphicsPipeline _createPipeline(const MergePassInfo &) const;
-
-private:
-  const CommonSamplers &m_samplers;
 };
 
 } // namespace gfx
