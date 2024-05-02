@@ -6,7 +6,6 @@
 
 #include "Resources/FrameBlock.glsl"
 #include "Resources/CameraBlock.glsl"
-#include "Resources/IDs.glsl"
 
 #include "Material.glsl"
 
@@ -23,6 +22,9 @@ layout(location = 2) out vec4 GBuffer2; // .rgb = Albedo, .a = SpecularWeight
 // .r = Metallic, .g = Roughness, .b = AO, .a = UNUSED
 layout(location = 3) out vec4 GBuffer3;
 layout(location = 4) out float GBuffer4; // .r = ShadingModel/MaterialFlags
+#if WRITE_USERDATA
+layout(location = 5) out uint UserData;
+#endif
 
 void main() {
   Material material = _initMaterial();
@@ -47,6 +49,6 @@ void main() {
                   clamp01(material.ambientOcclusion), 1.0);
   GBuffer4 = encodeMisc(SHADING_MODEL, fs_in.flags);
 #if WRITE_USERDATA
-  writeUserData(fs_in.userData);
+  UserData = fs_in.userData;
 #endif
 }

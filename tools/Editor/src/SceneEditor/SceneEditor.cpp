@@ -274,7 +274,7 @@ void showSceneViewportInspector(os::InputSystem &inputSystem,
       rd.pushGarbage(entityIDs);
       entityIDs =
         rd.createStorageBuffer(extent.width * extent.height * sizeof(uint32_t),
-                               rhi::AllocationHints::SequentialWrite);
+                               rhi::AllocationHints::RandomAccess);
     },
     [&inputSystem, &entry, &entityIDs, showOverlay, extent] {
       CameraController::Result controller;

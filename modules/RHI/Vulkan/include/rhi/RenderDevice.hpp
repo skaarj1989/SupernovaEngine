@@ -43,6 +43,7 @@ enum class AllocationHints {
   None = 0,
   MinMemory = 1 << 0,
   SequentialWrite = 1 << 1,
+  RandomAccess = 1 << 2,
 };
 
 class RenderDevice final {

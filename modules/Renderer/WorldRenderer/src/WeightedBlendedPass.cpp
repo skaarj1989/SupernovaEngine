@@ -17,6 +17,7 @@
 #include "FrameGraphData/GBuffer.hpp"
 #include "FrameGraphData/WeightedBlended.hpp"
 #include "FrameGraphData/SceneColor.hpp"
+#include "FrameGraphData/UserData.hpp"
 
 #include "MaterialShader.hpp"
 #include "BatchBuilder.hpp"
@@ -85,84 +86,93 @@ void WeightedBlendedPass::addGeometryPass(
   LightingPassFeatures features{.softShadows = softShadows};
   getLightingPassFeatures(features, blackboard);
 
-  blackboard
-    .add<WeightedBlendedData>() = fg.addCallbackPass<WeightedBlendedData>(
-    kPassName,
-    [&fg, &blackboard, instances](FrameGraph::Builder &builder,
-                                  WeightedBlendedData &data) {
-      PASS_SETUP_ZONE;
+  blackboard.add<WeightedBlendedData>() =
+    fg.addCallbackPass<WeightedBlendedData>(
+      kPassName,
+      [&fg, &blackboard, instances](FrameGraph::Builder &builder,
+                                    WeightedBlendedData &data) {
+        PASS_SETUP_ZONE;
 
-      read(builder, blackboard, instances);
+        read(builder, blackboard, instances);
 
-      const auto sceneDepth = blackboard.get<GBufferData>().depth;
-      const auto inputExtent =
-        fg.getDescriptor<FrameGraphTexture>(sceneDepth).extent;
+        const auto sceneDepth = blackboard.get<GBufferData>().depth;
+        const auto inputExtent =
+          fg.getDescriptor<FrameGraphTexture>(sceneDepth).extent;
 
-      data.accum = builder.create<FrameGraphTexture>(
-        "Accum", {
-                   .extent = inputExtent,
-                   .format = rhi::PixelFormat::RGBA16F,
-                   .usageFlags =
-                     rhi::ImageUsage::RenderTarget | rhi::ImageUsage::Sampled,
-                 });
-      data.accum =
-        builder.write(data.accum, Attachment{
-                                    .index = 0,
-                                    .imageAspect = rhi::ImageAspect::Color,
-                                    .clearValue = ClearValue::TransparentBlack,
-                                  });
-
-      data.reveal = builder.create<FrameGraphTexture>(
-        "Reveal", {
-                    .extent = inputExtent,
-                    .format = rhi::PixelFormat::R8_UNorm,
-                    .usageFlags =
-                      rhi::ImageUsage::RenderTarget | rhi::ImageUsage::Sampled,
-                  });
-      data.reveal =
-        builder.write(data.reveal, Attachment{
-                                     .index = 1,
+        data.accum = builder.create<FrameGraphTexture>(
+          "Accum", {
+                     .extent = inputExtent,
+                     .format = rhi::PixelFormat::RGBA16F,
+                     .usageFlags =
+                       rhi::ImageUsage::RenderTarget | rhi::ImageUsage::Sampled,
+                   });
+        data.accum = builder.write(data.accum,
+                                   Attachment{
+                                     .index = 0,
                                      .imageAspect = rhi::ImageAspect::Color,
-                                     .clearValue = ClearValue::OpaqueWhite,
+                                     .clearValue = ClearValue::TransparentBlack,
                                    });
 
-      writeUserData(builder, blackboard);
-    },
-    [this, lightingSettings, features, batches = std::move(batches)](
-      const WeightedBlendedData &, const FrameGraphPassResources &, void *ctx) {
-      auto &rc = *static_cast<RenderContext *>(ctx);
-      auto &[cb, commonSamplers, framebufferInfo, sets] = rc;
-      RHI_GPU_ZONE(cb, kPassName);
+        data.reveal = builder.create<FrameGraphTexture>(
+          "Reveal", {
+                      .extent = inputExtent,
+                      .format = rhi::PixelFormat::R8_UNorm,
+                      .usageFlags = rhi::ImageUsage::RenderTarget |
+                                    rhi::ImageUsage::Sampled,
+                    });
+        data.reveal =
+          builder.write(data.reveal, Attachment{
+                                       .index = 1,
+                                       .imageAspect = rhi::ImageAspect::Color,
+                                       .clearValue = ClearValue::OpaqueWhite,
+                                     });
 
-      auto &samplerBindings = sets[0];
-      samplerBindings[4] =
-        rhi::bindings::SeparateSampler{commonSamplers.shadow};
-      samplerBindings[5] =
-        rhi::bindings::SeparateSampler{commonSamplers.omniShadow};
-
-      overrideSampler(sets[1][5], commonSamplers.bilinear);
-      overrideSampler(sets[1][11], commonSamplers.bilinear);
-
-      BaseGeometryPassInfo passInfo{
-        .depthFormat = rhi::getDepthFormat(*framebufferInfo),
-        .colorFormats = rhi::getColorFormats(*framebufferInfo),
-        .writeUserData = sets[2].contains(13),
-      };
-
-      cb.beginRendering(*framebufferInfo);
-      for (const auto &batch : batches) {
-        const auto *pipeline =
-          _getPipeline(ForwardPassInfo{adjust(passInfo, batch), features});
-        if (pipeline) {
-          bindBatch(rc, batch);
-          cb.bindPipeline(*pipeline);
-          bindDescriptorSets(rc, *pipeline);
-          cb.pushConstants(rhi::ShaderStages::Fragment, 16, &lightingSettings);
-          drawBatch(rc, batch);
+        if (auto *d = blackboard.try_get<UserData>(); d) {
+          d->target =
+            builder.write(d->target, Attachment{
+                                       .index = 2,
+                                       .imageAspect = rhi::ImageAspect::Color,
+                                     });
         }
-      }
-      endRendering(rc);
-    });
+      },
+      [this, writeUserData = blackboard.has<UserData>(), lightingSettings,
+       features, batches = std::move(batches)](const WeightedBlendedData &,
+                                               const FrameGraphPassResources &,
+                                               void *ctx) {
+        auto &rc = *static_cast<RenderContext *>(ctx);
+        auto &[cb, commonSamplers, framebufferInfo, sets] = rc;
+        RHI_GPU_ZONE(cb, kPassName);
+
+        auto &samplerBindings = sets[0];
+        samplerBindings[4] =
+          rhi::bindings::SeparateSampler{commonSamplers.shadow};
+        samplerBindings[5] =
+          rhi::bindings::SeparateSampler{commonSamplers.omniShadow};
+
+        overrideSampler(sets[1][5], commonSamplers.bilinear);
+        overrideSampler(sets[1][11], commonSamplers.bilinear);
+
+        const BaseGeometryPassInfo passInfo{
+          .depthFormat = rhi::getDepthFormat(*framebufferInfo),
+          .colorFormats = rhi::getColorFormats(*framebufferInfo),
+          .writeUserData = writeUserData,
+        };
+
+        cb.beginRendering(*framebufferInfo);
+        for (const auto &batch : batches) {
+          const auto *pipeline =
+            _getPipeline(ForwardPassInfo{adjust(passInfo, batch), features});
+          if (pipeline) {
+            bindBatch(rc, batch);
+            cb.bindPipeline(*pipeline);
+            bindDescriptorSets(rc, *pipeline);
+            cb.pushConstants(rhi::ShaderStages::Fragment, 16,
+                             &lightingSettings);
+            drawBatch(rc, batch);
+          }
+        }
+        endRendering(rc);
+      });
 }
 
 void WeightedBlendedPass::compose(FrameGraph &fg,
@@ -225,8 +235,8 @@ WeightedBlendedPass::_createPipeline(const ForwardPassInfo &passInfo) const {
 
   const auto &surface = getSurface(material);
 
-  return rhi::GraphicsPipeline::Builder{}
-    .setDepthFormat(passInfo.depthFormat)
+  rhi::GraphicsPipeline::Builder builder;
+  builder.setDepthFormat(passInfo.depthFormat)
     .setColorFormats(passInfo.colorFormats)
     .setInputAssembly(passInfo.vertexFormat->getAttributes())
     .setTopology(passInfo.topology)
@@ -256,9 +266,12 @@ WeightedBlendedPass::_createPipeline(const ForwardPassInfo &passInfo) const {
       .dstColor = rhi::BlendFactor::OneMinusSrcColor,
       .srcAlpha = rhi::BlendFactor::Zero,
       .dstAlpha = rhi::BlendFactor::OneMinusSrcColor,
-    })
-    // clang-format on
-    .build(rd);
+    });
+  // clang-format on
+  if (passInfo.writeUserData) {
+    builder.setBlending(2, {.enabled = false});
+  }
+  return builder.build(rd);
 }
 
 } // namespace gfx

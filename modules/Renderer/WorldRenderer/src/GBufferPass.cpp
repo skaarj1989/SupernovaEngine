@@ -45,30 +45,6 @@ namespace {
   return sameGeometry(b, r) && sameMaterial(b, r) && sameTextures(b, r);
 }
 
-FrameGraphResource clearBufferPass(FrameGraph &fg,
-                                   const FrameGraphResource inBuffer) {
-  static constexpr auto kPassName = "ClearBuffer";
-
-  struct Data {
-    FrameGraphResource buffer;
-  };
-  const auto [outBuffer] = fg.addCallbackPass<Data>(
-    kPassName,
-    [inBuffer](FrameGraph::Builder &builder, Data &data) {
-      PASS_SETUP_ZONE;
-
-      data.buffer = builder.write(
-        inBuffer, BindingInfo{.pipelineStage = PipelineStage::Transfer});
-    },
-    [](const Data &data, FrameGraphPassResources &resources, void *ctx) {
-      auto &cb = static_cast<RenderContext *>(ctx)->commandBuffer;
-      RHI_GPU_ZONE(cb, kPassName);
-      cb.clear(*resources.get<FrameGraphBuffer>(data.buffer).buffer, UINT_MAX);
-    });
-
-  return outBuffer;
-}
-
 } // namespace
 
 GBufferPass::GBufferPass(rhi::RenderDevice &rd)
@@ -101,9 +77,6 @@ void GBufferPass::addGeometryPass(
   // attachments (the succeeding passes might need the DepthBuffer).
 
   const auto instances = uploadInstances(fg, std::move(gpuInstances));
-  if (auto *d = blackboard.try_get<UserData>(); d) {
-    d->userData = clearBufferPass(fg, d->userData);
-  }
 
   blackboard.add<GBufferData>() = fg.addCallbackPass<GBufferData>(
     kPassName,
@@ -206,19 +179,35 @@ void GBufferPass::addGeometryPass(
                                    .clearValue = ClearValue::TransparentBlack,
                                  });
 
-      writeUserData(builder, blackboard);
+      if (auto *d = blackboard.try_get<UserData>(); d) {
+        d->target = builder.create<FrameGraphTexture>(
+          "UserData", {
+                        .extent = resolution,
+                        .format = rhi::PixelFormat::R32UI,
+                        .usageFlags = rhi::ImageUsage::RenderTarget |
+                                      rhi::ImageUsage::TransferSrc,
+                      });
+        d->target =
+          builder.write(d->target, Attachment{
+                                     .index = 5,
+                                     .imageAspect = rhi::ImageAspect::Color,
+                                     .clearValue = ClearValue::UIntMax,
+                                   });
+      }
     },
-    [this, batches = std::move(batches)](
-      const GBufferData &, const FrameGraphPassResources &, void *ctx) {
+    [this, writeUserData = blackboard.has<UserData>(),
+     batches = std::move(batches)](const GBufferData &,
+                                   const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
       auto &[cb, _, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, kPassName);
 
-      BaseGeometryPassInfo passInfo{
+      const BaseGeometryPassInfo passInfo{
         .depthFormat = rhi::getDepthFormat(*framebufferInfo),
         .colorFormats = rhi::getColorFormats(*framebufferInfo),
-        .writeUserData = sets[2].contains(13),
+        .writeUserData = writeUserData,
       };
+
       cb.beginRendering(*framebufferInfo);
       for (const auto &batch : batches) {
         if (const auto *pipeline = _getPipeline(adjust(passInfo, batch));
@@ -274,8 +263,8 @@ GBufferPass::_createPipeline(const BaseGeometryPassInfo &passInfo) const {
   const auto [vertCode, fragCode] = buildShaderCode(
     rd, passInfo.vertexFormat, material, passInfo.writeUserData);
 
-  return rhi::GraphicsPipeline::Builder{}
-    .setDepthFormat(passInfo.depthFormat)
+  rhi::GraphicsPipeline::Builder builder;
+  builder.setDepthFormat(passInfo.depthFormat)
     .setColorFormats(passInfo.colorFormats)
     .setInputAssembly(passInfo.vertexFormat->getAttributes())
     .setTopology(passInfo.topology)
@@ -290,13 +279,11 @@ GBufferPass::_createPipeline(const BaseGeometryPassInfo &passInfo) const {
     .setRasterizer({
       .polygonMode = rhi::PolygonMode::Fill,
       .cullMode = getSurface(material).cullMode,
-    })
-    .setBlending(0, {.enabled = false})
-    .setBlending(1, {.enabled = false})
-    .setBlending(2, {.enabled = false})
-    .setBlending(3, {.enabled = false})
-    .setBlending(4, {.enabled = false})
-    .build(rd);
+    });
+  for (auto i = 0; i < passInfo.colorFormats.size(); ++i) {
+    builder.setBlending(i, {.enabled = false});
+  }
+  return builder.build(rd);
 }
 
 } // namespace gfx

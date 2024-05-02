@@ -6,7 +6,6 @@
 
 #include "Resources/FrameBlock.glsl"
 #include "Resources/CameraBlock.glsl"
-#include "Resources/IDs.glsl"
 
 #include "Lib/Depth.glsl"
 
@@ -37,6 +36,9 @@ layout(location = 1) out vec4 GBuffer1; // .rgb = Emissive, .a = UNUSED
 layout(location = 2) out vec4 GBuffer2; // .rgb = Albedo, .a = SpecularWeight
 // .r = Metallic, .g = Roughness, .b = AO, .a = UNUSED
 layout(location = 3) out vec4 GBuffer3;
+#if WRITE_USERDATA
+layout(location = 4) out uint UserData;
+#endif
 
 void main() {
   const vec2 ndc = fs_in.fragPosClipSpace.xy / fs_in.fragPosClipSpace.w;
@@ -93,6 +95,6 @@ void main() {
                   clamp01(material.ambientOcclusion), 1.0);
 #endif
 #if WRITE_USERDATA
-  writeUserData(fs_in.userData);
+  UserData = fs_in.userData;
 #endif
 }

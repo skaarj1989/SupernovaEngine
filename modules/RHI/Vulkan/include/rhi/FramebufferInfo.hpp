@@ -6,13 +6,16 @@
 #include "ResourceIndices.hpp"
 
 #include "glm/ext/vector_float4.hpp"
+#include "glm/ext/vector_int4.hpp"
+#include "glm/ext/vector_uint4.hpp"
 #include <vector>
 #include <variant>
 #include <optional>
 
 namespace rhi {
 
-using ClearValue = std::variant<glm::vec4, float, uint32_t>;
+using ClearValue =
+  std::variant<glm::vec4, glm::ivec4, glm::uvec4, float, uint32_t>;
 
 class Texture;
 

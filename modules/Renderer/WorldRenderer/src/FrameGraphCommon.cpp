@@ -349,15 +349,4 @@ void readSceneDepth(FrameGraph::Builder &builder,
   }
 }
 
-void writeUserData(FrameGraph::Builder &builder,
-                   FrameGraphBlackboard &blackboard) {
-  if (auto *d = blackboard.try_get<UserData>(); d) {
-    d->userData = builder.write(
-      d->userData, BindingInfo{
-                     .location = {.set = 2, .binding = 13},
-                     .pipelineStage = PipelineStage::FragmentShader,
-                   });
-  }
-}
-
 } // namespace gfx

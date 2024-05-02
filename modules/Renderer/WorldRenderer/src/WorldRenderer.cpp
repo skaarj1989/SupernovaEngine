@@ -3,6 +3,8 @@
 
 #include "renderer/CubemapConverter.hpp"
 
+#include "FrameGraphResourceAccess.hpp"
+
 #include "renderer/Vertex1p1n1st.hpp"
 #include "renderer/MeshInstance.hpp"
 #include "renderer/DecalInstance.hpp"
@@ -181,6 +183,32 @@ addMaterialInstance(RenderableStore &store,
   Grid grid{aabb};
   return grid.valid() ? grid
                       : Grid{AABB::create(glm::vec3{0.0f}, glm::vec3{0.5f})};
+}
+
+FrameGraphResource copyImageToBuffer(FrameGraph &fg,
+                                     const FrameGraphResource srcImage,
+                                     FrameGraphResource dstBuffer) {
+  static constexpr auto kPassName = "Image->Buffer";
+  fg.addCallbackPass(
+    kPassName,
+    [srcImage, &dstBuffer](FrameGraph::Builder &builder, auto &) {
+      PASS_SETUP_ZONE;
+
+      builder.read(srcImage,
+                   BindingInfo{.pipelineStage = PipelineStage::Transfer});
+      dstBuffer = builder.write(
+        dstBuffer, BindingInfo{.pipelineStage = PipelineStage::Transfer});
+    },
+    [srcImage, dstBuffer](const auto &, FrameGraphPassResources &resources,
+                          void *ctx) {
+      auto &cb = static_cast<RenderContext *>(ctx)->commandBuffer;
+      RHI_GPU_ZONE(cb, kPassName);
+
+      cb.copyImage(*resources.get<FrameGraphTexture>(srcImage).texture,
+                   *resources.get<FrameGraphBuffer>(dstBuffer).buffer,
+                   rhi::ImageAspect::Color);
+    });
+  return dstBuffer;
 }
 
 } // namespace
@@ -440,8 +468,10 @@ void WorldRenderer::_drawScene(FrameGraph &fg, FrameGraphBlackboard blackboard,
   ZoneScopedN("DrawScene");
 
   const auto backbuffer = importTexture(fg, sceneView.name, &target);
-  if (auto *buffer = sceneView.userData; buffer) {
-    blackboard.add<UserData>().userData = fg.import <FrameGraphBuffer>(
+  if (auto *buffer = sceneView.userData;
+      buffer && buffer->getSize() >=
+                  resolution.width * resolution.height * sizeof(uint32_t)) {
+    blackboard.add<UserData>().userBuffer = fg.import <FrameGraphBuffer>(
       "UserData",
       FrameGraphBuffer::Desc{
         .type = BufferType::StorageBuffer,
@@ -629,6 +659,11 @@ void WorldRenderer::_drawScene(FrameGraph &fg, FrameGraphBlackboard blackboard,
     fg, blackboard, {camera, visibleRenderables}, sceneColor.LDR);
 
   m_finalPass.compose(fg, blackboard, settings.outputMode, backbuffer);
+
+  // ---
+
+  if (auto *d = blackboard.try_get<UserData>(); d)
+    copyImageToBuffer(fg, d->target, d->userBuffer);
 }
 
 } // namespace gfx

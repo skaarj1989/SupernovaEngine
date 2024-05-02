@@ -10,8 +10,11 @@
 
 namespace rhi {
 
-namespace {
+VkImageAspectFlags toVk(const rhi::ImageAspect);
+
 #if _DEBUG
+namespace {
+
 [[nodiscard]] auto validRange(const Buffer &buffer, const VkDeviceSize offset,
                               const std::optional<VkDeviceSize> range) {
   const auto size = buffer.getSize();
@@ -19,26 +22,9 @@ namespace {
 
   return !range || (offset + *range < size);
 }
-#endif
-
-[[nodiscard]] VkImageAspectFlags toVk(const rhi::ImageAspect imageAspect) {
-  switch (imageAspect) {
-    using enum rhi::ImageAspect;
-
-  case Depth:
-    return VK_IMAGE_ASPECT_DEPTH_BIT;
-  case Stencil:
-    return VK_IMAGE_ASPECT_STENCIL_BIT;
-  case Color:
-    return VK_IMAGE_ASPECT_COLOR_BIT;
-
-  default:
-    assert(false);
-    return VK_IMAGE_ASPECT_NONE;
-  }
-}
 
 } // namespace
+#endif
 
 //
 // DescriptorSetBuilder class:

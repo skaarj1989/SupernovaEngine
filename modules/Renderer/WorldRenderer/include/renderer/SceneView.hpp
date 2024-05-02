@@ -24,6 +24,10 @@ struct SceneView {
   std::span<const MaterialInstance> postProcessEffects;
   DebugDraw *debugDraw{nullptr};
 
+  // Used to store `userData` of Mesh/DecalInstance (if provided).
+  // The buffer size should equal to `target` extent, with a stride of uint.
+  // (width * height * sizeof(uint32_t)).
+  // To get an ID at a given coordinate [x, y], use: `x + width * y`.
   rhi::Buffer *userData{nullptr};
 };
 

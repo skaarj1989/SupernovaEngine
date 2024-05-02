@@ -14,6 +14,7 @@
 #include "FrameGraphData/Transforms.hpp"
 #include "FrameGraphData/MaterialProperties.hpp"
 #include "FrameGraphData/GBuffer.hpp"
+#include "FrameGraphData/UserData.hpp"
 #include "FrameGraphData/DummyResources.hpp"
 
 #include "MaterialShader.hpp"
@@ -111,22 +112,30 @@ void DecalPass::addGeometryPass(
                                        .imageAspect = rhi::ImageAspect::Color,
                                      });
 
-      writeUserData(builder, blackboard);
+      if (auto *d = blackboard.try_get<UserData>(); d) {
+        d->target =
+          builder.write(d->target, Attachment{
+                                     .index = 4,
+                                     .imageAspect = rhi::ImageAspect::Color,
+                                   });
+      }
     },
-    [this, batches = std::move(batches)](
-      const auto &, const FrameGraphPassResources &, void *ctx) {
+    [this, writeUserData = blackboard.has<UserData>(),
+     batches = std::move(batches)](const auto &,
+                                   const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
       auto &[cb, commonSamplers, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, kPassName);
 
       overrideSampler(sets[1][5], commonSamplers.bilinear);
 
-      cb.beginRendering(*framebufferInfo);
-      BaseGeometryPassInfo passInfo{
+      const BaseGeometryPassInfo passInfo{
         .depthFormat = rhi::getDepthFormat(*framebufferInfo),
         .colorFormats = rhi::getColorFormats(*framebufferInfo),
-        .writeUserData = sets[2].contains(13),
+        .writeUserData = writeUserData,
       };
+
+      cb.beginRendering(*framebufferInfo);
       for (const auto &batch : batches) {
         if (const auto *pipeline = _getPipeline(adjust(passInfo, batch));
             pipeline) {
@@ -185,7 +194,7 @@ DecalPass::_createPipeline(const BaseGeometryPassInfo &passInfo) const {
   const auto [vertCode, fragCode] = buildShaderCode(
     getRenderDevice(), passInfo.vertexFormat, material, passInfo.writeUserData);
 
-  constexpr auto pickBlendState = [](BlendOp b) {
+  constexpr auto pickBlendState = [](const BlendOp b) {
     return b == BlendOp::Replace
              ? rhi::BlendState{.enabled = false}
              : rhi::BlendState{
@@ -201,8 +210,8 @@ DecalPass::_createPipeline(const BaseGeometryPassInfo &passInfo) const {
 
   const auto &decalBlendMode = getSurface(material).decalBlendMode;
 
-  return rhi::GraphicsPipeline::Builder{}
-    .setDepthFormat(passInfo.depthFormat)
+  rhi::GraphicsPipeline::Builder builder;
+  builder.setDepthFormat(passInfo.depthFormat)
     .setColorFormats(passInfo.colorFormats)
     .setInputAssembly(passInfo.vertexFormat->getAttributes())
     .setTopology(passInfo.topology)
@@ -221,8 +230,11 @@ DecalPass::_createPipeline(const BaseGeometryPassInfo &passInfo) const {
     .setBlending(0, pickBlendState(decalBlendMode.normal))
     .setBlending(1, pickBlendState(decalBlendMode.emissive))
     .setBlending(2, pickBlendState(decalBlendMode.albedo))
-    .setBlending(3, pickBlendState(decalBlendMode.metallicRoughnessAO))
-    .build(getRenderDevice());
+    .setBlending(3, pickBlendState(decalBlendMode.metallicRoughnessAO));
+  if (passInfo.writeUserData) {
+    builder.setBlending(4, {.enabled = false});
+  }
+  return builder.build(getRenderDevice());
 }
 
 } // namespace gfx

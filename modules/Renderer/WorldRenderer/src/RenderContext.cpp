@@ -62,6 +62,9 @@ std::string toString(const ResourceSet &sets) {
 
 rhi::PipelineStages convert(const PipelineStage pipelineStage) {
   rhi::PipelineStages stageMask{rhi::PipelineStages::None};
+  if (bool(pipelineStage & PipelineStage::Transfer)) {
+    stageMask |= rhi::PipelineStages::Transfer;
+  }
   if (bool(pipelineStage & PipelineStage::VertexShader)) {
     stageMask |= rhi::PipelineStages::VertexShader;
   }

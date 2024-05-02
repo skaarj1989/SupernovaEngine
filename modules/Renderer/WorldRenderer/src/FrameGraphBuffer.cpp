@@ -30,45 +30,47 @@ void FrameGraphBuffer::destroy(const Desc &desc, void *allocator) {
 void FrameGraphBuffer::preRead(const Desc &desc, uint32_t bits, void *ctx) {
   ZoneScopedN("B*");
 
-  const auto [location, pipelineStage] = decodeBindingInfo(bits);
-  assert(!bool(pipelineStage &
-               PipelineStage::Transfer)); // GPU->CPU readback not supported.
-
-  rhi::BarrierScope dst{};
-  switch (desc.type) {
-  case BufferType::IndexBuffer:
-    dst = {
-      .stageMask = rhi::PipelineStages::VertexInput,
-      .accessMask = rhi::Access::IndexRead,
-    };
-    break;
-  case BufferType::VertexBuffer:
-    dst = {
-      .stageMask = rhi::PipelineStages::VertexInput,
-      .accessMask = rhi::Access::VertexAttributeRead,
-    };
-    break;
-  case BufferType::UniformBuffer:
-    dst.accessMask = rhi::Access::UniformRead;
-    break;
-  case BufferType::StorageBuffer:
-    dst.accessMask = rhi::Access::ShaderStorageRead;
-    break;
-  }
-  dst.stageMask |= convert(pipelineStage);
-
   auto &rc = *static_cast<RenderContext *>(ctx);
-  const auto [set, binding] = location;
-  switch (desc.type) {
-  case BufferType::UniformBuffer:
-    rc.resourceSet[set][binding] =
-      rhi::bindings::UniformBuffer{.buffer = buffer};
-    break;
-  case BufferType::StorageBuffer:
-    rc.resourceSet[set][binding] =
-      rhi::bindings::StorageBuffer{.buffer = buffer};
-    break;
+  rhi::BarrierScope dst{};
+
+  const auto bindingInfo = decodeBindingInfo(bits);
+  if (bool(bindingInfo.pipelineStage & PipelineStage::Transfer)) {
+    dst.accessMask = rhi::Access::TransferRead;
+  } else {
+    switch (desc.type) {
+    case BufferType::IndexBuffer:
+      dst = {
+        .stageMask = rhi::PipelineStages::VertexInput,
+        .accessMask = rhi::Access::IndexRead,
+      };
+      break;
+    case BufferType::VertexBuffer:
+      dst = {
+        .stageMask = rhi::PipelineStages::VertexInput,
+        .accessMask = rhi::Access::VertexAttributeRead,
+      };
+      break;
+    case BufferType::UniformBuffer:
+      dst.accessMask = rhi::Access::UniformRead;
+      break;
+    case BufferType::StorageBuffer:
+      dst.accessMask = rhi::Access::ShaderStorageRead;
+      break;
+    }
+
+    const auto [set, binding] = bindingInfo.location;
+    switch (desc.type) {
+    case BufferType::UniformBuffer:
+      rc.resourceSet[set][binding] =
+        rhi::bindings::UniformBuffer{.buffer = buffer};
+      break;
+    case BufferType::StorageBuffer:
+      rc.resourceSet[set][binding] =
+        rhi::bindings::StorageBuffer{.buffer = buffer};
+      break;
+    }
   }
+  dst.stageMask |= convert(bindingInfo.pipelineStage);
   rc.commandBuffer.getBarrierBuilder().bufferBarrier({.buffer = *buffer}, dst);
 }
 void FrameGraphBuffer::preWrite([[maybe_unused]] const Desc &desc,

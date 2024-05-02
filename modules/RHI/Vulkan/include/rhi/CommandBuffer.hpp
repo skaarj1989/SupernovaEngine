@@ -108,6 +108,8 @@ public:
   // Inserts layout transition barrier for dst.
   CommandBuffer &copyBuffer(const Buffer &src, Texture &dst,
                             std::span<const VkBufferImageCopy>);
+  CommandBuffer &copyImage(const Texture &src, const Buffer &dst,
+                           const rhi::ImageAspect);
 
   CommandBuffer &update(Buffer &, const VkDeviceSize offset,
                         const VkDeviceSize size, const void *data);

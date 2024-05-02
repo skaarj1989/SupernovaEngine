@@ -155,11 +155,17 @@ enumeratePhysicalDeviceExtensions(const VkPhysicalDevice device) {
 
 [[nodiscard]] constexpr auto makeAllocationFlags(const AllocationHints hints) {
   VkFlags flags{0};
-  if (bool(hints & AllocationHints::MinMemory))
+  if (bool(hints & AllocationHints::MinMemory)) {
     flags |= VMA_ALLOCATION_CREATE_STRATEGY_MIN_MEMORY_BIT;
-  if (bool(hints & AllocationHints::SequentialWrite))
+  }
+  if (bool(hints & AllocationHints::SequentialWrite)) {
     flags |= VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT |
              VMA_ALLOCATION_CREATE_MAPPED_BIT;
+  }
+  if (bool(hints & AllocationHints::RandomAccess)) {
+    flags |= VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT |
+             VMA_ALLOCATION_CREATE_MAPPED_BIT;
+  }
   return flags;
 }
 

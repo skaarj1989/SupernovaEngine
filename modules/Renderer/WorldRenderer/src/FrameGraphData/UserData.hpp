@@ -5,7 +5,8 @@
 namespace gfx {
 
 struct UserData {
-  FrameGraphResource userData;
+  FrameGraphResource target;
+  FrameGraphResource userBuffer;
 };
 
 } // namespace gfx

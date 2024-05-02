@@ -7,7 +7,6 @@
 
 #include "Resources/FrameBlock.glsl"
 #include "Resources/CameraBlock.glsl"
-#include "Resources/IDs.glsl"
 
 #include "Lib/Depth.glsl"
 
@@ -66,8 +65,13 @@ u_PC;
 #if WEIGHTED_BLENDED
 layout(location = 0) out vec4 Accum;
 layout(location = 1) out float Reveal;
+#  define USER_DATA_LOCATION_INDEX 2
 #else
 layout(location = 0) out vec4 FragColor;
+#  define USER_DATA_LOCATION_INDEX 1
+#endif
+#if WRITE_USERDATA
+layout(location = USER_DATA_LOCATION_INDEX) out uint UserData;
 #endif
 
 void main() {
@@ -265,6 +269,6 @@ void main() {
   FragColor = vec4(color, a);
 #endif
 #if WRITE_USERDATA
-  writeUserData(fs_in.userData);
+  UserData = fs_in.userData;
 #endif
 }

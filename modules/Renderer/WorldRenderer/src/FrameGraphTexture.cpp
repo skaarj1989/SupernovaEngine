@@ -35,6 +35,9 @@ template <class Target> struct StaticCast {
     return glm::vec4{0.0f};
   case TransparentWhite:
     return glm::vec4{1.0f, 1.0f, 1.0f, 0.0f};
+
+  case UIntMax:
+    return glm::uvec4{UINT_MAX};
   }
 
   assert(false);
@@ -96,37 +99,43 @@ void FrameGraphTexture::preRead(const Desc &, uint32_t bits, void *ctx) {
     const auto &[bindingInfo, type, imageAspect] = decodeTextureRead(bits);
     const auto [location, pipelineStage] = bindingInfo;
 
-    assert(!bool(pipelineStage & PipelineStage::Transfer));
-
     auto imageLayout = rhi::ImageLayout::Undefined;
+    auto dstAccess = rhi::Access::None;
 
-    const auto [set, binding] = location;
-    switch (type) {
-      using enum TextureRead::Type;
+    if (bool(pipelineStage & PipelineStage::Transfer)) {
+      imageLayout = rhi::ImageLayout::TransferSrc;
+      dstAccess = rhi::Access::TransferRead;
+    } else {
+      const auto [set, binding] = location;
+      switch (type) {
+        using enum TextureRead::Type;
 
-    case CombinedImageSampler:
-      imageLayout = rhi::ImageLayout::ReadOnly;
-      sets[set][binding] = rhi::bindings::CombinedImageSampler{
-        .texture = texture,
-        .imageAspect = imageAspect,
-      };
-      break;
-    case SampledImage:
-      imageLayout = rhi::ImageLayout::ReadOnly;
-      sets[set][binding] = rhi::bindings::SampledImage{
-        .texture = texture,
-        .imageAspect = imageAspect,
-      };
-      break;
-    case StorageImage:
-      imageLayout = rhi::ImageLayout::General;
-      sets[set][binding] = rhi::bindings::StorageImage{
-        .texture = texture,
-        .imageAspect = imageAspect,
-        .mipLevel = 0,
-      };
-      break;
+      case CombinedImageSampler:
+        imageLayout = rhi::ImageLayout::ReadOnly;
+        sets[set][binding] = rhi::bindings::CombinedImageSampler{
+          .texture = texture,
+          .imageAspect = imageAspect,
+        };
+        break;
+      case SampledImage:
+        imageLayout = rhi::ImageLayout::ReadOnly;
+        sets[set][binding] = rhi::bindings::SampledImage{
+          .texture = texture,
+          .imageAspect = imageAspect,
+        };
+        break;
+      case StorageImage:
+        imageLayout = rhi::ImageLayout::General;
+        sets[set][binding] = rhi::bindings::StorageImage{
+          .texture = texture,
+          .imageAspect = imageAspect,
+          .mipLevel = 0,
+        };
+        break;
+      }
+      dstAccess = rhi::Access::ShaderRead;
     }
+
     assert(imageLayout != rhi::ImageLayout::Undefined);
 
     cb.getBarrierBuilder().imageBarrier(
@@ -141,7 +150,7 @@ void FrameGraphTexture::preRead(const Desc &, uint32_t bits, void *ctx) {
       },
       {
         .stageMask = convert(pipelineStage),
-        .accessMask = rhi::Access::ShaderRead,
+        .accessMask = dstAccess,
       });
   }
 }

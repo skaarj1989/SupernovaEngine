@@ -16,6 +16,7 @@ enum class ClearValue {
   OpaqueWhite,
   TransparentBlack,
   TransparentWhite,
+  UIntMax,
 };
 
 struct Attachment {

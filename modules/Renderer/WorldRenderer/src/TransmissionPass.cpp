@@ -14,6 +14,8 @@
 #include "renderer/FrameGraphTexture.hpp"
 #include "UploadInstances.hpp"
 
+#include "FrameGraphData/UserData.hpp"
+
 #include "MaterialShader.hpp"
 #include "BatchBuilder.hpp"
 
@@ -97,9 +99,16 @@ std::optional<FrameGraphResource> TransmissionPass::addGeometryPass(
                                      .clearValue = ClearValue::TransparentBlack,
                                    });
 
-      writeUserData(builder, blackboard);
+      if (auto *d = blackboard.try_get<UserData>(); d) {
+        d->target =
+          builder.write(d->target, Attachment{
+                                     .index = 1,
+                                     .imageAspect = rhi::ImageAspect::Color,
+                                   });
+      }
     },
-    [this, lightingSettings, features, batches = std::move(batches)](
+    [this, writeUserData = blackboard.has<UserData>(), lightingSettings,
+     features, batches = std::move(batches)](
       const Data &, const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
       auto &[cb, commonSamplers, framebufferInfo, sets] = rc;
@@ -114,10 +123,10 @@ std::optional<FrameGraphResource> TransmissionPass::addGeometryPass(
       overrideSampler(sets[1][5], commonSamplers.bilinear);
       overrideSampler(sets[1][11], commonSamplers.bilinear);
 
-      BaseGeometryPassInfo passInfo{
+      const BaseGeometryPassInfo passInfo{
         .depthFormat = rhi::getDepthFormat(*framebufferInfo),
         .colorFormats = rhi::getColorFormats(*framebufferInfo),
-        .writeUserData = sets[2].contains(13),
+        .writeUserData = writeUserData,
       };
 
       cb.beginRendering(*framebufferInfo);
@@ -188,8 +197,8 @@ TransmissionPass::_createPipeline(const ForwardPassInfo &passInfo) const {
     buildShaderCode(rd, passInfo.vertexFormat, material, passInfo.features,
                     passInfo.writeUserData);
 
-  return rhi::GraphicsPipeline::Builder{}
-    .setDepthFormat(passInfo.depthFormat)
+  rhi::GraphicsPipeline::Builder builder;
+  builder.setDepthFormat(passInfo.depthFormat)
     .setColorFormats(passInfo.colorFormats)
     .setInputAssembly(passInfo.vertexFormat->getAttributes())
     .setTopology(passInfo.topology)
@@ -205,8 +214,11 @@ TransmissionPass::_createPipeline(const ForwardPassInfo &passInfo) const {
       .polygonMode = rhi::PolygonMode::Fill,
       .cullMode = getSurface(material).cullMode,
     })
-    .setBlending(0, {.enabled = false})
-    .build(rd);
+    .setBlending(0, {.enabled = false});
+  if (passInfo.writeUserData) {
+    builder.setBlending(1, {.enabled = false});
+  }
+  return builder.build(rd);
 }
 
 } // namespace gfx

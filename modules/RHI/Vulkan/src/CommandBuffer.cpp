@@ -13,6 +13,23 @@
 
 namespace rhi {
 
+[[nodiscard]] VkImageAspectFlags toVk(const rhi::ImageAspect imageAspect) {
+  switch (imageAspect) {
+    using enum rhi::ImageAspect;
+
+  case Depth:
+    return VK_IMAGE_ASPECT_DEPTH_BIT;
+  case Stencil:
+    return VK_IMAGE_ASPECT_STENCIL_BIT;
+  case Color:
+    return VK_IMAGE_ASPECT_COLOR_BIT;
+
+  default:
+    assert(false);
+    return VK_IMAGE_ASPECT_NONE;
+  }
+}
+
 namespace {
 
 constexpr VkDeviceSize kMaxDataSize{65536};
@@ -39,6 +56,17 @@ constexpr VkDeviceSize kMaxDataSize{65536};
         // The following .color is a float[4] array (same size as vec4).
         std::memcpy(&result.color.float32, glm::value_ptr(v),
                     sizeof(glm::vec4));
+        return result;
+      },
+      [](const glm::ivec4 &v) {
+        VkClearValue result{};
+        std::memcpy(&result.color.int32, glm::value_ptr(v), sizeof(glm::ivec4));
+        return result;
+      },
+      [](const glm::uvec4 &v) {
+        VkClearValue result{};
+        std::memcpy(&result.color.uint32, glm::value_ptr(v),
+                    sizeof(glm::uvec4));
         return result;
       },
       [](const float v) { return VkClearValue{.depthStencil = {.depth = v}}; },
@@ -428,6 +456,39 @@ CommandBuffer::copyBuffer(const Buffer &src, Texture &dst,
   vkCmdCopyBufferToImage(m_handle, src.getHandle(), dst.getImageHandle(),
                          VkImageLayout(kExpectedLayout),
                          uint32_t(copyRegions.size()), copyRegions.data());
+  return *this;
+}
+
+CommandBuffer &CommandBuffer::copyImage(const Texture &src, const Buffer &dst,
+                                        const rhi::ImageAspect aspectMask) {
+  assert(src && dst);
+  assert(_invariant(State::Recording, InvariantFlags::OutsideRenderPass));
+
+  const auto extent = src.getExtent();
+  const VkBufferImageCopy2 region{
+    .sType = VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2,
+    .imageSubresource =
+      {
+        .aspectMask = toVk(aspectMask),
+        .layerCount = 1,
+      },
+    .imageExtent =
+      {
+        .width = extent.width,
+        .height = extent.height,
+        .depth = 1,
+      },
+  };
+  const VkCopyImageToBufferInfo2 info{
+    .sType = VK_STRUCTURE_TYPE_COPY_IMAGE_TO_BUFFER_INFO_2,
+    .srcImage = src.getImageHandle(),
+    .srcImageLayout = static_cast<VkImageLayout>(src.getImageLayout()),
+    .dstBuffer = dst.getHandle(),
+    .regionCount = 1,
+    .pRegions = &region,
+  };
+  flushBarriers();
+  vkCmdCopyImageToBuffer2(m_handle, &info);
   return *this;
 }
 
