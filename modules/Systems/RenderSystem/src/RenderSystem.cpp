@@ -7,11 +7,14 @@
 
 namespace {
 
-void initMeshInstance(entt::registry &r, const entt::entity e) {
-  r.get<gfx::MeshInstance>(e).setUserData(entt::to_integral(e));
-}
-void initDecalInstance(entt::registry &r, const entt::entity e) {
-  r.get<gfx::DecalInstance>(e).setUserData(entt::to_integral(e));
+template <typename T>
+  requires std::is_base_of_v<gfx::MeshInstance, T>
+void connectMeshInstance(entt::registry &r) {
+  static const auto setUserData = [](entt::registry &r, const entt::entity e) {
+    r.get<T>(e).setUserData(entt::to_integral(e));
+  };
+  r.on_construct<T>().connect<setUserData>();
+  r.on_update<T>().connect<setUserData>();
 }
 
 void initCamera(entt::registry &r, const entt::entity e) {
@@ -105,8 +108,9 @@ void RenderSystem::setup(entt::registry &r, gfx::WorldRenderer &wr) {
   });
   ctx.emplace<MainCamera>();
 
-  r.on_construct<gfx::MeshInstance>().connect<&initMeshInstance>();
-  r.on_construct<gfx::DecalInstance>().connect<&initDecalInstance>();
+  connectMeshInstance<gfx::MeshInstance>(r);
+  connectMeshInstance<gfx::DecalInstance>(r);
+
   r.on_construct<CameraComponent>().connect<&initCamera>();
 }
 

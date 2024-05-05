@@ -31,6 +31,8 @@
 #include <fstream> // ofstream
 #include <ranges>
 
+void setOutline(gfx::MeshInstance *, const bool selected);
+
 namespace {
 
 #define TOOL_ID "##SceneEditor"
@@ -75,17 +77,6 @@ void embedEntity(const entt::entity e) {
   return *static_cast<const entt::entity *>(payload.Data);
 }
 
-void setOutline(gfx::MeshInstance *mi, const bool selected) {
-  if (mi) {
-    for (auto &sm : mi->each()) {
-      if (selected) {
-        sm.flags |= gfx::SubMeshInstance::Flags::ShowOutline;
-      } else {
-        sm.flags &= ~gfx::SubMeshInstance::Flags::ShowOutline;
-      }
-    }
-  }
-}
 void selectEntity(SceneEditor::Entry *e, const entt::handle h) {
   if (e) {
     if (e->selectedEntity) {

@@ -10,6 +10,18 @@
 
 #include <ranges>
 
+void setOutline(gfx::MeshInstance *mi, const bool selected) {
+  if (mi) {
+    for (auto &sm : mi->each()) {
+      if (selected) {
+        sm.flags |= gfx::SubMeshInstance::Flags::ShowOutline;
+      } else {
+        sm.flags &= ~gfx::SubMeshInstance::Flags::ShowOutline;
+      }
+    }
+  }
+}
+
 namespace {
 
 void onInspect(const uint32_t index, gfx::SubMeshInstance &subMeshInstance) {
@@ -67,6 +79,7 @@ template <class T> void onInspect(const entt::handle h, T &instance) {
         incomingResource) {
       if (auto r = incomingResource->handle(); meshResource != r) {
         h.replace<T>(r);
+        setOutline(&instance, true);
       }
     }
     ImGui::EndDragDropTarget();
@@ -76,6 +89,7 @@ template <class T> void onInspect(const entt::handle h, T &instance) {
                 if (ImGui::MenuItem(ICON_FA_ERASER " Reset", nullptr, nullptr,
                                     hasResource)) {
                   instance.reset();
+                  setOutline(&instance, true);
                 }
                 if (ImGui::MenuItem(ICON_FA_TRASH " Remove", nullptr, nullptr,
                                     hasResource)) {
