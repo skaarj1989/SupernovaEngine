@@ -188,7 +188,7 @@ addMaterialInstance(RenderableStore &store,
 FrameGraphResource copyImageToBuffer(FrameGraph &fg,
                                      const FrameGraphResource srcImage,
                                      FrameGraphResource dstBuffer) {
-  static constexpr auto kPassName = "Image->Buffer";
+  static constexpr auto kPassName = "ImageToBuffer";
   fg.addCallbackPass(
     kPassName,
     [srcImage, &dstBuffer](FrameGraph::Builder &builder, auto &) {
