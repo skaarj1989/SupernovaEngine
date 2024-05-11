@@ -13,8 +13,8 @@ void connectMeshInstance(entt::registry &r) {
   static const auto setUserData = [](entt::registry &r, const entt::entity e) {
     r.get<T>(e).setUserData(entt::to_integral(e));
   };
-  r.on_construct<T>().connect<setUserData>();
-  r.on_update<T>().connect<setUserData>();
+  r.on_construct<T>().template connect<setUserData>();
+  r.on_update<T>().template connect<setUserData>();
 }
 
 void initCamera(entt::registry &r, const entt::entity e) {

@@ -2,8 +2,8 @@
 
 #include "Jolt/Physics/PhysicsSettings.h" // cDefaultConvexRadius
 
-#include "Inspectors/TransformInspector.hpp"
-#include "Inspectors/ColliderInspector.hpp"
+#include "TransformInspector.hpp"
+#include "ColliderInspector.hpp"
 
 #include "physics/Conversion.hpp"
 #include "physics/ShapeSerialization.hpp"

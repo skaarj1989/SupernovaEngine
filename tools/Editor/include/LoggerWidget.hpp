@@ -2,7 +2,7 @@
 
 #include "WidgetWindow.hpp"
 #include "spdlog/fwd.h"
-#include "spdlog/common.h"
+#include "spdlog/common.h" // level::level_enum, sink_ptr
 
 class LoggerWidget final : public WidgetWindow {
 public:

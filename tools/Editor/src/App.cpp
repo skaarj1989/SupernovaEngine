@@ -15,9 +15,9 @@
 #include "ResourceDockSpace.hpp"
 #include "LoggerWidget.hpp"
 
-#include "SceneEditor/SceneEditor.hpp"
+#include "SceneEditor.hpp"
+#include "MaterialEditor.hpp"
 #include "ScriptEditor.hpp"
-#include "MaterialEditor/MaterialEditor.hpp"
 
 #include "ShapeCreatorWidget.hpp"
 
