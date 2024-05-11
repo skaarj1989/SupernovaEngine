@@ -35,7 +35,7 @@ add_library(LuaRmlUi
 target_include_directories(LuaRmlUi PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(LuaRmlUi
   PRIVATE RmlUiPlatformInterface HelperMacros
-  PUBLIC EnTT::EnTT ScriptTypeInfo Math RmlCore
+  PUBLIC EnTT::EnTT ScriptTypeInfo Math RmlUi::Core
 )
 set_target_properties(LuaRmlUi PROPERTIES FOLDER "Framework/ScriptingModules")
 set_warning_level(LuaRmlUi)

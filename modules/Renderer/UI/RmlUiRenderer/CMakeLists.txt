@@ -9,7 +9,7 @@ add_library(RmlUiRenderer
 target_include_directories(RmlUiRenderer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(RmlUiRenderer
   PRIVATE ShaderCodeBuilder FileSystem STBImageLoader
-  PUBLIC RmlCore VulkanRHI
+  PUBLIC RmlUi::Core VulkanRHI
 )
 set_target_properties(RmlUiRenderer PROPERTIES FOLDER "Framework/Renderer/")
 set_warning_level(RmlUiRenderer)
