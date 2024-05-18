@@ -27,6 +27,8 @@
 #include "ProjectSettingsWidget.hpp"
 #include "imgui_internal.h" // DockBuilder
 
+#include "implot.h"
+
 #if defined(_MSC_VER)
 #  pragma warning(push, 0)
 #elif defined(__GNUC__)
@@ -101,6 +103,8 @@ App::App(std::span<char *> args)
 #endif
   load("./assets/DarkTheme.json", ImGui::GetStyle());
 
+  ImPlot::CreateContext();
+
   MetaComponent::registerMetaComponents(Scene::kComponentTypes);
   LuaComponent::extendMetaTypes(Scene::kComponentTypes);
 
@@ -162,6 +166,8 @@ App::~App() {
   Services::reset();
 
   JoltPhysics::cleanup();
+
+  ImPlot::DestroyContext();
 };
 
 void App::_setupWidgets() {
@@ -202,16 +208,14 @@ void App::_setupWidgets() {
                                       showGPUWindow(name, open,
                                                     getRenderDevice());
                                     });
-  m_widgets.add<SimpleWidgetWindow>(
+  m_widgets.add<WorldRendererWidget>(
     "World Renderer",
     {
       .name = ICON_FA_EARTH_EUROPE " World Renderer",
       .open = true,
-      .section = DockSpaceSection::BottomLeft,
+      .section = DockSpaceSection::LeftBottom,
     },
-    [this](const char *name, bool *open) {
-      showWorldRendererWindow(name, open, *m_renderer);
-    });
+    *m_renderer);
   m_widgets.add<ShapeCreatorWidget>("Shape Creator",
                                     {.name = "Shape Creator", .open = false});
 
@@ -386,7 +390,7 @@ void App::_setupDockSpace(const ImGuiID dockspaceId) const {
       auto leftNodeId = ImGui::DockBuilderSplitNode(
         centerNodeId, ImGuiDir_Left, 0.15f, nullptr, &centerNodeId);
       const auto leftBottomNodeId = ImGui::DockBuilderSplitNode(
-        leftNodeId, ImGuiDir_Down, 0.35f, nullptr, &leftNodeId);
+        leftNodeId, ImGuiDir_Down, 0.43f, nullptr, &leftNodeId);
       auto bottomNodeId = ImGui::DockBuilderSplitNode(
         centerNodeId, ImGuiDir_Down, 0.2f, nullptr, &centerNodeId);
       const auto bottomLeftNodeId = ImGui::DockBuilderSplitNode(
