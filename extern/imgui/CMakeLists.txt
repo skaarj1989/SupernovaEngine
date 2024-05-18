@@ -25,6 +25,12 @@ add_library(imgui
   "imnodes.h"
   "imnodes_internal.h"
   "imnodes.cpp"
+
+  "implot.h"
+  "implot.cpp"
+  "implot_internal.h"
+  "implot_items.cpp"
+  "implot_demo.cpp"
 )
 
 target_compile_definitions(imgui

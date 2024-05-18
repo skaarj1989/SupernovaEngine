@@ -140,6 +140,7 @@ Linux packages:
 - [Dear ImGui](https://github.com/ocornut/imgui)
 - [imnodes](https://github.com/Nelarius/imnodes)
 - [ImGuiColorTextEdit](https://github.com/santaclose/ImGuiColorTextEdit)
+- [ImPlot](https://github.com/epezent/implot)
 - [Nuklear](https://github.com/Immediate-Mode-UI/Nuklear)
 - [IconFontCppHeaders](https://github.com/juliettef/IconFontCppHeaders)
 - [RmlUi](https://github.com/mikke89/RmlUi)
