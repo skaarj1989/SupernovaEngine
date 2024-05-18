@@ -271,6 +271,11 @@ rhi::RenderDevice &WorldRenderer::getRenderDevice() const {
   return m_renderDevice;
 }
 
+TransientResources::MemoryStats
+WorldRenderer::getTransientResourcesStats() const {
+  return m_transientResources.getStats();
+}
+
 #define TECHNIQUES                                                             \
   &m_cubemapConverter, &m_ibl, &m_tiledLighting, &m_shadowRenderer,            \
     &m_globalIllumination, &m_gBufferPass, &m_decalPass,                       \

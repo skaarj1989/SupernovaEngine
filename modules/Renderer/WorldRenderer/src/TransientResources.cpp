@@ -3,6 +3,8 @@
 #include "math/Hash.hpp"
 #include "spdlog/spdlog.h"
 
+#include <numeric> // reduce
+
 namespace std {
 
 template <> struct hash<gfx::FrameGraphTexture::Desc> {
@@ -27,6 +29,14 @@ template <> struct hash<gfx::FrameGraphBuffer::Desc> {
 namespace gfx {
 
 namespace {
+
+[[nodiscard]] auto getSize(const auto &pool) {
+  return std::reduce(pool.resources.cbegin(), pool.resources.cend(),
+                     VkDeviceSize{0},
+                     [](const auto accumulator, const auto &resource) {
+                       return accumulator + resource->getSize();
+                     });
+}
 
 void heartbeat(auto &pool) {
   // A resource's life (for how long it is going to be cached).
@@ -71,6 +81,13 @@ void heartbeat(auto &pool) {
 
 TransientResources::TransientResources(rhi::RenderDevice &rd)
     : m_renderDevice{rd} {}
+
+TransientResources::MemoryStats TransientResources::getStats() const {
+  return MemoryStats{
+    .textures = getSize(m_textures),
+    .buffers = getSize(m_buffers),
+  };
+}
 
 void TransientResources::update() {
   heartbeat(m_textures);

@@ -74,6 +74,9 @@ public:
 
   [[nodiscard]] rhi::RenderDevice &getRenderDevice() const;
 
+  [[nodiscard]] TransientResources::MemoryStats
+  getTransientResourcesStats() const;
+
   [[nodiscard]] uint32_t countPipelines(const PipelineGroups) const;
   void clearPipelines(const PipelineGroups);
 

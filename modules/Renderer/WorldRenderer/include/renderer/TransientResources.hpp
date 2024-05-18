@@ -22,6 +22,13 @@ public:
   TransientResources &operator=(const TransientResources &) = delete;
   TransientResources &operator=(TransientResources &&) noexcept = delete;
 
+  // In bytes
+  struct MemoryStats {
+    VkDeviceSize textures;
+    VkDeviceSize buffers;
+  };
+  [[nodiscard]] MemoryStats getStats() const;
+
   void update();
 
   [[nodiscard]] rhi::Texture *acquireTexture(const FrameGraphTexture::Desc &);

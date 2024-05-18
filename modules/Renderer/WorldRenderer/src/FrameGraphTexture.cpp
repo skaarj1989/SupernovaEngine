@@ -1,5 +1,6 @@
 #include "renderer/FrameGraphTexture.hpp"
 #include "MapOptional.hpp"
+#include "StringUtility.hpp"
 #include "rhi/CommandBuffer.hpp"
 
 #include "renderer/TransientResources.hpp"
@@ -52,6 +53,25 @@ template <class Target> struct StaticCast {
     .face = map(in.face, StaticCast<rhi::CubeFace>{}),
     .clearValue = map(in.clearValue, convert),
   };
+}
+
+auto calculateMipmapFactor(const uint32_t numMipLevels) {
+  auto factor = 0.0;
+  for (auto i = 0u; i < numMipLevels; ++i) {
+    factor += std::pow(0.5f, i);
+  }
+  return factor;
+}
+[[nodiscard]] auto getApproximateSize(const FrameGraphTexture::Desc &desc) {
+  auto size = static_cast<double>(desc.extent.width * desc.extent.height) *
+              std::max(desc.depth, 1u);
+  size *= rhi::getBytesPerPixel(desc.format);
+  size *= calculateMipmapFactor(desc.numMipLevels > 0
+                                  ? desc.numMipLevels
+                                  : rhi::calcMipLevels(desc.extent));
+  size *= std::max(desc.layers, 1u);
+  if (desc.cubemap) size *= 6u;
+  return static_cast<VkDeviceSize>(size);
 }
 
 } // namespace
@@ -209,9 +229,10 @@ void FrameGraphTexture::preWrite(const Desc &, uint32_t bits, void *ctx) {
 }
 
 std::string FrameGraphTexture::toString(const Desc &desc) {
-  return std::format("{}x{} [{}]<BR/>Usage = {}", desc.extent.width,
-                     desc.extent.height, rhi::toString(desc.format),
-                     rhi::toString(desc.usageFlags));
+  return std::format(
+    "{}x{} [{}]<BR/>Size = ~{}<BR/>Usage = {}", desc.extent.width,
+    desc.extent.height, rhi::toString(desc.format),
+    formatBytes(getApproximateSize(desc)), rhi::toString(desc.usageFlags));
 }
 
 } // namespace gfx
