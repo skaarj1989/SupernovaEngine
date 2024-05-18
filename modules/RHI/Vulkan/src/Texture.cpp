@@ -228,6 +228,19 @@ VkImage Texture::getImageHandle() const {
 }
 ImageLayout Texture::getImageLayout() const { return m_layout; }
 
+VkDeviceSize Texture::getSize() const {
+  if (auto *allocatedImage = std::get_if<AllocatedImage>(&m_image);
+      allocatedImage) {
+    const auto allocator = std::get<VmaAllocator>(m_deviceOrAllocator);
+    VmaAllocationInfo allocationInfo{};
+    vmaGetAllocationInfo(allocator, allocatedImage->allocation,
+                         &allocationInfo);
+    return allocationInfo.size;
+  } else {
+    return m_extent.width * m_extent.height * getBytesPerPixel(m_format);
+  }
+}
+
 VkImageView Texture::getImageView(const VkImageAspectFlags aspectMask) const {
   const auto *aspect = _getAspect(aspectMask);
   return aspect ? aspect->imageView : VK_NULL_HANDLE;

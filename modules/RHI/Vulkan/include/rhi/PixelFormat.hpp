@@ -133,6 +133,8 @@ enum class PixelFormat {
   Depth32F_Stencil8 = VK_FORMAT_D32_SFLOAT_S8_UINT
 };
 
+[[nodiscard]] uint8_t getBytesPerPixel(const PixelFormat);
+
 [[nodiscard]] VkImageAspectFlags getAspectMask(const PixelFormat);
 [[nodiscard]] const char *toString(const PixelFormat);
 

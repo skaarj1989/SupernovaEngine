@@ -61,6 +61,9 @@ public:
   [[nodiscard]] VkImage getImageHandle() const;
   [[nodiscard]] ImageLayout getImageLayout() const;
 
+  // @return Used memory (in bytes).
+  [[nodiscard]] VkDeviceSize getSize() const;
+
   [[nodiscard]] VkImageView
   getImageView(const VkImageAspectFlags = VK_IMAGE_ASPECT_NONE) const;
 

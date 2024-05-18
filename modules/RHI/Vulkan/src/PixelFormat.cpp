@@ -3,6 +3,100 @@
 
 namespace rhi {
 
+uint8_t getBytesPerPixel(const rhi::PixelFormat format) {
+  switch (format) {
+    using enum rhi::PixelFormat;
+
+    //
+    // 8 bits per component:
+    //
+
+  case R8_UNorm:
+  case R8_SNorm:
+  case R8UI:
+  case R8I:
+    return 1;
+
+  case RG8_UNorm:
+  case RG8_SNorm:
+  case RG8UI:
+  case RG8I:
+    return 2;
+
+  case RGBA8_UNorm:
+  case RGBA8_sRGB:
+  case BGRA8_UNorm:
+  case BGRA8_sRGB:
+  case RGBA8UI:
+  case RGBA8I:
+    return 4;
+
+    //
+    // 16 bits per component:
+    //
+
+  case R16_UNorm:
+  case R16_SNorm:
+  case R16F:
+  case R16UI:
+  case R16I:
+    return 2;
+
+  case RG16_UNorm:
+  case RG16_SNorm:
+  case RG16F:
+  case RG16UI:
+  case RG16I:
+    return 4;
+
+  case RGBA16_UNorm:
+  case RGBA16_SNorm:
+  case RGBA16F:
+  case RGBA16UI:
+  case RGBA16I:
+    return 8;
+
+    //
+    // 32 bits per component:
+    //
+
+  case R32F:
+  case R32UI:
+  case R32I:
+    return 4;
+
+  case RG32F:
+  case RG32UI:
+  case RG32I:
+    return 8;
+
+  case RGBA32F:
+  case RGBA32UI:
+  case RGBA32I:
+    return 16;
+
+    //
+    // Depth/Stencil:
+    //
+
+  case Depth16:
+    return 2;
+  case Depth32F:
+    return 4;
+  case Stencil8:
+    return 1;
+  case Depth16_Stencil8:
+    return 3;
+  case Depth24_Stencil8:
+    return 4;
+  case Depth32F_Stencil8:
+    return 5;
+
+  default:
+    return 0;
+  }
+}
+
 VkImageAspectFlags getAspectMask(const PixelFormat pixelFormat) {
   switch (pixelFormat) {
     using enum PixelFormat;

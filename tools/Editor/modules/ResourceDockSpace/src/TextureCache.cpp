@@ -1,4 +1,5 @@
 #include "TextureCache.hpp"
+#include "StringUtility.hpp"
 #include "renderer/TextureManager.hpp"
 #include "TexturePreview.hpp"
 #include "ImGuiTitleBarMacro.hpp"
@@ -18,6 +19,7 @@ void print(const rhi::Texture &texture) {
                     texture.getDepth());
   ImGui::BulletText("Mip levels: %u", texture.getNumMipLevels());
   ImGui::BulletText("Layers: %u", texture.getNumLayers());
+  ImGui::BulletText("Size: %s", formatBytes(texture.getSize()).c_str());
 }
 
 void view(gfx::TextureCache &cache, const float windowWidth,
