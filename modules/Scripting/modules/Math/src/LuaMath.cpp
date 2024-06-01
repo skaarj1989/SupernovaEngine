@@ -144,6 +144,8 @@ void registerFreeFunctions(sol::table &lua) {
 }
 
 template <typename T> void addArithmeticOperators(sol::usertype<T> &type) {
+  type.set_function(sol::meta_function::unary_minus,
+                    sol::resolve<T(const T &)>(glm::operator-));
   type.set_function(sol::meta_function::addition,
                     GEN_TYPE_OP(T, glm::operator+));
   type.set_function(sol::meta_function::subtraction,
@@ -253,6 +255,8 @@ void registerVec4(sol::table &lua) {
 
     // glm/detail/type_vec4.inl
 
+    sol::meta_function::unary_minus, sol::resolve<glm::vec4(const glm::vec4 &)>(glm::operator-),
+
     sol::meta_function::addition,
       sol::overload(
         sol::resolve<glm::vec4(const glm::vec4 &, const float)>(glm::operator+),
@@ -313,6 +317,9 @@ void registerMat4(sol::table &lua) {
 
     // glm/detail/type_mat4x4.inl
 
+    sol::meta_function::unary_minus,
+      sol::resolve<glm::mat4(const glm::mat4 &)>(glm::operator-),
+
     sol::meta_function::addition,
       sol::overload(
         sol::resolve<glm::mat4(const glm::mat4 &, const float)>(glm::operator+),                    
@@ -371,6 +378,9 @@ void registerQuat(sol::table &lua) {
     "identity", glm::identity<glm::quat>,
 
     // glm/detail/type_quat.inl
+
+    sol::meta_function::unary_minus,
+      sol::resolve<glm::quat(const glm::quat &)>(glm::operator-),
 
     sol::meta_function::multiplication,
       sol::overload(
