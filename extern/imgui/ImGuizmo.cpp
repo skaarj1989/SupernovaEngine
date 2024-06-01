@@ -20,7 +20,6 @@
 constexpr auto kPi = glm::pi<float>();
 constexpr auto kEpsilon = glm::epsilon<float>();
 
-static const glm::vec3 kReferenceUp{0.0f, 1.0f, 0.0f};
 static const glm::vec3 kUnitDirections[3]{
   {1.0f, 0.0f, 0.0f}, // Right
   {0.0f, 1.0f, 0.0f}, // Up
