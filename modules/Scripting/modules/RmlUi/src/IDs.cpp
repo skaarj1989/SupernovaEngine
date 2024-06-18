@@ -185,11 +185,6 @@ void registerEventId(sol::table &lua) {
 	  MAKE_PAIR(Change),
 	  MAKE_PAIR(Submit),
 	  MAKE_PAIR(Tabchange),
-	  MAKE_PAIR(Columnadd),
-	  MAKE_PAIR(Rowadd),
-	  MAKE_PAIR(Rowchange),
-	  MAKE_PAIR(Rowremove),
-	  MAKE_PAIR(Rowupdate),
 
 	  MAKE_PAIR(NumDefinedIds),
 

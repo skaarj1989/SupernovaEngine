@@ -183,13 +183,8 @@ ui.EventId = {
   Change = 30,
   Submit = 31,
   Tabchange = 32,
-  Columnadd = 33,
-  Rowadd = 34,
-  Rowchange = 35,
-  Rowremove = 36,
-  Rowupdate = 37,
 
-  NumDefinedIds = 38,
+  NumDefinedIds = 33,
 
   --- Custom IDs start here.
   FirstCustomId = ui.EventId.NumDefinedIds,
