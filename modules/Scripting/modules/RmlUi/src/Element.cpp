@@ -74,9 +74,8 @@ void registerElement(sol::table &lua) {
         return to_glm(self.GetAbsoluteOffset(area));
       }
     ),
-
-    "setClientArea", &Element::SetClientArea,
-    "getClientArea", &Element::GetClientArea,
+    "setClipArea", &Element::SetClipArea,
+    "getClipArea", &Element::GetClipArea,
 
     "setScrollableOverflowRectangle", &Element::SetScrollableOverflowRectangle, 
     "setBox", &Element::SetBox,

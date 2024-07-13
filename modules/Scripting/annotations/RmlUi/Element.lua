@@ -64,13 +64,13 @@ function ui.Element:getRelativeOffset(area) end
 ---@return vec2 # The absolute offset.
 function ui.Element:getAbsoluteOffset(area) end
 
----Sets an alternate area to use as the client area.
----@param clientArea ui.BoxArea # The box area to use as the element's client area.
-function ui.Element:setClientArea(clientArea) end
+---Sets an alternate area to use as the clip area.
+---@param clipArea ui.BoxArea # The box area to use as the element's clip area.
+function ui.Element:setClipArea(clipArea) end
 
----Returns the area the element uses as its client area.
----@return ui.BoxArea # The box area used as the element's client area.
-function ui.Element:getClientArea() end
+---Returns the area the element uses as its clip area.
+---@return ui.BoxArea # The box area used as the element's clip area.
+function ui.Element:getClipArea() end
 
 ---Sets the dimensions of the element's scrollable overflow rectangle. This is the tightest fitting box surrounding
 ---all of this element's logical children, and the element's padding box.
@@ -278,23 +278,21 @@ function ui.Element:getAbsoluteLeft() end
 function ui.Element:getAbsoluteTop() end
 
 ---Gets the horizontal offset from the element's left border edge to the left edge of its client area. This is
----usually the edge of the padding, but may be the content area for some replaced elements.
+---effectively equivalent to the left border width.
 ---@return number # The horizontal offset of the element's client area, in pixels.
 function ui.Element:getClientLeft() end
 
 ---Gets the vertical offset from the element's top border edge to the top edge of its client area. This is
----usually the edge of the padding, but may be the content area for some replaced elements.
----@return number # he vertical offset of the element's client area, in pixels.
+---effectively equivalent to the top border width.
+---@return number # The vertical offset of the element's client area, in pixels.
 function ui.Element:getClientTop() end
 
----Gets the width of the element's client area. This is usually the padded area less the vertical scrollbar
----width, but may be the content area for some replaced elements.
----@return number # The width of the element's client area, usually including padding but not the vertical scrollbar width, border or margin.
+---Gets the width of the element's client area. This is the padding area subtracted by the vertical scrollbar width if present.
+---@return number # The element's client width, in pixels.
 function ui.Element:getClientWidth() end
 
----Gets the height of the element's client area. This is usually the padded area less the horizontal scrollbar
----height, but may be the content area for some replaced elements.
----@return number # The inner height of the element, usually including padding but not the horizontal scrollbar height, border or margin.
+---Gets the height of the element's client area. This is the padding area subtracted by the horizontal scrollbar height if present.
+---@return number # The element's client height, in pixels.
 function ui.Element:getClientHeight() end
 
 ---Returns the element from which all offset calculations are currently computed.
@@ -309,11 +307,11 @@ function ui.Element:getOffsetLeft() end
 ---@return number # The vertical distance (in pixels) from this element's offset parent to itself.
 function ui.Element:getOffsetTop() end
 
----Gets the width of the element, including the client area, padding, borders and scrollbars, but not margins.
+---Gets the width of the element, including the content area, padding, borders and scrollbars, but not margins.
 ---@return number # The width of the rendered element, in pixels.
 function ui.Element:getOffsetWidth() end
 
----Gets the height of the element, including the client area, padding, borders and scrollbars, but not margins.
+---Gets the height of the element, including the content area, padding, borders and scrollbars, but not margins.
 ---@return number # The height of the rendered element, in pixels.
 function ui.Element:getOffsetHeight() end
 
