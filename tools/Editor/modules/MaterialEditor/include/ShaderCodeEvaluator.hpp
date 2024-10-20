@@ -10,6 +10,7 @@
 #include "UserFunction.hpp"
 #include "TransientVariant.hpp"
 
+#include <array>
 #include <stack>
 #include <expected>
 

@@ -1,5 +1,6 @@
 #include "Nodes/TextureSampling.hpp"
 #include "Utility.hpp"
+#include <array>
 
 namespace {
 

@@ -27,6 +27,8 @@
 
 #include "ShaderGraph.hpp"
 
+#include <format>
+
 namespace {
 
 [[nodiscard]] bool shouldSkip(const NodeBase &node) {
