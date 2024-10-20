@@ -105,7 +105,7 @@ void FileBrowserWidget::_viewDirectory(const std::filesystem::path &dir) {
     if (m_selected.contains(entry)) {
       attachPopup(nullptr, ImGuiMouseButton_Right, [this, &entry, &name] {
         if (m_selected.size() == 1) {
-          ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
+          ImGui::PushItemFlag(ImGuiItemFlags_AutoClosePopups, false);
           ImGui::MenuItem(ICON_FA_FOLDER_PLUS " New Folder");
           ImGui::PopItemFlag();
           attachPopup(nullptr, ImGuiMouseButton_Left, [&entry] {
@@ -131,7 +131,7 @@ void FileBrowserWidget::_viewDirectory(const std::filesystem::path &dir) {
               std::format("explorer {}", getDirectory(entry).string()).c_str());
           }
 
-          ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
+          ImGui::PushItemFlag(ImGuiItemFlags_AutoClosePopups, false);
           ImGui::MenuItem(ICON_FA_PEN " Rename");
           ImGui::PopItemFlag();
           attachPopup(nullptr, ImGuiMouseButton_Left, [this, &entry, &name] {
@@ -153,7 +153,7 @@ void FileBrowserWidget::_viewDirectory(const std::filesystem::path &dir) {
 
           ImGui::Separator();
         }
-        ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
+        ImGui::PushItemFlag(ImGuiItemFlags_AutoClosePopups, false);
         ImGui::MenuItem(ICON_FA_TRASH " Remove");
         ImGui::PopItemFlag();
         attachPopup(nullptr, ImGuiMouseButton_Left, [this] {

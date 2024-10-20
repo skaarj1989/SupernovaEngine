@@ -1059,7 +1059,7 @@ void SceneEditor::_inspectorWidget(entt::handle &h) {
     ImGui::SeparatorText("Components");
 
     if (ImGui::BeginPopup(kAddComponentPopupId, ImGuiWindowFlags_NoMove)) {
-      ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
+      ImGui::PushItemFlag(ImGuiItemFlags_AutoClosePopups, false);
       showComponentsMenuItems(h);
       ImGui::PopItemFlag();
       ImGui::EndPopup();

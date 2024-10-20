@@ -212,7 +212,7 @@ void ShapeCreatorWidget::show(const char *name, bool *open) {
       }
 
       if (ImGui::BeginMenu(ICON_FA_SHAPES " Shape")) {
-        ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
+        ImGui::PushItemFlag(ImGuiItemFlags_AutoClosePopups, false);
         for (const auto &[label, control] : g_controlEntries) {
           ImGui::MenuItem(label, nullptr, nullptr, control->canUse(m_builder));
           attachPopup(nullptr, ImGuiMouseButton_Left,

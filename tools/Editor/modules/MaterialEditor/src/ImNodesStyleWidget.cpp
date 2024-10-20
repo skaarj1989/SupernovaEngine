@@ -152,10 +152,10 @@ void ShowStyleEditor(ImNodesStyle *ref) {
 
       ImGui::SetNextWindowSizeConstraints(
         {0.0f, ImGui::GetTextLineHeightWithSpacing() * 10}, {FLT_MAX, FLT_MAX});
-      ImGui::BeginChild("##colors", {0, 0}, ImGuiChildFlags_Border,
+      ImGui::BeginChild("##colors", {0, 0}, ImGuiChildFlags_Borders,
                         ImGuiWindowFlags_AlwaysVerticalScrollbar |
                           ImGuiWindowFlags_AlwaysHorizontalScrollbar |
-                          ImGuiWindowFlags_NavFlattened);
+                          ImGuiChildFlags_NavFlattened);
       ImGui::PushItemWidth(ImGui::GetFontSize() * -16);
       for (auto i = 0; i < ImNodesCol_COUNT; ++i) {
         const auto *name = GetStyleColorName(i);

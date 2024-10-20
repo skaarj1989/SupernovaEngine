@@ -131,7 +131,7 @@ showDependencyConfig(std::vector<UserFunction::ID> &dependencies,
                      const UserFunctions &functions) {
   auto dirty = false;
 
-  ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
+  ImGui::PushItemFlag(ImGuiItemFlags_AutoClosePopups, false);
   ImGui::SetNextItemWidth(150);
   if (ImGui::BeginCombo("Dependencies", nullptr, ImGuiComboFlags_NoPreview)) {
     for (const auto &[id, data] : functions) {
@@ -433,7 +433,7 @@ void CustomNodeEditor::show(const char *name, ImVec2 size,
             if (ImGui::Selectable(label.c_str(), &isSelected,
                                   ImGuiSelectableFlags_SpanAllColumns |
                                     ImGuiSelectableFlags_AllowOverlap |
-                                    ImGuiSelectableFlags_DontClosePopups)) {
+                                    ImGuiSelectableFlags_NoAutoClosePopups)) {
               if (_isChanged()) {
                 ImGui::OpenPopup(kConfirmDiscardChanges);
               } else {

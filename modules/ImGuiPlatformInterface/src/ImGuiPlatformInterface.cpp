@@ -270,17 +270,18 @@ void setupPlatformInterface(os::Window &mainWindow) {
 
   io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;
 
-  io.SetClipboardTextFn = [](void *, const char *text) {
-    os::Platform::setClipboardText(text);
-  };
-  io.GetClipboardTextFn = [](void *) {
-    return os::Platform::getClipboardText().data();
-  };
-
   ImGui::GetMainViewport()->PlatformHandle = &mainWindow;
   updateMonitors();
 
   auto &platformIo = ImGui::GetPlatformIO();
+
+  platformIo.Platform_SetClipboardTextFn = [](ImGuiContext *, const char *text) {
+    os::Platform::setClipboardText(text);
+  };
+  platformIo.Platform_GetClipboardTextFn = [](ImGuiContext *) {
+    return os::Platform::getClipboardText().data();
+  };
+
   platformIo.Platform_CreateWindow = [](ImGuiViewport *viewport) {
     os::Window::Builder builder{};
     if (const auto *parentViewport =

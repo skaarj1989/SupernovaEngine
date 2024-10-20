@@ -104,7 +104,7 @@ void show(const char *name, bool *open, gfx::TextureManager &cache) {
     }
 
     const auto windowVisibleX2 =
-      ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
+      ImGui::GetCursorScreenPos().x + ImGui::GetContentRegionAvail().x;
     view(cache, windowVisibleX2, thumbnailSize);
   }
   ImGui::End();

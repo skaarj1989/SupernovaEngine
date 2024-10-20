@@ -170,7 +170,7 @@ void MaterialPreviewWidget::showPreview(const char *name, bool *open) {
 
           ImGui::Separator();
 
-          ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
+          ImGui::PushItemFlag(ImGuiItemFlags_AutoClosePopups, false);
           if (ImGui::MenuItem("Reset")) m_cameraControllerSettings = {};
           ImGui::PopItemFlag();
 
@@ -204,7 +204,7 @@ void MaterialPreviewWidget::showPreview(const char *name, bool *open) {
 
         using BasicShapes = gfx::MeshManager::BasicShapes;
 
-        ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
+        ImGui::PushItemFlag(ImGuiItemFlags_AutoClosePopups, false);
         menuItem("Plane", BasicShapes::Plane);
         menuItem("SubdividedPlane", BasicShapes::SubdividedPlane);
         menuItem("Cube", BasicShapes::Cube);

@@ -45,7 +45,7 @@ void basicTextEditorWidget(TextEditor &textEditor, const char *name,
     MAKE_TITLE_BAR(ICON_FA_CIRCLE_QUESTION, "Help");
 
   if (ImGui::BeginChild(name, {0, 0},
-                        border ? ImGuiChildFlags_Border : ImGuiChildFlags_None,
+                        border ? ImGuiChildFlags_Borders : ImGuiChildFlags_None,
                         ImGuiWindowFlags_MenuBar)) {
     auto hasFocus = ImGui::IsWindowFocused();
 
@@ -67,7 +67,7 @@ void basicTextEditorWidget(TextEditor &textEditor, const char *name,
 
     auto showKeyboardShortcuts = false;
     if (ImGui::BeginMenuBar()) {
-      ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
+      ImGui::PushItemFlag(ImGuiItemFlags_AutoClosePopups, false);
       addBasicEditMenu(&textEditor);
       if (ImGui::BeginMenu("Help")) {
         if (ImGui::MenuItem("Keyboard shortcuts", "Ctrl+H")) {

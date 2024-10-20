@@ -93,7 +93,7 @@ selectableEntry(const std::filesystem::directory_entry &entry,
   ImGui::AlignTextToFramePadding();
   constexpr auto kFlags = ImGuiSelectableFlags_SpanAllColumns |
                           ImGuiSelectableFlags_AllowDoubleClick |
-                          ImGuiSelectableFlags_DontClosePopups;
+                          ImGuiSelectableFlags_NoAutoClosePopups;
   const auto selected = entry.path().filename() == userLabel;
   if (ImGui::Selectable(makeLabel(entry).c_str(), selected, kFlags)) {
     action = EntryAction::Click;

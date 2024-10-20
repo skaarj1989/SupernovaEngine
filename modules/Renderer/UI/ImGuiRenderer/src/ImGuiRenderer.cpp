@@ -109,7 +109,7 @@ ImGuiRenderer::ImGuiRenderer(rhi::RenderDevice &rd)
     : rhi::RenderPass<ImGuiRenderer>{rd}, m_font{createFont(rd)} {
   auto &io = ImGui::GetIO();
   io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
-  io.Fonts->SetTexID(&m_font);
+  io.Fonts->SetTexID(reinterpret_cast<ImTextureID>(&m_font));
 }
 
 std::vector<ImGuiRenderer::FrameResources> ImGuiRenderer::createResources(
@@ -187,8 +187,8 @@ void ImGuiRenderer::draw(rhi::CommandBuffer &cb,
           drawCmd.UserCallback(cmdList, &drawCmd);
         }
       } else {
-        const auto texture =
-          static_cast<const rhi::Texture *>(drawCmd.TextureId);
+        const auto *texture =
+          reinterpret_cast<const rhi::Texture *>(drawCmd.GetTexID());
         if (!texture || !*texture) continue;
 
         // Project scissor/clipping rectangles into framebuffer space.

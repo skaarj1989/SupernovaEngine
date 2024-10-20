@@ -12,7 +12,7 @@ bool inspect(const char *label, uint8_t &mask) {
 
   const auto numLayers = std::bitset<CollisionLayer::kNumGroups>{mask}.count();
   if (ImGui::BeginCombo(label, std::format("{} layer(s)", numLayers).c_str())) {
-    ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
+    ImGui::PushItemFlag(ImGuiItemFlags_AutoClosePopups, false);
     for (auto i = 0; i < CollisionLayer::kNumGroups; ++i) {
       ImGui::PushID(i);
       const auto value = 1 << i;

@@ -58,7 +58,7 @@ void overlay(rhi::Texture *texture, const glm::vec2 size) {
 }
 void preview(rhi::Texture *texture, const glm::vec2 size) {
   if (texture && canPreview(*texture)) {
-    ImGui::Image(texture, size);
+    ImGui::Image(reinterpret_cast<ImTextureID>(texture), size);
   } else {
     ImGui::BeginDisabled(true);
     ImGui::Button("(empty)", size);

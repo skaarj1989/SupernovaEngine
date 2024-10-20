@@ -44,11 +44,13 @@ NLOHMANN_JSON_SERIALIZE_ENUM(ImGuiCol_, {
   MAKE_COLOR_PAIR(ResizeGrip),
   MAKE_COLOR_PAIR(ResizeGripHovered),
   MAKE_COLOR_PAIR(ResizeGripActive),
-  MAKE_COLOR_PAIR(Tab),
   MAKE_COLOR_PAIR(TabHovered),
-  MAKE_COLOR_PAIR(TabActive),
-  MAKE_COLOR_PAIR(TabUnfocused),
-  MAKE_COLOR_PAIR(TabUnfocusedActive),
+  MAKE_COLOR_PAIR(Tab),
+  MAKE_COLOR_PAIR(TabSelected),
+  MAKE_COLOR_PAIR(TabSelectedOverline),
+  MAKE_COLOR_PAIR(TabDimmed),
+  MAKE_COLOR_PAIR(TabDimmedSelected),
+  MAKE_COLOR_PAIR(TabDimmedSelectedOverline),
   MAKE_COLOR_PAIR(DockingPreview),
   MAKE_COLOR_PAIR(DockingEmptyBg),
   MAKE_COLOR_PAIR(PlotLines),
@@ -60,20 +62,21 @@ NLOHMANN_JSON_SERIALIZE_ENUM(ImGuiCol_, {
   MAKE_COLOR_PAIR(TableBorderLight),
   MAKE_COLOR_PAIR(TableRowBg),
   MAKE_COLOR_PAIR(TableRowBgAlt),
+  MAKE_COLOR_PAIR(TextLink),
   MAKE_COLOR_PAIR(TextSelectedBg),
   MAKE_COLOR_PAIR(DragDropTarget),
-  MAKE_COLOR_PAIR(NavHighlight),
+  MAKE_COLOR_PAIR(NavCursor),
   MAKE_COLOR_PAIR(NavWindowingHighlight),
   MAKE_COLOR_PAIR(NavWindowingDimBg),
   MAKE_COLOR_PAIR(ModalWindowDimBg),
 });
 #undef MAKE_COLOR_PAIR
 // clang-format on
-static_assert(ImGuiCol_COUNT == 55);
+static_assert(ImGuiCol_COUNT == 58);
 
 // clang-format off
 #define MAKE_DIR_PAIR(Value) MAKE_PAIR(ImGuiDir, Value)
-NLOHMANN_JSON_SERIALIZE_ENUM(ImGuiDir_, {
+NLOHMANN_JSON_SERIALIZE_ENUM(ImGuiDir, {
   MAKE_DIR_PAIR(None),
   MAKE_DIR_PAIR(Left),
   MAKE_DIR_PAIR(Right),
@@ -165,7 +168,7 @@ static void to_json(nlohmann::ordered_json &j, const ImGuiStyle &in) {
     STORE_VALUE(WindowBorderSize),
     STORE_VALUE(WindowMinSize),
     STORE_VALUE(WindowTitleAlign),
-    STORE_VALUE_EX(WindowMenuButtonPosition, ImGuiDir_),
+    STORE_VALUE_EX(WindowMenuButtonPosition, ImGuiDir),
     STORE_VALUE(ChildRounding),
     STORE_VALUE(ChildBorderSize),
     STORE_VALUE(PopupRounding),
@@ -186,7 +189,7 @@ static void to_json(nlohmann::ordered_json &j, const ImGuiStyle &in) {
     STORE_VALUE(LogSliderDeadzone),
     STORE_VALUE(TabRounding),
     STORE_VALUE(TabMinWidthForCloseButton),
-    STORE_VALUE_EX(ColorButtonPosition, ImGuiDir_),
+    STORE_VALUE_EX(ColorButtonPosition, ImGuiDir),
     STORE_VALUE(ButtonTextAlign),
     STORE_VALUE(SelectableTextAlign),
     STORE_VALUE(SeparatorTextBorderSize),

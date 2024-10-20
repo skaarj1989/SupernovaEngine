@@ -33,7 +33,7 @@ void inspect(gfx::RenderFeatures &features) {
 #define FEATURE_CHECKBOX(Name)                                                 \
   ImGui::MenuItemFlags(#Name, features, gfx::RenderFeatures::Name)
 
-    ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
+    ImGui::PushItemFlag(ImGuiItemFlags_AutoClosePopups, false);
     FEATURE_CHECKBOX(LightCulling);
     FEATURE_CHECKBOX(SoftShadows);
     FEATURE_CHECKBOX(GI);
@@ -137,7 +137,7 @@ void inspect(gfx::DebugFlags &flags) {
 #define DEBUG_CHECKBOX(Name)                                                   \
   ImGui::MenuItemFlags(#Name, flags, gfx::DebugFlags::Name)
 
-    ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
+    ImGui::PushItemFlag(ImGuiItemFlags_AutoClosePopups, false);
     DEBUG_CHECKBOX(WorldBounds);
     DEBUG_CHECKBOX(InfiniteGrid);
     DEBUG_CHECKBOX(Wireframe);

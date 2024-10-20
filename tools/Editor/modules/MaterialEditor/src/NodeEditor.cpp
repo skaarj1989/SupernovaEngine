@@ -410,7 +410,7 @@ void NodeEditor::_nodeContextMenu(const char *name,
                                                      ImGui::GetMousePos());
     }
 
-    ImGui::PushItemFlag(ImGuiItemFlags_SelectableDontClosePopup, true);
+    ImGui::PushItemFlag(ImGuiItemFlags_AutoClosePopups, false);
     ImGui::MenuItemEx("Remove", ICON_FA_TRASH, nullptr, false, !isMasterNode);
     ImGui::PopItemFlag();
 
