@@ -177,6 +177,7 @@ private:
   [[nodiscard]] VkQueue _getGenericQueue() const;
   [[nodiscard]] VkPipelineCache _getPipelineCache() const;
 
+  [[nodiscard]] VkCommandBuffer _allocateCommandBuffer() const;
   [[nodiscard]] VkSampler _createSampler(const SamplerInfo &);
 
 private:
@@ -192,6 +193,8 @@ private:
   VkCommandPool m_commandPool{VK_NULL_HANDLE};
   VkPipelineCache m_pipelineCache{VK_NULL_HANDLE};
 
+  TracyVkCtx m_tracyContext{nullptr};
+  
   template <typename T> using Cache = robin_hood::unordered_map<std::size_t, T>;
 
   Cache<VkSampler> m_samplers;

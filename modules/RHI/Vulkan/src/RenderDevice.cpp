@@ -208,6 +208,15 @@ RenderDevice::RenderDevice(
   VK_CHECK(vkCreatePipelineCache(m_logicalDevice, &pipelineCacheInfo, nullptr,
                                  &m_pipelineCache));
 
+#ifdef TRACY_ENABLE
+  const auto cb = _allocateCommandBuffer();
+  m_tracyContext = TracyVkContext(m_physicalDevice.handle, m_logicalDevice,
+                                  m_genericQueue, cb);
+  vkFreeCommandBuffers(m_logicalDevice, m_commandPool, 1, &cb);
+  const auto deviceName = getPhysicalDeviceInfo().deviceName;
+  TracyVkContextName(m_tracyContext, deviceName.data(), deviceName.length());
+#endif
+
   m_samplers.reserve(100);
   m_descriptorSetLayouts.reserve(100);
   m_pipelineLayouts.reserve(100);
@@ -226,6 +235,9 @@ RenderDevice::~RenderDevice() {
 
   for (auto [_, sampler] : m_samplers)
     vkDestroySampler(m_logicalDevice, sampler, nullptr);
+
+  TracyVkDestroy(m_tracyContext);
+  m_tracyContext = nullptr;
 
   vkDestroyPipelineCache(m_logicalDevice, m_pipelineCache, nullptr);
   m_pipelineCache = VK_NULL_HANDLE;
@@ -649,21 +661,9 @@ RenderDevice &RenderDevice::destroy(VkSemaphore &semaphore) {
 }
 
 CommandBuffer RenderDevice::createCommandBuffer() {
-  assert(m_logicalDevice != VK_NULL_HANDLE);
-
-  const VkCommandBufferAllocateInfo allocateInfo{
-    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-    .commandPool = m_commandPool,
-    .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-    .commandBufferCount = 1,
-  };
-
-  VkCommandBuffer handle{VK_NULL_HANDLE};
-  VK_CHECK(vkAllocateCommandBuffers(m_logicalDevice, &allocateInfo, &handle));
-  const auto tracy = TracyVkContext(m_physicalDevice.handle, m_logicalDevice,
-                                    m_genericQueue, handle);
   return CommandBuffer{
-    m_logicalDevice, m_commandPool, handle, tracy, createFence(),
+    m_logicalDevice, m_commandPool, _allocateCommandBuffer(),
+    m_tracyContext,  createFence(),
   };
 }
 
@@ -678,7 +678,9 @@ RenderDevice::execute(const std::function<void(CommandBuffer &)> &f) {
   return execute(cb);
 }
 RenderDevice &RenderDevice::execute(CommandBuffer &cb, const JobInfo &jobInfo) {
-  cb.flushBarriers().end();
+  cb.flushBarriers();
+  TracyVkCollect(m_tracyContext, cb.getHandle());
+  cb.end();
   assert(cb._invariant(CommandBuffer::State::Executable));
 
   const VkCommandBufferSubmitInfo commandBufferInfo{
@@ -806,15 +808,15 @@ void RenderDevice::_createInstance() {
   }
 #endif
 
-  const auto kExtensions = std::array {
+  const auto kExtensions = std::array{
     VK_KHR_SURFACE_EXTENSION_NAME,
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-      VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
+    VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
-      VK_KHR_XCB_SURFACE_EXTENSION_NAME,
+    VK_KHR_XCB_SURFACE_EXTENSION_NAME,
 #endif
 #if defined(_DEBUG) || defined(RHI_USE_DEBUG_MARKER)
-      VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
+    VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
 #endif
   };
   const auto supportedExtensions = enumerateInstanceExtensions();
@@ -825,7 +827,7 @@ void RenderDevice::_createInstance() {
     }
   }
 
-  const VkInstanceCreateInfo instanceInfo {
+  const VkInstanceCreateInfo instanceInfo{
     .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
     .pApplicationInfo = &applicationInfo,
 #if _USE_VALIDATION_LAYERS
@@ -1007,6 +1009,20 @@ VkDevice RenderDevice::_getLogicalDevice() const { return m_logicalDevice; }
 VkQueue RenderDevice::_getGenericQueue() const { return m_genericQueue; }
 VkPipelineCache RenderDevice::_getPipelineCache() const {
   return m_pipelineCache;
+}
+
+VkCommandBuffer RenderDevice::_allocateCommandBuffer() const {
+  assert(m_logicalDevice != VK_NULL_HANDLE);
+
+  const VkCommandBufferAllocateInfo allocateInfo{
+    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+    .commandPool = m_commandPool,
+    .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+    .commandBufferCount = 1,
+  };
+  VkCommandBuffer handle{VK_NULL_HANDLE};
+  VK_CHECK(vkAllocateCommandBuffers(m_logicalDevice, &allocateInfo, &handle));
+  return handle;
 }
 
 VkSampler RenderDevice::_createSampler(const SamplerInfo &i) {

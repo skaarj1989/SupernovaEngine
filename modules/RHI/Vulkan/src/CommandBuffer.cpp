@@ -189,7 +189,6 @@ CommandBuffer &CommandBuffer::begin() {
 CommandBuffer &CommandBuffer::end() {
   assert(_invariant(State::Recording, InvariantFlags::OutsideRenderPass));
 
-  TracyVkCollect(m_tracyContext, m_handle);
   VK_CHECK(vkEndCommandBuffer(m_handle));
 
   m_state = State::Executable;
@@ -746,7 +745,6 @@ void CommandBuffer::_destroy() noexcept {
     reset();
 
     vkDestroyFence(m_device, m_fence, nullptr);
-    TracyVkDestroy(m_tracyContext);
     vkFreeCommandBuffers(m_device, m_commandPool, 1, &m_handle);
 
     m_device = VK_NULL_HANDLE;

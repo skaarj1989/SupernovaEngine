@@ -119,7 +119,6 @@ void BaseApp::run() {
     using clock = std::chrono::high_resolution_clock;
     const auto beginTicks = clock::now();
 
-    FrameMark;
     {
       ZoneScopedN("[App]PreUpdate");
       _onPreUpdate(deltaTime);
@@ -172,6 +171,7 @@ void BaseApp::run() {
         m_frameController.present();
       }
     } // else -> Window is minimized.
+    FrameMark;
 
     deltaTime = clock::now() - beginTicks;
     if (deltaTime > 1s) deltaTime = targetFrameTime;
