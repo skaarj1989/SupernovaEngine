@@ -9,7 +9,7 @@ add_subdirectory(renderdoc)
 include(FetchContent)
 FetchContent_Declare(Tracy
   GIT_REPOSITORY https://github.com/wolfpld/tracy
-  GIT_TAG v0.10
+  GIT_TAG v0.11.1
 )
 set(TRACY_ON_DEMAND ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(Tracy)
