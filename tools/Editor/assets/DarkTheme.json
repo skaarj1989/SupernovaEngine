@@ -50,7 +50,7 @@
   "GrabRounding": 16.0,
   "LogSliderDeadzone": 4.0,
   "TabRounding": 4.0,
-  "TabMinWidthForCloseButton": 0.0,
+  "TabCloseButtonMinWidthUnselected": 0.0,
   "ColorButtonPosition": "Right",
   "ButtonTextAlign": [
     0.5,

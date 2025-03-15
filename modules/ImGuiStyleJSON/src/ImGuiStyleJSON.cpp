@@ -123,7 +123,7 @@ static void from_json(const nlohmann::json &j, ImGuiStyle &out) {
   GET_VALUE(LogSliderDeadzone, 4.0f);
   GET_VALUE(TabRounding, 4.0f);
   GET_VALUE(TabBorderSize, 0.0f);
-  GET_VALUE(TabMinWidthForCloseButton, 0.0f);
+  GET_VALUE(TabCloseButtonMinWidthUnselected, 0.0f);
   GET_VALUE(ColorButtonPosition, ImGuiDir_Right);
   GET_VALUE(ButtonTextAlign, ImVec2{0.5f, 0.5f});
   GET_VALUE(SelectableTextAlign, ImVec2{0.0f, 0.0f});
@@ -188,7 +188,7 @@ static void to_json(nlohmann::ordered_json &j, const ImGuiStyle &in) {
     STORE_VALUE(GrabRounding),
     STORE_VALUE(LogSliderDeadzone),
     STORE_VALUE(TabRounding),
-    STORE_VALUE(TabMinWidthForCloseButton),
+    STORE_VALUE(TabCloseButtonMinWidthUnselected),
     STORE_VALUE_EX(ColorButtonPosition, ImGuiDir),
     STORE_VALUE(ButtonTextAlign),
     STORE_VALUE(SelectableTextAlign),

@@ -134,13 +134,12 @@ void ShowStyleEditor(ImNodesStyle *ref) {
 
       static ImGuiColorEditFlags alphaFlags{ImGuiColorEditFlags_None};
       if (ImGui::RadioButton("Opaque",
-                             alphaFlags == ImGuiColorEditFlags_None)) {
-        alphaFlags = ImGuiColorEditFlags_None;
+                             alphaFlags == ImGuiColorEditFlags_AlphaOpaque)) {
+        alphaFlags = ImGuiColorEditFlags_AlphaOpaque;
       }
       ImGui::SameLine();
-      if (ImGui::RadioButton("Alpha",
-                             alphaFlags == ImGuiColorEditFlags_AlphaPreview)) {
-        alphaFlags = ImGuiColorEditFlags_AlphaPreview;
+      if (ImGui::RadioButton("Alpha", alphaFlags == ImGuiColorEditFlags_None)) {
+        alphaFlags = ImGuiColorEditFlags_None;
       }
       ImGui::SameLine();
       if (ImGui::RadioButton("Both", alphaFlags ==
