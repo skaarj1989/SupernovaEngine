@@ -27,7 +27,6 @@ set_target_properties(
   ozz_animation_offline
   ozz_geometry
   ozz_options
-  BUILD_CLANG_FORMAT
   PROPERTIES FOLDER "Third-party/ozz"
 )
 set_target_properties(
