@@ -256,7 +256,7 @@ void cameraOverlay(const entt::handle h, float height = 128) {
 void showSceneViewportInspector(os::InputSystem &inputSystem,
                                 RenderTargetPreview &renderTargetPreview,
                                 SceneEditor::Entry &entry,
-                                rhi::Buffer &entityIDs,
+                                std::shared_ptr<rhi::Buffer> &entityIDs,
                                 const bool showOverlay) {
   const auto extent = renderTargetPreview.getExtent();
   renderTargetPreview.show(
@@ -264,10 +264,12 @@ void showSceneViewportInspector(os::InputSystem &inputSystem,
      &rd = renderTargetPreview.getRenderDevice()](const auto extent) {
       entry.viewport.camera.setAspectRatio(extent.getAspectRatio());
 
-      rd.pushGarbage(entityIDs);
-      entityIDs =
-        rd.createStorageBuffer(extent.width * extent.height * sizeof(uint32_t),
+      const auto createIDsBuffer = [&rd, &extent] {
+        return rd.createStorageBuffer(extent.width * extent.height *
+                                        sizeof(uint32_t),
                                rhi::AllocationHints::RandomAccess);
+      };
+      entityIDs = rd.makeShared<rhi::StorageBuffer>(createIDsBuffer());
     },
     [&inputSystem, &entry, &entityIDs, showOverlay, extent] {
       CameraController::Result controller;
@@ -292,7 +294,7 @@ void showSceneViewportInspector(os::InputSystem &inputSystem,
         const glm::ivec2 p =
           glm::vec2{ImGui::GetMousePos()} - glm::vec2{ImGui::GetWindowPos()};
         static_assert(sizeof(uint32_t) == sizeof(entt::entity));
-        const auto IDs = static_cast<entt::entity *>(entityIDs.map());
+        const auto IDs = static_cast<entt::entity *>(entityIDs->map());
         selectEntity(&entry, entry.scene.get(IDs[p.x + extent.width * p.y]));
       }
 
@@ -1152,7 +1154,7 @@ void SceneEditor::_drawWorld(Entry &entry, rhi::CommandBuffer &cb,
              // Fallback to editor viewport:
              : createEditorSceneView(entry.viewport, texture);
   }();
-  mainSceneView.userData = &m_entityIDs;
+  mainSceneView.userData = m_entityIDs.get();
 
   if (auto *dd = mainSceneView.debugDraw; dd) {
     PhysicsSystem::debugDraw(r, *dd);

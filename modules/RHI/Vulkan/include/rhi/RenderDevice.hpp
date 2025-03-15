@@ -98,6 +98,20 @@ public:
   createStorageBuffer(const VkDeviceSize size,
                       const AllocationHints = AllocationHints::None);
 
+  template <class ResourceT, class... Args> auto makeShared(Args &&...args) {
+    struct Deleter {
+      RenderDevice &renderDevice;
+
+      void operator()(ResourceT *resource) {
+        renderDevice._pushGarbage(resource);
+      }
+    };
+    return std::shared_ptr<ResourceT>{
+      new ResourceT{std::forward<Args>(args)...},
+      Deleter{*this},
+    };
+  }
+
   [[nodiscard]] std::string getMemoryStats() const;
 
   // ---
@@ -156,8 +170,6 @@ public:
 
   // ---
 
-  RenderDevice &pushGarbage(Buffer &);
-  RenderDevice &pushGarbage(Texture &);
   RenderDevice &stepGarbage(const FrameIndex::ValueType threshold);
 
   // ---
@@ -180,6 +192,11 @@ private:
   [[nodiscard]] VkCommandBuffer _allocateCommandBuffer() const;
   [[nodiscard]] VkSampler _createSampler(const SamplerInfo &);
 
+  template <class ResourceT> RenderDevice &_pushGarbage(ResourceT *resource) {
+    m_garbageCollector.push(resource);
+    return *this;
+  }
+
 private:
   VkInstance m_instance{VK_NULL_HANDLE};
   VkDebugUtilsMessengerEXT m_debugMessenger{VK_NULL_HANDLE};
@@ -194,7 +211,7 @@ private:
   VkPipelineCache m_pipelineCache{VK_NULL_HANDLE};
 
   TracyVkCtx m_tracyContext{nullptr};
-  
+
   template <typename T> using Cache = robin_hood::unordered_map<std::size_t, T>;
 
   Cache<VkSampler> m_samplers;
@@ -221,17 +238,9 @@ enum class Vendor : uint32_t {
 };
 [[nodiscard]] PhysicalDeviceSelector selectVendor(const Vendor);
 
-template <class T, class... Args>
-[[nodiscard]] auto makeShared(RenderDevice &rd, Args &&...args) {
-  struct Deleter {
-    RenderDevice &renderDevice;
-
-    void operator()(T *resource) {
-      renderDevice.pushGarbage(*resource);
-      delete resource;
-    }
-  };
-  return std::shared_ptr<T>{new T{std::forward<Args>(args)...}, Deleter{rd}};
+template <class BuilderT>
+[[nodiscard]] auto buildShared(RenderDevice &rd, BuilderT &builder) {
+  return rd.makeShared<typename BuilderT::ResultT>(builder.build(rd));
 }
 
 } // namespace rhi

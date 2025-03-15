@@ -744,14 +744,6 @@ RenderDevice &RenderDevice::present(Swapchain &swapchain,
   return *this;
 }
 
-RenderDevice &RenderDevice::pushGarbage(Buffer &buffer) {
-  m_garbageCollector.push(buffer);
-  return *this;
-}
-RenderDevice &RenderDevice::pushGarbage(Texture &texture) {
-  m_garbageCollector.push(texture);
-  return *this;
-}
 RenderDevice &RenderDevice::stepGarbage(const FrameIndex::ValueType threshold) {
   ZoneScopedN("RHI::CollectGarbage");
   m_garbageCollector.step(threshold);

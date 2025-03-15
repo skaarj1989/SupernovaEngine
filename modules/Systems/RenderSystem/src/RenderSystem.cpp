@@ -84,18 +84,6 @@ template <class T>
 [[nodiscard]] auto requiresNewRenderTarget(const CameraComponent &cc) {
   return cc.extent && (!cc.target || cc.target->getExtent() != cc.extent);
 }
-[[nodiscard]] auto createRenderTarget(rhi::RenderDevice &rd,
-                                      const rhi::Extent2D extent) {
-  using enum rhi::ImageUsage;
-  return rhi::Texture::Builder{}
-    .setExtent(extent)
-    .setPixelFormat(rhi::PixelFormat::BGRA8_UNorm)
-    .setNumMipLevels(1)
-    .setNumLayers(std::nullopt)
-    .setUsageFlags(Transfer /* For blit. */ | RenderTarget | Sampled)
-    .setupOptimalSampler(true)
-    .build(rd);
-}
 
 } // namespace
 
@@ -145,8 +133,16 @@ void RenderSystem::update(entt::registry &r, rhi::CommandBuffer &cb,
 
     auto &target = cameraComponent.target;
     if (requiresNewRenderTarget(cameraComponent)) {
-      target = rhi::makeShared<rhi::Texture>(
-        renderDevice, createRenderTarget(renderDevice, cameraComponent.extent));
+      using enum rhi::ImageUsage;
+
+      rhi::Texture::Builder builder;
+      builder.setExtent(cameraComponent.extent)
+        .setPixelFormat(rhi::PixelFormat::BGRA8_UNorm)
+        .setNumMipLevels(1)
+        .setNumLayers(std::nullopt)
+        .setUsageFlags(Transfer /* For blit. */ | RenderTarget | Sampled)
+        .setupOptimalSampler(true);
+      target = rhi::buildShared(renderDevice, builder);
     }
     if (target) {
       sceneViews.emplace_back(

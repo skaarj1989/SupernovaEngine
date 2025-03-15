@@ -310,8 +310,7 @@ SkyLight WorldRenderer::createSkyLight(TextureResourceHandle source) {
 
     switch (source->getType()) {
     case rhi::TextureType::Texture2D:
-      skyLight.environment = rhi::makeShared<rhi::Texture>(
-        m_renderDevice,
+      skyLight.environment = m_renderDevice.makeShared<rhi::Texture>(
         m_cubemapConverter.equirectangularToCubemap(cb, *source));
       break;
     case rhi::TextureType::TextureCube:
@@ -322,10 +321,10 @@ SkyLight WorldRenderer::createSkyLight(TextureResourceHandle source) {
       assert(false);
     }
 
-    skyLight.specular = rhi::makeShared<rhi::Texture>(
-      m_renderDevice, m_ibl.prefilterEnvMap(cb, *skyLight.environment));
-    skyLight.diffuse = rhi::makeShared<rhi::Texture>(
-      m_renderDevice, m_ibl.generateIrradiance(cb, *skyLight.environment));
+    skyLight.specular = m_renderDevice.makeShared<rhi::Texture>(
+      m_ibl.prefilterEnvMap(cb, *skyLight.environment));
+    skyLight.diffuse = m_renderDevice.makeShared<rhi::Texture>(
+      m_ibl.generateIrradiance(cb, *skyLight.environment));
   });
   return skyLight;
 }

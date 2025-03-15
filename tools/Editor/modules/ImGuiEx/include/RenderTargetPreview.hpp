@@ -6,6 +6,7 @@
 #include "glm/ext/vector_uint2.hpp"
 #include "glm/ext/vector_float2.hpp"
 #include "glm/vector_relational.hpp" // any, notEqual
+#include <memory>
 
 namespace rhi {
 void prepareForReading(CommandBuffer &, const Texture &);
@@ -28,11 +29,11 @@ public:
     }
     // Resize (if necessary) after display (to avoid blink).
     if (_isAreaValid(contentSize)) {
-      const auto lastSize = glm::uvec2{m_target.getExtent()};
+      const glm::uvec2 lastSize{getExtent()};
       if (glm::any(glm::notEqual(contentSize, lastSize))) {
         _resize(contentSize);
         if constexpr (std::is_invocable_v<OnResizeCallback, rhi::Extent2D>) {
-          onResize(m_target.getExtent());
+          onResize(m_target->getExtent());
         }
       }
     }
@@ -41,9 +42,9 @@ public:
 
   template <typename Func> void render(rhi::CommandBuffer &cb, Func onRender) {
     if (m_requiresPaint && m_target) {
-      onRender(m_target);
+      onRender(*m_target);
       m_requiresPaint = false;
-      rhi::prepareForReading(cb, m_target);
+      rhi::prepareForReading(cb, *m_target);
     }
   }
 
@@ -62,7 +63,7 @@ protected:
   rhi::RenderDevice &m_renderDevice;
 
 private:
-  rhi::Texture m_target;
+  std::shared_ptr<rhi::Texture> m_target;
   bool m_requiresPaint{false};
   glm::ivec2 m_position{};
 };

@@ -82,6 +82,8 @@ public:
 
   class Builder {
   public:
+    using ResultT = Texture;
+
     Builder() = default;
     Builder(const Builder &) = delete;
     Builder(Builder &&) noexcept = delete;
@@ -98,7 +100,7 @@ public:
     Builder &setUsageFlags(const ImageUsage);
     Builder &setupOptimalSampler(const bool);
 
-    [[nodiscard]] Texture build(RenderDevice &);
+    [[nodiscard]] ResultT build(RenderDevice &);
 
   private:
     Extent2D m_extent{};

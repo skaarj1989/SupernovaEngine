@@ -8,7 +8,7 @@ RenderTargetPreview::RenderTargetPreview(rhi::RenderDevice &rd)
 
 glm::ivec2 RenderTargetPreview::getPosition() const { return m_position; }
 rhi::Extent2D RenderTargetPreview::getExtent() const {
-  return m_target.getExtent();
+  return m_target ? m_target->getExtent() : rhi::Extent2D{0, 0};
 }
 
 //
@@ -22,21 +22,20 @@ bool RenderTargetPreview::_isAreaValid(const glm::uvec2 area) const {
 }
 
 void RenderTargetPreview::_resize(const glm::uvec2 contentSize) {
-  m_renderDevice.pushGarbage(m_target);
-
   using enum rhi::ImageUsage;
-  m_target =
-    rhi::Texture::Builder{}
-      .setExtent({contentSize.x, contentSize.y})
+
+  rhi::Texture::Builder builder;
+  builder.setExtent({contentSize.x, contentSize.y})
       .setPixelFormat(rhi::PixelFormat::BGRA8_UNorm)
       .setNumMipLevels(1)
       .setNumLayers(std::nullopt)
       .setUsageFlags(TransferDst /* For blit. */ | RenderTarget | Sampled)
-      .setupOptimalSampler(true)
-      .build(m_renderDevice);
+    .setupOptimalSampler(true);
+
+  m_target = rhi::buildShared(m_renderDevice, builder);
 }
 
 void RenderTargetPreview::_present(const glm::vec2 size) {
   m_position = glm::vec2{ImGui::GetWindowPos()};
-  ::preview(&m_target, size);
+  ::preview(m_target.get(), size);
 }

@@ -159,9 +159,8 @@ MeshLoader::result_type MeshLoader::operator()(const std::filesystem::path &p,
     Mesh::Builder builder{};
     builder.setVertexFormat(vertexFormat)
       .setVertexBuffer(
-        rhi::makeShared<rhi::VertexBuffer>(rd, std::move(vertexBuffer)))
-      .setIndexBuffer(
-        rhi::makeShared<rhi::IndexBuffer>(rd, std::move(indexBuffer)))
+        rd.makeShared<rhi::VertexBuffer>(std::move(vertexBuffer)))
+      .setIndexBuffer(rd.makeShared<rhi::IndexBuffer>(std::move(indexBuffer)))
       .setAABB(meshMeta.aabb);
 
     if (inverseBindPose) {

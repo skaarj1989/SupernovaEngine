@@ -29,9 +29,9 @@ public:
   RmlUiRenderer &operator=(RmlUiRenderer &&) noexcept = delete;
 
   struct FrameResources {
-    rhi::VertexBuffer vertexBuffer;
+    std::shared_ptr<rhi::VertexBuffer> vertexBuffer;
     uint32_t vertexOffset{0};
-    rhi::IndexBuffer indexBuffer;
+    std::shared_ptr<rhi::IndexBuffer> indexBuffer;
     uint32_t indexOffset{0};
   };
   [[nodiscard]] std::vector<FrameResources>

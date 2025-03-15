@@ -14,26 +14,26 @@ namespace {
   rhi::GeometryInfo gi{
     .topology = rhi::PrimitiveTopology::TriangleList,
 
-    .vertexBuffer = &vertexBuffer,
+    .vertexBuffer = vertexBuffer.get(),
     .vertexOffset = vertexOffset,
     .numVertices = uint32_t(vertices.size()),
 
-    .indexBuffer = &indexBuffer,
+    .indexBuffer = indexBuffer.get(),
     .indexOffset = indexOffset,
     .numIndices = uint32_t(indices.size()),
   };
 
-  auto *vertexDest = static_cast<Rml::Vertex *>(vertexBuffer.map());
+  auto *vertexDest = static_cast<Rml::Vertex *>(vertexBuffer->map());
   vertexDest += gi.vertexOffset;
   std::memcpy(vertexDest, vertices.data(), vertices.size_bytes());
   vertexOffset += gi.numVertices;
-  vertexBuffer.flush();
+  vertexBuffer->flush();
 
-  auto *indexDest = static_cast<int32_t *>(indexBuffer.map());
+  auto *indexDest = static_cast<int32_t *>(indexBuffer->map());
   indexDest += gi.indexOffset;
   std::memcpy(indexDest, indices.data(), indices.size_bytes());
   indexOffset += gi.numIndices;
-  indexBuffer.flush();
+  indexBuffer->flush();
 
   return gi;
 }
@@ -59,10 +59,14 @@ std::vector<RmlUiRenderer::FrameResources> RmlUiRenderer::createResources(
 RmlUiRenderer::FrameResources RmlUiRenderer::createFrameResources() const {
   auto &rd = getRenderDevice();
   return {
-    .vertexBuffer = rd.createVertexBuffer(
-      sizeof(Rml::Vertex), UINT16_MAX, rhi::AllocationHints::SequentialWrite),
-    .indexBuffer = rd.createIndexBuffer(rhi::IndexType::UInt32, UINT16_MAX,
-                                        rhi::AllocationHints::SequentialWrite),
+    .vertexBuffer = rd.makeShared<rhi::VertexBuffer>([&rd] {
+      return rd.createVertexBuffer(sizeof(Rml::Vertex), UINT16_MAX,
+                                   rhi::AllocationHints::SequentialWrite);
+    }()),
+    .indexBuffer = rd.makeShared<rhi::IndexBuffer>([&rd] {
+      return rd.createIndexBuffer(rhi::IndexType::UInt32, UINT16_MAX,
+                                  rhi::AllocationHints::SequentialWrite);
+    }()),
   };
 }
 

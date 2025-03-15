@@ -1,24 +1,31 @@
 #include "rhi/GarbageCollector.hpp"
 #include <algorithm>
 
+#define SAFE_DELETE(p)                                                         \
+  if (p) {                                                                     \
+    delete p;                                                                  \
+    p = nullptr;                                                               \
+  }
+
 namespace rhi {
 
 void GarbageCollector::clear() {
+  static constexpr auto deleteResource = [](auto &p) { SAFE_DELETE(p.second); };
+
+  std::ranges::for_each(m_textures, deleteResource);
   m_textures.clear();
+
+  std::ranges::for_each(m_buffers, deleteResource);
   m_buffers.clear();
 }
 
-void GarbageCollector::push(Buffer &buffer) {
-  m_buffers.emplace_back(0, std::move(buffer));
-}
-void GarbageCollector::push(Texture &texture) {
-  m_textures.emplace_back(0, std::move(texture));
-}
-
 void GarbageCollector::step(const FrameIndex::ValueType threshold) {
-  static const auto inc = [](auto &p) { ++p.first; };
-  const auto expired = [threshold](const auto &p) {
-    return p.first >= threshold;
+  static constexpr auto inc = [](auto &p) { ++p.first; };
+  const auto expired = [threshold](auto &p) {
+    if (p.first <= threshold) return false;
+
+    SAFE_DELETE(p.second);
+    return true;
   };
   const auto step = [expired](auto &cache) {
     if (cache.empty()) return;

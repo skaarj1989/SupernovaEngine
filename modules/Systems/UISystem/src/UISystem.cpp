@@ -29,10 +29,6 @@ void initUIComponent(entt::registry &r, const entt::entity e) {
 }
 void cleanupUIComponent(entt::registry &r, const entt::entity e) {
   if (auto &ui = r.get<UIComponent>(e); ui.context) {
-    auto &rd = getRenderDevice(r);
-    for (auto &resources : ui.renderData.frameResources) {
-      rd.pushGarbage(resources.vertexBuffer).pushGarbage(resources.indexBuffer);
-    }
     Rml::RemoveContext(ui.context->GetName());
     ui.context = nullptr;
   }

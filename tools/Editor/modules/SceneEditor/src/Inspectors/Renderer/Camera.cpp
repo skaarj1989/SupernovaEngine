@@ -78,8 +78,7 @@ void SceneEditor::_onInspect(entt::handle h, CameraComponent &c) const {
 
   ImGui::SetNextItemWidth(100);
   if (ImGui::InputScalarN("extent", ImGuiDataType_U32, &c.extent, 2, nullptr,
-                          nullptr, nullptr,
-                          ImGuiInputTextFlags_EnterReturnsTrue)) {
+                          nullptr, nullptr)) {
     dirtyExtent = true;
   }
   std::optional<rhi::Extent2D> newExtent;

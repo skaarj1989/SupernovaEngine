@@ -45,7 +45,7 @@ TextureLoader::result_type
 TextureLoader::operator()(const std::filesystem::path &p,
                           rhi::RenderDevice &rd) const {
   if (auto texture = tryLoad(p, rd); texture) {
-    return rhi::makeShared<TextureResource>(rd, std::move(texture.value()), p);
+    return rd.makeShared<TextureResource>(std::move(texture.value()), p);
   } else {
     SPDLOG_ERROR("Texture loading failed. {}", texture.error());
     return {};

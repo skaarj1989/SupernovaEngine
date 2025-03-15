@@ -155,7 +155,7 @@ private:
 
   std::vector<std::unique_ptr<Entry>> m_scenes;
   std::optional<std::size_t> m_activeSceneId;
-  rhi::Buffer m_entityIDs;
+  std::shared_ptr<rhi::Buffer> m_entityIDs;
 
   bool m_passthroughInput{false};
   std::optional<Scene> m_playTest;
