@@ -1,6 +1,5 @@
 #include "ImGuiRenderer.hpp"
 #include "rhi/RenderDevice.hpp"
-#include "ShaderCodeBuilder.hpp"
 #include "imgui.h"
 #include "glm/common.hpp" // min, max
 
@@ -263,22 +262,19 @@ void ImGuiRenderer::draw(rhi::CommandBuffer &cb,
 rhi::GraphicsPipeline
 ImGuiRenderer::_createPipeline(const rhi::PixelFormat colorFormat,
                                const bool cubemap) const {
-  ShaderCodeBuilder shaderCodeBuilder{};
-  const auto vertCode =
-    shaderCodeBuilder.addDefine("USE_PROJECTION_MATRIX", USE_PROJECTION_MATRIX)
-      .buildFromFile("UI.vert");
+  rhi::SlangCompilationRequest compilationRequest{.moduleName = "UI.slang"};
 
-  shaderCodeBuilder.clearDefines();
+#define DEFINE_MACRO(x) #x, x
+
+  compilationRequest.addDefine(DEFINE_MACRO(USE_PROJECTION_MATRIX));
   if (cubemap) {
-    shaderCodeBuilder
+    compilationRequest
       .addDefine("CUBEMAP", 1)
       // 0 = Disabled, 1 = Equirectangular, 2 = Cube net
       .addDefine("MODE", 2);
   } else {
-    shaderCodeBuilder.addDefine("USE_MONOCHROMATIC_FONT",
-                                USE_MONOCHROMATIC_FONT);
+    compilationRequest.addDefine(DEFINE_MACRO(USE_MONOCHROMATIC_FONT));
   }
-  const auto fragCode = shaderCodeBuilder.buildFromFile("UI.frag");
 
   // clang-format off
   return rhi::GraphicsPipeline::Builder{}
@@ -300,8 +296,7 @@ ImGuiRenderer::_createPipeline(const rhi::PixelFormat colorFormat,
           .offset = offsetof(ImDrawVert, col),
         }},
     })
-    .addShader(rhi::ShaderType::Vertex, vertCode)
-    .addShader(rhi::ShaderType::Fragment, fragCode)
+    .loadProgram(compilationRequest)
 
     .setDepthStencil({
       .depthTest = false,

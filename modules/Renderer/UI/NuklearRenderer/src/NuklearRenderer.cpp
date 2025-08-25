@@ -1,6 +1,5 @@
 #include "NuklearRenderer.hpp"
 #include "rhi/RenderDevice.hpp"
-#include "ShaderCodeBuilder.hpp"
 
 #define USE_PROJECTION_MATRIX 0
 #if USE_PROJECTION_MATRIX
@@ -97,14 +96,7 @@ struct Vertex {
   return font;
 }
 [[nodiscard]] auto createGraphicsPipeline(rhi::RenderDevice &rd) {
-  ShaderCodeBuilder shaderCodeBuilder;
-  const auto vertCode =
-    shaderCodeBuilder.addDefine("USE_PROJECTION_MATRIX", USE_PROJECTION_MATRIX)
-      .buildFromFile("UI.vert");
-  const auto fragCode =
-    shaderCodeBuilder.clearDefines()
-      .addDefine("USE_MONOCHROMATIC_FONT", USE_MONOCHROMATIC_FONT)
-      .buildFromFile("UI.frag");
+#define DEFINE_MACRO(x) {#x, std::to_string(x)}
 
   // clang-format off
   return rhi::GraphicsPipeline::Builder{}
@@ -126,8 +118,13 @@ struct Vertex {
           .offset = offsetof(Vertex, col),
         }},
     })
-    .addShader(rhi::ShaderType::Vertex, vertCode)
-    .addShader(rhi::ShaderType::Fragment, fragCode)
+    .loadProgram({
+      .moduleName = "UI.slang",
+      .defines = {
+        DEFINE_MACRO(USE_PROJECTION_MATRIX),
+        DEFINE_MACRO(USE_MONOCHROMATIC_FONT),
+      },
+    })
 
     .setDepthStencil({
       .depthTest = false,
