@@ -7,6 +7,7 @@
 #include "CullMode.hpp"
 #include "PrimitiveTopology.hpp"
 #include "VertexAttributes.hpp"
+#include "SlangCompilationRequest.hpp"
 
 #include <limits> // numeric_limits<>
 #include <string>
@@ -206,6 +207,8 @@ public:
     // be overwritten with the given code.
     Builder &addShader(const ShaderType, const std::string_view);
 
+    Builder &loadProgram(const SlangCompilationRequest &);
+
     Builder &setDepthStencil(const DepthStencilState &);
     Builder &setRasterizer(const RasterizerState &);
     Builder &setBlending(const AttachmentIndex, const BlendState &);
@@ -223,7 +226,9 @@ public:
     VkPrimitiveTopology m_primitiveTopology{
       VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST};
 
+    std::optional<SlangCompilationRequest> m_compilationRequest;
     std::unordered_map<ShaderType, const std::string_view> m_shaderStages;
+
     PipelineLayout m_pipelineLayout;
 
     VkPipelineDepthStencilStateCreateInfo m_depthStencilState{};

@@ -571,7 +571,12 @@ VkSampler RenderDevice::getSampler(const SamplerInfo &samplerInfo) {
   return it->second;
 }
 
-std::expected<SPIRV, std::string>
+ShaderCompiler2::Result
+RenderDevice::compile(const SlangCompilationRequest &request) {
+  return m_shaderCompiler2.compile(request);
+}
+
+ShaderCompiler::Result
 RenderDevice::compile(ShaderType shaderType,
                       const std::string_view code) const {
   return m_shaderCompiler.compile(shaderType, code);
@@ -580,18 +585,22 @@ ShaderModule RenderDevice::createShaderModule(const ShaderType shaderType,
                                               const std::string_view code,
                                               ShaderReflection *reflection) {
   if (auto spv = compile(shaderType, code); spv) {
-    return createShaderModule(*spv, reflection);
+    return createShaderModule(*spv, {{shaderType, "main"}}, reflection);
   } else {
     SPDLOG_ERROR(spv.error());
     return {};
   }
 }
-ShaderModule RenderDevice::createShaderModule(SPIRV spv,
+ShaderModule RenderDevice::createShaderModule(const SPIRV &spv,
+                                              const EntryPoints &entryPoints,
                                               ShaderReflection *reflection) {
   assert(m_logicalDevice != nullptr);
 
   ShaderModule shaderModule{m_logicalDevice, spv};
-  if (reflection) reflection->accumulate(std::move(spv));
+  if (reflection) {
+    for (const auto &p : entryPoints)
+      reflection->accumulate(spv, p);
+  }
   return shaderModule;
 }
 

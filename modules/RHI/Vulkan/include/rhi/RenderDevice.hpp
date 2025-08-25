@@ -10,6 +10,7 @@
 #include "ComputePipeline.hpp"
 #include "ShaderModule.hpp"
 #include "ShaderCompiler.hpp"
+#include "ShaderCompiler2.hpp"
 
 #include "CommandBuffer.hpp"
 #include "Swapchain.hpp"
@@ -140,10 +141,17 @@ public:
 
   [[nodiscard]] ShaderCompiler::Result
   compile(const ShaderType, const std::string_view code) const;
+  [[nodiscard]] ShaderCompiler2::Result
+  compile(const SlangCompilationRequest &);
+
+  // Creates a ShaderModule based onn a given glsl code (with "main" entry
+  // point).
   [[nodiscard]] ShaderModule createShaderModule(const ShaderType,
                                                 const std::string_view code,
                                                 ShaderReflection * = nullptr);
-  [[nodiscard]] ShaderModule createShaderModule(SPIRV,
+
+  [[nodiscard]] ShaderModule createShaderModule(const SPIRV &,
+                                                const EntryPoints &,
                                                 ShaderReflection * = nullptr);
 
   [[nodiscard]] ComputePipeline
@@ -222,6 +230,7 @@ private:
   GarbageCollector m_garbageCollector;
 
   ShaderCompiler m_shaderCompiler;
+  ShaderCompiler2 m_shaderCompiler2;
 };
 
 //

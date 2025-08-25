@@ -1,5 +1,6 @@
 #pragma once
 
+#include "rhi/ShaderType.hpp"
 #include "rhi/SPIRV.hpp"
 #include "rhi/ResourceIndices.hpp"
 #include "glad/vulkan.h"
@@ -8,11 +9,13 @@
 #include <array>
 #include <unordered_map>
 #include <optional>
+#include <string>
 
 namespace rhi {
 
 struct ShaderReflection {
-  void accumulate(SPIRV &&);
+  void accumulate(const SPIRV &,
+                  const std::pair<ShaderType, std::string> &entryPoint);
 
   std::optional<glm::uvec3> localSize; // ComputeShader only.
 

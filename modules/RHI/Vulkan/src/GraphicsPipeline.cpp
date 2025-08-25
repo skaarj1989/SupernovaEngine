@@ -188,6 +188,12 @@ Builder &Builder::addShader(const ShaderType type,
   return *this;
 }
 
+Builder &
+GraphicsPipeline::Builder::loadProgram(const SlangCompilationRequest &request) {
+  m_compilationRequest = request;
+  return *this;
+}
+
 Builder &Builder::setDepthStencil(const DepthStencilState &desc) {
   m_depthStencilState.depthTestEnable = desc.depthTest;
   m_depthStencilState.depthWriteEnable = desc.depthWrite;
@@ -267,31 +273,55 @@ GraphicsPipeline Builder::build(RenderDevice &rd) {
   // -- Shader stages:
 
   const auto numShaderStages = m_shaderStages.size();
-  assert(numShaderStages > 0);
+  assert(numShaderStages > 0 || m_compilationRequest);
 
   auto reflection =
     m_pipelineLayout ? std::nullopt : std::make_optional<ShaderReflection>();
 
-  std::vector<ShaderModule> shaderModules; // For delayed destruction only.
-  shaderModules.reserve(numShaderStages);
+  std::vector<ShaderModule> shaderModules; // For deferred destruction only.
   std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
-  shaderStages.reserve(numShaderStages);
-  for (const auto &[shaderType, code] : m_shaderStages) {
-    auto shaderModule = rd.createShaderModule(
-      shaderType, code,
-      reflection ? std::addressof(reflection.value()) : nullptr);
-    if (!shaderModule) continue;
 
-    shaderStages.push_back(VkPipelineShaderStageCreateInfo{
-      .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-      .stage = toVk(shaderType),
-      .module = VkShaderModule{shaderModule},
-      .pName = "main",
-    });
+  EntryPoints entryPoints;
 
-    shaderModules.emplace_back(std::move(shaderModule));
+  if (m_compilationRequest) {
+    if (auto data = rd.compile(*m_compilationRequest); data) {
+      entryPoints = queryEntryPoints(data->reflection);
+      auto shaderModule = rd.createShaderModule(
+        data->code, entryPoints,
+        reflection ? std::addressof(reflection.value()) : nullptr);
+
+      for (const auto &[shaderType, entryPoint] : entryPoints) {
+        shaderStages.push_back(VkPipelineShaderStageCreateInfo{
+          .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+          .stage = toVk(shaderType),
+          .module = VkShaderModule{shaderModule},
+          .pName = entryPoint.c_str(),
+        });
+      }
+
+      shaderModules.push_back(std::move(shaderModule));
+    } else {
+      throw std::runtime_error{data.error()};
+    }
+  } else {
+    shaderStages.reserve(numShaderStages);
+    for (const auto &[shaderType, code] : m_shaderStages) {
+      auto shaderModule = rd.createShaderModule(
+        shaderType, code,
+        reflection ? std::addressof(reflection.value()) : nullptr);
+      if (!shaderModule) continue;
+
+      shaderStages.push_back(VkPipelineShaderStageCreateInfo{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+        .stage = toVk(shaderType),
+        .module = VkShaderModule{shaderModule},
+        .pName = "main",
+      });
+
+      shaderModules.emplace_back(std::move(shaderModule));
+    }
+    if (shaderStages.size() != numShaderStages) return {};
   }
-  if (shaderStages.size() != numShaderStages) return {};
 
   if (reflection) m_pipelineLayout = reflectPipelineLayout(rd, *reflection);
   assert(m_pipelineLayout);

@@ -6,6 +6,8 @@ find_package(spirv_cross_core CONFIG REQUIRED)
 find_package(spirv_cross_glsl CONFIG REQUIRED)
 find_package(spirv_cross_reflect CONFIG REQUIRED)
 
+find_package(slang CONFIG REQUIRED)
+
 add_subdirectory(extern)
 
 find_file(GPU_MEM_DUMP_VIS "GpuMemDumpVis.py" "extern/VulkanMemoryAllocator/tools/GpuMemDumpVis")
@@ -78,6 +80,9 @@ add_library(VulkanRHI
   "include/rhi/SPIRV.hpp"
   "include/rhi/ShaderCompiler.hpp"
   "src/ShaderCompiler.cpp"
+  "include/rhi/SlangCompilationRequest.hpp"
+  "include/rhi/ShaderCompiler2.hpp"
+  "src/ShaderCompiler2.cpp"
   "src/ShaderReflection.hpp"
   "src/ShaderReflection.cpp"
   "include/rhi/DescriptorSetAllocator.hpp"
@@ -141,20 +146,21 @@ target_compile_definitions(VulkanRHI PUBLIC
 target_include_directories(VulkanRHI PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(VulkanRHI
   PUBLIC
-  Common
-  Math
-  Window
-  glad::vk
-  robin_hood::robin_hood
-  VulkanMemoryAllocator
+    Common
+    Math
+    Window
+    glad::vk
+    robin_hood::robin_hood
+    VulkanMemoryAllocator
   PRIVATE
-  StringUtility
-  glslang::glslang
-  glslang::SPIRV
-  glslang::SPVRemapper
-  spirv-cross-glsl
-  spirv-cross-reflect
-  spdlog::spdlog
+    StringUtility
+    slang::slang
+    glslang::glslang
+    glslang::SPIRV
+    glslang::SPVRemapper
+    spirv-cross-glsl
+    spirv-cross-reflect
+    spdlog::spdlog
 )
 set_target_properties(VulkanMemoryAllocator VulkanRHI PROPERTIES FOLDER "Framework/RHI/Vulkan")
 set_warning_level(VulkanRHI)

@@ -7,6 +7,23 @@ namespace rhi {
 
 namespace {
 
+spv::ExecutionModel toExecutionModel(const ShaderType shaderType) {
+  switch (shaderType) {
+    using enum ShaderType;
+
+  case Vertex:
+    return spv::ExecutionModelVertex;
+  case Geometry:
+    return spv::ExecutionModelGeometry;
+  case Fragment:
+    return spv::ExecutionModelFragment;
+  case Compute:
+    return spv::ExecutionModelGLCompute;
+  }
+  assert(false);
+  return spv::ExecutionModelMax;
+}
+
 [[nodiscard]] VkShaderStageFlags
 toVk(const spv::ExecutionModel executionModel) {
   switch (executionModel) {
@@ -36,11 +53,15 @@ toVk(const spv::ExecutionModel executionModel) {
 
 } // namespace
 
-void ShaderReflection::accumulate(SPIRV &&spv) {
-  spirv_cross::CompilerGLSL compiler{std::move(spv)};
+void ShaderReflection::accumulate(
+  const SPIRV &spv, const std::pair<ShaderType, std::string> &entryPoint) {
+  const auto &[shaderType, entryPointName] = entryPoint;
+
+  spirv_cross::CompilerGLSL compiler{spv};
+  compiler.set_entry_point(entryPointName, toExecutionModel(shaderType));
 
   const auto stageFlag = toVk(compiler.get_execution_model());
-  if (stageFlag & VK_SHADER_STAGE_COMPUTE_BIT) {
+  if (shaderType == ShaderType::Compute) {
     localSize = getLocalSize(compiler);
   }
   const auto shaderResources = compiler.get_shader_resources();
