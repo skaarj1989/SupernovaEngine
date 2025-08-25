@@ -1,6 +1,5 @@
 #include "RmlUiRenderer.hpp"
 #include "rhi/RenderDevice.hpp"
-#include "ShaderCodeBuilder.hpp"
 
 namespace {
 
@@ -104,13 +103,6 @@ void RmlUiRenderer::draw(rhi::CommandBuffer &cb,
 rhi::GraphicsPipeline
 RmlUiRenderer::_createPipeline(const rhi::PixelFormat colorFormat,
                                const bool textured) const {
-  ShaderCodeBuilder shaderCodeBuilder{};
-  const auto vertCode = shaderCodeBuilder.buildFromFile("RmlUI.vert");
-
-  const auto fragCode =
-    shaderCodeBuilder.addDefine<int32_t>("HAS_TEXTURE", textured)
-      .buildFromFile("RmlUI.frag");
-
   // clang-format off
   return rhi::GraphicsPipeline::Builder{}
     .setColorFormats({colorFormat})
@@ -131,8 +123,12 @@ RmlUiRenderer::_createPipeline(const rhi::PixelFormat colorFormat,
           .offset = offsetof(Rml::Vertex, tex_coord),
         }},
     })
-    .addShader(rhi::ShaderType::Vertex, vertCode)
-    .addShader(rhi::ShaderType::Fragment, fragCode)
+    .loadProgram({
+      .moduleName = "RmlUI.slang",
+      .defines = {
+        {"HAS_TEXTURE", std::to_string(textured)},
+      },
+    })
 
     .setDepthStencil({
       .depthTest = false,
