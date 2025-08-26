@@ -10,7 +10,6 @@
 #include "FrameGraphData/GBuffer.hpp"
 
 #include "RenderContext.hpp"
-#include "ShaderCodeBuilder.hpp"
 
 namespace std {
 
@@ -95,19 +94,18 @@ FrameGraphResource SkyboxPass::addPass(FrameGraph &fg,
 
 rhi::GraphicsPipeline
 SkyboxPass::_createPipeline(const PassInfo &passInfo) const {
-  ShaderCodeBuilder shaderCodeBuilder;
-  shaderCodeBuilder.addDefine<int32_t>(
-    "CUBEMAP", passInfo.textureType == rhi::TextureType::TextureCube);
-
   return rhi::GraphicsPipeline::Builder{}
     .setDepthFormat(passInfo.depthFormat)
     .setColorFormats({passInfo.colorFormat})
     .setInputAssembly({})
-    .addShader(rhi::ShaderType::Vertex,
-               shaderCodeBuilder.buildFromFile("Skybox.vert"))
-    .addShader(rhi::ShaderType::Fragment,
-               shaderCodeBuilder.buildFromFile("Skybox.frag"))
-
+    .loadProgram({
+      .moduleName = "Skybox.slang",
+      .defines =
+        {
+          {"CUBEMAP", std::to_string(passInfo.textureType ==
+                                     rhi::TextureType::TextureCube)},
+        },
+    })
     .setDepthStencil({
       .depthTest = true,
       .depthWrite = false,

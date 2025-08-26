@@ -2,13 +2,13 @@
 // Vertex Shader:
 //
 
-#include "Resources/CameraBlock.slang"
+#include "Resources/CameraBlock.h.slang"
 
 struct Instance {
   float4x4 modelMatrix;
   float4 color;
 };
-#include "Resources/InstanceBuffer.slang"
+#include "Resources/InstanceBuffer.h.slang"
 
 struct VSInput {
   [[vk::location(0)]]
