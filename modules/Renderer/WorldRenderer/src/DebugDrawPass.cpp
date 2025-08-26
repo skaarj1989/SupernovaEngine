@@ -14,8 +14,6 @@
 #include "FrameGraphData/Camera.hpp"
 #include "FrameGraphData/GBuffer.hpp"
 
-#include "ShaderCodeBuilder.hpp"
-
 namespace std {
 
 template <> struct hash<gfx::DebugDrawPass::PassInfo> {
@@ -238,11 +236,6 @@ FrameGraphResource DebugDrawPass::addGeometryPass(
 
 rhi::GraphicsPipeline
 DebugDrawPass::_createPipeline(const PassInfo &passInfo) const {
-  ShaderCodeBuilder shaderCodeBuilder{};
-  if (passInfo.primitiveTopology == rhi::PrimitiveTopology::TriangleList) {
-    shaderCodeBuilder.addDefine("TRIANGLE_MESH", 1);
-  }
-
   return rhi::GraphicsPipeline::Builder{}
     .setDepthFormat(passInfo.depthFormat)
     .setColorFormats({passInfo.colorFormat})
@@ -263,10 +256,15 @@ DebugDrawPass::_createPipeline(const PassInfo &passInfo) const {
         },
       },
     })
-    .addShader(rhi::ShaderType::Vertex,
-               shaderCodeBuilder.buildFromFile("DebugDraw.vert"))
-    .addShader(rhi::ShaderType::Fragment,
-               shaderCodeBuilder.clearDefines().buildFromFile("DebugDraw.frag"))
+    .loadProgram({
+      .moduleName = "DebugDraw.slang",
+      .defines =
+        {
+          {"TRIANGLE_MESH",
+           std::to_string(passInfo.primitiveTopology ==
+                          rhi::PrimitiveTopology::TriangleList)},
+        },
+    })
 
     .setDepthStencil({
       .depthTest = true,
