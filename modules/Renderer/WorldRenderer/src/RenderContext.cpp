@@ -34,7 +34,8 @@ void bindDescriptorSets(rhi::CommandBuffer &cb,
   auto descriptorSetBuilder = cb.createDescriptorSetBuilder();
   for (const auto &[set, bindings] : sets) {
     for (const auto &[index, info] : bindings) {
-      descriptorSetBuilder.bind(index, info);
+      if (pipeline.canBindTo(set, index))
+        descriptorSetBuilder.bind(index, info);
     }
     const auto descriptors =
       descriptorSetBuilder.build(pipeline.getDescriptorSetLayout(set));

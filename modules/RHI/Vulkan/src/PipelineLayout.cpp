@@ -22,7 +22,8 @@ static_assert(DescriptorContainerSize<PipelineLayoutInfo>::value ==
 
 PipelineLayout::PipelineLayout(PipelineLayout &&other) noexcept
     : m_handle{other.m_handle},
-      m_descriptorSetLayouts{std::move(other.m_descriptorSetLayouts)} {
+      m_descriptorSetLayouts{std::move(other.m_descriptorSetLayouts)},
+      m_occupiedBindings{std::move(other.m_occupiedBindings)} {
   other.m_handle = VK_NULL_HANDLE;
 }
 
@@ -30,6 +31,7 @@ PipelineLayout &PipelineLayout::operator=(PipelineLayout &&rhs) noexcept {
   if (this != &rhs) {
     m_handle = std::exchange(rhs.m_handle, VK_NULL_HANDLE);
     m_descriptorSetLayouts = std::move(rhs.m_descriptorSetLayouts);
+    m_occupiedBindings = std::move(rhs.m_occupiedBindings);
   }
   return *this;
 }
@@ -43,11 +45,17 @@ PipelineLayout::getDescriptorSet(const DescriptorSetIndex index) const {
   return m_descriptorSetLayouts[index];
 }
 
+bool PipelineLayout::contains(const DescriptorSetIndex set,
+                              const BindingIndex index) const {
+  return m_occupiedBindings.contains({set, index});
+}
+
 PipelineLayout::PipelineLayout(
   VkPipelineLayout handle,
-  std::vector<VkDescriptorSetLayout> &&descriptorSetLayouts)
-    : m_handle{handle},
-      m_descriptorSetLayouts{std::move(descriptorSetLayouts)} {}
+  std::vector<VkDescriptorSetLayout> &&descriptorSetLayouts,
+  SetBindingLocations &&occupiedBindings)
+    : m_handle{handle}, m_descriptorSetLayouts{std::move(descriptorSetLayouts)},
+      m_occupiedBindings{std::move(occupiedBindings)} {}
 
 //
 // Builder class:

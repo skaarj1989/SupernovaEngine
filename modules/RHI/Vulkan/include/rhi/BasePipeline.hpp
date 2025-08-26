@@ -23,6 +23,9 @@ public:
   [[nodiscard]] VkDescriptorSetLayout
   getDescriptorSetLayout(const DescriptorSetIndex) const;
 
+  [[nodiscard]] bool canBindTo(const DescriptorSetIndex,
+                               const BindingIndex) const;
+
 protected:
   BasePipeline(const VkDevice, PipelineLayout &&, const VkPipeline);
 

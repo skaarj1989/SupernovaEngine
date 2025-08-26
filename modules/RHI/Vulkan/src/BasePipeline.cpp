@@ -32,6 +32,11 @@ BasePipeline::getDescriptorSetLayout(const DescriptorSetIndex index) const {
   return m_layout.getDescriptorSet(index);
 }
 
+bool BasePipeline::canBindTo(const DescriptorSetIndex set,
+                             const BindingIndex index) const {
+  return m_layout.contains(set, index);
+}
+
 //
 // (private):
 //

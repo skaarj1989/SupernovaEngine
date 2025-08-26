@@ -94,6 +94,8 @@ add_library(VulkanRHI
   "include/rhi/GeometryInfo.hpp"
 
   # ---
+  "include/rhi/SetBindingKey.hpp"
+  "src/SetBindingKey.cpp"
   "include/rhi/PipelineLayout.hpp"
   "src/PipelineLayout.cpp"
   "include/rhi/ShaderModule.hpp"

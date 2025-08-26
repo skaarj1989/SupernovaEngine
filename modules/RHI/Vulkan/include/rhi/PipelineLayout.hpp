@@ -1,9 +1,10 @@
 #pragma once
 
 #include "glad/vulkan.h"
-#include "ResourceIndices.hpp"
+#include "SetBindingKey.hpp"
 #include <array>
 #include <vector>
+#include <unordered_set>
 
 namespace rhi {
 
@@ -20,6 +21,8 @@ class RenderDevice;
 class PipelineLayout final {
   friend class RenderDevice; // Calls the private constructor.
 
+  using SetBindingLocations = std::unordered_set<SetBindingKey>;
+
 public:
   PipelineLayout() = default;
   PipelineLayout(const PipelineLayout &) = default;
@@ -34,6 +37,8 @@ public:
   [[nodiscard]] VkPipelineLayout getHandle() const;
   [[nodiscard]] VkDescriptorSetLayout
   getDescriptorSet(const DescriptorSetIndex) const;
+
+  bool contains(const DescriptorSetIndex, const BindingIndex) const;
 
   class Builder {
   public:
@@ -69,11 +74,13 @@ public:
   };
 
 private:
-  PipelineLayout(const VkPipelineLayout, std::vector<VkDescriptorSetLayout> &&);
+  PipelineLayout(const VkPipelineLayout, std::vector<VkDescriptorSetLayout> &&,
+                 SetBindingLocations &&);
 
 private:
   VkPipelineLayout m_handle{VK_NULL_HANDLE}; // Non-owning.
   std::vector<VkDescriptorSetLayout> m_descriptorSetLayouts;
+  SetBindingLocations m_occupiedBindings;
 };
 
 struct ShaderReflection;

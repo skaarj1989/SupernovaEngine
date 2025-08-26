@@ -456,10 +456,14 @@ RenderDevice::createPipelineLayout(const PipelineLayoutInfo &layoutInfo) {
   std::vector<VkDescriptorSetLayout> descriptorSetLayouts(
     kMinNumDescriptorSets);
 
+  PipelineLayout::SetBindingLocations occupiedBindings;
+
   for (auto [set, bindings] :
        layoutInfo.descriptorSets | std::views::enumerate) {
     for (const auto &binding : bindings) {
       hashCombine(hash, set, binding);
+      occupiedBindings.insert(
+        {DescriptorSetIndex(set), BindingIndex{binding.binding}});
     }
     auto [_, handle] = createDescriptorSetLayout(bindings);
     descriptorSetLayouts[set] = handle;
@@ -471,7 +475,11 @@ RenderDevice::createPipelineLayout(const PipelineLayoutInfo &layoutInfo) {
 
   if (const auto it = m_pipelineLayouts.find(hash);
       it != m_pipelineLayouts.cend()) {
-    return PipelineLayout{it->second, std::move(descriptorSetLayouts)};
+    return PipelineLayout{
+      it->second,
+      std::move(descriptorSetLayouts),
+      std::move(occupiedBindings),
+    };
   }
   const VkPipelineLayoutCreateInfo createInfo{
     .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
@@ -485,7 +493,11 @@ RenderDevice::createPipelineLayout(const PipelineLayoutInfo &layoutInfo) {
     vkCreatePipelineLayout(m_logicalDevice, &createInfo, nullptr, &handle));
 
   const auto &[inserted, _] = m_pipelineLayouts.emplace(hash, handle);
-  return PipelineLayout{inserted->second, std::move(descriptorSetLayouts)};
+  return PipelineLayout{
+    inserted->second,
+    std::move(descriptorSetLayouts),
+    std::move(occupiedBindings),
+  };
 }
 
 Texture RenderDevice::createTexture2D(const Extent2D extent,
