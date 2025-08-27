@@ -39,17 +39,11 @@ namespace {
 constexpr auto kDepthFormat = rhi::PixelFormat::Depth16;
 
 [[nodiscard]] auto createDebugPipeline(rhi::RenderDevice &rd) {
-  ShaderCodeBuilder shaderCodeBuilder;
-
   // clang-format off
   return rhi::GraphicsPipeline::Builder{}
     .setColorFormats({rhi::PixelFormat::RGBA8_UNorm})
     .setInputAssembly({})
-    .addShader(rhi::ShaderType::Vertex,
-               shaderCodeBuilder.buildFromFile("FullScreenTriangle.vert"))
-    .addShader(rhi::ShaderType::Fragment,
-               shaderCodeBuilder.buildFromFile("VisualizeCascadeSplits.frag"))
-
+    .loadProgram({.moduleName = "VisualizeCascadeSplits.slang"})
     .setDepthStencil({
       .depthTest = false,
       .depthWrite = false,

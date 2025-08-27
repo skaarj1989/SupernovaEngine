@@ -13,12 +13,12 @@ struct VSOutput {
 };
 
 [shader("vertex")]
-VSOutput vertexMain(uint vertexIndex: SV_VertexID) {
+VSOutput vertexMain(uint vertexIndex: SV_VulkanVertexID) {
   VSOutput output;
-  
+
   emitVertex(vertexIndex, output.position);
   output.position = output.position.xyww;
-  
+
   const float3 P = NDCToView(output.position);
   output.eyeDirection = viewToWorld(float4(P, 0.0));
 
