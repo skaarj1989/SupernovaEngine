@@ -227,7 +227,7 @@ public:
       VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST};
 
     std::optional<SlangCompilationRequest> m_compilationRequest;
-    std::unordered_map<ShaderType, const std::string_view> m_shaderStages;
+    std::unordered_map<ShaderType, const std::string> m_shaderStages;
 
     PipelineLayout m_pipelineLayout;
 

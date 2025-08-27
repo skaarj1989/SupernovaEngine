@@ -79,7 +79,7 @@ FrameGraphResource FXAA::addPass(FrameGraph &fg,
 rhi::GraphicsPipeline
 FXAA::_createPipeline(const rhi::PixelFormat colorFormat) const {
   return createPostProcessPipelineFromFile(getRenderDevice(), colorFormat,
-                                           "FXAA.frag");
+                                           {.moduleName = "FXAA.slang"});
 }
 
 } // namespace gfx
