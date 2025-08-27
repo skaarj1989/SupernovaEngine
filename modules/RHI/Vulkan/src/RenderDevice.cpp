@@ -653,6 +653,46 @@ ComputePipeline RenderDevice::createComputePipeline(
   };
 }
 
+ComputePipeline
+RenderDevice::createComputePipeline(const SlangCompilationRequest &request) {
+  const auto data = compile(request);
+  if (!data) throw std::runtime_error{data.error()};
+
+  const auto entryPoints = queryEntryPoints(data->reflection);
+  const auto it = entryPoints.find(ShaderType::Compute);
+  if (it == entryPoints.cend())
+    throw std::runtime_error{"No compute entry point found."};
+
+  ShaderReflection reflection;
+  const auto shaderModule = createShaderModule(data->code, {*it}, &reflection);
+
+  auto pipelineLayout = reflectPipelineLayout(*this, reflection);
+  assert(pipelineLayout);
+
+  const VkComputePipelineCreateInfo createInfo{
+    .sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
+    .stage =
+      {
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+        .stage = VK_SHADER_STAGE_COMPUTE_BIT,
+        .module = VkShaderModule{shaderModule},
+        .pName = it->second.c_str(),
+      },
+    .layout = pipelineLayout.getHandle(),
+  };
+
+  VkPipeline computePipeline{VK_NULL_HANDLE};
+  VK_CHECK(vkCreateComputePipelines(m_logicalDevice, m_pipelineCache, 1,
+                                    &createInfo, nullptr, &computePipeline));
+
+  return ComputePipeline{
+    m_logicalDevice,
+    std::move(pipelineLayout),
+    reflection.localSize.value(),
+    computePipeline,
+  };
+}
+
 RenderDevice &RenderDevice::upload(Buffer &buffer, const VkDeviceSize offset,
                                    const VkDeviceSize size, const void *data) {
   assert(buffer && data);

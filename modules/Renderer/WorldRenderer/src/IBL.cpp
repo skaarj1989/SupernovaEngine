@@ -19,8 +19,8 @@ enum class Distribution : uint32_t { Lambertian = 0, GGX, Charlie };
 //
 
 IBL::IBL(rhi::RenderDevice &rd) : m_renderDevice{rd} {
-  m_brdfPipeline = rd.createComputePipeline(
-    ShaderCodeBuilder{}.buildFromFile("Utility/GenerateBRDF.comp"));
+  m_brdfPipeline =
+    rd.createComputePipeline({.moduleName = "Utility/GenerateBRDF.slang"});
 }
 
 uint32_t IBL::count(const PipelineGroups flags) const {

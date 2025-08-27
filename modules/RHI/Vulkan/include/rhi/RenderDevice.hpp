@@ -158,6 +158,9 @@ public:
   createComputePipeline(const std::string_view code,
                         std::optional<PipelineLayout> = std::nullopt);
 
+  [[nodiscard]] ComputePipeline
+  createComputePipeline(const SlangCompilationRequest &);
+
   // ---
 
   RenderDevice &upload(Buffer &, const VkDeviceSize offset,
