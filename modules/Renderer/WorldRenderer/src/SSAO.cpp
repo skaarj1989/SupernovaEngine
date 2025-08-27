@@ -15,7 +15,6 @@
 #include "FrameGraphData/SSAO.hpp"
 
 #include "RenderContext.hpp"
-#include "ShaderCodeBuilder.hpp"
 
 #include "glm/ext/vector_float3.hpp"
 #include "glm/geometric.hpp" // normalize
@@ -197,10 +196,15 @@ void SSAO::addPass(FrameGraph &fg, FrameGraphBlackboard &blackboard, Blur &blur,
 
 rhi::GraphicsPipeline
 SSAO::_createPipeline(const rhi::PixelFormat colorFormat) const {
-  return createPostProcessPipeline(getRenderDevice(), colorFormat,
-                                   ShaderCodeBuilder{}
-                                     .addDefine("KERNEL_SIZE", kKernelSize)
-                                     .buildFromFile("SSAO.frag"));
+  return createPostProcessPipelineFromFile(
+    getRenderDevice(), colorFormat,
+    rhi::SlangCompilationRequest{
+      .moduleName = "SSAO.slang",
+      .defines =
+        {
+          {"KERNEL_SIZE", std::to_string(kKernelSize)},
+        },
+    });
 }
 
 } // namespace gfx

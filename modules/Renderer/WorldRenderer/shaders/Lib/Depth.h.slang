@@ -15,11 +15,12 @@
 
 // Returns depth value in clip-space
 #if DEPTH_ZERO_TO_ONE
-#  define getDepth(s, uv) s.Sample(sampler, uv).r
-#  define fetchDepth(s, coord) s.Load(int3(coord, 0)).r
+#  define getDepth(texture, sampler, uv) texture.Sample(sampler, uv).r
+#  define fetchDepth(texture, coord) texture.Load(int3(coord, 0)).r
 #else
-#  define getDepth(s, uv) s.Sample(sampler, uv).r * 2.0 - 1.0
-#  define fetchDepth(s, coord) s.Load(int3(coord, 0)).r * 2.0 - 1.0
+#  define getDepth(texture, sampler, uv)                                       \
+    texture.Sample(sampler, uv).r * 2.0 - 1.0
+#  define fetchDepth(texture, coord) texture.Load(int3(coord, 0)).r * 2.0 - 1.0
 #endif
 
 float linearizeDepth(float n, float f, float sampledDepth) {
