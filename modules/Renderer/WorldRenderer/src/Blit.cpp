@@ -166,8 +166,6 @@ rhi::GraphicsPipeline Blit::_createPipeline(const MixPassInfo &passInfo) const {
 
 rhi::GraphicsPipeline
 Blit::_createPipeline(const MergePassInfo &passInfo) const {
-  ShaderCodeBuilder shaderCodeBuilder;
-
   return rhi::GraphicsPipeline::Builder{}
     .setColorFormats({passInfo.colorFormat})
     .setInputAssembly({})

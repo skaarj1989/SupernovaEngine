@@ -95,7 +95,7 @@ FrameGraphResource Downsampler::addPass(FrameGraph &fg,
 rhi::GraphicsPipeline
 Downsampler::_createPipeline(const rhi::PixelFormat colorFormat) const {
   return createPostProcessPipelineFromFile(getRenderDevice(), colorFormat,
-                                           "Downsample.frag");
+                                           {.moduleName = "Downsample.slang"});
 }
 
 } // namespace gfx
