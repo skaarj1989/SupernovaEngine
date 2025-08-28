@@ -202,10 +202,13 @@ FrameGraphResource EyeAdaptation::HistogramBuilder::buildHistogram(
 
 EyeAdaptation::AverageLuminance::AverageLuminance(rhi::RenderDevice &rd)
     : m_renderDevice{rd} {
-  m_pipeline = m_renderDevice.createComputePipeline(
-    ShaderCodeBuilder{}
-      .addDefine("NUM_HISTOGRAM_BINS", kNumHistogramBins)
-      .buildFromFile("AverageLuminance.comp"));
+  m_pipeline = rd.createComputePipeline({
+    .moduleName = "AverageLuminance.slang",
+    .defines =
+      {
+        {"NUM_HISTOGRAM_BINS", std::to_string(kNumHistogramBins)},
+      },
+  });
 }
 
 FrameGraphResource EyeAdaptation::AverageLuminance::calculateAverageLuminance(
