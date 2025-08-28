@@ -51,7 +51,7 @@ FrameGraphResource Blur::addTwoPassGaussianBlur(FrameGraph &fg,
 rhi::GraphicsPipeline
 Blur::_createPipeline(const rhi::PixelFormat colorFormat) const {
   return createPostProcessPipelineFromFile(getRenderDevice(), colorFormat,
-                                           "Blur.frag");
+                                           {.moduleName = "Blur.slang"});
 }
 
 FrameGraphResource Blur::_addPass(FrameGraph &fg,
