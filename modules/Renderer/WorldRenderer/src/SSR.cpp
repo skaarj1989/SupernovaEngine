@@ -89,7 +89,7 @@ FrameGraphResource SSR::addPass(FrameGraph &fg,
 rhi::GraphicsPipeline
 SSR::_createPipeline(const rhi::PixelFormat colorFormat) const {
   return createPostProcessPipelineFromFile(getRenderDevice(), colorFormat,
-                                           "SSR.frag");
+                                           {.moduleName = "SSR.slang"});
 }
 
 } // namespace gfx
