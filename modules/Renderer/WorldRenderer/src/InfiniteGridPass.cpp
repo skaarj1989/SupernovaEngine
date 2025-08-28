@@ -8,7 +8,6 @@
 #include "FrameGraphData/Camera.hpp"
 
 #include "RenderContext.hpp"
-#include "ShaderCodeBuilder.hpp"
 
 namespace std {
 
@@ -75,18 +74,12 @@ InfiniteGridPass::addPass(FrameGraph &fg,
 
 rhi::GraphicsPipeline
 InfiniteGridPass::_createPipeline(const PassInfo &passInfo) const {
-  ShaderCodeBuilder shaderCodeBuilder;
-
   return rhi::GraphicsPipeline::Builder{}
     .setDepthFormat(passInfo.depthFormat)
     .setColorFormats({passInfo.colorFormat})
     .setInputAssembly({})
     .setTopology(rhi::PrimitiveTopology::TriangleList)
-    .addShader(rhi::ShaderType::Vertex,
-               shaderCodeBuilder.buildFromFile("InfiniteGrid.vert"))
-    .addShader(rhi::ShaderType::Fragment,
-               shaderCodeBuilder.buildFromFile("InfiniteGrid.frag"))
-
+    .loadProgram({.moduleName = "InfiniteGrid.slang"})
     .setDepthStencil({
       .depthTest = true,
       .depthWrite = false,
