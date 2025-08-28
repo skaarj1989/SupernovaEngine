@@ -13,7 +13,6 @@
 #include "FrameGraphData/BrightColor.hpp"
 
 #include "RenderContext.hpp"
-#include "ShaderCodeBuilder.hpp"
 
 namespace gfx {
 
@@ -70,7 +69,7 @@ FrameGraphResource TonemapPass::addPass(FrameGraph &fg,
                            .location = {.set = 0, .binding = 2},
                            .pipelineStage = PipelineStage::FragmentShader,
                          },
-                       .type = TextureRead::Type::StorageImage,
+                       .type = TextureRead::Type::SampledImage,
                        .imageAspect = rhi::ImageAspect::Color,
                      });
       }
@@ -142,13 +141,16 @@ FrameGraphResource TonemapPass::addPass(FrameGraph &fg,
 rhi::GraphicsPipeline
 TonemapPass::_createPipeline(const rhi::PixelFormat colorFormat,
                              const bool autoExposure, const bool bloom) const {
-  ShaderCodeBuilder shaderCodeBuilder;
-  shaderCodeBuilder.addDefine<int32_t>("HAS_EYE_ADAPTATION", autoExposure)
-    .addDefine<int32_t>("HAS_BLOOM", bloom);
-
-  return createPostProcessPipeline(
+  return createPostProcessPipelineFromFile(
     getRenderDevice(), colorFormat,
-    shaderCodeBuilder.buildFromFile("TonemapPass.frag"));
+    rhi::SlangCompilationRequest{
+      .moduleName = "TonemapPass.slang",
+      .defines =
+        {
+          {"HAS_EYE_ADAPTATION", std::to_string(autoExposure)},
+          {"HAS_BLOOM", std::to_string(bloom)},
+        },
+    });
 }
 
 } // namespace gfx

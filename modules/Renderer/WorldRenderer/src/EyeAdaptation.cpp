@@ -33,7 +33,8 @@ constexpr auto kNumHistogramBins = 256u;
     rhi::Texture::Builder{}
       .setExtent({1, 1})
       .setPixelFormat(rhi::PixelFormat::R16F)
-      .setUsageFlags(rhi::ImageUsage::TransferDst | rhi::ImageUsage::Storage)
+      .setUsageFlags(rhi::ImageUsage::TransferDst | rhi::ImageUsage::Storage |
+                     rhi::ImageUsage::Sampled)
       .setupOptimalSampler(false)
       .build(rd);
 
