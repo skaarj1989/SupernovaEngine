@@ -197,7 +197,7 @@ FinalPass::_createPipeline(const rhi::PixelFormat colorFormat,
                            const Mode mode) const {
   return createPostProcessPipelineFromFile(
     getRenderDevice(), colorFormat,
-    mode == Mode::Final ? "FinalPass.frag" : "Pattern.frag");
+    {.moduleName = mode == Mode::Final ? "FinalPass.slang" : "Pattern.slang"});
 }
 
 } // namespace gfx
