@@ -8,7 +8,6 @@
 #include "renderer/FrameGraphTexture.hpp"
 
 #include "RenderContext.hpp"
-#include "ShaderCodeBuilder.hpp"
 
 namespace std {
 
@@ -161,26 +160,24 @@ FrameGraphResource Blit::merge(FrameGraph &fg, FrameGraphResource target,
 //
 
 rhi::GraphicsPipeline Blit::_createPipeline(const MixPassInfo &passInfo) const {
-  return createPostProcessPipeline(
-    getRenderDevice(), passInfo.colorFormat,
-    ShaderCodeBuilder{}.buildFromFile("Mix.frag"));
+  return createPostProcessPipelineFromFile(
+    getRenderDevice(), passInfo.colorFormat, {.moduleName = "Mix.slang"});
 }
 
 rhi::GraphicsPipeline
 Blit::_createPipeline(const MergePassInfo &passInfo) const {
   ShaderCodeBuilder shaderCodeBuilder;
 
-  // clang-format off
   return rhi::GraphicsPipeline::Builder{}
     .setColorFormats({passInfo.colorFormat})
     .setInputAssembly({})
-    .addShader(rhi::ShaderType::Vertex,
-               shaderCodeBuilder.buildFromFile("FullScreenTriangle.vert"))
-    .addShader(rhi::ShaderType::Fragment,
-               shaderCodeBuilder
-                 .addDefine("NUM_TEXTURES", passInfo.numTextures)
-                 .buildFromFile("Merge.frag"))
-
+    .loadProgram({
+      .moduleName = "Merge.slang",
+      .defines =
+        {
+          {"NUM_TEXTURES", std::to_string(passInfo.numTextures)},
+        },
+    })
     .setDepthStencil({
       .depthTest = false,
       .depthWrite = false,
@@ -189,13 +186,14 @@ Blit::_createPipeline(const MergePassInfo &passInfo) const {
       .polygonMode = rhi::PolygonMode::Fill,
       .cullMode = rhi::CullMode::Front,
     })
+    // clang-format off
     .setBlending(0, {
       .enabled = true,
       .srcColor = rhi::BlendFactor::One,
       .dstColor = rhi::BlendFactor::One,
     })
+    // clang-format on
     .build(getRenderDevice());
-  // clang-format on
 }
 
 } // namespace gfx
