@@ -126,11 +126,14 @@ void EyeAdaptation::compute(FrameGraph &fg, FrameGraphBlackboard &blackboard,
 //
 
 EyeAdaptation::HistogramBuilder::HistogramBuilder(rhi::RenderDevice &rd) {
-  m_pipeline = rd.createComputePipeline(
-    ShaderCodeBuilder{}
-      .addDefine("TILE_SIZE", kTileSize)
-      .addDefine("NUM_HISTOGRAM_BINS", kNumHistogramBins)
-      .buildFromFile("BuildHistogram.comp"));
+  m_pipeline = rd.createComputePipeline({
+    .moduleName = "BuildHistogram.slang",
+    .defines =
+      {
+        {"TILE_SIZE", std::to_string(kTileSize)},
+        {"NUM_HISTOGRAM_BINS", std::to_string(kNumHistogramBins)},
+      },
+  });
 }
 
 FrameGraphResource EyeAdaptation::HistogramBuilder::buildHistogram(
