@@ -92,7 +92,7 @@ FrameGraphResource Upsampler::addPass(FrameGraph &fg,
 rhi::GraphicsPipeline
 Upsampler::_createPipeline(const rhi::PixelFormat colorFormat) const {
   return createPostProcessPipelineFromFile(getRenderDevice(), colorFormat,
-                                           "Upsample.frag");
+                                           {.moduleName = "Upsample.slang"});
 }
 
 } // namespace gfx
