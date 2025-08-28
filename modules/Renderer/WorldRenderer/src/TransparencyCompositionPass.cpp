@@ -76,11 +76,7 @@ rhi::GraphicsPipeline TransparencyCompositionPass::_createPipeline(
   return rhi::GraphicsPipeline::Builder{}
     .setColorFormats({colorFormat})
     .setInputAssembly({})
-    .addShader(rhi::ShaderType::Vertex,
-               shaderCodeBuilder.buildFromFile("FullScreenTriangle.vert"))
-    .addShader(rhi::ShaderType::Fragment, shaderCodeBuilder.buildFromFile(
-                                            "TransparencyCompositionPass.frag"))
-
+    .loadProgram({.moduleName = "TransparencyCompositionPass.slang"})
     .setDepthStencil({
       .depthTest = false,
       .depthWrite = false,
