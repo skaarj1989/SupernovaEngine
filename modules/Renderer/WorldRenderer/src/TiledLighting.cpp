@@ -14,7 +14,6 @@
 #include "FrameGraphData/LightCulling.hpp"
 
 #include "RenderContext.hpp"
-#include "ShaderCodeBuilder.hpp"
 
 namespace gfx {
 
@@ -134,10 +133,13 @@ FrameGraphResource TiledLighting::FrustumBuilder::buildFrustums(
 
 rhi::ComputePipeline
 TiledLighting::FrustumBuilder::_createPipeline(const TileSize tileSize) const {
-  return getRenderDevice().createComputePipeline(
-    ShaderCodeBuilder{}
-      .addDefine("TILE_SIZE", tileSize)
-      .buildFromFile("LightCulling/BuildFrustums.comp"));
+  return getRenderDevice().createComputePipeline({
+    .moduleName = "LightCulling/BuildFrustums.slang",
+    .defines =
+      {
+        {"TILE_SIZE", std::to_string(tileSize)},
+      },
+  });
 }
 
 //
@@ -254,13 +256,20 @@ void TiledLighting::LightCuller::cullLights(
       auto &rc = *static_cast<RenderContext *>(ctx);
       RHI_GPU_ZONE(rc.commandBuffer, kPassName);
 
+      struct Uniforms {
+        glm::uvec2 gridSize;
+        uint32_t numLights;
+      } uniforms{
+        .gridSize = passInfo.gridSize,
+        .numLights = passInfo.numLights,
+      };
+
       const auto *pipeline = _getPipeline(passInfo.tileSize);
       if (pipeline) {
         rc.commandBuffer.bindPipeline(*pipeline);
         bindDescriptorSets(rc, *pipeline);
-        rc.commandBuffer.pushConstants(rhi::ShaderStages::Compute, 0,
-                                       &passInfo.numLights);
-        rc.commandBuffer.dispatch({passInfo.gridSize, 1u});
+        rc.commandBuffer.pushConstants(rhi::ShaderStages::Compute, 0, &uniforms)
+          .dispatch({passInfo.gridSize, 1u});
       }
       rc.resourceSet.clear();
     });
@@ -268,12 +277,15 @@ void TiledLighting::LightCuller::cullLights(
 
 rhi::ComputePipeline
 TiledLighting::LightCuller::_createPipeline(const TileSize tileSize) const {
-  return getRenderDevice().createComputePipeline(
-    ShaderCodeBuilder{}
-      .addDefine("TILE_SIZE", tileSize)
-      // 0 = Disabled, 1 = Heatmap, 2 = Depth
-      .addDefine("_DEBUG_OUTPUT", kUseDebugOutput ? 1 : 0)
-      .buildFromFile("LightCulling/CullLights.comp"));
+  return getRenderDevice().createComputePipeline({
+    .moduleName = "LightCulling/CullLights.slang",
+    .defines =
+      {
+        {"TILE_SIZE", std::to_string(tileSize)},
+        {"_DEBUG_OUTPUT", kUseDebugOutput ? "1" : "0"},
+
+      },
+  });
 }
 
 } // namespace gfx
