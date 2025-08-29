@@ -15,6 +15,7 @@
 #include "UploadInstances.hpp"
 
 #include "FrameGraphData/UserData.hpp"
+#include "FrameGraphData/Lights.hpp"
 
 #include "MaterialShader.hpp"
 #include "BatchBuilder.hpp"
@@ -77,6 +78,10 @@ std::optional<FrameGraphResource> TransmissionPass::addGeometryPass(
   LightingPassFeatures features{.softShadows = softShadows};
   getLightingPassFeatures(features, blackboard);
 
+  struct Uniforms : LightingSettings {
+    uint32_t numLights{0};
+  } uniforms{lightingSettings, blackboard.get<LightsData>().numLights};
+
   struct Data {
     FrameGraphResource output;
   };
@@ -107,9 +112,9 @@ std::optional<FrameGraphResource> TransmissionPass::addGeometryPass(
                                    });
       }
     },
-    [this, writeUserData = blackboard.has<UserData>(), lightingSettings,
-     features, batches = std::move(batches)](
-      const Data &, const FrameGraphPassResources &, void *ctx) {
+    [this, writeUserData = blackboard.has<UserData>(), uniforms, features,
+     batches = std::move(batches)](const Data &,
+                                   const FrameGraphPassResources &, void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
       auto &[cb, commonSamplers, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, kPassName);
@@ -137,7 +142,7 @@ std::optional<FrameGraphResource> TransmissionPass::addGeometryPass(
           bindBatch(rc, batch);
           cb.bindPipeline(*pipeline);
           bindDescriptorSets(rc, *pipeline);
-          cb.pushConstants(rhi::ShaderStages::Fragment, 16, &lightingSettings);
+          cb.pushConstants(rhi::ShaderStages::Fragment, 16, &uniforms);
           drawBatch(rc, batch);
         }
       }

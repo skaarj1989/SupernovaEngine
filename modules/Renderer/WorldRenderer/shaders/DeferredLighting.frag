@@ -75,6 +75,7 @@ layout(push_constant) uniform _PushConstants {
   vec4 ambientLight;
   float IBLIntensity;
   float GIIntensity;
+  uint numLights;
 }
 u_PC;
 
@@ -211,7 +212,7 @@ void main() {
   for (uint i = 0; i < lightCount; ++i) {
     const uint lightIndex = g_LightIndexList[startOffset + i].x;
 #else
-  for (uint i = 0; i < g_LightBuffer.numLights; ++i) {
+  for (uint i = 0; i < u_PC.numLights; ++i) {
     const uint lightIndex = i;
 #endif
     const Light light = g_LightBuffer.data[lightIndex];

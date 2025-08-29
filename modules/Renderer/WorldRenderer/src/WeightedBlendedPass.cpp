@@ -18,6 +18,7 @@
 #include "FrameGraphData/WeightedBlended.hpp"
 #include "FrameGraphData/SceneColor.hpp"
 #include "FrameGraphData/UserData.hpp"
+#include "FrameGraphData/Lights.hpp"
 
 #include "MaterialShader.hpp"
 #include "BatchBuilder.hpp"
@@ -86,6 +87,10 @@ void WeightedBlendedPass::addGeometryPass(
   LightingPassFeatures features{.softShadows = softShadows};
   getLightingPassFeatures(features, blackboard);
 
+  struct Uniforms : LightingSettings {
+    uint32_t numLights{0};
+  } uniforms{lightingSettings, blackboard.get<LightsData>().numLights};
+
   blackboard.add<WeightedBlendedData>() =
     fg.addCallbackPass<WeightedBlendedData>(
       kPassName,
@@ -135,10 +140,10 @@ void WeightedBlendedPass::addGeometryPass(
                                      });
         }
       },
-      [this, writeUserData = blackboard.has<UserData>(), lightingSettings,
-       features, batches = std::move(batches)](const WeightedBlendedData &,
-                                               const FrameGraphPassResources &,
-                                               void *ctx) {
+      [this, writeUserData = blackboard.has<UserData>(), uniforms, features,
+       batches = std::move(batches)](const WeightedBlendedData &,
+                                     const FrameGraphPassResources &,
+                                     void *ctx) {
         auto &rc = *static_cast<RenderContext *>(ctx);
         auto &[cb, commonSamplers, framebufferInfo, sets] = rc;
         RHI_GPU_ZONE(cb, kPassName);
@@ -166,8 +171,7 @@ void WeightedBlendedPass::addGeometryPass(
             bindBatch(rc, batch);
             cb.bindPipeline(*pipeline);
             bindDescriptorSets(rc, *pipeline);
-            cb.pushConstants(rhi::ShaderStages::Fragment, 16,
-                             &lightingSettings);
+            cb.pushConstants(rhi::ShaderStages::Fragment, 16, &uniforms);
             drawBatch(rc, batch);
           }
         }

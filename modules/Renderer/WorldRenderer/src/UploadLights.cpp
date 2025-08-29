@@ -19,9 +19,6 @@ namespace {
 
 constexpr auto kNoShadowMap = ~0;
 
-// see _LightBuffer in shaders/Lib/Light.glsl
-constexpr auto kLightDataOffset = sizeof(uint32_t) * 4;
-
 // shaders/Lib/Light.glsl
 // - Position and direction in world-space.
 // - Angles in radians.
@@ -91,32 +88,25 @@ void uploadLights(FrameGraph &fg, FrameGraphBlackboard &blackboard,
       PASS_SETUP_ZONE;
 
       constexpr auto kMinNumLights = 1024u;
-      const auto kBufferSize =
-        kLightDataOffset +
-        (sizeof(GPULight) * std::max(numLights, kMinNumLights));
       data.lights = builder.create<FrameGraphBuffer>(
-        "LightsBuffer", {
-                          .type = BufferType::StorageBuffer,
-                          .stride = sizeof(std::byte),
-                          .capacity = kBufferSize,
-                        });
+        "LightsBuffer",
+        {
+          .type = BufferType::StorageBuffer,
+          .stride = sizeof(std::byte),
+          .capacity = sizeof(GPULight) * std::max(numLights, kMinNumLights),
+        });
       data.lights = builder.write(
         data.lights, BindingInfo{.pipelineStage = PipelineStage::Transfer});
+      data.numLights = numLights;
     },
-    [visibleLights = std::move(visibleLights), indices = std::move(indices),
-     numLights](const LightsData &data, FrameGraphPassResources &resources,
-                void *ctx) {
+    [visibleLights = std::move(visibleLights), indices = std::move(indices)](
+      const LightsData &data, FrameGraphPassResources &resources, void *ctx) {
       auto &cb = static_cast<RenderContext *>(ctx)->commandBuffer;
       RHI_GPU_ZONE(cb, kPassName);
 
+      const auto gpuLights = convert(visibleLights, indices);
       auto &buffer = *resources.get<FrameGraphBuffer>(data.lights).buffer;
-
-      cb.update(buffer, 0, sizeof(uint32_t), &numLights);
-      if (numLights > 0) {
-        const auto gpuLights = convert(visibleLights, indices);
-        cb.update(buffer, kLightDataOffset, sizeof(GPULight) * numLights,
-                  gpuLights.data());
-      }
+      cb.update(buffer, 0, sizeof(GPULight) * data.numLights, gpuLights.data());
     });
 }
 

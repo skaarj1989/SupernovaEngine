@@ -58,6 +58,7 @@ void TiledLighting::cullLights(FrameGraph &fg, FrameGraphBlackboard &blackboard,
 
   const PassInfo passInfo{
     .tileSize = tileSize,
+    .numLights = blackboard.get<LightsData>().numLights,
     .numFrustums = gridSize.x * gridSize.y,
     .gridSize = gridSize,
   };
@@ -257,6 +258,8 @@ void TiledLighting::LightCuller::cullLights(
       if (pipeline) {
         rc.commandBuffer.bindPipeline(*pipeline);
         bindDescriptorSets(rc, *pipeline);
+        rc.commandBuffer.pushConstants(rhi::ShaderStages::Compute, 0,
+                                       &passInfo.numLights);
         rc.commandBuffer.dispatch({passInfo.gridSize, 1u});
       }
       rc.resourceSet.clear();

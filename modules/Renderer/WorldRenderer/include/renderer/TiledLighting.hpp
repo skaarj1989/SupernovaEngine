@@ -26,6 +26,7 @@ public:
 private:
   struct PassInfo {
     TileSize tileSize;
+    uint32_t numLights;
     uint32_t numFrustums;
     glm::uvec2 gridSize;
   };

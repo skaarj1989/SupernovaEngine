@@ -19,8 +19,6 @@ struct Light {
 
 #define _DECLARE_LIGHT_BUFFER(S, Index, Name)                                  \
   layout(set = S, binding = Index, std430) buffer readonly _LightBuffer {      \
-    uint numLights;                                                            \
-    uint _pad[3];                                                              \
     Light data[];                                                              \
   }                                                                            \
   Name

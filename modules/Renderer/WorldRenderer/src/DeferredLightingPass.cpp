@@ -47,6 +47,10 @@ FrameGraphResource DeferredLightingPass::addPass(
   };
   getLightingPassFeatures(features, blackboard);
 
+  struct Uniforms : LightingSettings {
+    uint32_t numLights{0};
+  } uniforms{lightingSettings, blackboard.get<LightsData>().numLights};
+
   struct Data {
     FrameGraphResource sceneColor;
   };
@@ -94,8 +98,8 @@ FrameGraphResource DeferredLightingPass::addPass(
                            .clearValue = ClearValue::TransparentBlack,
                          });
     },
-    [this, lightingSettings,
-     features](const Data &, const FrameGraphPassResources &, void *ctx) {
+    [this, uniforms, features](const Data &, const FrameGraphPassResources &,
+                               void *ctx) {
       auto &rc = *static_cast<RenderContext *>(ctx);
       auto &[cb, commonSamplers, framebufferInfo, sets] = rc;
       RHI_GPU_ZONE(cb, kPassName);
@@ -115,7 +119,7 @@ FrameGraphResource DeferredLightingPass::addPass(
 
         cb.bindPipeline(*pipeline);
         bindDescriptorSets(rc, *pipeline);
-        cb.pushConstants(rhi::ShaderStages::Fragment, 0, &lightingSettings)
+        cb.pushConstants(rhi::ShaderStages::Fragment, 0, &uniforms)
           .beginRendering(*framebufferInfo)
           .drawFullScreenTriangle();
         endRendering(rc);

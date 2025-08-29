@@ -6,6 +6,11 @@
 
 layout(local_size_x = TILE_SIZE, local_size_y = TILE_SIZE) in;
 
+layout(push_constant) uniform _PushConstants {
+  uint numLights;
+}
+u_PC;
+
 #include <Resources/CameraBlock.glsl>
 
 layout(set = 2, binding = 0) uniform texture2D t_SceneDepth;
@@ -119,7 +124,7 @@ void main() {
   const Plane minPlane = {vec3(0.0, 0.0, -1.0), minDepthVS};
 
   const uint kStride = TILE_SIZE * TILE_SIZE;
-  for (uint i = groupIndex; i < g_LightBuffer.numLights; i += kStride) {
+  for (uint i = groupIndex; i < u_PC.numLights; i += kStride) {
     const Light light = g_LightBuffer.data[i];
     const vec3 lightPos = (u_Camera.view * vec4(light.position.xyz, 1.0)).xyz;
     const vec3 lightDirection =
